@@ -3,7 +3,12 @@ import shutil
 
 import pytest
 
-from tools.convert_daily_whitepaper import PdfReader, convert_pdfs, _sanitize_name
+from tools.convert_daily_whitepaper import (
+    PdfReader,
+    convert_pdfs,
+    _sanitize_name,
+    verify_lfs_pdfs,
+)
 
 pytestmark = pytest.mark.skipif(
     PdfReader is None, reason="PyPDF2 not installed"
@@ -32,3 +37,10 @@ def test_skip_existing_markdown(tmp_path):
     logs = list(convert_pdfs(tmp_path))
     assert any("already converted" in msg for msg in logs)
     assert md_file.read_text() == "already here"
+
+
+def test_verify_lfs_pdfs_detects_pointer(tmp_path):
+    pointer = tmp_path / "fake.pdf"
+    pointer.write_text("version https://git-lfs.github.com/spec/v1\n")
+    with pytest.raises(FileNotFoundError):
+        verify_lfs_pdfs(tmp_path)
