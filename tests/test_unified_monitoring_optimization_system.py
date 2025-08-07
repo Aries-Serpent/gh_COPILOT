@@ -6,14 +6,27 @@ import json
 import sqlite3
 from pathlib import Path
 import pytest
+import pickle
+import sys
+from types import SimpleNamespace
 
-from quantum_algorithm_library_expansion import quantum_score_stub
+
+def _stub_score(values):
+    vals = list(values)
+    return sum(vals) / len(vals)
+
+
+sys.modules["quantum_algorithm_library_expansion"] = SimpleNamespace(
+    quantum_score_stub=_stub_score
+)
+quantum_score_stub = _stub_score
 
 from unified_monitoring_optimization_system import (
     detect_anomalies,
     push_metrics,
     auto_heal_session,
     record_quantum_score,
+    train_anomaly_model,
 )
 
 
@@ -49,7 +62,15 @@ def test_detect_anomalies_flags_and_persists_outlier(tmp_path: Path) -> None:
     ]
 
     db = tmp_path / "analytics.db"
-    anomalies = detect_anomalies(history, contamination=0.34, db_path=db)
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            "CREATE TABLE monitoring_metrics (id INTEGER PRIMARY KEY AUTOINCREMENT, metrics_json TEXT)"
+        )
+        conn.commit()
+    model = tmp_path / "model.pkl"
+    anomalies = detect_anomalies(
+        history, contamination=0.34, db_path=db, model_path=model
+    )
 
     assert len(anomalies) == 1
     anomaly = anomalies[0]
@@ -74,6 +95,36 @@ def test_detect_anomalies_flags_and_persists_outlier(tmp_path: Path) -> None:
         assert row[2] == pytest.approx(quantum_score_stub(history[-1].values()))
 
 
+def test_train_anomaly_model_persists_model(tmp_path: Path) -> None:
+    """Training should create a persisted IsolationForest model."""
+
+    db = tmp_path / "analytics.db"
+    model_path = tmp_path / "model.pkl"
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            "CREATE TABLE monitoring_metrics (id INTEGER PRIMARY KEY AUTOINCREMENT, metrics_json TEXT)"
+        )
+        for i in range(5):
+            conn.execute(
+                "INSERT INTO monitoring_metrics (metrics_json) VALUES (?)",
+                (json.dumps({"cpu": float(i), "mem": float(i + 1)}),),
+            )
+        conn.commit()
+
+    version = train_anomaly_model(db_path=db, model_path=model_path)
+
+    assert version == 1
+    assert model_path.exists()
+    with open(model_path, "rb") as fh:
+        payload = pickle.load(fh)
+        assert "model" in payload and "keys" in payload
+    with sqlite3.connect(db) as conn:
+        row = conn.execute(
+            "SELECT model_path, row_count FROM anomaly_model_metadata ORDER BY version DESC LIMIT 1"
+        ).fetchone()
+    assert row == (str(model_path), 5)
+
+
 def test_auto_heal_session_restarts_on_anomaly(tmp_path: Path) -> None:
     """Anomalies should trigger a restart via the session manager."""
 
@@ -96,7 +147,15 @@ def test_auto_heal_session_restarts_on_anomaly(tmp_path: Path) -> None:
 
     mgr = DummyManager()
     db = tmp_path / "analytics.db"
-    anomalies = detect_anomalies(history, contamination=0.34, db_path=db)
+    model = tmp_path / "model.pkl"
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            "CREATE TABLE monitoring_metrics (id INTEGER PRIMARY KEY AUTOINCREMENT, metrics_json TEXT)"
+        )
+        conn.commit()
+    anomalies = detect_anomalies(
+        history, contamination=0.34, db_path=db, model_path=model
+    )
     restarted = auto_heal_session(
         anomalies=anomalies, manager=mgr, db_path=db
     )

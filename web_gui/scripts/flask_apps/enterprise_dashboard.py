@@ -371,6 +371,19 @@ def correction_history() -> Any:
     return jsonify(_fetch_correction_history())
 
 
+@app.get("/corrections")
+def corrections() -> Any:
+    """Render correction history using an HTML template."""
+    history = _fetch_correction_history()
+    return render_template("corrections.html", corrections=history)
+
+
+@app.get("/dashboard/corrections")
+def dashboard_corrections() -> Any:
+    """Alias route for the corrections page."""
+    return corrections()
+
+
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
     elapsed = time.time() - start_time
     if current_progress > 0:

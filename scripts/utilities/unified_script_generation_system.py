@@ -136,6 +136,10 @@ class EnterpriseUtility:
         for label, path in zip(labels, valid_paths):
             clusters[int(label)].append(path)
 
+        # remove redundant templates via cleanup system
+        cleanup = UnifiedLegacyCleanupSystem(self.workspace_path)
+        clusters = cleanup.remove_redundant_templates(clusters)
+
         cluster_file = self.workspace_path / "cluster_output.json"
         cluster_file.write_text(
             json.dumps({k: [str(p) for p in v] for k, v in clusters.items()}, indent=2),

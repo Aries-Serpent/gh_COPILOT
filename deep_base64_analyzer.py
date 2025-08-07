@@ -5,12 +5,9 @@ Performs deep analysis of base64 content including hex dump and structure analys
 """
 
 import base64
-import zipfile
-import os
-import tempfile
-from pathlib import Path
-from datetime import datetime
 import struct
+from datetime import datetime
+from pathlib import Path
 
 def hex_dump(data: bytes, start_offset: int = 0, max_lines: int = 20) -> str:
     """Create a hex dump of binary data"""
@@ -114,8 +111,8 @@ def extract_files_manually(data: bytes, analysis: dict) -> dict:
                     try:
                         decompressed = zlib.decompress(compressed_data, -15)  # Raw deflate
                         print(f"   ✅ Decompressed {len(compressed_data)} -> {len(decompressed)} bytes")
-                    except:
-                        print(f"   ⚠️ Decompression failed, saving raw data")
+                    except Exception:
+                        print("   ⚠️ Decompression failed, saving raw data")
                         decompressed = compressed_data
                 elif entry['method'] == 0:  # STORED (no compression)
                     decompressed = compressed_data

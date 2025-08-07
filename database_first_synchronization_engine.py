@@ -1,22 +1,27 @@
 """Bidirectional database synchronization utilities.
 
-This module provides two main classes:
+This module provides three main classes:
 
 ``SchemaMapper``
     Ensures tables present in one database exist in the other.
 
 ``SyncManager``
     Performs bidirectional synchronization using explicit transactions and
-    pluggable conflict-resolution callbacks.  Each call to :meth:`SyncManager.sync`
-    records an event in ``analytics.db`` under the ``synchronization_events``
-    table.
+    pluggable conflict-resolution policies. Synchronization results and
+    conflicts are recorded in ``analytics.db``.
+
+``SyncWatcher``
+    Observes one or more database pairs and triggers :meth:`SyncManager.sync`
+    when changes are detected.
 """
 
 from __future__ import annotations
 
 import sqlite3
+import threading
+import time
 from pathlib import Path
-from typing import Callable, Dict, Any, List
+from typing import Any, Callable, Dict, List
 
 
 class SchemaMapper:
@@ -32,6 +37,36 @@ class SchemaMapper:
             ).fetchone()
             if not exists:
                 target.execute(sql)
+
+
+class ConflictPolicy:
+    """Base class for conflict resolution policies."""
+
+    def resolve(self, table: str, row_a: Dict[str, Any], row_b: Dict[str, Any]) -> Dict[str, Any]:  # pragma: no cover - interface
+        raise NotImplementedError
+
+
+class ResolverPolicy(ConflictPolicy):
+    """Wrap a simple resolver callable into a :class:`ConflictPolicy`."""
+
+    def __init__(self, resolver: Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]]) -> None:
+        self._resolver = resolver
+
+    def resolve(self, table: str, row_a: Dict[str, Any], row_b: Dict[str, Any]) -> Dict[str, Any]:
+        return self._resolver(table, row_a, row_b)
+
+
+class TimestampConflictPolicy(ConflictPolicy):
+    """Choose the row with the newest timestamp."""
+
+    def resolve(self, table: str, row_a: Dict[str, Any], row_b: Dict[str, Any]) -> Dict[str, Any]:
+        ts_a = row_a.get("updated_at") or row_a.get("modified_at") or 0
+        ts_b = row_b.get("updated_at") or row_b.get("modified_at") or 0
+        return row_a if ts_a >= ts_b else row_b
+
+
+class LastWriteWinsPolicy(TimestampConflictPolicy):
+    """Resolve conflicts by keeping the row with the latest timestamp."""
 
 
 class SyncManager:
@@ -50,18 +85,32 @@ class SyncManager:
         self,
         db_a: Path | str,
         db_b: Path | str,
+        *,
         resolver: Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | None = None,
+        policy: ConflictPolicy | None = None,
+        resolver_registry: Dict[
+            str, Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | ConflictPolicy
+        ] | None = None,
     ) -> None:
         """Bidirectionally synchronize ``db_a`` and ``db_b``.
 
-        ``resolver`` is invoked when a row exists in both databases with the same
-        primary key but differing content.  It receives ``(table, row_a, row_b)``
-        and must return the row that should be kept.
+        ``resolver`` is deprecated; pass ``policy`` instead.  The conflict policy
+        resolves differing rows deterministically and triggers conflict logging.
         """
 
         db_a = Path(db_a)
         db_b = Path(db_b)
-        resolver = resolver or self._default_resolver
+
+        if isinstance(policy, str):
+            key = policy.lower()
+            if key in {"last-write-wins", "timestamp"}:
+                policy = LastWriteWinsPolicy()
+            else:
+                raise ValueError(f"Unknown conflict policy: {policy}")
+
+        if policy is None:
+            resolver = resolver or self._default_resolver
+            policy = ResolverPolicy(resolver)
 
         with sqlite3.connect(db_a) as conn_a, sqlite3.connect(db_b) as conn_b:
             conn_a.row_factory = sqlite3.Row
@@ -79,6 +128,14 @@ class SyncManager:
                 for table in tables:
                     rows_a = {row["id"]: dict(row) for row in conn_a.execute(f"SELECT * FROM {table}")}
                     rows_b = {row["id"]: dict(row) for row in conn_b.execute(f"SELECT * FROM {table}")}
+                    table_policy: ConflictPolicy = policy
+                    if resolver_registry and table in resolver_registry:
+                        custom = resolver_registry[table]
+                        table_policy = (
+                            custom
+                            if isinstance(custom, ConflictPolicy)
+                            else ResolverPolicy(custom)
+                        )
 
                     for pk in rows_a.keys() | rows_b.keys():
                         in_a = pk in rows_a
@@ -87,7 +144,9 @@ class SyncManager:
                             row = rows_a[pk]
                             other = rows_b[pk]
                             if row != other:
-                                merged = resolver(table, row, other)
+                                merged = table_policy.resolve(table, row, other)
+                                decision = "a" if merged == row else "b"
+                                self._log_conflict(db_a, db_b, table, pk, decision)
                                 self._upsert(conn_a, table, merged)
                                 self._upsert(conn_b, table, merged)
                         elif in_a:
@@ -100,10 +159,49 @@ class SyncManager:
             except Exception:
                 conn_a.rollback()
                 conn_b.rollback()
-                self._log_event(db_a, db_b, "sync_failed")
+                self._log_event(db_a, db_b, "sync", "failure")
                 raise
             else:
-                self._log_event(db_a, db_b, "sync")
+                self._log_event(db_a, db_b, "sync", "success")
+
+    def watch(
+        self,
+        db_a: Path | str,
+        db_b: Path | str,
+        *,
+        interval: float = 1.0,
+        stop_event: threading.Event | None = None,
+        resolver: Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | None = None,
+        policy: ConflictPolicy | None = None,
+        resolver_registry: Dict[
+            str, Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | ConflictPolicy
+        ] | None = None,
+    ) -> None:
+        """Watch databases for changes and synchronize on modification."""
+
+        db_a = Path(db_a)
+        db_b = Path(db_b)
+        stop_event = stop_event or threading.Event()
+        last_a = db_a.stat().st_mtime if db_a.exists() else 0
+        last_b = db_b.stat().st_mtime if db_b.exists() else 0
+
+        while not stop_event.is_set():
+            try:
+                mt_a = db_a.stat().st_mtime if db_a.exists() else 0
+                mt_b = db_b.stat().st_mtime if db_b.exists() else 0
+                if mt_a != last_a or mt_b != last_b:
+                    self.sync(
+                        db_a,
+                        db_b,
+                        resolver=resolver,
+                        policy=policy,
+                        resolver_registry=resolver_registry,
+                    )
+                    last_a, last_b = mt_a, mt_b
+            except Exception:
+                # Errors logged in :meth:`sync` ensure monitoring.
+                pass
+            time.sleep(interval)
 
     @staticmethod
     def _upsert(conn: sqlite3.Connection, table: str, row: Dict[str, Any]) -> None:
@@ -120,7 +218,8 @@ class SyncManager:
         ts_b = row_b.get("updated_at") or row_b.get("modified_at") or 0
         return row_a if ts_a >= ts_b else row_b
 
-    def _log_event(self, db_a: Path, db_b: Path, action: str) -> None:
+    
+    def _log_event(self, db_a: Path, db_b: Path, action: str, status: str) -> None:
         self.analytics_db.parent.mkdir(parents=True, exist_ok=True)
         with sqlite3.connect(self.analytics_db) as conn:
             conn.execute(
@@ -130,17 +229,67 @@ class SyncManager:
                     source_db TEXT NOT NULL,
                     target_db TEXT NOT NULL,
                     action TEXT NOT NULL,
+                    status TEXT NOT NULL,
                     timestamp INTEGER NOT NULL
                 )
-                """
+                """,
             )
             conn.execute(
-                "INSERT INTO synchronization_events (source_db, target_db, action, timestamp)"
-                " VALUES (?, ?, ?, strftime('%s','now'))",
-                (str(db_a), str(db_b), action),
+                "INSERT INTO synchronization_events (source_db, target_db, action, status, timestamp)"
+                " VALUES (?, ?, ?, ?, strftime('%s','now'))",
+                (str(db_a), str(db_b), action, status),
             )
             conn.commit()
 
+    def _log_conflict(self, db_a: Path, db_b: Path, table: str, row_id: Any, decision: str) -> None:
+        self.analytics_db.parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(self.analytics_db) as conn:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS synchronization_conflicts (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    source_db TEXT NOT NULL,
+                    target_db TEXT NOT NULL,
+                    table_name TEXT NOT NULL,
+                    row_id INTEGER NOT NULL,
+                    decision TEXT NOT NULL,
+                    timestamp INTEGER NOT NULL
+                )
+                """,
+            )
+            conn.execute(
+                "INSERT INTO synchronization_conflicts (source_db, target_db, table_name, row_id, decision, timestamp)"
+                " VALUES (?, ?, ?, ?, ?, strftime('%s','now'))",
+                (str(db_a), str(db_b), table, int(row_id), decision),
+            )
+            conn.commit()
+
+
+def watch_and_sync(
+    db_a: Path | str,
+    db_b: Path | str,
+    *,
+    interval: float = 1.0,
+    stop_event: threading.Event | None = None,
+    manager: SyncManager | None = None,
+    resolver: Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | None = None,
+    policy: ConflictPolicy | None = None,
+    resolver_registry: Dict[
+        str, Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | ConflictPolicy
+    ] | None = None,
+) -> None:
+    """Watch two databases for changes and synchronize automatically."""
+
+    manager = manager or SyncManager()
+    manager.watch(
+        db_a,
+        db_b,
+        interval=interval,
+        stop_event=stop_event,
+        resolver=resolver,
+        policy=policy,
+        resolver_registry=resolver_registry,
+    )
 
 def list_events(analytics_db: Path | str, limit: int = 10) -> List[Dict[str, Any]]:
     """Return recent synchronization events from ``analytics.db``."""
@@ -150,7 +299,7 @@ def list_events(analytics_db: Path | str, limit: int = 10) -> List[Dict[str, Any
         return events
     with sqlite3.connect(db_path) as conn:
         cur = conn.execute(
-            "SELECT timestamp, source_db, target_db, action FROM synchronization_events ORDER BY timestamp DESC LIMIT ?",
+            "SELECT timestamp, source_db, target_db, action, status FROM synchronization_events ORDER BY timestamp DESC LIMIT ?",
             (limit,),
         )
         events = [
@@ -159,10 +308,11 @@ def list_events(analytics_db: Path | str, limit: int = 10) -> List[Dict[str, Any
                 "source_db": row[1],
                 "target_db": row[2],
                 "action": row[3],
+                "status": row[4],
             }
             for row in cur.fetchall()
         ]
     return events
 
 
-__all__ = ["SchemaMapper", "SyncManager", "list_events"]
+__all__ = ["SchemaMapper", "SyncManager", "list_events", "watch_and_sync"]

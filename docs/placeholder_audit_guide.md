@@ -42,7 +42,7 @@ Unresolved placeholders are recorded in `analytics.db` under the
 The dashboard exposes audit findings via the `/placeholder-audit` route:
 
 ```bash
-python -m web_gui.dashboard_actionable_gui
+python -m dashboard.integrated_dashboard
 ```
 
 Then visit `http://localhost:5000/placeholder-audit` to fetch the latest
