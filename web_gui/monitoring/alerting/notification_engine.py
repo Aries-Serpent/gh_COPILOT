@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
-__all__ = ["send_notification", "route_to_dashboard"]
+from typing import List
+
+NOTIFICATION_LOG: List[str] = []
+
+__all__ = ["send_notification", "route_to_dashboard", "NOTIFICATION_LOG"]
 
 
 def send_notification(message: str) -> None:
