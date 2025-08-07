@@ -181,8 +181,8 @@ class FileRenamer:
 
 def main():
     """🎯 Main execution function"""
-    # Target directory
-    target_directory = r"E:\gh_COPILOT\documentation\generated\daily_state_update"
+    # Target directory relative to this script
+    target_directory = Path(__file__).resolve().parent / 'documentation/generated/daily_state_update'
     
     # Create renamer and execute
     renamer = FileRenamer(target_directory)
