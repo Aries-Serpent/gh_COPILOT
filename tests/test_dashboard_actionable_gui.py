@@ -27,6 +27,7 @@ def test_dashboard_endpoints(tmp_path, monkeypatch):
     assert client.get("/").status_code == 200
     assert client.get("/metrics").status_code == 200
     assert client.get("/corrections").status_code == 200
+    assert client.get("/corrections/view").status_code == 200
     assert client.get("/compliance").status_code == 200
     resp = client.post("/rollback", json={"target": str(tmp_path / "file.txt")})
     assert resp.status_code == 200

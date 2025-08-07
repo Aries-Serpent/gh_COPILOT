@@ -1,0 +1,22 @@
+# Daily State Update
+
+This directory holds generated daily state update reports and related artifacts.
+
+## Verification steps
+
+The following steps were performed to ensure the latest artifacts are available:
+
+1. `git lfs fetch -I documentation/generated/daily_state_update`
+2. `git lfs checkout documentation/generated/daily_state_update`
+3. Confirmed `gh_COPILOT_Project_White‑Paper_Blueprint_(2025-08-06).pdf` is a PDF via `file`.
+
+## Generating new reports
+
+Run `python rename_files_with_spaces.py` after adding a new daily PDF. The script:
+
+1. Renames any files with spaces to use underscores.
+2. Converts each PDF to a Markdown file using `tools/convert_daily_whitepaper.py`.
+3. Updates `documentation/generated/daily_state_index.md` so both formats are linked.
+
+CI includes a regression check to ensure the most recent date has both `.pdf` and `.md` files.
+

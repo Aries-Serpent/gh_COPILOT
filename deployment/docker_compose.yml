@@ -1,0 +1,21 @@
+# Docker Compose configuration for web GUI and quantum modules
+version: "3"  # Compose file format version
+services:
+  web:
+    build: ..  # Build the container image from the project root
+    command: gunicorn app:app -c deployment/gunicorn_config.py  # Start Gunicorn with custom config
+    volumes:
+      - ..:/app                         # Mount application source
+      - ../quantum:/app/quantum:ro      # Read-only quantum module
+    ports:
+      - "8000:8000"                    # Expose container port 8000 on host 8000
+    environment:
+      QUANTUM_ENABLED: "true"          # Enable quantum features in app
+  nginx:
+    image: nginx:1.25-alpine            # Lightweight Nginx image
+    volumes:
+      - ./nginx_config.conf:/etc/nginx/conf.d/default.conf:ro  # Inject custom config
+    ports:
+      - "80:80"                        # Expose HTTP on port 80
+    depends_on:
+      - web                             # Ensure web service starts first

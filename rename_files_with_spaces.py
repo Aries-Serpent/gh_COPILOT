@@ -6,6 +6,7 @@ Systematically rename all files in a directory to replace spaces with underscore
 
 from pathlib import Path
 from datetime import datetime
+from typing import Union
 import logging
 
 # Configure logging
@@ -17,8 +18,9 @@ logger = logging.getLogger(__name__)
 
 class FileRenamer:
     """🔧 Professional file renaming with space-to-underscore conversion"""
-    
-    def __init__(self, target_directory: str):
+
+    def __init__(self, target_directory: Union[str, Path]):
+        """Initialize renamer with directory to process."""
         self.target_directory = Path(target_directory)
         self.renamed_files = []
         self.skipped_files = []
@@ -134,7 +136,19 @@ class FileRenamer:
         # Generate and return summary
         summary = self.generate_summary()
         self.log_summary(summary)
-        
+
+        try:
+            from tools.convert_daily_whitepaper import convert_pdfs
+            from scripts.documentation.update_daily_state_index import update_index
+
+            for message in convert_pdfs(self.target_directory):
+                logger.info(message)
+            index_path = self.target_directory.parent / "daily_state_index.md"
+            update_index(source_dir=self.target_directory, index_path=index_path)
+        except Exception as e:  # noqa: BLE001
+            logger.error(f"❌ Conversion step failed: {e}")
+            self.errors.append(f"Conversion error: {e}")
+
         return summary
     
     def generate_summary(self) -> dict:
@@ -179,15 +193,15 @@ class FileRenamer:
         
         logger.info("="*60)
 
-def main():
+def main() -> dict:
     """🎯 Main execution function"""
-    # Target directory
-    target_directory = r"E:\gh_COPILOT\documentation\generated\daily_state_update"
+    # Target directory relative to this script
+    target_directory = Path(__file__).resolve().parent / 'documentation/generated/daily_state_update'
     
     # Create renamer and execute
     renamer = FileRenamer(target_directory)
     summary = renamer.rename_all_files()
-    
+
     # Return summary for potential further processing
     return summary
 

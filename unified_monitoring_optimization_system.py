@@ -17,6 +17,7 @@ import pickle
 import sqlite3
 import time
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, TYPE_CHECKING
 
@@ -56,6 +57,7 @@ __all__ = [
     "push_metrics",
     "train_anomaly_model",
     "detect_anomalies",
+    "get_anomaly_summary",
     "QuantumInterface",
     "auto_heal_session",
     "anomaly_detection_loop",
@@ -212,23 +214,27 @@ def train_anomaly_model(
     db_path: Optional[Path] = None,
     model_path: Optional[Path] = None,
     contamination: float = 0.1,
+    limit: int = 100,
 ) -> Optional[int]:
     """Fit an :class:`IsolationForest` using historical metrics.
 
     Metrics are read from the ``monitoring_metrics`` table in ``analytics.db``.
-    The fitted model along with the feature ordering is persisted to
-    ``model_path`` and a training record is logged to ``anomaly_model_metadata``
-    for dashboard visibility.
+    The fitted model along with the feature ordering is persisted to the
+    ``anomaly_models`` table and optionally to ``model_path`` for backwards
+    compatibility.
 
     Parameters
     ----------
     db_path:
         Optional path to the analytics database. Defaults to :data:`DB_PATH`.
     model_path:
-        Optional path where the trained model is persisted. Defaults to
-        :data:`MODEL_PATH`.
+        Optional path where the trained model is also persisted as a pickle
+        file. Defaults to :data:`MODEL_PATH`.
     contamination:
         Proportion of outliers expected in the historical data.
+    limit:
+        Maximum number of recent metric rows used for training. Older entries
+        are ignored.
 
     Returns
     -------
@@ -243,41 +249,46 @@ def train_anomaly_model(
     with sqlite3.connect(db_file) as conn:
         try:
             rows = conn.execute(
-                "SELECT metrics_json FROM monitoring_metrics ORDER BY id"
+                "SELECT metrics_json FROM monitoring_metrics ORDER BY id DESC LIMIT ?",
+                (limit,),
             ).fetchall()
         except sqlite3.Error:
             return None
     if not rows:
         return None
 
-    metrics_list = [json.loads(row[0]) for row in rows]
+    # restore chronological order
+    metrics_list = [json.loads(row[0]) for row in reversed(rows)]
     keys = sorted(metrics_list[0])
     data = [[m[k] for k in keys] for m in metrics_list]
     model = _train_isolation_forest(data, contamination=contamination)
 
+    payload = {"model": model, "keys": keys}
+
     model_file.parent.mkdir(parents=True, exist_ok=True)
     with open(model_file, "wb") as fh:
-        pickle.dump({"model": model, "keys": keys}, fh)
+        pickle.dump(payload, fh)
 
+    blob = pickle.dumps(payload)
     with sqlite3.connect(db_file) as conn:
         conn.execute(
             """
-            CREATE TABLE IF NOT EXISTS anomaly_model_metadata (
+            CREATE TABLE IF NOT EXISTS anomaly_models (
                 version INTEGER PRIMARY KEY AUTOINCREMENT,
                 trained_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                model_path TEXT NOT NULL,
+                model BLOB NOT NULL,
                 contamination REAL NOT NULL,
                 row_count INTEGER NOT NULL
             )
             """
         )
         conn.execute(
-            "INSERT INTO anomaly_model_metadata (model_path, contamination, row_count) VALUES (?, ?, ?)",
-            (str(model_file), contamination, len(data)),
+            "INSERT INTO anomaly_models (model, contamination, row_count) VALUES (?, ?, ?)",
+            (blob, contamination, len(data)),
         )
         conn.commit()
         version = conn.execute(
-            "SELECT MAX(version) FROM anomaly_model_metadata"
+            "SELECT MAX(version) FROM anomaly_models"
         ).fetchone()[0]
     return int(version)
 
@@ -309,13 +320,13 @@ def detect_anomalies(
 ) -> List[Dict[str, float]]:
     """Identify anomalous metric entries and persist results.
 
-    The function loads a persisted :class:`IsolationForest` model, training it
-    periodically from historical data stored in ``analytics.db``. It then
-    computes anomaly scores for ``history`` using this model. When the optional
-    :func:`quantum_score_stub` is available a composite health metric is
-    produced by averaging the anomaly score with the quantum score. All
-    detected anomalies are stored in ``analytics.db`` for dashboard
-    consumption.
+    The function loads a persisted :class:`IsolationForest` model from
+    ``analytics.db``, training it periodically from recent historical metrics
+    stored in ``analytics.db``. It then computes anomaly scores for ``history``
+    using this model. When the optional :func:`quantum_score_stub` is available
+    a composite health metric is produced by averaging the anomaly score with
+    the quantum score. All detected anomalies are stored in ``analytics.db``
+    for dashboard consumption.
 
     Parameters
     ----------
@@ -347,18 +358,28 @@ def detect_anomalies(
     db_file = db_path or DB_PATH
     model_file = model_path or MODEL_PATH
 
-    needs_train = True
-    if model_file.exists():
-        age = time.time() - model_file.stat().st_mtime
-        needs_train = age > retrain_interval
-    if needs_train:
+    payload = None
+    with sqlite3.connect(db_file) as conn:
+        row = conn.execute(
+            "SELECT trained_at, model FROM anomaly_models ORDER BY version DESC LIMIT 1"
+        ).fetchone()
+    if row:
+        trained_at = datetime.fromisoformat(row[0])
+        age = time.time() - trained_at.timestamp()
+        if age > retrain_interval:
+            row = None
+    if row is None:
         train_anomaly_model(
             db_path=db_file, model_path=model_file, contamination=contamination
         )
+        with sqlite3.connect(db_file) as conn:
+            row = conn.execute(
+                "SELECT trained_at, model FROM anomaly_models ORDER BY version DESC LIMIT 1"
+            ).fetchone()
+    if row:
+        payload = pickle.loads(row[1])
 
-    if model_file.exists():
-        with open(model_file, "rb") as fh:
-            payload = pickle.load(fh)
+    if payload is not None:
         model = payload["model"]
         keys = payload["keys"]
         data = [[m.get(k, 0.0) for k in keys] for m in history_list]
@@ -404,6 +425,37 @@ def detect_anomalies(
         conn.commit()
 
     return anomalies
+
+
+def get_anomaly_summary(
+    *, limit: int = 10, db_path: Optional[Path] = None
+) -> List[Dict[str, float]]:
+    """Return recent anomaly scores from ``analytics.db``.
+
+    Parameters
+    ----------
+    limit:
+        Maximum number of recent anomaly rows to return.
+    db_path:
+        Optional path to the analytics database. Defaults to :data:`DB_PATH`.
+
+    Returns
+    -------
+    list of dict
+        Each entry contains ``timestamp`` and ``anomaly_score``.
+    """
+
+    db_file = db_path or DB_PATH
+    if not db_file.exists():
+        return []
+    with sqlite3.connect(db_file) as conn:
+        rows = conn.execute(
+            "SELECT timestamp, anomaly_score FROM anomaly_results ORDER BY id DESC LIMIT ?",
+            (limit,),
+        ).fetchall()
+    return [
+        {"timestamp": row[0], "anomaly_score": float(row[1])} for row in rows
+    ]
 
 
 def record_quantum_score(

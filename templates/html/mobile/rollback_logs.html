@@ -1,0 +1,13 @@
+{% extends 'html/mobile/base_enterprise.html' %}
+
+{% block title %}Rollback Logs{% endblock %}
+
+{% block content %}
+<h1>Rollback Logs</h1>
+<ul>
+    {% for log in logs %}
+    <li>{{ log }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
+

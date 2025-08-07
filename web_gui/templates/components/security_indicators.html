@@ -1,0 +1,8 @@
+<div class="security-indicators">
+  {% for indicator in indicators %}
+    <div class="indicator">
+      <span class="name">{{ indicator.name }}</span>:
+      <span class="status">{{ indicator.status }}</span>
+    </div>
+  {% endfor %}
+</div>

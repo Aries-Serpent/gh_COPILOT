@@ -1,0 +1,14 @@
+from quantum.quantum_integration_orchestrator import QuantumIntegrationOrchestrator
+
+
+def test_orchestrator_lists_algorithms() -> None:
+    """QuantumIntegrationOrchestrator should return a list of algorithms."""
+    orchestrator = QuantumIntegrationOrchestrator()
+    assert isinstance(orchestrator.available_algorithms(), list)
+
+
+def test_execution_summary_is_dict() -> None:
+    """Execution summary should return a dictionary."""
+    orchestrator = QuantumIntegrationOrchestrator()
+    assert isinstance(orchestrator.execution_summary(), dict)
+

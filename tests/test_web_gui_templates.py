@@ -7,6 +7,9 @@ TEMPLATES = [
     "database.html",
     "deployment.html",
     "migration.html",
+    "html/quantum_dashboard.html",
+    "html/mobile/dashboard.html",
+    "html/mobile/compliance_metrics.html",
 ]
 
 
@@ -15,7 +18,33 @@ def test_templates_include_progress_and_compliance(template, monkeypatch, tmp_pa
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     from web_gui.scripts.flask_apps.enterprise_dashboard import app
 
-    with app.app_context():
+    with app.test_request_context('/'):
         html = render_template(template, metrics={}, compliance={})
     assert 'id="progress"' in html
     assert "/dashboard/compliance" in html
+
+
+def test_dashboard_includes_js_module(monkeypatch, tmp_path):
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    from web_gui.scripts.flask_apps.enterprise_dashboard import app
+
+    with app.test_request_context('/'):
+        html = render_template("dashboard.html", metrics={}, compliance={})
+    assert "js/dashboard_intelligence.js" in html
+
+
+@pytest.mark.parametrize(
+    "template",
+    [
+        "html/quantum_dashboard.html",
+        "html/mobile/dashboard.html",
+        "html/mobile/compliance_metrics.html",
+    ],
+)
+def test_templates_are_responsive(template, monkeypatch, tmp_path):
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    from web_gui.scripts.flask_apps.enterprise_dashboard import app
+
+    with app.test_request_context('/'):
+        html = render_template(template, metrics={}, compliance={})
+    assert '<meta name="viewport"' in html

@@ -1,0 +1,21 @@
+{% extends "html/base_enterprise.html" %}
+
+{% block title %}Quantum Dashboard{% endblock %}
+
+{% block head_extra %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/quantum_interface.css') }}">
+{% endblock %}
+
+{% block enterprise_content %}
+<div class="container-fluid">
+  <h1 class="h4">Quantum Metrics Dashboard</h1>
+  <div id="progress"></div>
+  <ul class="list-unstyled">
+    <li>Quantum Efficiency: {{ metrics.quantum_efficiency }}</li>
+    <li>Qubit Utilization: {{ metrics.qubit_utilization }}</li>
+    <li>Entanglement Fidelity: {{ metrics.entanglement_fidelity }}</li>
+  </ul>
+  <a class="btn btn-primary btn-sm" href="/dashboard/compliance">Compliance Metrics</a>
+</div>
+{% endblock %}
+

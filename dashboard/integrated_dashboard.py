@@ -25,6 +25,8 @@ from enterprise_modules.compliance import (
     get_latest_compliance_score,
 )
 from utils.validation_utils import calculate_composite_compliance_score
+from web_gui import middleware, security
+from web_gui.certificates import init_app as init_certificates
 
 # Paths and database locations
 METRICS_FILE = Path(__file__).with_name("metrics.json")
@@ -204,6 +206,8 @@ def index() -> str:
         "dashboard.html",
         metrics=_load_metrics(),
         rollbacks=get_rollback_logs(),
+        sync_events=_load_sync_events(),
+        audit_results=_load_audit_results(),
     )
 
 
@@ -246,6 +250,13 @@ def sync_events() -> Any:
 @_dashboard.get("/corrections")
 def get_corrections() -> Any:
     return jsonify(_load_corrections())
+
+
+@_dashboard.get("/corrections/view")
+def corrections_view() -> Any:
+    """Render correction history using HTML template."""
+    data = _load_corrections()
+    return render_template("corrections.html", corrections=data.get("corrections", []))
 
 
 @_dashboard.get("/compliance")
@@ -306,7 +317,7 @@ def metrics_view() -> str:
 
 @_dashboard.get("/rollback-logs/view")
 def rollback_logs_view() -> str:
-    return render_template("rollback_logs.html", logs=get_rollback_logs())
+    return render_template("html/rollback_logs.html", logs=get_rollback_logs())
 
 
 @_dashboard.get("/audit-results/view")
@@ -326,15 +337,27 @@ def dashboard_compliance() -> Any:
 
 @_dashboard.get("/dashboard/rollback")
 def dashboard_rollback() -> str:
-    return render_template("rollback_logs.html", logs=get_rollback_logs())
+    return render_template("html/rollback_logs.html", logs=get_rollback_logs())
 
 
-def create_app() -> Flask:
+def create_app(config: dict | None = None) -> Flask:
     app = Flask(
         __name__,
         template_folder=str(Path(__file__).parent / "templates"),
         static_folder=str(Path(__file__).parent / "static"),
     )
+    app.jinja_loader.searchpath.append(
+        str(Path(__file__).resolve().parents[1] / "web_gui" / "templates")
+    )
+
+    if config:
+        app.config.update(config)
+
+    # Initialize subsystems
+    init_certificates(app)
+    security.init_app(app)
+    middleware.init_app(app)
+
     app.register_blueprint(_dashboard)
     return app
 
