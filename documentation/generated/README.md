@@ -68,6 +68,17 @@ python tools/convert_daily_whitepaper.py
 
 This generates Markdown copies of each PDF and skips files already converted.
 
+### 📝 Daily State Generator
+
+Generate a daily summary in both Markdown and PDF formats:
+
+```bash
+python scripts/documentation/daily_state_generator.py
+```
+
+The script writes both files to `documentation/generated/daily state update/` and
+validates their creation using the dual-copilot pattern.
+
 ### 📚 Step-by-Step Document Workflow
 
 1. **Name the file**
