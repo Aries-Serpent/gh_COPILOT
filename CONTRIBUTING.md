@@ -11,9 +11,8 @@ Thank you for considering a contribution to gh_COPILOT. Please follow these guid
 
 For daily white-paper updates, ensure the following:
 
-- [ ] PDF named `gh_COPILOT Project White‑Paper Blueprint (YYYY‑MM‑DD).pdf` placed in `documentation/generated/daily state update/`
+- [ ] PDF named `gh_COPILOT Project White‑Paper Blueprint (YYYY‑MM‑DD).pdf` placed in `documentation/generated/daily_state_update/`
 - [ ] `git lfs install` and `git lfs track "*.pdf"` executed; `.gitattributes` committed
-- [ ] `python tools/convert_daily_whitepaper.py` run to create Markdown copy
-- [ ] `documentation/generated/daily_state_index.md` updated with links to PDF and Markdown
+- [ ] `python tools/convert_daily_whitepaper.py` run to create Markdown copy and update the index
 
 See `documentation/generated/README.md` for detailed instructions.

@@ -3,11 +3,13 @@
  * Additional rules to enhance Bootstrap 5 responsive behavior.
  */
 
+/* Dashboard cards */
 .dashboard-card {
   min-height: 200px;
 }
 
 @media (min-width: 768px) {
+  /* Sidebar for medium and up */
   .dashboard-sidebar {
     position: fixed;
     height: 100%;
@@ -15,6 +17,7 @@
 }
 
 @media (max-width: 767.98px) {
+  /* Mobile sidebar and card spacing */
   .dashboard-sidebar {
     position: static;
     height: auto;
@@ -26,6 +29,7 @@
 }
 
 @media (min-width: 992px) {
+  /* Wider content area on large screens */
   .dashboard-content {
     margin-left: 250px;
   }
