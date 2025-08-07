@@ -7,7 +7,7 @@ import os
 import shutil
 from pathlib import Path
 
-from .environment_migration import SUPPORTED_DATABASES
+from .environment_migration import SUPPORTED_DATABASES, validate_database_file
 
 
 def restore_backup(name: str, backup_root: Path | None = None) -> Path:
@@ -26,6 +26,7 @@ def restore_backup(name: str, backup_root: Path | None = None) -> Path:
         raise FileNotFoundError(f"Backup not found for {name}")
 
     shutil.copy2(source, path)
+    validate_database_file(path)
     return path
 
 
