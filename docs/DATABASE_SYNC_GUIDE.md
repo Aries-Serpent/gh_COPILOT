@@ -15,6 +15,24 @@ This guide outlines recovery procedures and common failure modes for the
 5. **Resume synchronization** – once issues are resolved, run the engine again
    to bring databases back into consistency.
 
+## Real-Time Synchronization
+`SyncManager` can operate in real time through the `SyncWatcher` utility. The
+watcher observes one or more database pairs and triggers a synchronization when
+either side changes:
+
+```python
+from database_first_synchronization_engine import SyncManager, SyncWatcher
+
+manager = SyncManager()
+watcher = SyncWatcher(manager)
+watcher.watch_pairs([(db_a, db_b), (db_c, db_d)], policy="last-write-wins")
+```
+
+## Conflict Policies
+The synchronization engine supports pluggable conflict resolution. Use the
+`"last-write-wins"` policy for timestamp-based merges or supply a custom merge
+function via `ResolverPolicy` when domain-specific logic is required.
+
 ## Failure Modes
 - **Schema mismatch** – target databases missing required tables or columns.
   Update the schema mapping or migrate the databases before retrying.

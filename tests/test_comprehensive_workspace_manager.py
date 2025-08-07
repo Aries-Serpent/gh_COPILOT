@@ -50,3 +50,22 @@ def test_start_end_session_records_wrapup(tmp_path, monkeypatch):
     assert status == "COMPLETED"
     assert end_time is not None
     assert not manager.session_file.exists()
+
+
+def test_scan_zero_byte_files_uses_shared_util(monkeypatch, tmp_path):
+    """Ensure manager delegates zero-byte detection to shared utility."""
+    temp_db = copy_db(tmp_path)
+    manager = ComprehensiveWorkspaceManager(db_path=temp_db)
+
+    expected = [tmp_path / "a.txt"]
+
+    def fake_detect(path):
+        assert path == manager.workspace
+        return expected
+
+    monkeypatch.setattr(
+        "scripts.session.COMPREHENSIVE_WORKSPACE_MANAGER.detect_zero_byte_files",
+        fake_detect,
+    )
+
+    assert manager._scan_zero_byte_files() == expected

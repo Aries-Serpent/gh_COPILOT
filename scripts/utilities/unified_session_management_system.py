@@ -78,6 +78,10 @@ class UnifiedSessionManagementSystem:
         except Exception:
             self.logger.exception("Rollback failed: %s", message)
 
+    def _scan_zero_byte_files(self) -> list[Path]:
+        """Detect and remove any zero-byte files before session start."""
+        return self._cleanup_zero_byte_files()
+
     def _cleanup_zero_byte_files(self) -> list[Path]:
         from utils.validation_utils import detect_zero_byte_files
         zero_files = detect_zero_byte_files(self.workspace_root)

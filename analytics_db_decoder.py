@@ -5,12 +5,10 @@ Decodes the analytics_db_zip_base64.txt file
 """
 
 import base64
-import zipfile
 import io
-import os
 import struct
 import tempfile
-from pathlib import Path
+import zipfile
 
 def read_base64_file():
     """Read the base64 content from the analytics file"""
@@ -159,7 +157,7 @@ def analyze_raw_content(data):
         if readable_chars:
             print(f"\nReadable content preview:")
             print(readable_chars[:500])
-    except:
+    except Exception:
         pass
     
     return data
