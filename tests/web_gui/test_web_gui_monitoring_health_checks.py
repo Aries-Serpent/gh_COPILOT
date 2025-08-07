@@ -46,17 +46,27 @@ def test_check_quantum_score() -> None:
 
 def test_trigger_alert_returns_level() -> None:
     messages = []
-    level = trigger_alert("hello", "critical", messages.append)
+    routed = []
+    level = trigger_alert(
+        "hello",
+        "critical",
+        messages.append,
+        lambda lvl, msg: routed.append((lvl, msg)),
+    )
     assert level == "high"
     assert messages and messages[0].startswith("[HIGH]")
+    assert routed == [("high", "hello")]
 
 
-def test_run_all_checks_triggers_alert(monkeypatch) -> None:
-    NOTIFICATION_LOG.clear()
-    monkeypatch.setattr(
-        "web_gui.monitoring.health_checks.check_database_connection",
-        lambda db_path=None: False,
+def test_run_all_checks_alerts_on_failure() -> None:
+    messages: list[str] = []
+    routed: list[tuple[str, str]] = []
+    results = run_all_checks(
+        compliance_data={},
+        alert=True,
+        notifier=messages.append,
+        dashboard_router=lambda lvl, msg: routed.append((lvl, msg)),
     )
-    result = run_all_checks()
-    assert result["database"] is False
-    assert NOTIFICATION_LOG and NOTIFICATION_LOG[0].startswith("[MEDIUM]")
+    assert results["compliance"] is False
+    assert messages and messages[0].startswith("[HIGH]")
+    assert routed == [("high", "compliance check failed")]
