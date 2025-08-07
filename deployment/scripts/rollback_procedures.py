@@ -9,6 +9,7 @@ from pathlib import Path
 import os
 
 from .restoration_engine import restore_backup
+from .quantum_migration import migrate_quantum
 
 WORKSPACE = Path(os.environ.get("GH_COPILOT_WORKSPACE", Path(__file__).resolve().parents[2]))
 WEB_GUI_PATH = WORKSPACE / "web_gui"
@@ -17,6 +18,7 @@ WEB_GUI_PATH = WORKSPACE / "web_gui"
 def rollback() -> None:
     """Simulate rolling back the web GUI deployment."""
     restore_backup("production")
+    migrate_quantum()
     print(f"Rolling back web GUI using artifacts in {WEB_GUI_PATH}")
 
 

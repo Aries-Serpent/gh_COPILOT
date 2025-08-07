@@ -1,3 +1,4 @@
+# Docker Compose configuration for web GUI and quantum modules
 version: "3"
 services:
   web:

@@ -1,6 +1,6 @@
+# Kubernetes service exposing the web GUI
 apiVersion: v1
 kind: Service
-# Expose the web GUI within the cluster
 metadata:
   name: app-service
 spec:

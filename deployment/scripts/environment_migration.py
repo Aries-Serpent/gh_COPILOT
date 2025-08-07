@@ -26,6 +26,15 @@ SUPPORTED_DATABASES = {
 }
 
 
+def validate_database_file(path: Path) -> None:
+    """Ensure a database file exists, is not empty, and is a valid SQLite DB."""
+    if not path.exists():
+        raise FileNotFoundError(f"Database file missing: {path}")
+    if path.stat().st_size == 0 or path.stat().st_size > MAX_DB_SIZE_MB * 1024 * 1024:
+        raise ValueError(f"Database size out of bounds: {path}")
+    sqlite3.connect(path).close()
+
+
 def migrate_environment(names: Iterable[str]) -> List[str]:
     """Validate databases and simulate migration.
 
@@ -48,14 +57,9 @@ def migrate_environment(names: Iterable[str]) -> List[str]:
         path = SUPPORTED_DATABASES.get(name)
         if path is None:
             raise ValueError(f"Unsupported database: {name}")
-        if not Path(path).exists():
-            raise FileNotFoundError(f"Database file missing: {path}")
-        if Path(path).stat().st_size > MAX_DB_SIZE_MB * 1024 * 1024:
-            raise ValueError(f"Database exceeds {MAX_DB_SIZE_MB} MB: {path}")
-        # Database-first validation – simply open and close the file
-        sqlite3.connect(path).close()
+        validate_database_file(Path(path))
         processed.append(name)
     return processed
 
 
-__all__ = ["migrate_environment", "SUPPORTED_DATABASES"]
+__all__ = ["migrate_environment", "SUPPORTED_DATABASES", "validate_database_file"]
