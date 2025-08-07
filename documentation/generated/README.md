@@ -60,14 +60,18 @@ For detailed instructions, see the generated documentation files in this directo
 
 ### 🛠 Daily Whitepaper Conversion
 
-After adding new PDFs to `daily_state_update/`, run:
+After adding new PDFs to `daily_state_update/`, ensure Git LFS files are
+materialized and then run the converter:
 
 ```bash
+git lfs fetch --all
+git lfs checkout
 python tools/convert_daily_whitepaper.py
 ```
 
-This generates Markdown copies of each PDF, skips files already converted, and
-refreshes the index linking all available reports.
+This sequence downloads any missing LFS content, generates Markdown copies of
+each PDF, skips files already converted, and refreshes the index linking all
+available reports.
 
 ### 📝 Daily State Generator
 
@@ -92,7 +96,13 @@ validates their creation using the dual-copilot pattern.
      git lfs track "*.pdf"
      git add .gitattributes
      ```
-3. **Convert PDFs to Markdown and update the index**
+3. **Fetch and materialize LFS content**
+   - Ensure PDFs are downloaded before conversion:
+     ```bash
+     git lfs fetch --all
+     git lfs checkout
+     ```
+4. **Convert PDFs to Markdown and update the index**
    - Generate Markdown versions to keep the repository text-friendly and
      automatically rebuild `daily_state_index.md`:
      ```bash
