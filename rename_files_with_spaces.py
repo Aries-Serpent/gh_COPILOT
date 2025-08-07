@@ -183,11 +183,9 @@ class FileRenamer:
 
 def main() -> dict:
     """🎯 Main execution function"""
-    # Target directory derived relative to this script for portability
-    target_directory = (
-        Path(__file__).resolve().parent / "documentation/generated/daily_state_update"
-    )
-
+    # Target directory relative to this script
+    target_directory = Path(__file__).resolve().parent / 'documentation/generated/daily_state_update'
+    
     # Create renamer and execute
     renamer = FileRenamer(target_directory)
     summary = renamer.rename_all_files()
