@@ -2,6 +2,10 @@
 
 {% block title %}Quantum Dashboard{% endblock %}
 
+{% block head_extra %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/quantum_interface.css') }}">
+{% endblock %}
+
 {% block enterprise_content %}
 <div class="container-fluid">
   <h1 class="h4">Quantum Metrics Dashboard</h1>

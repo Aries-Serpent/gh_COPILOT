@@ -1,0 +1,28 @@
+{% extends "html/base_enterprise.html" %}
+
+{% block title %}Compliance Metrics{% endblock %}
+
+{% block enterprise_content %}
+<h1 class="mb-4">Compliance Metrics</h1>
+<table class="table table-striped">
+    <thead>
+        <tr><th>Metric</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Score</td><td>{{ metrics.score }}</td></tr>
+        <tr><td>Last Audit Date</td><td>{{ metrics.last_audit_date }}</td></tr>
+        {% for key, value in metrics.items() %}
+            {% if key not in ['compliance_trend', 'recent_rollbacks', 'score', 'last_audit_date'] %}
+            <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+            {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2 class="mt-5">Compliance Trend</h2>
+<ul class="list-group">
+    {% for score in metrics.compliance_trend or [] %}
+    <li class="list-group-item">{{ score }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
