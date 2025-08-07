@@ -1,8 +1,14 @@
-"""Template management for quantum operations."""
+"""Template management for quantum operations.
 
-from typing import Any
+from typing import Dict
+
+_TEMPLATES: Dict[str, str] = {
+    "bell_pair": "placeholder bell pair circuit",
+    "noop": "no-op circuit",
+}
 
 
-def get_template(name: str) -> Any:
+def get_template(name: str) -> str:
     """Retrieve a quantum template by name."""
-    raise NotImplementedError("Template retrieval is not implemented yet")
+
+    return _TEMPLATES.get(name, "template not found")

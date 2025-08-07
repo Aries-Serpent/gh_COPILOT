@@ -11,6 +11,7 @@ from web_gui.monitoring.health_checks import (
 from web_gui.monitoring.performance_metrics import collect_performance_metrics
 from web_gui.monitoring.alerting.escalation_rules import get_escalation_level
 from web_gui.monitoring.alerting.alert_manager import trigger_alert
+from web_gui.monitoring.alerting.notification_engine import NOTIFICATION_LOG
 
 
 def test_check_database_connection():
