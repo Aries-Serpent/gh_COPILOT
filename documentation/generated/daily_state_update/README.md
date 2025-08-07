@@ -9,6 +9,7 @@ The following steps were performed to ensure the latest artifacts are available:
 1. `git lfs fetch -I documentation/generated/daily_state_update`
 2. `git lfs checkout documentation/generated/daily_state_update`
 3. Confirmed `gh_COPILOT_Project_White‑Paper_Blueprint_(2025-08-06).pdf` is a PDF via `file`.
+4. The conversion workflow fails if any tracked file remains a pointer after checkout.
 
 ## Generating new reports
 
