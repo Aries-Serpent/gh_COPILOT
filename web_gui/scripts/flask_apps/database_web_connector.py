@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import json
 import logging
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
+from queue import Empty, Queue
 from typing import Any, Dict, Iterator, List
 
 __all__ = ["DatabaseWebConnector"]
@@ -12,41 +14,37 @@ __all__ = ["DatabaseWebConnector"]
 class DatabaseWebConnector:
     """Database-Driven Web Component Engine."""
 
-    def __init__(self, db_path: Path | str) -> None:
+    def __init__(self, db_path: Path | str, pool_size: int = 5) -> None:
         self.db_path = Path(db_path)
         self.logger = logging.getLogger(__name__)
+        self._pool_size = pool_size
+        self._pool: Queue[sqlite3.Connection] = Queue(maxsize=pool_size)
 
     @contextmanager
     def get_database_connection(self) -> Iterator[sqlite3.Connection]:
-        conn = sqlite3.connect(self.db_path)
+        try:
+            conn = self._pool.get_nowait()
+        except Empty:
+            conn = sqlite3.connect(self.db_path, check_same_thread=False)
         try:
             yield conn
         except sqlite3.Error as exc:  # pragma: no cover - runtime safeguard
             self.logger.error("database connection error: %s", exc)
             raise
         finally:
-            conn.close()
+            try:
+                self._pool.put_nowait(conn)
+            except Exception:
+                conn.close()
 
-    def execute_query(self, query: str, params: tuple | None = None) -> List[sqlite3.Row]:
-        """Execute *query* safely and return all rows.
-
-        Any database errors are logged and result in an empty list, allowing the
-        web layer to continue operating without exposing internal errors.
-        """
-        try:
-            with self.get_database_connection() as conn:
-                cur = conn.cursor()
-                cur.execute(query, params or ())
-                return cur.fetchall()
-        except sqlite3.Error as exc:
-            self.logger.error("query failed: %s", exc)
-            return []
-
-    def fetch_enterprise_metrics(self) -> List[Dict[str, Any]]:
-        """Return all enterprise metrics records."""
+    def fetch_enterprise_metrics(self) -> Dict[str, Any]:
+        """Return enterprise metrics as a dictionary."""
         query = "SELECT metric_name, metric_value FROM enterprise_metrics"
-        rows = self.execute_query(query)
-        return [{"metric_name": r[0], "metric_value": r[1]} for r in rows]
+        with self.get_database_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(query)
+            rows = cur.fetchall()
+        return {r[0]: r[1] for r in rows}
 
     def fetch_recent_scripts(self, limit: int = 10) -> List[Dict[str, Any]]:
         """Return recent script activity."""
@@ -104,32 +102,50 @@ class DatabaseWebConnector:
             for r in rows
         ]
 
-    def fetch_dashboard_alerts(self, limit: int = 5) -> List[Dict[str, Any]]:
-        """Return recent dashboard alerts if available."""
+    def fetch_latest_system_metrics(self) -> Dict[str, Any]:
+        """Return the most recent system monitoring metrics."""
         query = (
-            "SELECT alert_type, alert_message, created_at "
-            "FROM dashboard_alerts ORDER BY created_at DESC LIMIT ?"
+            "SELECT timestamp, cpu_usage, memory_usage, disk_usage, "
+            "enterprise_readiness, anomalies_detected, metrics_json "
+            "FROM system_monitoring_live ORDER BY timestamp DESC LIMIT 1"
         )
-        rows = self.execute_query(query, (limit,))
-        return [
-            {
-                "alert_type": r[0],
-                "alert_message": r[1],
-                "timestamp": r[2],
-            }
-            for r in rows
-        ]
+        with self.get_database_connection() as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+            cur.execute(query)
+            row = cur.fetchone()
+        if not row:
+            return {}
+        data = dict(row)
+        try:
+            data["metrics_json"] = json.loads(data.get("metrics_json") or "{}")
+        except json.JSONDecodeError:
+            data["metrics_json"] = {}
+        return data
 
-    def fetch_zero_byte_logs(self, limit: int = 5) -> List[Dict[str, Any]]:
-        """Return logs related to zero-byte file detections."""
+    def fetch_latest_performance_metrics(self) -> Dict[str, Any]:
+        """Return the most recent performance metrics."""
         query = (
-            "SELECT file_path, detected_at FROM zero_byte_logs ORDER BY detected_at DESC LIMIT ?"
+            "SELECT operation_type, execution_time, files_processed, "
+            "success_rate, memory_usage, system_resources "
+            "FROM performance_metrics ORDER BY timestamp DESC LIMIT 1"
         )
-        rows = self.execute_query(query, (limit,))
-        return [
-            {
-                "file_path": r[0],
-                "timestamp": r[1],
-            }
-            for r in rows
-        ]
+        with self.get_database_connection() as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+            cur.execute(query)
+            row = cur.fetchone()
+        if not row:
+            return {}
+        data = dict(row)
+        try:
+            data["system_resources"] = json.loads(data.get("system_resources") or "{}")
+        except json.JSONDecodeError:
+            data["system_resources"] = {}
+        return data
+
+    def close_pool(self) -> None:
+        """Close all pooled connections."""
+        while not self._pool.empty():
+            conn = self._pool.get_nowait()
+            conn.close()
