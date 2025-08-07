@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-"""Rollback utilities for the web GUI deployment.
+"""Rollback utilities for the web GUI and quantum modules.
 
-Adjusted to use the new ``web_gui`` directory location at the repository root.
+Adjusted to use the new ``web_gui`` directory location at the repository root
+and restore both production and quantum databases.
 """
 
 from pathlib import Path
@@ -16,8 +17,9 @@ WEB_GUI_PATH = WORKSPACE / "web_gui"
 
 
 def rollback() -> None:
-    """Simulate rolling back the web GUI deployment."""
+    """Simulate rolling back the web GUI and quantum modules."""
     restore_backup("production")
+    restore_backup("quantum")
     migrate_quantum()
     print(f"Rolling back web GUI using artifacts in {WEB_GUI_PATH}")
 

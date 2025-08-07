@@ -35,6 +35,23 @@ def validate_database_file(path: Path) -> None:
     sqlite3.connect(path).close()
 
 
+def register_database(name: str, path: Path) -> None:
+    """Register an additional database for migrations.
+
+    Parameters
+    ----------
+    name:
+        Unique identifier for the database.
+    path:
+        Location of the SQLite database file.
+    """
+
+    if name in SUPPORTED_DATABASES:
+        raise ValueError(f"Database already registered: {name}")
+    validate_database_file(path)
+    SUPPORTED_DATABASES[name] = path
+
+
 def migrate_environment(names: Iterable[str]) -> List[str]:
     """Validate databases and simulate migration.
 
@@ -62,4 +79,9 @@ def migrate_environment(names: Iterable[str]) -> List[str]:
     return processed
 
 
-__all__ = ["migrate_environment", "SUPPORTED_DATABASES", "validate_database_file"]
+__all__ = [
+    "migrate_environment",
+    "SUPPORTED_DATABASES",
+    "validate_database_file",
+    "register_database",
+]
