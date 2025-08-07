@@ -22,8 +22,12 @@ sys.modules.setdefault("scripts.docs_metrics_validator", types.ModuleType("docs_
 sys.modules.setdefault("scripts.validate_docs_metrics", types.ModuleType("validate_docs_metrics"))
 numpy_stub = types.ModuleType("numpy")
 numpy_stub.ndarray = object
+numpy_stub.lib = types.SimpleNamespace(NumpyVersion=lambda *_: None)
+numpy_stub.__version__ = "0"
 sys.modules.setdefault("numpy", numpy_stub)
 sys.modules.setdefault("psutil", types.ModuleType("psutil"))
+
+sys.modules.setdefault("qiskit", types.ModuleType("qiskit"))
 
 quantum_pkg = types.ModuleType("quantum")
 quantum_pkg.__path__ = [str(Path(__file__).resolve().parents[1] / "quantum")]
@@ -34,6 +38,11 @@ sys.modules["quantum.utils"] = quantum_utils_pkg
 backend_provider_stub = types.ModuleType("quantum.utils.backend_provider")
 backend_provider_stub.get_backend = lambda *args, **kwargs: None
 sys.modules["quantum.utils.backend_provider"] = backend_provider_stub
+algorithms_pkg = types.ModuleType("quantum.algorithms")
+algorithms_base = types.ModuleType("quantum.algorithms.base")
+algorithms_base.TEXT_INDICATORS = {"progress": ""}
+sys.modules["quantum.algorithms"] = algorithms_pkg
+sys.modules["quantum.algorithms.base"] = algorithms_base
 qo = importlib.import_module("quantum.optimizers.quantum_optimizer")
 
 

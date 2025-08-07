@@ -117,13 +117,23 @@ def validate_no_recursive_folders(max_depth: Optional[int] = None) -> None:
 
 
 def detect_c_temp_violations() -> Optional[str]:
-    forbidden = ["E:/temp/", "E:\\temp\\"]
-    workspace = str(CrossPlatformPathManager.get_workspace_path())
-    backup_root = str(CrossPlatformPathManager.get_backup_root())
-    for path in (workspace, backup_root):
-        for forbidden_path in forbidden:
-            if path.startswith(forbidden_path):
-                return path
+    """Return offending path when rooted in legacy ``E:/temp`` (case-insensitive)."""
+
+    forbidden_raw = ["E:/temp", "E:\\temp"]
+
+    def normalize(path: str) -> str:
+        return Path(path).as_posix().lower().rstrip("/") + "/"
+
+    workspace_obj = CrossPlatformPathManager.get_workspace_path()
+    backup_obj = CrossPlatformPathManager.get_backup_root()
+    workspace = normalize(str(workspace_obj))
+    backup = normalize(str(backup_obj))
+    forbidden = [normalize(p) for p in forbidden_raw]
+    for forbidden_path in forbidden:
+        if workspace.startswith(forbidden_path):
+            return Path(workspace_obj).as_posix()
+        if backup.startswith(forbidden_path):
+            return Path(backup_obj).as_posix()
     return None
 
 
