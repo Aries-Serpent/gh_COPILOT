@@ -78,8 +78,8 @@
             fetch('/dashboard/compliance').then(r=>r.json()).then(updateCompliance);
         }
         function pollExtras(){
-            fetch('/sync-events').then(r=>r.json()).then(updateSyncEvents);
-            fetch('/audit-results').then(r=>r.json()).then(updateAuditResults);
+            fetch('/sync_events').then(r=>r.json()).then(updateSyncEvents);
+            fetch('/audit_results').then(r=>r.json()).then(updateAuditResults);
         }
         window.onload = function(){
             if(!!window.EventSource){
