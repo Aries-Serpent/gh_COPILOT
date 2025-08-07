@@ -7,6 +7,6 @@ spec:
   selector:
     app: app
   ports:
-  - port: 80
-    targetPort: 8000
-  type: ClusterIP
+  - port: 80             # Service port exposed internally
+    targetPort: 8000     # Pod port to forward to
+  type: ClusterIP        # Internal-only service

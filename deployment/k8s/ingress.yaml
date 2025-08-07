@@ -7,10 +7,10 @@ spec:
   rules:
   - http:
       paths:
-      - path: /
-        pathType: Prefix
+      - path: /                 # Route all traffic from root path
+        pathType: Prefix        # Match based on URL prefix
         backend:
           service:
-            name: app-service
+            name: app-service   # Target service name
             port:
-              number: 80
+              number: 80        # Service port to forward to
