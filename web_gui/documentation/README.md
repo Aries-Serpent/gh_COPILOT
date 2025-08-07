@@ -43,6 +43,7 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
 #### Configuration Modules
 - **Location**: `web_gui/scripts/config/`
 - **Environments**: development, staging, production
+- **Production Notes**: `FLASK_SECRET_KEY` must be set and `WEB_GUI_MAX_CONTENT_LENGTH` can limit upload size
 
 ### 🎯 Enterprise Compliance Features
 
