@@ -34,6 +34,17 @@ The container entrypoint reads several additional variables:
 
 Define these in `.env` or pass them via your CI configuration so Docker containers and automated tests use consistent settings.
 
+## Security Configuration
+
+Security policies are stored in the repository under the `security/` directory:
+
+- `security/enterprise_security_policy.json` – high-level enterprise requirements.
+- `security/access_control_matrix.json` – role-based access definitions.
+- `security/encryption_standards.json` – approved cryptographic algorithms and key management practices.
+- `security/security_audit_framework.json` – audit categories, compliance checks, and incident response procedures.
+
+Refer to these files when updating or validating security protocols.
+
 ## Line-Wrapping Utility
 
 Install the `clw` line wrapper to prevent terminal overflow during long command output. Use the helper installer and verify it exists:
