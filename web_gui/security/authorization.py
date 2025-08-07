@@ -2,12 +2,22 @@
 
 from __future__ import annotations
 
+import logging
 from functools import wraps
 from typing import Callable, Iterable
+
+from flask import Flask, Response, g
 
 from secondary_copilot_validator import SecondaryCopilotValidator
 
 logger = logging.getLogger(__name__)
+
+
+def init_app(app: Flask) -> None:
+    """Initialize authorization configuration for *app*."""
+
+    # currently no default config; placeholder for symmetry
+    app.config.setdefault("AUTHORIZATION_ENABLED", True)
 
 
 def has_role(
@@ -31,6 +41,7 @@ def requires_role(role: str) -> Callable[[Callable[..., Response]], Callable[...
         @wraps(func)
         def wrapper(*args, **kwargs):
             if role not in getattr(g, "current_roles", set()):
+                logger.warning("Access denied, missing role %s", role)
                 return Response("Forbidden", status=403)
             return func(*args, **kwargs)
 
@@ -39,4 +50,4 @@ def requires_role(role: str) -> Callable[[Callable[..., Response]], Callable[...
     return decorator
 
 
-__all__ = ["init_app", "requires_role"]
+__all__ = ["init_app", "has_role", "requires_role"]
