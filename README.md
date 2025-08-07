@@ -823,7 +823,7 @@ class SelfHealingSelfLearningSystem:
 
 ## 🌐 ENTERPRISE WEB DASHBOARD
 
-### **Flask Dashboard (7 Endpoints)**
+### **Flask Dashboard (8 Endpoints)**
 - **`/`** - Executive dashboard with real-time metrics
 - **`/database`** - Database management interface
 - **`/backup`** - Backup and restore operations
@@ -833,6 +833,7 @@ class SelfHealingSelfLearningSystem:
 - **`/api/health`** - System health check
 - **`/dashboard/compliance`** - Compliance metrics and rollback history
 - **`/summary`** - JSON summary of metrics and alerts
+- **`/corrections`** - Correction history overview
 
 ### **Access Dashboard**
 ```bash
