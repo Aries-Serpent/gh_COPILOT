@@ -31,7 +31,8 @@ ANALYTICS_DB = Path(os.getenv("ANALYTICS_DB", workspace_root / "databases" / "an
 COMPLIANCE_DIR = Path(os.getenv("COMPLIANCE_DIR", workspace_root / "dashboard" / "compliance"))
 
 TEMPLATES = Path(__file__).resolve().parents[2] / "templates"
-app = Flask(__name__, template_folder=str(TEMPLATES))
+STATIC = Path(__file__).resolve().parents[2] / "static"
+app = Flask(__name__, template_folder=str(TEMPLATES), static_folder=str(STATIC))
 app.secret_key = get_secret("FLASK_SECRET_KEY", "dev_key")
 LOG_FILE = Path("artifacts/logs/dashboard") / "dashboard.log"
 LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
