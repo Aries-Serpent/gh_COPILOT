@@ -15,3 +15,7 @@ test: setup lint
 
 clean-logs:
         bash scripts/clean_zero_logs.sh logs
+
+.PHONY: convert-daily-whitepaper
+convert-daily-whitepaper:
+	python tools/convert_daily_whitepaper.py

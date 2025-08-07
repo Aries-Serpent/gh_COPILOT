@@ -14,3 +14,9 @@ def test_validate_operation_returns_bool() -> None:
     checker = ComplianceChecker()
     assert isinstance(checker.validate_operation(command="echo"), bool)
 
+
+def test_validate_environment_contains_status() -> None:
+    """validate_environment should include a compliance status."""
+    result = ComplianceChecker().validate_environment()
+    assert "compliance_status" in result
+

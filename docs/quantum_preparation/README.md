@@ -17,3 +17,18 @@ preparation.
 2. Launch the `quantum_enhanced_framework` Flask app to enable optional
    quantum routes.
 
+## Related Modules
+
+- [quantum/quantum_integration_orchestrator.py](../../quantum/quantum_integration_orchestrator.py)
+  – orchestrates simulated quantum workloads
+- [quantum/quantum_database_search.py](../../quantum/quantum_database_search.py)
+  – performs example database queries with quantum routines
+- [quantum/quantum_compliance_engine.py](../../quantum/quantum_compliance_engine.py)
+  – validates quantum pipelines against compliance rules
+
+## Additional Guides
+
+- [docs/QUANTUM_PLACEHOLDERS.md](../QUANTUM_PLACEHOLDERS.md) – overview of
+  simulation-only placeholder modules
+
+
