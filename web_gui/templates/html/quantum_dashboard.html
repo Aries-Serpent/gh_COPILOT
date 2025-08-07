@@ -1,5 +1,9 @@
 {% extends "base_enterprise.html" %}
 
+{% block head_extra %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/quantum_interface.css') }}">
+{% endblock %}
+
 {% block enterprise_content %}
 <h1>Quantum Metrics Dashboard</h1>
 <ul>
