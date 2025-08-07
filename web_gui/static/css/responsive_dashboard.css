@@ -1,0 +1,33 @@
+/*!
+ * Responsive Dashboard Layout
+ * Additional rules to enhance Bootstrap 5 responsive behavior.
+ */
+
+.dashboard-card {
+  min-height: 200px;
+}
+
+@media (min-width: 768px) {
+  .dashboard-sidebar {
+    position: fixed;
+    height: 100%;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .dashboard-sidebar {
+    position: static;
+    height: auto;
+  }
+
+  .dashboard-card {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .dashboard-content {
+    margin-left: 250px;
+  }
+}
+
