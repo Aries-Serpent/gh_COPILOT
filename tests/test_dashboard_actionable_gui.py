@@ -2,7 +2,7 @@ import json
 import os
 
 os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
-from web_gui import dashboard_actionable_gui as gui
+from dashboard import integrated_dashboard as gui
 
 
 class DummyRollback:

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from web_gui import dashboard_actionable_gui as gui
+from dashboard import integrated_dashboard as gui
 
 
 @pytest.fixture()
