@@ -48,6 +48,24 @@
                 list.appendChild(li);
             });
         }
+        function updateSyncEvents(events){
+            const list = document.getElementById('sync_events');
+            list.innerHTML = '';
+            events.forEach(e => {
+                const li = document.createElement('li');
+                li.textContent = e.timestamp + ' - ' + e.source_db + ' -> ' + e.target_db + ' (' + e.action + ')';
+                list.appendChild(li);
+            });
+        }
+        function updateAuditResults(rows){
+            const list = document.getElementById('audit_results');
+            list.innerHTML = '';
+            rows.forEach(r => {
+                const li = document.createElement('li');
+                li.textContent = r.placeholder_type + ': ' + r.count;
+                list.appendChild(li);
+            });
+        }
         function updateCompliance(payload){
             if(payload.metrics){
                 updateMetrics(payload.metrics);
@@ -58,6 +76,10 @@
         }
         function pollCompliance(){
             fetch('/dashboard/compliance').then(r=>r.json()).then(updateCompliance);
+        }
+        function pollExtras(){
+            fetch('/sync-events').then(r=>r.json()).then(updateSyncEvents);
+            fetch('/audit-results').then(r=>r.json()).then(updateAuditResults);
         }
         window.onload = function(){
             if(!!window.EventSource){
@@ -71,7 +93,9 @@
                 },5000);
             }
             pollCompliance();
+            pollExtras();
             setInterval(pollCompliance,5000);
+            setInterval(pollExtras,5000);
         };
     </script>
 </head>
@@ -99,6 +123,20 @@
 <ul id="rollbacks">
 {% for log in rollbacks %}
     <li>{{ log.timestamp }} - {{ log.target }}{% if log.backup %} ({{ log.backup }}){% endif %}</li>
+{% endfor %}
+</ul>
+
+<h2>Recent Sync Events</h2>
+<ul id="sync_events">
+{% for event in sync_events %}
+    <li>{{ event.timestamp }} - {{ event.source_db }} -> {{ event.target_db }} ({{ event.action }})</li>
+{% endfor %}
+</ul>
+
+<h2>Audit Results</h2>
+<ul id="audit_results">
+{% for row in audit_results %}
+    <li>{{ row.placeholder_type }}: {{ row.count }}</li>
 {% endfor %}
 </ul>
 </body>
