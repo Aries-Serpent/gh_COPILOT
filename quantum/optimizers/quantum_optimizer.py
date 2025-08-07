@@ -9,7 +9,8 @@ from pathlib import Path
 import os
 
 import numpy as np
-from enterprise_modules.compliance import _log_violation
+from tqdm import tqdm
+from quantum.algorithms.base import TEXT_INDICATORS
 
 try:  # pragma: no cover - import check
     from qiskit import Aer
@@ -316,7 +317,13 @@ class QuantumOptimizer:
         best_x = x.copy()
         best_val = self.objective_function(x)
         current_temp = temp
-        for i in range(max_iter):
+        for i in tqdm(
+            range(max_iter),
+            desc=f"{TEXT_INDICATORS['progress']} annealing",
+            unit="iter",
+            leave=False,
+            dynamic_ncols=True,
+        ):
             x_new = x + np.random.uniform(-0.1, 0.1, size=dim)
             for j, (a, b) in enumerate(self.variable_bounds):
                 x_new[j] = np.clip(x_new[j], a, b)
@@ -354,7 +361,13 @@ class QuantumOptimizer:
             # Fallback: random restarts
             best_x = None
             best_val = float("inf")
-            for i in range(niter):
+            for i in tqdm(
+                range(niter),
+                desc=f"{TEXT_INDICATORS['progress']} basin-hop",
+                unit="iter",
+                leave=False,
+                dynamic_ncols=True,
+            ):
                 x = np.array([np.random.uniform(a, b) for a, b in self.variable_bounds])
                 val = self.objective_function(x)
                 if val < best_val:
