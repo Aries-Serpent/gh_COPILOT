@@ -68,14 +68,23 @@ def anti_recursion_guard(func: F) -> F:
             ancestor = ppid
             while ancestor:
                 if ancestor == pid:
+                    _log_violation(
+                        f"anti_recursion_guard:pid_loop:pid={pid}:ppid={ppid}"
+                    )
                     raise RuntimeError("PID loop detected")
                 ancestor = _PID_PARENTS.get(ancestor)
             threads = _PID_THREADS.setdefault(pid, set())
             if threads and tid not in threads:
+                _log_violation(
+                    f"anti_recursion_guard:duplicate_pid:pid={pid}:tid={tid}"
+                )
                 raise RuntimeError("Duplicate PID execution")
 
             depth = _PID_DEPTHS.get(pid, 0)
             if depth >= MAX_RECURSION_DEPTH:
+                _log_violation(
+                    f"anti_recursion_guard:depth_exceeded:pid={pid}:depth={depth}"
+                )
                 raise RuntimeError("Recursion depth exceeded")
             depth += 1
             _PID_DEPTHS[pid] = depth
@@ -96,6 +105,9 @@ def anti_recursion_guard(func: F) -> F:
                 if isinstance(candidate, (str, os.PathLike)):
                     target = Path(candidate)
             if target is not None and _detect_recursion(target):
+                _log_violation(
+                    f"anti_recursion_guard:path_recursion:path={target}"
+                )
                 raise RuntimeError("Path recursion detected")
             return func(*args, **kwargs)
         finally:
