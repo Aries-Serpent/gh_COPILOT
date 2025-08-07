@@ -56,11 +56,13 @@ def validate_workspace() -> bool:
     return chunk_anti_recursion_validation()
 
 
-def validate_no_recursive_folders() -> None:
+def validate_no_recursive_folders(max_depth: Optional[int] = None) -> None:
     """Ensure workspace and backup directories are distinct and non-nesting.
 
     Walks both roots, resolving symlinks and comparing inodes so that no
-    subdirectory can link back to either root.
+    subdirectory can link back to either root. Traversal can optionally be
+    limited to ``max_depth`` levels below each root to avoid excessive or
+    unwanted inspection of very deep directory trees.
     """
 
     workspace = CrossPlatformPathManager.get_workspace_path().resolve()
@@ -83,13 +85,24 @@ def validate_no_recursive_folders() -> None:
         except ValueError:
             return False
 
+    def on_error(err: OSError) -> None:
+        if isinstance(err, PermissionError):
+            return
+        raise err
+
     for base, target in ((workspace, backup_root), (backup_root, workspace)):
-        for root, dirs, _ in os.walk(base, followlinks=True):
+        for root, dirs, _ in os.walk(base, followlinks=True, onerror=on_error):
+            if max_depth is not None:
+                depth = len(Path(root).resolve().relative_to(base).parts)
+                if depth >= max_depth:
+                    dirs[:] = []
             for d in dirs:
                 path = Path(root) / d
                 try:
                     resolved = path.resolve()
                     inode = resolved.stat().st_ino
+                except PermissionError:
+                    continue
                 except OSError:
                     continue
                 if inode in {workspace_inode, backup_inode} or resolved in {
@@ -98,7 +111,9 @@ def validate_no_recursive_folders() -> None:
                 }:
                     raise RuntimeError(f"Subdirectory {path} links back to {resolved}")
                 if is_nested(resolved, target):
-                    raise RuntimeError(f"Subdirectory {path} nests within {target}: {resolved}")
+                    raise RuntimeError(
+                        f"Subdirectory {path} nests within {target}: {resolved}"
+                    )
 
 
 def detect_c_temp_violations() -> Optional[str]:
