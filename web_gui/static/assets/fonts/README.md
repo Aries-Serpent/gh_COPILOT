@@ -1,1 +1,3 @@
-Placeholder fonts
+# Fonts
+
+Placeholder for font assets.

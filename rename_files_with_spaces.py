@@ -6,6 +6,7 @@ Systematically rename all files in a directory to replace spaces with underscore
 
 from pathlib import Path
 from datetime import datetime
+from typing import Union
 import logging
 
 # Configure logging
@@ -17,8 +18,9 @@ logger = logging.getLogger(__name__)
 
 class FileRenamer:
     """🔧 Professional file renaming with space-to-underscore conversion"""
-    
-    def __init__(self, target_directory: str):
+
+    def __init__(self, target_directory: Union[str, Path]):
+        """Initialize renamer with directory to process."""
         self.target_directory = Path(target_directory)
         self.renamed_files = []
         self.skipped_files = []
@@ -179,7 +181,7 @@ class FileRenamer:
         
         logger.info("="*60)
 
-def main():
+def main() -> dict:
     """🎯 Main execution function"""
     # Target directory relative to this script
     target_directory = Path(__file__).resolve().parent / 'documentation/generated/daily_state_update'
@@ -187,7 +189,7 @@ def main():
     # Create renamer and execute
     renamer = FileRenamer(target_directory)
     summary = renamer.rename_all_files()
-    
+
     # Return summary for potential further processing
     return summary
 
