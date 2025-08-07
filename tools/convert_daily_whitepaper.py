@@ -3,7 +3,11 @@
 This utility scans the ``documentation/generated/daily_state_update``
 folder for PDF files and converts each one to a Markdown file with the
 same base name. Files that already have a corresponding ``.md`` file are
-skipped. Conversion activity is logged to stdout.
+skipped. Before any conversion happens, the script ensures required Git
+LFS objects are available locally by running ``git lfs fetch --all`` and
+``git lfs checkout``. If any PDF remains a pointer file after this step,
+conversion is aborted with instructions for remediation. Conversion
+activity is logged to stdout.
 """
 from __future__ import annotations
 
@@ -12,6 +16,7 @@ import logging
 import sys
 from pathlib import Path
 from typing import Iterable
+import subprocess
 
 DEFAULT_PDF_DIR = Path("documentation") / "generated" / "daily_state_update"
 
@@ -69,6 +74,48 @@ def convert_pdfs(pdf_dir: Path) -> Iterable[str]:
     return messages
 
 
+def _is_lfs_pointer(path: Path) -> bool:
+    """Return True if ``path`` contains an unresolved Git LFS pointer."""
+    try:
+        with path.open("rb") as fh:
+            head = fh.read(100)
+    except OSError:
+        return True
+    return head.startswith(b"version https://git-lfs.github.com/spec/v1")
+
+
+def verify_lfs_pdfs(pdf_dir: Path) -> None:
+    """Ensure each PDF in ``pdf_dir`` is a materialized Git LFS file.
+
+    Raises
+    ------
+    FileNotFoundError
+        If any PDF is missing or still a pointer after checkout.
+    """
+    missing: list[str] = []
+    for pdf_path in pdf_dir.glob("*.pdf"):
+        if not pdf_path.exists() or _is_lfs_pointer(pdf_path):
+            missing.append(pdf_path.name)
+    if missing:
+        joined = ", ".join(missing)
+        raise FileNotFoundError(
+            f"Missing LFS content for: {joined}. "
+            "Run 'git lfs fetch --all && git lfs checkout' and retry."
+        )
+
+
+def fetch_lfs_objects() -> None:
+    """Fetch and checkout all Git LFS objects.
+
+    Errors are logged but do not stop execution so that ``verify_lfs_pdfs``
+    can surface a clearer remediation message.
+    """
+    for cmd in ("git lfs fetch --all", "git lfs checkout"):
+        result = subprocess.run(cmd.split(), capture_output=True, text=True)
+        if result.returncode != 0:
+            logging.warning("%s failed: %s", cmd, result.stderr.strip())
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Convert daily whitepaper PDFs to Markdown"
@@ -83,6 +130,13 @@ def main() -> None:
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(message)s")
+    try:
+        fetch_lfs_objects()
+        verify_lfs_pdfs(args.pdf_dir)
+    except FileNotFoundError as exc:
+        logging.error(str(exc))
+        sys.exit(1)
+
     for message in convert_pdfs(args.pdf_dir):
         logging.info(message)
     update_index(source_dir=args.pdf_dir)
