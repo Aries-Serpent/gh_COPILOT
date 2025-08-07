@@ -29,3 +29,9 @@ def test_benchmark_physics_engine_runs() -> None:
     else:
         assert isinstance(result, dict)
 
+
+def test_load_metrics_missing_file_raises() -> None:
+    """Missing metrics file should raise FileNotFoundError."""
+    with pytest.raises(FileNotFoundError):
+        benchmarking.load_metrics(Path("does_not_exist.json"))
+

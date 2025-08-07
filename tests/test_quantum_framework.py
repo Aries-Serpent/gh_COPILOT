@@ -16,3 +16,9 @@ def test_execute_with_fallback_uses_classical() -> None:
     result = framework.execute_with_fallback(lambda: "classic")
     assert result == "classic"
 
+
+def test_quantum_enabled_flag_is_boolean() -> None:
+    """quantum_enabled attribute should always be a boolean."""
+    framework = QuantumEnhancedFramework()
+    assert isinstance(framework.quantum_enabled, bool)
+
