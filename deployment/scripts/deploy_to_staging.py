@@ -9,12 +9,17 @@ This script uses the new repository layout where the web GUI lives under the
 from pathlib import Path
 import os
 
+from .environment_migration import migrate_environment
+from .backup_manager import create_backup
+
 WORKSPACE = Path(os.environ.get("GH_COPILOT_WORKSPACE", Path(__file__).resolve().parents[2]))
 WEB_GUI_PATH = WORKSPACE / "web_gui"
 
 
 def deploy_to_staging() -> None:
     """Simulate deployment of the web GUI to the staging environment."""
+    migrate_environment(["production"])
+    create_backup("production")
     print(f"Deploying web GUI from {WEB_GUI_PATH} to staging environment")
 
 
