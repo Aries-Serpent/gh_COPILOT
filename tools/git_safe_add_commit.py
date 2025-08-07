@@ -104,6 +104,8 @@ def main(argv: List[str] | None = None) -> int:
     if not GOVERNANCE_DOC.exists():
         print("Missing governance standards document: docs/GOVERNANCE_STANDARDS.md")
         return 1
+    if Path("databases/codex_log.db").exists():
+        _run(["git", "add", "databases/codex_log.db"])
     files = _staged_files()
     allow = os.getenv("ALLOW_AUTOLFS") == "1"
     for f in files:

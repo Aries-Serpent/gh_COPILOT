@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import subprocess
 import sqlite3
 import sys
 import time
@@ -196,6 +197,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Run UnifiedWrapUpOrchestrator after session completion",
     )
+    parser.add_argument(
+        "--wrap-up",
+        action="store_true",
+        help="Package session artifacts and commit codex log",
+    )
     return parser.parse_args(argv)
 
 
@@ -284,10 +290,25 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
 
 @anti_recursion_guard
 def main(argv: list[str] | None = None) -> None:
-    if os.getenv("TEST_MODE") == "1":
+    args = parse_args(argv)
+    if os.getenv("TEST_MODE") == "1" and not args.wrap_up:
         logging.debug("TEST_MODE=1; exiting early")
         return
-    args = parse_args(argv)
+    if args.wrap_up:
+        from artifact_manager import LfsPolicy, package_session
+
+        repo_root = Path(__file__).resolve().parents[1]
+        tmp_dir = repo_root / "tmp"
+        tmp_dir.mkdir(exist_ok=True)
+        subprocess.run(["git", "add", "databases/codex_log.db"], cwd=repo_root, check=False)
+        package_session(
+            tmp_dir,
+            repo_root,
+            LfsPolicy(repo_root),
+            commit=os.getenv("TEST_MODE") != "1",
+            message="chore: add session wrap-up artifact",
+        )
+        return
     initialize_database(args.db_path)
     run_session(
         args.steps,
@@ -298,6 +319,4 @@ def main(argv: list[str] | None = None) -> None:
 
 
 if __name__ == "__main__":
-    if os.getenv("TEST_MODE") == "1":
-        sys.exit(0)
     main()
