@@ -6,10 +6,8 @@ Decodes base64 content and analyzes what type of file it is
 
 import base64
 import zipfile
-import os
-import tempfile
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 def analyze_base64_content(base64_string: str) -> dict:
     """
@@ -43,20 +41,19 @@ def analyze_base64_content(base64_string: str) -> dict:
         
         # Common file signatures
         file_signatures = {
-            b'PK\x03\x04': 'ZIP Archive',
-            b'PK\x05\x06': 'ZIP Archive (empty)',
-            b'PK\x07\x08': 'ZIP Archive (spanned)',
-            b'\x50\x4B\x03\x04': 'ZIP Archive',
-            b'\x1f\x8b': 'GZIP Archive',
-            b'\x42\x5a\x68': 'BZIP2 Archive',
-            b'\x37\x7a\xbc\xaf\x27\x1c': '7Z Archive',
-            b'Rar!': 'RAR Archive',
-            b'\x89PNG': 'PNG Image',
-            b'\xff\xd8\xff': 'JPEG Image',
-            b'GIF8': 'GIF Image',
-            b'\x00\x00\x00\x20\x66\x74\x79\x70': 'MP4 Video',
-            b'%PDF': 'PDF Document',
-            b'\xd0\xcf\x11\xe0': 'Microsoft Office Document',
+            b"PK\x03\x04": "ZIP Archive",
+            b"PK\x05\x06": "ZIP Archive (empty)",
+            b"PK\x07\x08": "ZIP Archive (spanned)",
+            b"\x1f\x8b": "GZIP Archive",
+            b"\x42\x5a\x68": "BZIP2 Archive",
+            b"\x37\x7a\xbc\xaf\x27\x1c": "7Z Archive",
+            b"Rar!": "RAR Archive",
+            b"\x89PNG": "PNG Image",
+            b"\xff\xd8\xff": "JPEG Image",
+            b"GIF8": "GIF Image",
+            b"\x00\x00\x00\x20\x66\x74\x79\x70": "MP4 Video",
+            b"%PDF": "PDF Document",
+            b"\xd0\xcf\x11\xe0": "Microsoft Office Document",
         }
         
         detected_type = "Unknown Binary File"
@@ -78,7 +75,7 @@ def analyze_base64_content(base64_string: str) -> dict:
             try:
                 text_content = decoded_bytes.decode('latin-1')
                 print("📄 Content might be Latin-1 encoded text")
-            except:
+            except Exception:
                 print("📄 Content is binary data")
         
         # Step 4: Create output file

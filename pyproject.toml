@@ -43,6 +43,7 @@ extend-exclude = [
     "quantum_optimizer.py",
     "databases/*.db",
     "*.log",
+    "recovered_files_*",
 ]
 
 [tool.ruff.lint]

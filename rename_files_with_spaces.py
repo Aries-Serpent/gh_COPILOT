@@ -4,8 +4,6 @@
 Systematically rename all files in a directory to replace spaces with underscores
 """
 
-import os
-import shutil
 from pathlib import Path
 from datetime import datetime
 import logging

@@ -5,11 +5,9 @@ Ensures git repository is in a completely clean state for VS Code
 Generated: 2025-08-06 | Enterprise Standards Compliance
 """
 
-import os
 import subprocess
-import shutil
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 def clean_git_state():
     """Ensure git repository is in completely clean state"""
