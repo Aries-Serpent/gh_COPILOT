@@ -2,6 +2,7 @@
 
 *This guide is intended for AI contributors (OpenAI Codex/ChatGPT agents) working on the **gh\_COPILOT** repository. It outlines the required environment setup, permitted actions, coding standards, testing procedures, and other protocols that the agent **must** follow to produce acceptable pull requests.*
 Additional instruction modules reside in `.github/instructions/`. These `.instructions.md` files provide focused guidance on specialized workflows and supplement this main guide. Key compliance topics include **DUAL_COPILOT_PATTERN**, **ZERO_TOLERANCE_VISUAL_PROCESSING**, **COMPREHENSIVE_SESSION_INTEGRITY**, **AUTONOMOUS_FILE_MANAGEMENT**, **RESPONSE_CHUNKING**, **WEB_GUI_INTEGRATION**, **QUANTUM_OPTIMIZATION**, **PHASE4_PHASE5_INTEGRATION**, **SESSION_TEMPLATES**, **SESSION_INSTRUCTION**, **ENHANCED_LEARNING_COPILOT**, and **ENHANCED_COGNITIVE_PROCESSING**. Review these modules regularly to ensure your contributions remain in full compliance.
+Supplemental guides for quantum preparation, executive workflows, and certification processes are located under `docs/quantum_preparation`, `docs/executive_guides`, and `docs/certification`.
 
 
 ## Environment Setup
