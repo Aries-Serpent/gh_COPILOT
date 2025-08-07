@@ -10,6 +10,7 @@ from web_gui.middleware import (
     security_headers,
     session_management,
 )
+from web_gui import middleware
 
 
 def create_app() -> Flask:
@@ -69,4 +70,15 @@ def test_middleware_dual_copilot(monkeypatch) -> None:
     client = app.test_client()
     client.get("/")
     assert calls
+
+
+def test_init_app_applies_middlewares() -> None:
+    app = create_app()
+    app.config.update({"ENABLE_RATE_LIMITING": False})
+    middleware.init_app(app)
+    client = app.test_client()
+    resp = client.get("/")
+    assert resp.headers["X-Frame-Options"] == "DENY"
+    assert resp.headers["X-Content-Type-Options"] == "nosniff"
+    assert client.get("/?q=<script>").status_code == 400
 
