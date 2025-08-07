@@ -52,6 +52,12 @@ def register_database(name: str, path: Path) -> None:
     SUPPORTED_DATABASES[name] = path
 
 
+def get_registered_databases() -> List[str]:
+    """Return a sorted list of registered database identifiers."""
+
+    return sorted(SUPPORTED_DATABASES)
+
+
 def migrate_environment(names: Iterable[str]) -> List[str]:
     """Validate databases and simulate migration.
 
@@ -84,4 +90,5 @@ __all__ = [
     "SUPPORTED_DATABASES",
     "validate_database_file",
     "register_database",
+    "get_registered_databases",
 ]

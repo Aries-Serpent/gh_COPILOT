@@ -8,6 +8,7 @@ import shutil
 from pathlib import Path
 
 from .environment_migration import SUPPORTED_DATABASES, WORKSPACE, validate_database_file
+from .restoration_engine import restore_backup
 
 
 def create_backup(name: str, backup_root: Path | None = None) -> Path:
@@ -42,4 +43,4 @@ def create_backup(name: str, backup_root: Path | None = None) -> Path:
     return destination
 
 
-__all__ = ["create_backup"]
+__all__ = ["create_backup", "restore_backup"]
