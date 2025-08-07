@@ -1,8 +1,4 @@
-{#
-  Base template for enterprise dashboard pages.
-  Provides global layout, navigation, and reusable blocks.
-  Future developers: extend this template when creating new enterprise views.
-#}
+{% from "components/navigation.html" import navigation %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -19,7 +15,7 @@
   <body>
     {# Navigation bar shared across enterprise pages #}
     {% block header %}
-      {% include "components/navigation.html" %}
+      {{ navigation(links) }}
     {% endblock %}
 
     <main class="container py-4">

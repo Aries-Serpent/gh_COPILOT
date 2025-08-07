@@ -1,10 +1,12 @@
 {% extends 'html/base_enterprise.html' %}
+{% from 'components/metrics_widgets.html' import metrics_widgets %}
+{% from 'components/security_indicators.html' import security_indicators %}
 
 {% block title %}Compliance Metrics{% endblock %}
 
 {% block content %}
 <h1>Compliance Metrics</h1>
-{% include 'components/metrics_widgets.html' %}
-{% include 'components/security_indicators.html' %}
+{{ metrics_widgets(metrics) }}
+{{ security_indicators(security) }}
 {% endblock %}
 

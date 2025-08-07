@@ -1,6 +1,8 @@
+{% macro security_indicators(security) %}
 <section id="security-indicators">
     <div class="indicator">
         <strong>Security Status:</strong> {{ security.status | default('unknown') }}
     </div>
 </section>
+{% endmacro %}
 
