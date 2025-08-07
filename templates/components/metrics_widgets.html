@@ -1,3 +1,4 @@
+{% macro metrics_widgets(metrics) %}
 <section id="metrics-widgets">
     <div class="widget">
         <strong>Compliance Score:</strong> {{ metrics.compliance_score | default(0) }}
@@ -6,4 +7,5 @@
         <strong>Open Placeholders:</strong> {{ metrics.open_placeholders | default(0) }}
     </div>
 </section>
+{% endmacro %}
 

@@ -1,3 +1,4 @@
+{% from 'components/navigation.html' import navigation %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +8,7 @@
     {% block head %}{% endblock %}
 </head>
 <body>
-    {% block navigation %}{% endblock %}
+    {% block navigation %}{{ navigation(links) }}{% endblock %}
     <main>
         {% block content %}{% endblock %}
     </main>
