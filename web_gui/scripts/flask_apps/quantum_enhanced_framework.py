@@ -117,4 +117,3 @@ class QuantumEnhancedFramework:
         if self._score_templates is None:
             return [(t, 1.0) for t in templates]
         return self._score_templates(list(templates), tag)
-
