@@ -20,3 +20,9 @@ Run `python rename_files_with_spaces.py` after adding a new daily PDF. The scrip
 
 CI includes a regression check to ensure the most recent date has both `.pdf` and `.md` files.
 
+To run the conversion manually without renaming, use:
+
+```
+make convert-daily-whitepaper
+```
+
