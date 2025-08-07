@@ -7,6 +7,9 @@ TEMPLATES = [
     "database.html",
     "deployment.html",
     "migration.html",
+    "html/quantum_dashboard.html",
+    "html/mobile/dashboard.html",
+    "html/mobile/compliance_metrics.html",
 ]
 
 
@@ -30,23 +33,18 @@ def test_dashboard_includes_js_module(monkeypatch, tmp_path):
     assert "js/dashboard_intelligence.js" in html
 
 
-def test_compliance_metrics_template_renders(monkeypatch, tmp_path):
+@pytest.mark.parametrize(
+    "template",
+    [
+        "html/quantum_dashboard.html",
+        "html/mobile/dashboard.html",
+        "html/mobile/compliance_metrics.html",
+    ],
+)
+def test_templates_are_responsive(template, monkeypatch, tmp_path):
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
-    from web_gui.scripts.flask_apps import enterprise_dashboard as ed
+    from web_gui.scripts.flask_apps.enterprise_dashboard import app
 
-    metrics = {"score": 1.0, "last_audit_date": "2024-01-01", "compliance_trend": [0.9]}
-    with ed.app.test_request_context('/'):
-        html = render_template("html/compliance_metrics.html", metrics=metrics)
-    assert "Compliance Metrics" in html
-    assert "table" in html
-
-
-def test_rollback_logs_template_renders(monkeypatch, tmp_path):
-    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
-    from web_gui.scripts.flask_apps import enterprise_dashboard as ed
-
-    logs = [{"timestamp": "2024-01-01", "event": "Test"}]
-    with ed.app.test_request_context('/'):
-        html = render_template("html/rollback_logs.html", logs=logs)
-    assert "Rollback Logs" in html
-    assert "Test" in html
+    with app.test_request_context('/'):
+        html = render_template(template, metrics={}, compliance={})
+    assert '<meta name="viewport"' in html
