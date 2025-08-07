@@ -87,7 +87,10 @@ class SyncManager:
         db_b: Path | str,
         *,
         resolver: Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | None = None,
-        policy: ConflictPolicy | str | None = None,
+        policy: ConflictPolicy | None = None,
+        resolver_registry: Dict[
+            str, Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | ConflictPolicy
+        ] | None = None,
     ) -> None:
         """Bidirectionally synchronize ``db_a`` and ``db_b``.
 
@@ -125,6 +128,14 @@ class SyncManager:
                 for table in tables:
                     rows_a = {row["id"]: dict(row) for row in conn_a.execute(f"SELECT * FROM {table}")}
                     rows_b = {row["id"]: dict(row) for row in conn_b.execute(f"SELECT * FROM {table}")}
+                    table_policy: ConflictPolicy = policy
+                    if resolver_registry and table in resolver_registry:
+                        custom = resolver_registry[table]
+                        table_policy = (
+                            custom
+                            if isinstance(custom, ConflictPolicy)
+                            else ResolverPolicy(custom)
+                        )
 
                     for pk in rows_a.keys() | rows_b.keys():
                         in_a = pk in rows_a
@@ -133,7 +144,7 @@ class SyncManager:
                             row = rows_a[pk]
                             other = rows_b[pk]
                             if row != other:
-                                merged = policy.resolve(table, row, other)
+                                merged = table_policy.resolve(table, row, other)
                                 decision = "a" if merged == row else "b"
                                 self._log_conflict(db_a, db_b, table, pk, decision)
                                 self._upsert(conn_a, table, merged)
@@ -162,6 +173,9 @@ class SyncManager:
         stop_event: threading.Event | None = None,
         resolver: Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | None = None,
         policy: ConflictPolicy | None = None,
+        resolver_registry: Dict[
+            str, Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | ConflictPolicy
+        ] | None = None,
     ) -> None:
         """Watch databases for changes and synchronize on modification."""
 
@@ -176,7 +190,13 @@ class SyncManager:
                 mt_a = db_a.stat().st_mtime if db_a.exists() else 0
                 mt_b = db_b.stat().st_mtime if db_b.exists() else 0
                 if mt_a != last_a or mt_b != last_b:
-                    self.sync(db_a, db_b, resolver=resolver, policy=policy)
+                    self.sync(
+                        db_a,
+                        db_b,
+                        resolver=resolver,
+                        policy=policy,
+                        resolver_registry=resolver_registry,
+                    )
                     last_a, last_b = mt_a, mt_b
             except Exception:
                 # Errors logged in :meth:`sync` ensure monitoring.
@@ -244,6 +264,33 @@ class SyncManager:
             )
             conn.commit()
 
+
+def watch_and_sync(
+    db_a: Path | str,
+    db_b: Path | str,
+    *,
+    interval: float = 1.0,
+    stop_event: threading.Event | None = None,
+    manager: SyncManager | None = None,
+    resolver: Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | None = None,
+    policy: ConflictPolicy | None = None,
+    resolver_registry: Dict[
+        str, Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | ConflictPolicy
+    ] | None = None,
+) -> None:
+    """Watch two databases for changes and synchronize automatically."""
+
+    manager = manager or SyncManager()
+    manager.watch(
+        db_a,
+        db_b,
+        interval=interval,
+        stop_event=stop_event,
+        resolver=resolver,
+        policy=policy,
+        resolver_registry=resolver_registry,
+    )
+
 def list_events(analytics_db: Path | str, limit: int = 10) -> List[Dict[str, Any]]:
     """Return recent synchronization events from ``analytics.db``."""
     events: List[Dict[str, Any]] = []
@@ -268,97 +315,4 @@ def list_events(analytics_db: Path | str, limit: int = 10) -> List[Dict[str, Any
     return events
 
 
-class SyncWatcher:
-    """Watch multiple database pairs and trigger synchronization."""
-
-    def __init__(self, manager: SyncManager) -> None:
-        self.manager = manager
-
-    def watch_pairs(
-        self,
-        pairs: List[tuple[Path | str, Path | str]],
-        *,
-        interval: float = 1.0,
-        stop_event: threading.Event | None = None,
-        policy: ConflictPolicy | str | None = None,
-    ) -> None:
-        """Watch ``pairs`` and call :meth:`SyncManager.sync` on changes."""
-
-        try:  # Prefer watchdog for event-based watching
-            from watchdog.events import FileSystemEventHandler  # type: ignore
-            from watchdog.observers import Observer  # type: ignore
-        except Exception:  # pragma: no cover - watchdog optional
-            stop_event = stop_event or threading.Event()
-            threads: List[threading.Thread] = []
-            for a, b in pairs:
-                t = threading.Thread(
-                    target=self.manager.watch,
-                    args=(a, b),
-                    kwargs={"interval": interval, "stop_event": stop_event, "policy": policy},
-                )
-                t.start()
-                threads.append(t)
-            stop_event.wait()
-            for t in threads:
-                t.join()
-            return
-
-        class _Handler(FileSystemEventHandler):  # pragma: no cover - thin wrapper
-            def __init__(self, outer: "SyncWatcher") -> None:
-                self.outer = outer
-
-            def on_modified(self, event):  # type: ignore[override]
-                path = Path(event.src_path)
-                pair = self.outer._path_map.get(path)
-                if pair:
-                    self.outer._maybe_sync(pair, policy)
-
-        stop_event = stop_event or threading.Event()
-        observer = Observer()
-        self._path_map: Dict[Path, tuple[Path, Path]] = {}
-        self._last_mtimes: Dict[tuple[Path, Path], tuple[float, float]] = {}
-        for a, b in pairs:
-            pa, pb = Path(a), Path(b)
-            self._path_map[pa] = (pa, pb)
-            self._path_map[pb] = (pa, pb)
-            self._last_mtimes[(pa, pb)] = (
-                pa.stat().st_mtime if pa.exists() else 0,
-                pb.stat().st_mtime if pb.exists() else 0,
-            )
-            observer.schedule(_Handler(self), str(pa.parent), recursive=False)
-            observer.schedule(_Handler(self), str(pb.parent), recursive=False)
-
-        observer.start()
-        try:
-            while not stop_event.is_set():
-                time.sleep(interval)
-        finally:
-            observer.stop()
-            observer.join()
-
-    def _maybe_sync(
-        self,
-        pair: tuple[Path, Path],
-        policy: ConflictPolicy | str | None,
-    ) -> None:
-        pa, pb = pair
-        mt_a = pa.stat().st_mtime if pa.exists() else 0
-        mt_b = pb.stat().st_mtime if pb.exists() else 0
-        last_a, last_b = self._last_mtimes.get(pair, (0.0, 0.0))
-        if mt_a <= last_a and mt_b <= last_b:
-            return
-        self.manager.sync(pa, pb, policy=policy)
-        self._last_mtimes[pair] = (mt_a, mt_b)
-
-
-__all__ = [
-    "SchemaMapper",
-    "SyncManager",
-    "SyncWatcher",
-    "ConflictPolicy",
-    "ResolverPolicy",
-    "LastWriteWinsPolicy",
-    "list_events",
-]
-
-
+__all__ = ["SchemaMapper", "SyncManager", "list_events", "watch_and_sync"]
