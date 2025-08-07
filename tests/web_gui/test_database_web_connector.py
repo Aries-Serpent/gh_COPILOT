@@ -35,3 +35,10 @@ def test_fetch_dashboard_alerts_returns_data(tmp_path: Path) -> None:
     zero_logs = connector.fetch_zero_byte_logs()
     assert alerts[0]["alert_type"] == "info"
     assert zero_logs[0]["file_path"] == "/tmp/a"
+
+
+def test_execute_query_handles_errors(tmp_path: Path) -> None:
+    db = tmp_path / "test.db"
+    sqlite3.connect(db).close()
+    connector = DatabaseWebConnector(db)
+    assert connector.execute_query("SELECT * FROM missing") == []

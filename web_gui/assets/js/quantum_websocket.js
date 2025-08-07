@@ -1,0 +1,2 @@
+// Quantum WebSocket integration placeholder
+
