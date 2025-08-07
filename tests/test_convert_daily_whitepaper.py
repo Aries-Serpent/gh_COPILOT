@@ -11,7 +11,7 @@ pytestmark = pytest.mark.skipif(
 
 
 def test_convert_creates_markdown(tmp_path):
-    source_dir = Path("documentation/generated/daily_state_update")
+    source_dir = Path("documentation") / "generated" / "daily_state_update"
     source_pdf = next(source_dir.glob("*.pdf"))
     shutil.copy(source_pdf, tmp_path / source_pdf.name)
     logs = list(convert_pdfs(tmp_path))
@@ -23,7 +23,7 @@ def test_convert_creates_markdown(tmp_path):
 
 
 def test_skip_existing_markdown(tmp_path):
-    source_dir = Path("documentation/generated/daily_state_update")
+    source_dir = Path("documentation") / "generated" / "daily_state_update"
     source_pdf = next(source_dir.glob("*.pdf"))
     target_pdf = tmp_path / source_pdf.name
     shutil.copy(source_pdf, target_pdf)
