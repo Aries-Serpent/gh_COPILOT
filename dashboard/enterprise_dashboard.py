@@ -6,13 +6,8 @@ from typing import Any, Dict
 
 from flask import jsonify
 
-from .integrated_dashboard import (
-    app,
-    _dashboard as dashboard_bp,
-    _load_audit_results,
-    _load_sync_events,
-    create_app,
-)
+from .integrated_dashboard import app, _dashboard as dashboard_bp, create_app
+from unified_monitoring_optimization_system import get_anomaly_summary
 
 ANALYTICS_DB = Path("databases/analytics.db")
 
@@ -32,17 +27,11 @@ def anomaly_metrics(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
     return metrics
 
 
-@app.get("/sync_events")
-def sync_events() -> Any:
-    """Return recent synchronization events."""
-    return jsonify(_load_sync_events())
+@dashboard_bp.route("/anomalies")
+def anomalies() -> Dict[str, list]:
+    """Expose recent anomaly summaries."""
 
-
-@app.get("/audit_results")
-def audit_results() -> Any:
-    """Return placeholder audit aggregation results."""
-    return jsonify(_load_audit_results())
+    return {"anomalies": get_anomaly_summary(db_path=ANALYTICS_DB)}
 
 
 __all__ = ["app", "dashboard_bp", "create_app", "anomaly_metrics"]
-
