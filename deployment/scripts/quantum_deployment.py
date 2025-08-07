@@ -4,6 +4,7 @@ from __future__ import annotations
 
 This helper locates both the ``web_gui`` and ``quantum`` directories using the
 updated repository layout and reports the simulated deployment actions.
+It relies on validated migrations and dedicated quantum backups.
 """
 
 from pathlib import Path

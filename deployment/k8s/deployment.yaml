@@ -1,3 +1,4 @@
+# Kubernetes deployment for web GUI with quantum support
 apiVersion: apps/v1
 kind: Deployment
 metadata:
