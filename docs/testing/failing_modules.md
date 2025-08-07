@@ -1,7 +1,7 @@
 # Failing Test Modules
 
-No failing test modules. All tests currently pass.
+The following test modules encountered errors:
 
-Archive script test failures have been resolved and removed from this list.
+- `tests/test_analytics_modules.py` – collection error
 
 Source: `failing_tests.log`
