@@ -3,6 +3,7 @@ import sqlite3
 from typing import Dict
 
 from .integrated_dashboard import app, _dashboard as dashboard_bp, create_app
+from unified_monitoring_optimization_system import get_anomaly_summary
 
 ANALYTICS_DB = Path("databases/analytics.db")
 
@@ -20,6 +21,13 @@ def anomaly_metrics(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
             metrics["count"] = int(count or 0)
             metrics["avg_anomaly_score"] = float(avg or 0.0)
     return metrics
+
+
+@dashboard_bp.route("/anomalies")
+def anomalies() -> Dict[str, list]:
+    """Expose recent anomaly summaries."""
+
+    return {"anomalies": get_anomaly_summary(db_path=ANALYTICS_DB)}
 
 
 __all__ = ["app", "dashboard_bp", "create_app", "anomaly_metrics"]
