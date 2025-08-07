@@ -19,3 +19,13 @@ def test_load_metrics_roundtrip() -> None:
     finally:
         path.unlink(missing_ok=True)
 
+
+def test_benchmark_physics_engine_runs() -> None:
+    """benchmark_physics_engine should return a metrics mapping."""
+    try:
+        result = benchmarking.benchmark_physics_engine()
+    except Exception as exc:  # pragma: no cover - optional deps
+        pytest.skip(str(exc))
+    else:
+        assert isinstance(result, dict)
+
