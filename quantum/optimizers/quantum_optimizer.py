@@ -7,6 +7,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 from utils.cross_platform_paths import CrossPlatformPathManager
 from pathlib import Path
 import os
+import logging
 
 import numpy as np
 from tqdm import tqdm
@@ -29,6 +30,12 @@ except Exception:  # pragma: no cover - qiskit optional
     Aer = Estimator = SparsePauliOp = TwoLocal = QAOA = VQE = COBYLA = None  # type: ignore
 
 from quantum.utils.backend_provider import get_backend
+
+
+def _log_violation(path: str) -> None:
+    """Log a forbidden E:/temp path violation."""
+    logging.error("🚨 C:/temp/ VIOLATION: %s", path)
+
 
 # --- Anti-Recursion Validation ---
 
@@ -107,23 +114,33 @@ def detect_c_temp_violations() -> Optional[str]:
     """Detect forbidden Windows ``E:/temp`` paths.
 
     The legacy ``E:/temp`` directory is disallowed for both the workspace
-    and the backup root.  When either path begins with this location the
+    and the backup root. Paths are normalized to POSIX form and compared in a
+    case-insensitive manner. When either path begins with this location the
     offending path is returned and the incident is recorded via
     :func:`_log_violation`.
 
     Returns ``None`` when no violation is present.
     """
 
-    forbidden = ["E:/temp/", "E:\\temp\\"]
-    workspace = str(CrossPlatformPathManager.get_workspace_path())
-    backup_root = str(CrossPlatformPathManager.get_backup_root())
+    forbidden_raw = ["E:/temp", "E:\\temp"]
+
+    def normalize(path: str) -> str:
+        return Path(path).as_posix().lower().rstrip("/") + "/"
+
+    workspace_obj = CrossPlatformPathManager.get_workspace_path()
+    backup_obj = CrossPlatformPathManager.get_backup_root()
+    workspace = normalize(str(workspace_obj))
+    backup_root = normalize(str(backup_obj))
+    forbidden = [normalize(p) for p in forbidden_raw]
     for forbidden_path in forbidden:
         if workspace.startswith(forbidden_path):
-            _log_violation(workspace)
-            return workspace
+            workspace_str = Path(workspace_obj).as_posix()
+            _log_violation(workspace_str)
+            return workspace_str
         if backup_root.startswith(forbidden_path):
-            _log_violation(backup_root)
-            return backup_root
+            backup_str = Path(backup_obj).as_posix()
+            _log_violation(backup_str)
+            return backup_str
     return None
 
 # --- Quantum Optimizer Class ---
