@@ -3,8 +3,12 @@
 from hashlib import sha3_256
 import secrets
 
+from secondary_copilot_validator import SecondaryCopilotValidator
 
-def generate_quantum_safe_key(length: int = 32) -> bytes:
+
+def generate_quantum_safe_key(
+    length: int = 32, validator: SecondaryCopilotValidator | None = None
+) -> bytes:
     """Generate a random key for quantum-safe algorithms.
 
     Args:
@@ -13,10 +17,14 @@ def generate_quantum_safe_key(length: int = 32) -> bytes:
     Returns:
         Random bytes suitable for use as a symmetric key.
     """
-    return secrets.token_bytes(length)
+    key = secrets.token_bytes(length)
+    (validator or SecondaryCopilotValidator()).validate_corrections([str(length)])
+    return key
 
 
-def quantum_safe_hash(data: bytes) -> str:
+def quantum_safe_hash(
+    data: bytes, validator: SecondaryCopilotValidator | None = None
+) -> str:
     """Compute a SHA3-256 hash of *data*.
 
     Args:
@@ -25,4 +33,6 @@ def quantum_safe_hash(data: bytes) -> str:
     Returns:
         Hexadecimal string representation of the digest.
     """
-    return sha3_256(data).hexdigest()
+    digest = sha3_256(data).hexdigest()
+    (validator or SecondaryCopilotValidator()).validate_corrections([digest])
+    return digest
