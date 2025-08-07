@@ -9,8 +9,9 @@ from __future__ import annotations
 
 from typing import List
 
-__all__ = ["send_notification", "route_to_dashboard", "NOTIFICATION_LOG"]
+NOTIFICATION_LOG: List[str] = []
 
+__all__ = ["send_notification", "route_to_dashboard", "NOTIFICATION_LOG"]
 
 NOTIFICATION_LOG: List[str] = []
 

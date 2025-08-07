@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from web_gui.monitoring.health_checks import (
+    check_cache_status,
     check_compliance_status,
     check_database_connection,
     check_quantum_score,
+    get_service_uptime,
     check_system_resources,
     check_template_rendering,
     run_all_checks,
@@ -43,6 +45,14 @@ def test_check_quantum_score() -> None:
     assert check_quantum_score([0.1, 0.2], threshold=0.0)
 
 
+def test_check_cache_status_true() -> None:
+    assert check_cache_status({})
+
+
+def test_get_service_uptime_positive() -> None:
+    assert get_service_uptime() > 0
+
+
 def test_trigger_alert_returns_level() -> None:
     messages: list[str] = []
     routed: list[tuple[str, str]] = []
@@ -59,11 +69,15 @@ def test_trigger_alert_returns_level() -> None:
 def test_run_all_checks_alerts_on_failure() -> None:
     messages: list[str] = []
     routed: list[tuple[str, str]] = []
-    pipeline = [
-        lambda lvl, msg: messages.append(f"[{lvl.upper()}] {msg}"),
-        lambda lvl, msg: routed.append((lvl, msg)),
-    ]
-    results = run_all_checks(compliance_data={}, alert=True, pipeline=pipeline)
+    results = run_all_checks(
+        compliance_data={},
+        cache={},
+        alert=True,
+        notifier=messages.append,
+        dashboard_router=lambda lvl, msg: routed.append((lvl, msg)),
+    )
     assert results["compliance"] is False
+    assert results["cache"] is True
+    assert "uptime" in results and results["uptime"] > 0
     assert messages and messages[0].startswith("[HIGH]")
     assert routed == [("high", "compliance check failed")]
