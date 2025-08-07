@@ -25,6 +25,8 @@ def create_backup(name: str, backup_root: Path | None = None) -> Path:
     if path is None:
         raise ValueError(f"Unsupported database: {name}")
 
+    validate_database_file(path)
+
     if backup_root is None:
         backup_root = Path(os.environ["GH_COPILOT_BACKUP_ROOT"]) / "backups"
     else:
