@@ -1,4 +1,4 @@
-# gh_COPILOT Project White-Paper Blueprint Summary (2025‑08‑04)
+# gh_COPILOT Project White-Paper Blueprint Summary (2025-08-04)
 
 ## Objectives
 - Update the enterprise whitepaper to reflect current architecture and feature maturity, clarifying that all quantum components are simulation-only.
