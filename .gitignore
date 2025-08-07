@@ -26,6 +26,7 @@ tmp/
 
 databases/analytics.db
 databases/*.db
+!databases/codex_log.db
 databases/*.zip
 analytics.db
 database_cleanup.log
