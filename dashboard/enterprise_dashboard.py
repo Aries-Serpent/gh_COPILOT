@@ -1,6 +1,10 @@
+"""Enterprise dashboard routes and utilities."""
+
 from pathlib import Path
 import sqlite3
-from typing import Dict
+from typing import Any, Dict
+
+from flask import jsonify
 
 from .integrated_dashboard import app, _dashboard as dashboard_bp, create_app
 from unified_monitoring_optimization_system import get_anomaly_summary
@@ -15,7 +19,7 @@ def anomaly_metrics(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
     if db_path.exists():
         with sqlite3.connect(db_path) as conn:
             cur = conn.execute(
-                "SELECT COUNT(*), AVG(anomaly_score) FROM anomaly_results"
+                "SELECT COUNT(*), AVG(anomaly_score) FROM anomaly_results",
             )
             count, avg = cur.fetchone()
             metrics["count"] = int(count or 0)
