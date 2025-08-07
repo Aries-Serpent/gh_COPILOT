@@ -1,0 +1,22 @@
+from __future__ import annotations
+
+"""Deploy the web GUI to the production environment.
+
+This script reflects the new ``web_gui`` directory layout at the repository
+root.
+"""
+
+from pathlib import Path
+import os
+
+WORKSPACE = Path(os.environ.get("GH_COPILOT_WORKSPACE", Path(__file__).resolve().parents[2]))
+WEB_GUI_PATH = WORKSPACE / "web_gui"
+
+
+def deploy_to_production() -> None:
+    """Simulate deployment of the web GUI to the production environment."""
+    print(f"Deploying web GUI from {WEB_GUI_PATH} to production environment")
+
+
+if __name__ == "__main__":
+    deploy_to_production()
