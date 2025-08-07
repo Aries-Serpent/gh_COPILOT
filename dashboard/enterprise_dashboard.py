@@ -2,11 +2,18 @@
 
 from pathlib import Path
 import sqlite3
-from typing import Any, Dict
+from typing import Any, Dict, List
 
-from flask import jsonify
+from flask import jsonify, render_template
 
-from .integrated_dashboard import app, _dashboard as dashboard_bp, create_app
+from .integrated_dashboard import (
+    app,
+    _dashboard as dashboard_bp,
+    create_app,
+    _load_metrics,
+    get_rollback_logs,
+    _load_sync_events,
+)
 from unified_monitoring_optimization_system import get_anomaly_summary
 
 ANALYTICS_DB = Path("databases/analytics.db")
@@ -27,42 +34,6 @@ def anomaly_metrics(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
     return metrics
 
 
-def compliance_metrics(limit: int = 10, db_path: Path | None = None) -> Dict[str, Any]:
-    """Return latest compliance score and recent trend data."""
-
-    db = db_path or ANALYTICS_DB
-    results: Dict[str, Any] = {"latest": None, "trend": []}
-    if db.exists():
-        with sqlite3.connect(db) as conn:
-            conn.row_factory = sqlite3.Row
-            cur = conn.execute(
-                """
-                SELECT timestamp, composite_score, lint_score, test_score, placeholder_score
-                FROM compliance_scores
-                ORDER BY timestamp DESC
-                LIMIT ?
-                """,
-                (limit,),
-            )
-            rows = cur.fetchall()
-            trend = [
-                {
-                    "timestamp": row["timestamp"],
-                    "composite_score": row["composite_score"],
-                    "breakdown": {
-                        "lint_score": row["lint_score"],
-                        "test_score": row["test_score"],
-                        "placeholder_score": row["placeholder_score"],
-                    },
-                }
-                for row in rows
-            ]
-            if trend:
-                results["latest"] = trend[0]
-            results["trend"] = trend
-    return results
-
-
 @app.route("/anomalies")
 def anomalies() -> Dict[str, list]:
     """Expose recent anomaly summaries."""
@@ -70,17 +41,72 @@ def anomalies() -> Dict[str, list]:
     return {"anomalies": get_anomaly_summary(db_path=ANALYTICS_DB)}
 
 
-@app.route("/compliance-metrics")
-def get_compliance_metrics() -> Any:
-    """Expose compliance score breakdown and trend."""
+def _load_corrections(limit: int = 10) -> List[Dict[str, Any]]:
+    """Return recent correction log entries."""
+    rows: List[Dict[str, Any]] = []
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            cur = conn.execute(
+                "SELECT timestamp, path, status FROM correction_logs ORDER BY timestamp DESC LIMIT ?",
+                (limit,),
+            )
+            rows = [
+                {"timestamp": r[0], "path": r[1], "status": r[2]}
+                for r in cur.fetchall()
+            ]
+    return rows
 
-    return jsonify(compliance_metrics())
+
+def _load_audit_results(limit: int = 50) -> List[Dict[str, Any]]:
+    """Load audit results directly from analytics.db."""
+    rows: List[Dict[str, Any]] = []
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            cur = conn.execute(
+                "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' "
+                "GROUP BY placeholder_type ORDER BY COUNT(*) DESC LIMIT ?",
+                (limit,),
+            )
+            rows = [
+                {"placeholder_type": r[0], "count": r[1]} for r in cur.fetchall()
+            ]
+    return rows
 
 
-__all__ = [
-    "app",
-    "dashboard_bp",
-    "create_app",
-    "anomaly_metrics",
-    "compliance_metrics",
-]
+def corrections() -> Any:
+    """Expose recent correction log entries."""
+    return jsonify(_load_corrections())
+
+
+app.view_functions["dashboard.get_corrections"] = corrections
+
+
+@app.route("/sync_events")
+def sync_events() -> Any:
+    """Compatibility alias for sync-events route."""
+    return jsonify(_load_sync_events())
+
+
+@app.route("/audit_results")
+def audit_results_alias() -> Any:
+    """Compatibility alias for audit-results route."""
+    return jsonify(_load_audit_results())
+
+
+app.view_functions["dashboard.audit_results"] = audit_results_alias
+
+
+def index() -> str:
+    """Render main dashboard with recent corrections."""
+    return render_template(
+        "dashboard.html",
+        metrics=_load_metrics(),
+        rollbacks=get_rollback_logs(),
+        sync_events=_load_sync_events(),
+        audit_results=_load_audit_results(),
+        corrections=_load_corrections(),
+    )
+
+
+app.view_functions["dashboard.index"] = index
+__all__ = ["app", "dashboard_bp", "create_app", "anomaly_metrics", "_load_corrections"]
