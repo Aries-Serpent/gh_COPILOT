@@ -17,6 +17,15 @@ gh_COPILOT toolkit.
 - `models` – base interfaces for quantum-enabled models that build circuits and
   execute them through the framework.
 
+### Extending Models
+
+Subclass :class:`quantum.models.QuantumModel` and implement ``build_circuit``
+to describe the quantum workload. For robust behavior, override ``run`` and
+provide a classical fallback when quantum execution fails. The
+``ParityModel`` demonstrates this pattern by computing the parity of a list of
+bits on the simulator and reverting to a classical parity check if an error
+occurs.
+
 ## Optimizers
 - `optimizers.quantum_optimizer.QuantumOptimizer` – classical/quantum hybrid
   optimizer with progress logging. Events are recorded using
