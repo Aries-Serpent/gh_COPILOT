@@ -11,7 +11,6 @@ from web_gui.monitoring.health_checks import (
 from web_gui.monitoring.performance_metrics import collect_performance_metrics
 from web_gui.monitoring.alerting.escalation_rules import get_escalation_level
 from web_gui.monitoring.alerting.alert_manager import trigger_alert
-from web_gui.monitoring.alerting.notification_engine import NOTIFICATION_LOG
 
 
 def test_check_database_connection():
@@ -45,14 +44,13 @@ def test_check_quantum_score() -> None:
 
 
 def test_trigger_alert_returns_level() -> None:
-    messages = []
-    routed = []
-    level = trigger_alert(
-        "hello",
-        "critical",
-        messages.append,
+    messages: list[str] = []
+    routed: list[tuple[str, str]] = []
+    pipeline = [
+        lambda lvl, msg: messages.append(f"[{lvl.upper()}] {msg}"),
         lambda lvl, msg: routed.append((lvl, msg)),
-    )
+    ]
+    level = trigger_alert("hello", "critical", pipeline=pipeline)
     assert level == "high"
     assert messages and messages[0].startswith("[HIGH]")
     assert routed == [("high", "hello")]
@@ -61,12 +59,11 @@ def test_trigger_alert_returns_level() -> None:
 def test_run_all_checks_alerts_on_failure() -> None:
     messages: list[str] = []
     routed: list[tuple[str, str]] = []
-    results = run_all_checks(
-        compliance_data={},
-        alert=True,
-        notifier=messages.append,
-        dashboard_router=lambda lvl, msg: routed.append((lvl, msg)),
-    )
+    pipeline = [
+        lambda lvl, msg: messages.append(f"[{lvl.upper()}] {msg}"),
+        lambda lvl, msg: routed.append((lvl, msg)),
+    ]
+    results = run_all_checks(compliance_data={}, alert=True, pipeline=pipeline)
     assert results["compliance"] is False
     assert messages and messages[0].startswith("[HIGH]")
     assert routed == [("high", "compliance check failed")]

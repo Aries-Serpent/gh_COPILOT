@@ -86,8 +86,7 @@ def run_all_checks(
     quantum_values: Optional[Iterable[float]] = None,
     quantum_threshold: float = 0.0,
     alert: bool = False,
-    notifier: Optional[Callable[[str], None]] = None,
-    dashboard_router: Optional[Callable[[str, str], None]] = None,
+    pipeline: Optional[Iterable[Callable[[str, str], None]]] = None,
 ) -> Dict[str, bool]:
     """Run available health checks and optionally trigger alerts.
 
@@ -102,11 +101,9 @@ def run_all_checks(
     alert:
         When ``True`` an alert is emitted for any failing check using
         :func:`alerting.alert_manager.trigger_alert`.
-    notifier:
-        Optional callback used by :func:`trigger_alert` to deliver messages.
-    dashboard_router:
-        Optional callback used by :func:`trigger_alert` to route messages
-        to dashboards.
+    pipeline:
+        Optional iterable of alert handlers forwarded to
+        :func:`~web_gui.monitoring.alerting.alert_manager.trigger_alert`.
     """
 
     results = {
@@ -122,13 +119,6 @@ def run_all_checks(
     if alert:
         for name, passed in results.items():
             if not passed:
-                if notifier is not None:
-                    trigger_alert(
-                        f"{name} check failed", "critical", notifier, dashboard_router
-                    )
-                else:
-                    trigger_alert(
-                        f"{name} check failed", "critical", dashboard_router=dashboard_router
-                    )
+                trigger_alert(f"{name} check failed", "critical", pipeline=pipeline)
 
     return results

@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Callable, Optional
+from typing import Callable, Iterable, Optional
 
-from .notification_engine import route_to_dashboard, send_notification
-from .escalation_rules import get_escalation_level
+from .escalation_rules import get_escalation_level, get_pipeline
 
 __all__ = ["trigger_alert"]
 
@@ -13,10 +12,9 @@ __all__ = ["trigger_alert"]
 def trigger_alert(
     message: str,
     alert_type: str = "info",
-    notifier: Callable[[str], None] = send_notification,
-    dashboard_router: Optional[Callable[[str, str], None]] = None,
+    pipeline: Optional[Iterable[Callable[[str, str], None]]] = None,
 ) -> str:
-    """Send an alert and optionally route to dashboards.
+    """Send an alert through a severity-specific pipeline.
 
     Parameters
     ----------
@@ -24,16 +22,12 @@ def trigger_alert(
         Human readable alert message.
     alert_type:
         Category of alert (``info``, ``warning``, ``critical``).
-    notifier:
-        Callback used to deliver the formatted alert.
-    dashboard_router:
-        Optional callback receiving the escalation level and original
-        message for dashboard routing.
+    pipeline:
+        Optional iterable of handlers. Each handler receives ``(level, message)``.
+        When ``None`` the default pipeline for ``alert_type`` is used.
     """
     level = get_escalation_level(alert_type)
-    formatted = f"[{level.upper()}] {message}"
-    notifier(formatted)
-    if dashboard_router is None:
-        dashboard_router = route_to_dashboard
-    dashboard_router(level, message)
+    handlers = list(pipeline) if pipeline is not None else get_pipeline(alert_type)
+    for handler in handlers:
+        handler(level, message)
     return level
