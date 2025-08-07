@@ -1,18 +1,22 @@
 """Executive dashboard aggregating analytics."""
 
-from typing import Dict
+from pathlib import Path
+from typing import Dict, Optional
 
 from .technical_dashboard import get_metrics as get_technical_metrics
 from .security_dashboard import get_metrics as get_security_metrics
 from .quantum_dashboard import get_metrics as get_quantum_metrics
 
 
-def collect_analytics() -> Dict[str, Dict]:
-    """Collect analytics from all sub dashboards."""
+def collect_analytics(db_path: Optional[Path] = None) -> Dict[str, Dict]:
+    """Collect analytics from all sub dashboards.
+
+    ``db_path`` allows overriding the analytics database used by sub dashboards.
+    """
     return {
-        "technical": get_technical_metrics(),
-        "security": get_security_metrics(),
-        "quantum": get_quantum_metrics(),
+        "technical": get_technical_metrics(db_path) if db_path else get_technical_metrics(),
+        "security": get_security_metrics(db_path) if db_path else get_security_metrics(),
+        "quantum": get_quantum_metrics(db_path) if db_path else get_quantum_metrics(),
     }
 
 

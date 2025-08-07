@@ -3,8 +3,15 @@
 from pathlib import Path
 import ssl
 
+from secondary_copilot_validator import SecondaryCopilotValidator
 
-def create_ssl_context(cert_file: str, key_file: str, ca_file: str | None = None) -> ssl.SSLContext:
+
+def create_ssl_context(
+    cert_file: str,
+    key_file: str,
+    ca_file: str | None = None,
+    validator: SecondaryCopilotValidator | None = None,
+) -> ssl.SSLContext:
     """Create an SSL context using certificate and key files.
 
     Args:
@@ -30,4 +37,5 @@ def create_ssl_context(cert_file: str, key_file: str, ca_file: str | None = None
             raise FileNotFoundError(f"File not found: {ca_file}")
         context.load_verify_locations(cafile=ca_file)
 
+    (validator or SecondaryCopilotValidator()).validate_corrections([cert_file, key_file])
     return context
