@@ -27,6 +27,7 @@ from enterprise_modules.compliance import (
 from utils.validation_utils import calculate_composite_compliance_score
 from web_gui import middleware, security
 from web_gui.certificates import init_app as init_certificates
+from web_gui.dashboards.quantum_dashboard import get_metrics as get_quantum_metrics
 
 # Paths and database locations
 METRICS_FILE = Path(__file__).with_name("metrics.json")
@@ -328,6 +329,11 @@ def audit_results_view() -> str:
 @_dashboard.get("/sync-events/view")
 def sync_events_view() -> str:
     return render_template("sync_events.html", events=_load_sync_events())
+
+
+@_dashboard.get("/quantum-dashboard")
+def quantum_dashboard_view() -> str:
+    return render_template("html/quantum_dashboard.html", metrics=get_quantum_metrics())
 
 
 @_dashboard.get("/dashboard/compliance")
