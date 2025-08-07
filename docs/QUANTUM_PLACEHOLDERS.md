@@ -62,7 +62,7 @@ implementations:
   stubs; hardware execution milestones are tracked separately.
 
 Progress toward hardware integration for these modules is monitored in
-[`documentation/generated/daily state update/quantum_feature_status.md`](../documentation/generated/daily%20state%20update/quantum_feature_status.md).
+[`documentation/generated/daily_state_update/quantum_feature_status.md`](../documentation/generated/daily_state_update/quantum_feature_status.md).
 
 ## Roadmap
 
