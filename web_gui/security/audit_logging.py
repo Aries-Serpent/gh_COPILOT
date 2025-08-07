@@ -1,21 +1,21 @@
-"""Audit logging utilities."""
+"""Request audit logging utilities."""
 
 from __future__ import annotations
 
-import logging
-from typing import Iterable
-
-logger = logging.getLogger(__name__)
+from flask import Flask, Response, request
 
 
-def log_event(user: str, action: str, roles: Iterable[str]) -> None:
-    """Log ``action`` performed by ``user`` if ``roles`` include ``"auditor"``."""
+def init_app(app: Flask) -> None:
+    """Log each request and response status code when enabled."""
+    app.config.setdefault("AUDIT_LOGGING", False)
 
-    if "auditor" not in set(roles):
-        logger.warning("Audit log denied for user %s", user)
-        raise PermissionError("missing auditor role")
-    logger.info("AUDIT %s: %s", user, action)
+    if not app.config["AUDIT_LOGGING"]:
+        return
+
+    @app.after_request
+    def _log_response(response: Response) -> Response:
+        app.logger.info("AUDIT %s %s -> %s", request.method, request.path, response.status_code)
+        return response
 
 
-__all__ = ["log_event"]
-
+__all__ = ["init_app"]
