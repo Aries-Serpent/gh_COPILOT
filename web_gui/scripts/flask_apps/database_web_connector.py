@@ -28,6 +28,9 @@ class DatabaseWebConnector:
             conn = sqlite3.connect(self.db_path, check_same_thread=False)
         try:
             yield conn
+        except sqlite3.Error as exc:  # pragma: no cover - runtime safeguard
+            self.logger.error("database connection error: %s", exc)
+            raise
         finally:
             try:
                 self._pool.put_nowait(conn)
@@ -46,10 +49,7 @@ class DatabaseWebConnector:
     def fetch_recent_scripts(self, limit: int = 10) -> List[Dict[str, Any]]:
         """Return recent script activity."""
         query = "SELECT script_name, last_modified FROM tracked_scripts ORDER BY last_modified DESC LIMIT ?"
-        with self.get_database_connection() as conn:
-            cur = conn.cursor()
-            cur.execute(query, (limit,))
-            rows = cur.fetchall()
+        rows = self.execute_query(query, (limit,))
         return [{"script_name": r[0], "last_modified": r[1]} for r in rows]
 
     def fetch_compliance_summary(self) -> Dict[str, Any]:
@@ -58,10 +58,8 @@ class DatabaseWebConnector:
             "SELECT compliance_score, total_files, non_compliant_files, scan_timestamp "
             "FROM compliance_scans ORDER BY scan_timestamp DESC LIMIT 1"
         )
-        with self.get_database_connection() as conn:
-            cur = conn.cursor()
-            cur.execute(query)
-            row = cur.fetchone()
+        rows = self.execute_query(query)
+        row = rows[0] if rows else None
         if not row:
             return {}
         return {
@@ -77,10 +75,7 @@ class DatabaseWebConnector:
             "SELECT sequence_id, status, execution_start, execution_end "
             "FROM recovery_execution_history ORDER BY execution_start DESC LIMIT ?"
         )
-        with self.get_database_connection() as conn:
-            cur = conn.cursor()
-            cur.execute(query, (limit,))
-            rows = cur.fetchall()
+        rows = self.execute_query(query, (limit,))
         return [
             {
                 "sequence_id": r[0],
@@ -97,10 +92,7 @@ class DatabaseWebConnector:
             "SELECT file_path, violation_code, correction_timestamp "
             "FROM correction_history ORDER BY correction_timestamp DESC LIMIT ?"
         )
-        with self.get_database_connection() as conn:
-            cur = conn.cursor()
-            cur.execute(query, (limit,))
-            rows = cur.fetchall()
+        rows = self.execute_query(query, (limit,))
         return [
             {
                 "file_path": r[0],
