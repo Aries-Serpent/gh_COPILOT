@@ -1,8 +1,20 @@
 name: CI
 on:
   push:
+    paths:
+      - '**.py'
+      - '**.md'
+      - '.github/**'
+      - 'docs/**'
+      - 'documentation/**'
   pull_request:
     branches: [main]
+    paths:
+      - '**.py'
+      - '**.md'
+      - '.github/**'
+      - 'docs/**'
+      - 'documentation/**'
 jobs:
   lint-test:
     runs-on: ubuntu-latest
