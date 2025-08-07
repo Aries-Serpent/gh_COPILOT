@@ -86,6 +86,22 @@ def test_package_and_recover(repo: Path) -> None:
     assert (tmp_dir / "a.txt").exists()
 
 
+def test_package_session_includes_codex_log_db(repo: Path) -> None:
+    """codex_log.db is bundled into the session archive."""
+
+    db_dir = repo / "databases"
+    db_dir.mkdir()
+    (db_dir / "codex_log.db").write_text("log", encoding="utf-8")
+    tmp_dir = repo / "tmp"
+    tmp_dir.mkdir()
+
+    policy = LfsPolicy(repo)
+    archive = package_session(tmp_dir, repo, policy)
+    assert archive and archive.exists(), "archive missing"
+    with ZipFile(archive) as zf:
+        assert "codex_log.db" in zf.namelist()
+
+
 def test_package_session_no_changes_returns_none(repo: Path, caplog: pytest.LogCaptureFixture) -> None:
     """Packaging with no file changes should return ``None`` and log nothing."""
 
