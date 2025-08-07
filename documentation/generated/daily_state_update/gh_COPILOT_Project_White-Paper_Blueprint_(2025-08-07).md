@@ -148,7 +148,7 @@ These improvements will help the **gh_COPILOT** project achieve its goal of prov
 =================
 
 
-````yamal
+```yaml
 ---
 title: "Implement White‑Paper Recommendations for gh_COPILOT"
 repository: "Aries-Serpent/gh_COPILOT"
@@ -163,100 +163,102 @@ type: "improvement"
 projects: []
 milestone: "Production Readiness Phase 5"
 tag: "whitepaper-update"
-description: |
-  # [Issue]: Align gh_COPILOT with the 2025‑08‑07 White‑Paper Blueprint
-  > Generated: 2025‑08‑07 | Author: system
+---
+```
 
-  ## Objective
-  Implement the recommendations from the **gh_COPILOT Project White‑Paper Blueprint (2025‑08‑07)** to close implementation gaps, finalise compliance metrics, enhance the enterprise dashboard and prepare the project for a production‑ready release.
+# [Issue]: Align gh_COPILOT with the 2025‑08‑07 White‑Paper Blueprint
+> Generated: 2025‑08‑07 | Author: system
 
-  ## Context
+## Objective
+Implement the recommendations from the **gh_COPILOT Project White‑Paper Blueprint (2025‑08‑07)** to close implementation gaps, finalise compliance metrics, enhance the enterprise dashboard and prepare the project for a production‑ready release.
 
-  ### Background
-  The gh_COPILOT repository is an enterprise‑grade HAR analysis toolkit with database‑first script generation, a dual‑copilot validation pattern and a Flask dashboard.  Key modules such as the disaster recovery system and dual‑copilot validation are implemented, but several components—particularly compliance aggregation, database synchronisation, monitoring and dashboard enhancements—remain incomplete.  Numerous tests and lint checks still fail, and quantum routines operate only in simulation.
+## Context
 
-  ### Current Status
-  - Dual‑copilot execution and anti‑recursion guards are operational, ensuring high‑quality outputs.
-  - Disaster recovery and backup validation have been implemented with external backup roots and checksums.
-  - Placeholder audits log unresolved `TODO`/`FIXME` entries and record correction history in `analytics.db`.
-  - Compliance scoring exists but composite aggregation is incomplete; dashboard metrics are not updated in real time.
-  - Database synchronisation engine requires conflict resolution and real‑time sync features.
-  - Many pytest modules fail, and Ruff reports numerous style issues; test coverage is below targets.
-  - The Flask dashboard lacks real‑time streaming, placeholder progress charts and correction log displays.
+### Background
+The gh_COPILOT repository is an enterprise‑grade HAR analysis toolkit with database‑first script generation, a dual‑copilot validation pattern and a Flask dashboard.  Key modules such as the disaster recovery system and dual‑copilot validation are implemented, but several components—particularly compliance aggregation, database synchronisation, monitoring and dashboard enhancements—remain incomplete.  Numerous tests and lint checks still fail, and quantum routines operate only in simulation.
 
-  ## Requirements & Scope
+### Current Status
+- Dual‑copilot execution and anti‑recursion guards are operational, ensuring high‑quality outputs.
+- Disaster recovery and backup validation have been implemented with external backup roots and checksums.
+- Placeholder audits log unresolved `TODO`/`FIXME` entries and record correction history in `analytics.db`.
+- Compliance scoring exists but composite aggregation is incomplete; dashboard metrics are not updated in real time.
+- Database synchronisation engine requires conflict resolution and real‑time sync features.
+- Many pytest modules fail, and Ruff reports numerous style issues; test coverage is below targets.
+- The Flask dashboard lacks real‑time streaming, placeholder progress charts and correction log displays.
 
-  ### Key Analysis Areas
-  | Area                                    | Method/Approach                                         | Expected Outcome                                     |
-  |----------------------------------------|---------------------------------------------------------|------------------------------------------------------|
-  | Compliance Metrics Aggregation         | Design and implement aggregator scripts; update dashboard | Composite scores calculated in real time and displayed on dashboard |
-  | Test & Lint Remediation                | Review failing tests and lint errors; refactor modules   | >95 % test coverage and minimal lint issues          |
-  | Database Synchronisation Engine        | Complete conflict resolution and event logging           | Reliable, real‑time cross‑database synchronisation   |
-  | Dashboard Enhancements                 | Add streaming metrics, placeholder progress and correction logs | Interactive dashboard with real‑time insights       |
-  | Monitoring & Self‑Healing Extension    | Integrate ML‑based anomaly detection and session wrap‑up validators | Continuous monitoring and automated remediation     |
-  | Quantum Roadmap Preparation            | Maintain simulation stubs; prepare hardware interfaces   | Smooth transition path for future hardware integration |
+## Requirements & Scope
 
-  ### Implementation Strategy
-  | Step                              | Criteria/Trigger                                      | Action Type                    | Risk Level  |
-  |----------------------------------|--------------------------------------------------------|--------------------------------|-------------|
-  | Define compliance metrics schema | Completion of design review                            | Planning                       | Medium      |
-  | Implement aggregator and tests   | Schema approval                                        | Development                    | High        |
-  | Refactor failing test modules    | Identification of high‑priority failures               | Development                    | High        |
-  | Resolve Ruff/pyright issues      | After unit test refactoring                            | Development                    | Medium      |
-  | Complete sync engine             | Availability of conflict‑resolution design             | Development                    | Medium      |
-  | Enhance dashboard features       | Backend metrics exposed via API                        | UI/UX Development             | Medium      |
-  | Extend monitoring & self‑healing | Models trained and validated                           | ML/Automation                  | Medium      |
-  | Prepare quantum hardware hooks   | Publication of hardware access roadmap                 | Research/Planning             | Low         |
+### Key Analysis Areas
+| Area                                    | Method/Approach                                         | Expected Outcome                                     |
+|----------------------------------------|---------------------------------------------------------|------------------------------------------------------|
+| Compliance Metrics Aggregation         | Design and implement aggregator scripts; update dashboard | Composite scores calculated in real time and displayed on dashboard |
+| Test & Lint Remediation                | Review failing tests and lint errors; refactor modules   | >95 % test coverage and minimal lint issues          |
+| Database Synchronisation Engine        | Complete conflict resolution and event logging           | Reliable, real‑time cross‑database synchronisation   |
+| Dashboard Enhancements                 | Add streaming metrics, placeholder progress and correction logs | Interactive dashboard with real‑time insights       |
+| Monitoring & Self‑Healing Extension    | Integrate ML‑based anomaly detection and session wrap‑up validators | Continuous monitoring and automated remediation     |
+| Quantum Roadmap Preparation            | Maintain simulation stubs; prepare hardware interfaces   | Smooth transition path for future hardware integration |
 
-  ##  Technical & Functional Specifications
-  - **Target(s):** Deploy a production‑ready HAR analysis platform with complete compliance metrics, reliable sync engines and an interactive dashboard.
-  - **Performance:** Dashboard latency < 1 minute; compliance scores update within 30 seconds of run completion.
-  - **Functionality:** Full dual‑copilot validation, database‑first generation, placeholder auditing, disaster‑recovery workflows and ML‑powered monitoring.
-  - **Availability:** 24×7 operation with scheduled backups and automated recovery; no unplanned downtime during normal operations.
+### Implementation Strategy
+| Step                              | Criteria/Trigger                                      | Action Type                    | Risk Level  |
+|----------------------------------|--------------------------------------------------------|--------------------------------|-------------|
+| Define compliance metrics schema | Completion of design review                            | Planning                       | Medium      |
+| Implement aggregator and tests   | Schema approval                                        | Development                    | High        |
+| Refactor failing test modules    | Identification of high‑priority failures               | Development                    | High        |
+| Resolve Ruff/pyright issues      | After unit test refactoring                            | Development                    | Medium      |
+| Complete sync engine             | Availability of conflict‑resolution design             | Development                    | Medium      |
+| Enhance dashboard features       | Backend metrics exposed via API                        | UI/UX Development             | Medium      |
+| Extend monitoring & self‑healing | Models trained and validated                           | ML/Automation                  | Medium      |
+| Prepare quantum hardware hooks   | Publication of hardware access roadmap                 | Research/Planning             | Low         |
 
-  ### Safety & Testing Requirements
-  - **Backup Plan:** Use `UnifiedDisasterRecoverySystem` with external backup roots and checksum verification.  Maintain at least two backup rotations.
-  - **Rollback/Recovery:** Implement rollback logs and ensure `add_rollback_logs.sql` is applied to `analytics.db`; verify restoration procedures through integration tests.
-  - **Testing Protocol:** Run `pytest`, `ruff`, and `EnterpriseComplianceValidator` before merging changes.  Achieve >95 % test coverage and zero unresolved placeholders.
-  - **Monitoring:** Deploy continuous operation monitors (`enterprise_compliance_monitor.py`, `continuous_operation_monitor.py`) and set alert thresholds.  Implement anomaly detection models using IsolationForest or similar algorithms.
+##  Technical & Functional Specifications
+- **Target(s):** Deploy a production‑ready HAR analysis platform with complete compliance metrics, reliable sync engines and an interactive dashboard.
+- **Performance:** Dashboard latency < 1 minute; compliance scores update within 30 seconds of run completion.
+- **Functionality:** Full dual‑copilot validation, database‑first generation, placeholder auditing, disaster‑recovery workflows and ML‑powered monitoring.
+- **Availability:** 24×7 operation with scheduled backups and automated recovery; no unplanned downtime during normal operations.
+
+### Safety & Testing Requirements
+- **Backup Plan:** Use `UnifiedDisasterRecoverySystem` with external backup roots and checksum verification.  Maintain at least two backup rotations.
+- **Rollback/Recovery:** Implement rollback logs and ensure `add_rollback_logs.sql` is applied to `analytics.db`; verify restoration procedures through integration tests.
+- **Testing Protocol:** Run `pytest`, `ruff`, and `EnterpriseComplianceValidator` before merging changes.  Achieve >95 % test coverage and zero unresolved placeholders.
+- **Monitoring:** Deploy continuous operation monitors (`enterprise_compliance_monitor.py`, `continuous_operation_monitor.py`) and set alert thresholds.  Implement anomaly detection models using IsolationForest or similar algorithms.
 
 ## Deliverables
 
 ### 1 Analysis/Discovery Report
-  ```markdown
-  | Item/Name                         | Details/Notes                                                   | Last Updated  |
-  | -------------------------------- | ---------------------------------------------------------------- | ------------- |
-  | Compliance metrics design        | Specification for composite scoring fields and data sources     | 2025‑08‑07    |
-  | Failing test catalogue           | List of failing pytest modules and root causes                  | 2025‑08‑07    |
-  | Sync engine gap analysis         | Identification of missing conflict resolution and event logging | 2025‑08‑07    |
-  | Dashboard feature requirements   | Required real‑time metrics, placeholder progress and logs       | 2025‑08‑07    |
-  | Monitoring/ML strategy           | Approach for anomaly detection and session wrap‑up validators    | 2025‑08‑07    |
-  | Quantum integration roadmap      | Summary of simulation stubs and future hardware milestones      | 2025‑08‑07    |
-  ```
+```markdown
+| Item/Name                         | Details/Notes                                                   | Last Updated  |
+| -------------------------------- | ---------------------------------------------------------------- | ------------- |
+| Compliance metrics design        | Specification for composite scoring fields and data sources     | 2025‑08‑07    |
+| Failing test catalogue           | List of failing pytest modules and root causes                  | 2025‑08‑07    |
+| Sync engine gap analysis         | Identification of missing conflict resolution and event logging | 2025‑08‑07    |
+| Dashboard feature requirements   | Required real‑time metrics, placeholder progress and logs       | 2025‑08‑07    |
+| Monitoring/ML strategy           | Approach for anomaly detection and session wrap‑up validators    | 2025‑08‑07    |
+| Quantum integration roadmap      | Summary of simulation stubs and future hardware milestones      | 2025‑08‑07    |
+```
 
 ### 2 Implementation/Action Plan
-  ```markdown
-  | Source/Origin                    | Action                                          | Target/Result                                 | Risk Level | Method/Notes                                       |
-  | ------------------------------- | ----------------------------------------------- | --------------------------------------------- | ---------- | -------------------------------------------------- |
-  | White‑paper recommendations     | Design and implement compliance aggregator      | Real‑time compliance scores                   | High       | Develop aggregation scripts and integrate into dashboard |
-  | Failing test modules            | Refactor code and update tests                  | All tests passing                            | High       | Prioritise critical modules; implement missing functions |
-  | Ruff/pyright reports            | Fix style errors and missing imports            | Codebase conforms to PEP 8 and type hints     | Medium     | Use `ruff --fix` and add type annotations           |
-  | Sync engine status              | Complete conflict resolution and logging        | Reliable synchronisation across databases     | Medium     | Implement `SchemaMapper` callbacks and transaction logging |
-  | Dashboard module                | Add streaming metrics and progress charts       | Interactive real‑time dashboard               | Medium     | Extend Flask routes and integrate websocket/streaming |
-  | Monitoring scripts              | Enhance ML models and link to session lifecycle | Automated anomaly detection and remediation   | Medium     | Train models using historic metrics and integrate session validators |
-  | Quantum roadmap                 | Draft hardware integration guidelines           | Preparedness for IBM/D‑Wave/IonQ pilots       | Low        | Document API changes; maintain simulation stubs    |
-  ```
+```markdown
+| Source/Origin                    | Action                                          | Target/Result                                 | Risk Level | Method/Notes                                       |
+| ------------------------------- | ----------------------------------------------- | --------------------------------------------- | ---------- | -------------------------------------------------- |
+| White‑paper recommendations     | Design and implement compliance aggregator      | Real‑time compliance scores                   | High       | Develop aggregation scripts and integrate into dashboard |
+| Failing test modules            | Refactor code and update tests                  | All tests passing                            | High       | Prioritise critical modules; implement missing functions |
+| Ruff/pyright reports            | Fix style errors and missing imports            | Codebase conforms to PEP 8 and type hints     | Medium     | Use `ruff --fix` and add type annotations           |
+| Sync engine status              | Complete conflict resolution and logging        | Reliable synchronisation across databases     | Medium     | Implement `SchemaMapper` callbacks and transaction logging |
+| Dashboard module                | Add streaming metrics and progress charts       | Interactive real‑time dashboard               | Medium     | Extend Flask routes and integrate websocket/streaming |
+| Monitoring scripts              | Enhance ML models and link to session lifecycle | Automated anomaly detection and remediation   | Medium     | Train models using historic metrics and integrate session validators |
+| Quantum roadmap                 | Draft hardware integration guidelines           | Preparedness for IBM/D‑Wave/IonQ pilots       | Low        | Document API changes; maintain simulation stubs    |
+```
 
 ### 3 Timeline & Milestones
-  ```markdown
-  | Phase/Stage              | Duration/Date        | Key Tasks                                            | Validation/Sign‑off                |
-  | ------------------------ | -------------------- | ---------------------------------------------------- | ---------------------------------- |
-  | Planning & Requirements  | Aug 7 – Aug 13       | Finalise compliance schema, identify failing tests    | Lead architect & compliance team   |
-  | Development Sprint 1     | Aug 14 – Aug 27      | Build aggregator; refactor high‑priority tests        | QA and test lead                   |
-  | Development Sprint 2     | Aug 28 – Sep 10      | Complete sync engine and dashboard enhancements       | Project manager & stakeholders     |
-  | Stabilisation & Testing  | Sep 11 – Sep 24      | Resolve lint issues, run regression tests, update docs | QA sign‑off and documentation team |
-  | Review & Pilot Deployment| Sep 25 – Oct 1       | Deploy to staging, gather feedback, refine as needed | Executive sponsor & pilot users    |
-  ```
+```markdown
+| Phase/Stage              | Duration/Date        | Key Tasks                                            | Validation/Sign‑off                |
+| ------------------------ | -------------------- | ---------------------------------------------------- | ---------------------------------- |
+| Planning & Requirements  | Aug 7 – Aug 13       | Finalise compliance schema, identify failing tests    | Lead architect & compliance team   |
+| Development Sprint 1     | Aug 14 – Aug 27      | Build aggregator; refactor high‑priority tests        | QA and test lead                   |
+| Development Sprint 2     | Aug 28 – Sep 10      | Complete sync engine and dashboard enhancements       | Project manager & stakeholders     |
+| Stabilisation & Testing  | Sep 11 – Sep 24      | Resolve lint issues, run regression tests, update docs | QA sign‑off and documentation team |
+| Review & Pilot Deployment| Sep 25 – Oct 1       | Deploy to staging, gather feedback, refine as needed | Executive sponsor & pilot users    |
+```
 
 ## Success Criteria
 
@@ -271,16 +273,16 @@ description: |
 - [ ] Self‑healing systems proactively detect and remediate anomalies without human intervention.
 
 ## Risk Management
-  ```markdown
-  | Risk/Scenario                          | Probability | Impact   | Mitigation Strategy                                           |
-  | ------------------------------------- | ----------- | -------- | -------------------------------------------------------------- |
-  | Delay in compliance aggregator design  | Medium      | High     | Conduct early design reviews; allocate dedicated resources     |
-  | Persisting test failures               | High        | High     | Prioritise test remediation; assign ownership to module teams  |
-  | Sync engine conflict errors            | Medium      | Medium   | Implement robust conflict resolution; add extensive logging    |
-  | Dashboard performance bottlenecks      | Medium      | Medium   | Profile and optimise queries; use caching and streaming        |
-  | ML model inaccuracies                  | Low         | Medium   | Validate models on historic data; monitor performance          |
-  | Quantum integration delays             | Low         | Low      | Maintain simulation fallback; adjust roadmap as needed         |
-  ```
+```markdown
+| Risk/Scenario                          | Probability | Impact   | Mitigation Strategy                                           |
+| ------------------------------------- | ----------- | -------- | -------------------------------------------------------------- |
+| Delay in compliance aggregator design  | Medium      | High     | Conduct early design reviews; allocate dedicated resources     |
+| Persisting test failures               | High        | High     | Prioritise test remediation; assign ownership to module teams  |
+| Sync engine conflict errors            | Medium      | Medium   | Implement robust conflict resolution; add extensive logging    |
+| Dashboard performance bottlenecks      | Medium      | Medium   | Profile and optimise queries; use caching and streaming        |
+| ML model inaccuracies                  | Low         | Medium   | Validate models on historic data; monitor performance          |
+| Quantum integration delays             | Low         | Low      | Maintain simulation fallback; adjust roadmap as needed         |
+```
 
 ## Notes
 
@@ -294,4 +296,3 @@ description: |
 - [ ] Generate a new daily whitepaper summary after each milestone.
 - [ ] Conduct a pilot deployment review and capture feedback for continuous improvement.
 ---
-````
