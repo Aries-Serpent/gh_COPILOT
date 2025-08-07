@@ -16,13 +16,19 @@ dashboard.
 
 - `dashboard/compliance_metrics_updater.py` loads the correction summary and
   merges the data with other compliance metrics.
-- The updater exposes a list of correction logs and an average compliance score
-  alongside placeholder and violation statistics.
+- Each compliance run records a **composite score** and its component
+  contributions (lint, tests, and placeholder resolution) into
+  `databases/analytics.db` under the `compliance_scores` table.
+- The updater exposes a list of correction logs, the latest composite score and
+  a trend of recent scores alongside placeholder and violation statistics.
 
 ## Dashboard Display
 
 - `dashboard/templates/metrics.html` presents the aggregated compliance score
   and renders each correction log with its individual score and rationale.
+- `dashboard/enterprise_dashboard.py` provides a `/compliance-metrics` route
+  returning the most recent composite score, its component breakdown, and a
+  history of prior scores for trend visualizations.
 
 Running `compliance_metrics_updater.py` after executing the correction logger
 keeps the dashboard synchronized with the latest corrections and compliance

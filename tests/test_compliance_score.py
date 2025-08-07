@@ -8,7 +8,8 @@ from enterprise_modules import compliance
 def test_score_persistence_and_fetch(tmp_path: Path) -> None:
     db = tmp_path / "analytics.db"
     score = compliance.calculate_compliance_score(1, 2, 0, 0, 0)
-    compliance.persist_compliance_score(score, db_path=db)
+    _, breakdown = compliance.calculate_composite_score(1, 2, 0, 0, 0)
+    compliance.persist_compliance_score(score, breakdown, db_path=db)
     assert compliance.get_latest_compliance_score(db_path=db) == score
 
 

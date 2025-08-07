@@ -2,6 +2,7 @@ import json
 import pytest
 
 import dashboard.enterprise_dashboard as ed
+import dashboard.integrated_dashboard as gui
 from enterprise_modules.compliance import (
     calculate_composite_score,
     persist_compliance_score,
@@ -13,11 +14,12 @@ def test_composite_score_persisted_and_served(tmp_path, monkeypatch):
     metrics_file = tmp_path / "metrics.json"
     metrics_file.write_text(json.dumps({"metrics": {}}), encoding="utf-8")
     db = tmp_path / "analytics.db"
-    monkeypatch.setattr(ed, "METRICS_FILE", metrics_file)
+    monkeypatch.setattr(gui, "METRICS_FILE", metrics_file)
+    monkeypatch.setattr(gui, "ANALYTICS_DB", db)
     monkeypatch.setattr(ed, "ANALYTICS_DB", db)
 
     score, breakdown = calculate_composite_score(5, 8, 2, 1, 4)
-    persist_compliance_score(score, db_path=db)
+    persist_compliance_score(score, breakdown, db_path=db)
     record_code_quality_metrics(5, 8, 2, 1, 4, score, db_path=db)
 
     client = ed.app.test_client()
