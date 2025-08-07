@@ -20,11 +20,11 @@ These task stubs originate from the gap analysis report and have been formally s
 
 ## 5. Enhance Session Management Modules
 - **Statement Excerpt:** "Integrity Checks: Implement zero‑byte detection, wrap‑up validation and anti‑recursion safeguards."
-- **Status:** Started – session integrity rules and guard utilities initialized.
+- **Status:** In Progress – zero-byte detection context manager implemented; wrap-up validation and anti-recursion safeguards active.
 
 ## 6. Extend Script Generation and Cleanup
 - **Statement Excerpt:** "Pattern Library: Extend template intelligence using classification and clustering (e.g., KMeans)."
-- **Status:** Started – template classification strategy and cleanup workflow sketched.
+- **Status:** In Progress – KMeans clustering operational for template classification with cleanup workflow scaffolded.
 
 ## 7. Align Documentation with Implementation
 - **Statement Excerpt:** "Audit Pass: Review whitepaper, README and guides; reconcile overstated claims (quantum features, test success)."
