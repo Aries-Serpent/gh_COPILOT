@@ -13,7 +13,7 @@ All logs reside in the `logs/` directory or the external path `$GH_COPILOT_BACKU
 - **Timestamped logs**: `<name>_YYYYMMDD_HHMMSS.log`
 - **Session wrap‑up logs**: `session_wrap_up_<ID>.json`
 - **Compliance logs**: `compliance_<YYYYMMDD>.log`
-- **Audit logs**: `enterprise_audit.log` or `audit_<YYYYMMDD>.log`
+- **Audit logs**: `enterprise_audit.log` or `audit_<YYYYMMDD>.log` (structured according to `security/security_audit_framework.json`)
 - **Rollback logs**: `rollback_<YYYYMMDD>.log`
 
 ## Rotation Schedule
