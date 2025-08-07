@@ -25,6 +25,7 @@ from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
 from config.secret_manager import get_secret
 from utils.cross_platform_paths import CrossPlatformPathManager
 from enterprise_modules.compliance import get_latest_compliance_score
+from web_gui import middleware
 
 workspace_root = CrossPlatformPathManager.get_workspace_path()
 ANALYTICS_DB = Path(os.getenv("ANALYTICS_DB", workspace_root / "databases" / "analytics.db"))
@@ -34,6 +35,7 @@ TEMPLATES = Path(__file__).resolve().parents[2] / "templates"
 STATIC = Path(__file__).resolve().parents[2] / "static"
 app = Flask(__name__, template_folder=str(TEMPLATES), static_folder=str(STATIC))
 app.secret_key = get_secret("FLASK_SECRET_KEY", "dev_key")
+middleware.init_app(app)
 LOG_FILE = Path("artifacts/logs/dashboard") / "dashboard.log"
 LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()])
