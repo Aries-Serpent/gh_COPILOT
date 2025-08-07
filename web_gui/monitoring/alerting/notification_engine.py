@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
-__all__ = ["send_notification"]
+from typing import List
+
+__all__ = ["send_notification", "NOTIFICATION_LOG"]
+
+NOTIFICATION_LOG: List[str] = []
 
 
 def send_notification(message: str) -> None:
-    """Placeholder notification sender."""
+    """Record ``message`` and emit it to stdout."""
+    NOTIFICATION_LOG.append(message)
     print(message)
