@@ -24,8 +24,8 @@ TEMPLATES_DIR = WORKSPACE_ROOT / "web_gui" / "templates"
 __all__ = [
     "check_database_connection",
     "check_template_rendering",
-    "check_performance_thresholds",
-    "check_compliance_data",
+    "check_system_resources",
+    "check_compliance_status",
     "check_quantum_score",
 ]
 
@@ -58,22 +58,22 @@ def check_template_rendering(
         return False
 
 
-def check_performance_thresholds(
-    cpu_limit: float = 90.0, memory_limit: float = 90.0
+def check_system_resources(
+    cpu_threshold: float = 90.0, mem_threshold: float = 90.0
 ) -> bool:
-    """Return ``True`` if current CPU and memory usage are below limits."""
+    """Return ``True`` if system resource usage is below thresholds."""
     metrics = collect_performance_metrics()
     return (
-        metrics.get("cpu_percent", 0.0) <= cpu_limit
-        and metrics.get("memory_percent", 0.0) <= memory_limit
+        metrics.get("cpu_percent", 0.0) < cpu_threshold
+        and metrics.get("memory_percent", 0.0) < mem_threshold
     )
 
 
-def check_compliance_data(data: Dict[str, str]) -> bool:
-    """Proxy to :func:`check_compliance` for convenience in health checks."""
+def check_compliance_status(data: Dict[str, str]) -> bool:
+    """Proxy to :func:`check_compliance` for convenience."""
     return check_compliance(data)
 
 
 def check_quantum_score(values: Iterable[float], threshold: float = 0.0) -> bool:
-    """Return ``True`` if the quantum score meets or exceeds ``threshold``."""
+    """Return ``True`` if the quantum score meets ``threshold``."""
     return quantum_metric(values) >= threshold

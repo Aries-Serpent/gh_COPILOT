@@ -1,8 +1,3 @@
-"""Simple analytics helpers."""
+"""Analytics utilities package."""
 
-__all__ = [
-    "user_behavior",
-    "performance_analysis",
-    "pattern_recognition",
-    "predictive_models",
-]
+__all__ = []

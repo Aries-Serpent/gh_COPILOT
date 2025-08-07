@@ -1,12 +1,14 @@
-"""Performance analysis helpers."""
+"""Simple performance analysis helpers."""
 
 from __future__ import annotations
 
-__all__ = ["calculate_throughput"]
+from typing import Dict
+
+__all__ = ["summarize_performance"]
 
 
-def calculate_throughput(requests: int, seconds: float) -> float:
-    """Return requests processed per second."""
-    if seconds <= 0:
+def summarize_performance(metrics: Dict[str, float]) -> float:
+    """Return the average value of the provided metrics."""
+    if not metrics:
         return 0.0
-    return requests / seconds
+    return sum(metrics.values()) / len(metrics)
