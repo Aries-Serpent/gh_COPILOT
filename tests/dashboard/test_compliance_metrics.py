@@ -1,7 +1,7 @@
 import json
 
 from validation import compliance_report_generator as crg
-from web_gui import dashboard_actionable_gui as gui
+from dashboard import integrated_dashboard as gui
 
 
 def test_db_to_ui_propagation(tmp_path, monkeypatch):

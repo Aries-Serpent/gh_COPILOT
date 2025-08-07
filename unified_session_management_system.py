@@ -25,7 +25,7 @@ __all__ = [
 ]
 
 
-def _record_zero_byte_findings(paths: list[Path], phase: str) -> None:
+def _record_zero_byte_findings(paths: list[Path], phase: str, session_id: str) -> None:
     """Persist zero-byte scan results to ``analytics.db``."""
     timestamp = datetime.utcnow().isoformat()
     with sqlite3.connect(ANALYTICS_DB) as conn:
@@ -34,29 +34,30 @@ def _record_zero_byte_findings(paths: list[Path], phase: str) -> None:
             CREATE TABLE IF NOT EXISTS zero_byte_files (
                 path TEXT NOT NULL,
                 phase TEXT NOT NULL,
+                session_id TEXT NOT NULL,
                 ts   TEXT NOT NULL
             )
             """
         )
         conn.executemany(
-            "INSERT INTO zero_byte_files (path, phase, ts) VALUES (?, ?, ?)",
-            [(str(p), phase, timestamp) for p in paths] or [],
+            "INSERT INTO zero_byte_files (path, phase, session_id, ts) VALUES (?, ?, ?, ?)",
+            [(str(p), phase, session_id, timestamp) for p in paths] or [],
         )
 
 
 @contextmanager
-def ensure_no_zero_byte_files(root: str | Path):
+def ensure_no_zero_byte_files(root: str | Path, session_id: str) -> None:
     """Verify the workspace is free of zero-byte files before and after the block."""
     root_path = Path(root)
     before = detect_zero_byte_files(root_path)
-    _record_zero_byte_findings(before, "before")
+    _record_zero_byte_findings(before, "before", session_id)
     if before:
         for path in before:
             path.unlink(missing_ok=True)
         raise RuntimeError(f"Zero-byte files detected: {before}")
     yield
     after = detect_zero_byte_files(root_path)
-    _record_zero_byte_findings(after, "after")
+    _record_zero_byte_findings(after, "after", session_id)
     if after:
         for path in after:
             path.unlink(missing_ok=True)
@@ -76,13 +77,25 @@ def prevent_recursion(func: Callable) -> Callable:
 
 
 @prevent_recursion
-def finalize_session(log_dir: str | Path) -> str:
+def finalize_session(
+    log_dir: str | Path,
+    root: str | Path | None = None,
+    session_id: str = "unknown",
+) -> str:
     """Verify logs are complete and record a session integrity hash.
+
+    A zero-byte file scan is executed before and after processing. Results are
+    persisted to ``analytics.db`` using ``session_id`` for traceability.
 
     Parameters
     ----------
     log_dir:
         Directory containing session log files.
+    root:
+        Workspace root to scan for zero-byte files. Defaults to ``log_dir``'s
+        parent directory.
+    session_id:
+        Identifier recorded alongside zero-byte findings.
 
     Returns
     -------
@@ -90,32 +103,34 @@ def finalize_session(log_dir: str | Path) -> str:
         SHA256 hash of concatenated log contents.
     """
 
-    log_path = Path(log_dir)
-    logs = sorted(p for p in log_path.glob("*.log") if p.is_file())
-    if not logs:
-        raise RuntimeError("No log files found for session")
-    for entry in logs:
-        if entry.stat().st_size == 0:
-            raise RuntimeError(f"Empty log file detected: {entry}")
+    root_path = Path(root) if root else Path(log_dir).parent
+    with ensure_no_zero_byte_files(root_path, session_id):
+        log_path = Path(log_dir)
+        logs = sorted(p for p in log_path.glob("*.log") if p.is_file())
+        if not logs:
+            raise RuntimeError("No log files found for session")
+        for entry in logs:
+            if entry.stat().st_size == 0:
+                raise RuntimeError(f"Empty log file detected: {entry}")
 
-    digest = sha256()
-    for entry in logs:
-        digest.update(entry.read_bytes())
-    hash_value = digest.hexdigest()
+        digest = sha256()
+        for entry in logs:
+            digest.update(entry.read_bytes())
+        hash_value = digest.hexdigest()
 
-    with sqlite3.connect(ANALYTICS_DB) as conn:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS session_hashes (
-                hash TEXT PRIMARY KEY,
-                ts   TEXT NOT NULL
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS session_hashes (
+                    hash TEXT PRIMARY KEY,
+                    ts   TEXT NOT NULL
+                )
+                """
             )
-            """
-        )
-        conn.execute(
-            "INSERT OR IGNORE INTO session_hashes (hash, ts) VALUES (?, ?)",
-            (hash_value, datetime.utcnow().isoformat()),
-        )
+            conn.execute(
+                "INSERT OR IGNORE INTO session_hashes (hash, ts) VALUES (?, ?)",
+                (hash_value, datetime.utcnow().isoformat()),
+            )
 
     return hash_value
 
@@ -134,10 +149,15 @@ def main() -> int:
 
     system = UnifiedSessionManagementSystem()
     logger.info("Lifecycle start")
-    success = system.start_session()
-    with ensure_no_zero_byte_files(system.workspace_root):
+    success = False
+    with ensure_no_zero_byte_files(system.workspace_root, system.session_id):
+        success = system.start_session()
         system.end_session()
-        finalize_session(Path(system.workspace_root) / "logs")
+        finalize_session(
+            Path(system.workspace_root) / "logs",
+            system.workspace_root,
+            system.session_id,
+        )
     logger.info("Lifecycle end")
     print("Valid" if success else "Invalid")
     return 0 if success else 1

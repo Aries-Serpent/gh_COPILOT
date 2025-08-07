@@ -40,6 +40,8 @@ from scripts.validation.secondary_copilot_validator import SecondaryCopilotValid
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.validation_utils import anti_recursion_guard, validate_enterprise_environment
 from utils.lessons_learned_integrator import store_lesson
+from unified_session_management_system import ensure_no_zero_byte_files
+from utils.logging_utils import ANALYTICS_DB
 
 try:
     from scripts.orchestrators.unified_wrapup_orchestrator import (
@@ -67,10 +69,17 @@ def ensure_session_table(conn: sqlite3.Connection) -> None:
             status TEXT,
             end_time TEXT,
             compliance_score REAL,
-            error_details TEXT
+            error_details TEXT,
+            zero_byte_files INTEGER DEFAULT 0
         )
         """
     )
+    cur.execute("PRAGMA table_info(unified_wrapup_sessions)")
+    cols = [row[1] for row in cur.fetchall()]
+    if "zero_byte_files" not in cols:
+        cur.execute(
+            "ALTER TABLE unified_wrapup_sessions ADD COLUMN zero_byte_files INTEGER DEFAULT 0"
+        )
     conn.commit()
 
 
@@ -96,35 +105,62 @@ def setup_logging(verbose: bool) -> Path:
     return log_file
 
 
-def start_session_entry(conn: sqlite3.Connection) -> int | None:
+def start_session_entry(conn: sqlite3.Connection) -> tuple[int | None, str]:
     cur = conn.cursor()
     start_time = datetime.now(UTC).isoformat()
+    session_id = f"WLC-{start_time}"
     cur.execute(
         """
         INSERT INTO unified_wrapup_sessions (
             session_id, start_time, status
         ) VALUES (?, ?, ?)
         """,
-        (f"WLC-{start_time}", start_time, "RUNNING"),
+        (session_id, start_time, "RUNNING"),
     )
     conn.commit()
-    return cur.lastrowid
+    return cur.lastrowid, session_id
 
 
 def finalize_session_entry(
-    conn: sqlite3.Connection, entry_id: int, compliance_score: float, error: str | None = None
+    conn: sqlite3.Connection,
+    entry_id: int,
+    compliance_score: float,
+    *,
+    zero_byte_files: int = 0,
+    error: str | None = None,
 ) -> None:
     cur = conn.cursor()
     end_time = datetime.now(UTC).isoformat()
     cur.execute(
         """
         UPDATE unified_wrapup_sessions
-        SET end_time = ?, status = ?, compliance_score = ?, error_details = ?
+        SET end_time = ?, status = ?, compliance_score = ?, error_details = ?, zero_byte_files = ?
         WHERE rowid = ?
         """,
-        (end_time, "COMPLETED" if not error else "FAILED", compliance_score, error, entry_id),
+        (
+            end_time,
+            "COMPLETED" if not error else "FAILED",
+            compliance_score,
+            error,
+            zero_byte_files,
+            entry_id,
+        ),
     )
     conn.commit()
+
+
+def _zero_byte_count(session_id: str) -> int:
+    try:
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM zero_byte_files WHERE session_id=?",
+                (session_id,),
+            )
+            row = cur.fetchone()
+            return int(row[0]) if row else 0
+    except Exception:  # pragma: no cover - logging only
+        logging.exception("Failed to read zero-byte scan results")
+        return 0
 
 
 def validate_environment() -> bool:
@@ -182,30 +218,38 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
 
     with get_connection(db_path) as conn:
         ensure_session_table(conn)
-        entry_id = start_session_entry(conn)
+        entry_id, session_id = start_session_entry(conn)
         if entry_id is None:
             raise RuntimeError("Failed to create session entry in the database.")
         compliance_score = 1.0
         try:
-            for i in tqdm(range(steps), desc="WLC Session", unit="step"):
-                logging.info("Step %d/%d completed", i + 1, steps)
-                sleep_time = 0.1
-                if os.getenv("TEST"):
-                    sleep_time = 0.01
-                time.sleep(sleep_time)
+            with ensure_no_zero_byte_files(
+                CrossPlatformPathManager.get_workspace_path(), session_id
+            ):
+                for i in tqdm(range(steps), desc="WLC Session", unit="step"):
+                    logging.info("Step %d/%d completed", i + 1, steps)
+                    sleep_time = 0.1
+                    if os.getenv("TEST"):
+                        sleep_time = 0.01
+                    time.sleep(sleep_time)
 
-            orchestrator = UnifiedWrapUpOrchestrator(
-                workspace_path=str(CrossPlatformPathManager.get_workspace_path())
-            )
-            result = orchestrator.execute_unified_wrapup()
-            compliance_score = result.compliance_score / 100.0
-
+                orchestrator = UnifiedWrapUpOrchestrator(
+                    workspace_path=str(CrossPlatformPathManager.get_workspace_path())
+                )
+                result = orchestrator.execute_unified_wrapup()
+                compliance_score = result.compliance_score / 100.0
         except Exception as exc:  # noqa: BLE001
             logging.exception("WLC session failed")
-            finalize_session_entry(conn, entry_id, 0.0, error=str(exc))
+            zero_count = _zero_byte_count(session_id)
+            finalize_session_entry(
+                conn, entry_id, 0.0, zero_byte_files=zero_count, error=str(exc)
+            )
             raise
 
-        finalize_session_entry(conn, entry_id, compliance_score)
+        zero_count = _zero_byte_count(session_id)
+        finalize_session_entry(
+            conn, entry_id, compliance_score, zero_byte_files=zero_count
+        )
         store_lesson(
             description=f"WLC session completed with score {compliance_score:.2f}",
             source="wlc_session_manager",

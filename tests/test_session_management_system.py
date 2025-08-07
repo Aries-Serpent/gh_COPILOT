@@ -80,6 +80,15 @@ def test_zero_byte_file_cleanup(monkeypatch, tmp_path):
     assert not zero.exists()
 
 
+def test_scan_zero_byte_files(monkeypatch, tmp_path):
+    harness = USMSTestHarness(monkeypatch, tmp_path)
+    zero = tmp_path / "empty.txt"
+    zero.touch()
+    removed = harness.system._scan_zero_byte_files()
+    assert zero not in removed or not zero.exists()
+    assert removed and removed[0].name == "empty.txt"
+
+
 def test_prevent_double_start(monkeypatch, tmp_path):
     harness = USMSTestHarness(monkeypatch, tmp_path)
     assert harness.system.start_session()

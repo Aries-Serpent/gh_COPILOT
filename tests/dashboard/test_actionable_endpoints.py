@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from web_gui import dashboard_actionable_gui as gui
+from dashboard import integrated_dashboard as gui
 
 
 @pytest.fixture()
@@ -56,3 +56,46 @@ def test_violations_endpoint_no_recursion_warning(gui_app, caplog):
         data = client.get("/violations").get_json()
     assert data["violations"][0]["details"] == "violation"
     assert "recurs" not in caplog.text.lower()
+
+
+def test_metrics_include_anomaly_and_quantum(gui_app):
+    db = Path(gui.ANALYTICS_DB)
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            """
+            CREATE TABLE anomaly_results (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT,
+                metrics_json TEXT,
+                anomaly_score REAL,
+                quantum_score REAL,
+                composite_score REAL
+            )
+            """
+        )
+        conn.execute(
+            """
+            INSERT INTO anomaly_results (metrics_json, anomaly_score, quantum_score, composite_score)
+            VALUES ('{}', 0.4, 0.6, 0.5)
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE quantum_scores (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT,
+                metrics_json TEXT,
+                score REAL
+            )
+            """
+        )
+        conn.execute(
+            "INSERT INTO quantum_scores (metrics_json, score) VALUES ('{}', 0.9)"
+        )
+        conn.commit()
+
+    client = gui_app.test_client()
+    data = client.get("/metrics").get_json()
+    assert data["latest_anomaly_score"] == 0.4
+    assert data["latest_anomaly_composite"] == 0.5
+    assert data["latest_quantum_score"] == 0.9

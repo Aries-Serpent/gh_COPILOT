@@ -13,15 +13,24 @@ from __future__ import annotations
 
 import json
 import os
+import pickle
 import sqlite3
+import time
+import logging
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, TYPE_CHECKING
 
 import psutil
 from sklearn.ensemble import IsolationForest
-from scripts.monitoring.unified_monitoring_optimization_system import (
-    EnterpriseUtility,
-)
+try:  # pragma: no cover - optional dependency chain
+    from scripts.monitoring.unified_monitoring_optimization_system import (
+        EnterpriseUtility,
+    )
+except Exception:  # pragma: no cover - provide stub when deps missing
+    class EnterpriseUtility:  # type: ignore
+        """Fallback stub used when the monitoring utilities are unavailable."""
+
+        pass
 
 try:  # pragma: no cover - optional quantum library
     from quantum_algorithm_library_expansion import quantum_score_stub
@@ -30,14 +39,26 @@ except Exception:  # pragma: no cover - library may be missing
 
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "databases" / "analytics.db"
+MODEL_PATH = WORKSPACE_ROOT / "artifacts" / "anomaly_iforest.pkl"
+WEB_DASHBOARD_ENABLED = os.getenv("WEB_DASHBOARD_ENABLED") == "1"
+logger = logging.getLogger(__name__)
+
+
+def _update_dashboard(payload: Dict[str, float]) -> None:
+    """Emit payload to the dashboard when enabled."""
+
+    if WEB_DASHBOARD_ENABLED:
+        logger.info("[DASHBOARD] %s", payload)
 
 __all__ = [
     "EnterpriseUtility",
     "collect_metrics",
     "push_metrics",
+    "train_anomaly_model",
     "detect_anomalies",
     "QuantumInterface",
     "auto_heal_session",
+    "anomaly_detection_loop",
     "record_quantum_score",
 ]
 
@@ -126,6 +147,12 @@ def push_metrics(
                 (session_id, json.dumps(metrics)),
             )
         conn.commit()
+        count = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+    if count >= 5:
+        try:
+            train_anomaly_model(db_path=path)
+        except Exception:
+            pass
 
 
 def collect_metrics(
@@ -180,6 +207,81 @@ def _train_isolation_forest(
     return model
 
 
+def train_anomaly_model(
+    *,
+    db_path: Optional[Path] = None,
+    model_path: Optional[Path] = None,
+    contamination: float = 0.1,
+) -> Optional[int]:
+    """Fit an :class:`IsolationForest` using historical metrics.
+
+    Metrics are read from the ``monitoring_metrics`` table in ``analytics.db``.
+    The fitted model along with the feature ordering is persisted to
+    ``model_path`` and a training record is logged to ``anomaly_model_metadata``
+    for dashboard visibility.
+
+    Parameters
+    ----------
+    db_path:
+        Optional path to the analytics database. Defaults to :data:`DB_PATH`.
+    model_path:
+        Optional path where the trained model is persisted. Defaults to
+        :data:`MODEL_PATH`.
+    contamination:
+        Proportion of outliers expected in the historical data.
+
+    Returns
+    -------
+    Optional[int]
+        The version number of the persisted model or ``None`` when no
+        historical metrics were available for training.
+    """
+
+    db_file = db_path or DB_PATH
+    model_file = model_path or MODEL_PATH
+
+    with sqlite3.connect(db_file) as conn:
+        try:
+            rows = conn.execute(
+                "SELECT metrics_json FROM monitoring_metrics ORDER BY id"
+            ).fetchall()
+        except sqlite3.Error:
+            return None
+    if not rows:
+        return None
+
+    metrics_list = [json.loads(row[0]) for row in rows]
+    keys = sorted(metrics_list[0])
+    data = [[m[k] for k in keys] for m in metrics_list]
+    model = _train_isolation_forest(data, contamination=contamination)
+
+    model_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(model_file, "wb") as fh:
+        pickle.dump({"model": model, "keys": keys}, fh)
+
+    with sqlite3.connect(db_file) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS anomaly_model_metadata (
+                version INTEGER PRIMARY KEY AUTOINCREMENT,
+                trained_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                model_path TEXT NOT NULL,
+                contamination REAL NOT NULL,
+                row_count INTEGER NOT NULL
+            )
+            """
+        )
+        conn.execute(
+            "INSERT INTO anomaly_model_metadata (model_path, contamination, row_count) VALUES (?, ?, ?)",
+            (str(model_file), contamination, len(data)),
+        )
+        conn.commit()
+        version = conn.execute(
+            "SELECT MAX(version) FROM anomaly_model_metadata"
+        ).fetchone()[0]
+    return int(version)
+
+
 def _ensure_anomaly_table(conn: sqlite3.Connection) -> None:
     """Create the ``anomaly_results`` table if required."""
 
@@ -202,11 +304,14 @@ def detect_anomalies(
     *,
     contamination: float = 0.1,
     db_path: Optional[Path] = None,
+    model_path: Optional[Path] = None,
+    retrain_interval: float = 3600,
 ) -> List[Dict[str, float]]:
     """Identify anomalous metric entries and persist results.
 
-    The function trains an :class:`IsolationForest` on ``history`` and
-    computes anomaly scores for each entry. When the optional
+    The function loads a persisted :class:`IsolationForest` model, training it
+    periodically from historical data stored in ``analytics.db``. It then
+    computes anomaly scores for ``history`` using this model. When the optional
     :func:`quantum_score_stub` is available a composite health metric is
     produced by averaging the anomaly score with the quantum score. All
     detected anomalies are stored in ``analytics.db`` for dashboard
@@ -221,6 +326,11 @@ def detect_anomalies(
     db_path:
         Optional path to the analytics database. Defaults to
         :data:`DB_PATH`.
+    model_path:
+        Optional path to the persisted model. Defaults to
+        :data:`MODEL_PATH`.
+    retrain_interval:
+        Seconds after which the model is retrained using historical metrics.
 
     Returns
     -------
@@ -234,16 +344,35 @@ def detect_anomalies(
     if not history_list:
         return []
 
-    keys = sorted(history_list[0])
-    data = [[m[k] for k in keys] for m in history_list]
-    model = _train_isolation_forest(data, contamination=contamination)
+    db_file = db_path or DB_PATH
+    model_file = model_path or MODEL_PATH
+
+    needs_train = True
+    if model_file.exists():
+        age = time.time() - model_file.stat().st_mtime
+        needs_train = age > retrain_interval
+    if needs_train:
+        train_anomaly_model(
+            db_path=db_file, model_path=model_file, contamination=contamination
+        )
+
+    if model_file.exists():
+        with open(model_file, "rb") as fh:
+            payload = pickle.load(fh)
+        model = payload["model"]
+        keys = payload["keys"]
+        data = [[m.get(k, 0.0) for k in keys] for m in history_list]
+    else:
+        keys = sorted(history_list[0])
+        data = [[m[k] for k in keys] for m in history_list]
+        model = _train_isolation_forest(data, contamination=contamination)
+
     preds = model.predict(data)
     scores = -model.score_samples(data)
 
-    path = db_path or DB_PATH
     anomalies: List[Dict[str, float]] = []
 
-    with sqlite3.connect(path) as conn:
+    with sqlite3.connect(db_file) as conn:
         _ensure_anomaly_table(conn)
         for metrics, pred, score in zip(history_list, preds, scores):
             if pred != -1:
@@ -263,6 +392,7 @@ def detect_anomalies(
                 composite = anomaly_score
             anomaly["composite_score"] = composite
             anomalies.append(anomaly)
+            _update_dashboard(anomaly)
             conn.execute(
                 """
                 INSERT INTO anomaly_results (
@@ -319,6 +449,7 @@ def record_quantum_score(
             (json.dumps(metrics), score),
         )
         conn.commit()
+    _update_dashboard({"quantum_score": score})
     return score
 
 
@@ -365,6 +496,7 @@ def auto_heal_session(
         )
     else:
         anomalies = list(anomalies)
+    anomalies = [a for a in anomalies if a.get("anomaly_score", 0) > 0.5]
     if not anomalies:
         return False
     if manager is None:
@@ -383,15 +515,65 @@ def auto_heal_session(
     except Exception:
         return False
 
+
+def anomaly_detection_loop(
+    interval: float = 5.0,
+    *,
+    iterations: Optional[int] = None,
+    contamination: float = 0.1,
+    manager: Optional[UnifiedSessionManagementSystem] = None,
+    db_path: Optional[Path] = None,
+    model_path: Optional[Path] = None,
+    collector=collect_metrics,
+) -> None:
+    """Continuously collect metrics and restart sessions on anomalies.
+
+    Parameters
+    ----------
+    interval:
+        Seconds to wait between metric collections.
+    iterations:
+        Optional maximum number of iterations. ``None`` runs indefinitely.
+    contamination:
+        Proportion of outliers passed to :func:`detect_anomalies`.
+    manager:
+        Optional session manager instance used by :func:`auto_heal_session`.
+    db_path:
+        Optional analytics database path forwarded to collectors and detectors.
+    model_path:
+        Optional persisted model path forwarded to :func:`detect_anomalies`.
+    collector:
+        Metric collection callable. Defaults to :func:`collect_metrics`.
+    """
+
+    history: List[Dict[str, float]] = []
+    count = 0
+    while iterations is None or count < iterations:
+        metrics = collector(db_path=db_path)
+        history.append(metrics)
+        anomalies = detect_anomalies(
+            history,
+            contamination=contamination,
+            db_path=db_path,
+            model_path=model_path,
+        )
+        if anomalies:
+            auto_heal_session(
+                anomalies=anomalies, manager=manager, db_path=db_path
+            )
+        count += 1
+        if iterations is None or count < iterations:
+            time.sleep(interval)
+
 class QuantumInterface:
-    """Placeholder interface for quantum metric processing."""
+    """Concrete interface for quantum metric processing."""
 
     @staticmethod
-    def analyze(metrics: Dict[str, float]) -> None:
-        """Forward metrics to the quantum hook."""
+    def analyze(
+        metrics: Dict[str, float], *, db_path: Optional[Path] = None
+    ) -> float:
+        """Record and return a quantum score for ``metrics``."""
 
-        from scripts.monitoring.unified_monitoring_optimization_system import (
-            quantum_hook as _quantum_hook,
-        )
-
-        _quantum_hook(metrics)
+        score = record_quantum_score(metrics, db_path=db_path)
+        metrics["quantum_score"] = score
+        return score

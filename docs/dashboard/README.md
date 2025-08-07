@@ -8,7 +8,7 @@ This dashboard provides visibility into compliance metrics and rollback history.
 2. Run the Flask app:
 
 ```bash
-python dashboard/enterprise_dashboard.py
+python dashboard/integrated_dashboard.py
 ```
 
 The application will attempt to read `metrics.json` and `databases/analytics.db`. If the
