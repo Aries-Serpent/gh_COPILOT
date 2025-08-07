@@ -1,18 +1,13 @@
--- Schema capturing reusable quantum patterns
-
--- Create table for defining quantum patterns
-CREATE TABLE IF NOT EXISTS quantum_patterns (
+-- Schema for quantum learning patterns
+CREATE TABLE IF NOT EXISTS pattern_registry (
     id INTEGER PRIMARY KEY,
-    pattern_name TEXT UNIQUE NOT NULL,
-    description TEXT,
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    pattern_name TEXT NOT NULL,
+    description TEXT
 );
 
--- Create table for tracking pattern usage metrics
-CREATE TABLE IF NOT EXISTS quantum_pattern_usage (
-    id INTEGER PRIMARY KEY,
-    pattern_id INTEGER NOT NULL,
+CREATE TABLE IF NOT EXISTS pattern_usage (
+    pattern_id INTEGER,
     usage_count INTEGER DEFAULT 0,
     last_used TEXT,
-    FOREIGN KEY (pattern_id) REFERENCES quantum_patterns(id)
+    FOREIGN KEY(pattern_id) REFERENCES pattern_registry(id)
 );
