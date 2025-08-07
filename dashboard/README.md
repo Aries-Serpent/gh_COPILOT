@@ -97,10 +97,11 @@ Example screenshot:
 
 1. Start the dashboard: `python dashboard/enterprise_dashboard.py`.
 2. Visit [http://localhost:5000/](http://localhost:5000/) and verify the dashboard renders.
-3. Open `/metrics/view` to confirm metrics are displayed.
-4. Open `/rollback-logs/view` to confirm rollback entries are shown.
-5. Open `/sync-events/view` to confirm synchronization events are shown.
-6. Ensure styling from `dashboard/static/style.css` is applied.
+3. Open `/overview` to view metrics, rollback logs, sync events, and audit results together.
+4. Open `/metrics/view` to confirm metrics are displayed.
+5. Open `/rollback-logs/view` to confirm rollback entries are shown.
+6. Open `/sync-events/view` to confirm synchronization events are shown.
+7. Ensure styling from `dashboard/static/style.css` is applied.
 
 ### Live Metrics
 
@@ -124,9 +125,9 @@ compliance issues immediately.
 | `/deployment`             | Deployment status and controls                                                   |
 | `/api/scripts`            | Run and monitor scripts via API                                                  |
 | `/api/health`             | System health check API                                                          |
-
-| `/metrics_stream`         | Server-Sent Events stream of live metrics             |
+| `/metrics_stream`         | Server-Sent Events stream of live metrics                                       |
 | `/dashboard/compliance`   | Returns compliance metrics, rollback and audit trail as JSON                     |
+| `/overview`               | Consolidated dashboard with metrics, rollbacks, sync events, and audit results   |
 #### Example `/dashboard/compliance` Response
 
 The `/dashboard/compliance` endpoint returns compliance information as JSON, combining live metrics from `analytics.db` and correction/rollback summaries from `dashboard/compliance/correction_summary.json`.
