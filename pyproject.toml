@@ -8,6 +8,9 @@ version = "0.1.0"
 description = "Reusable modules and orchestrators for gh_COPILOT"
 authors = [{name = "gh_COPILOT Team"}]
 requires-python = ">=3.8"
+dependencies = [
+    "PyPDF2==3.0.1",
+]
 
 [project.scripts]
 final-enterprise-orchestrator = "copilot.orchestrators.final_enterprise_orchestrator:main"

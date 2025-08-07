@@ -7,7 +7,7 @@ import os
 import shutil
 from pathlib import Path
 
-from .environment_migration import SUPPORTED_DATABASES
+from .environment_migration import SUPPORTED_DATABASES, WORKSPACE
 
 
 def create_backup(name: str, backup_root: Path | None = None) -> Path:
@@ -30,9 +30,14 @@ def create_backup(name: str, backup_root: Path | None = None) -> Path:
     else:
         backup_root = Path(backup_root)
 
+    if WORKSPACE in backup_root.resolve().parents:
+        raise ValueError("Backup root must be outside the workspace")
+
     backup_root.mkdir(parents=True, exist_ok=True)
     destination = backup_root / f"{name}.db"
     shutil.copy2(path, destination)
+    if destination.stat().st_size == 0:
+        raise RuntimeError("Created backup is empty")
     return destination
 
 
