@@ -1,0 +1,9 @@
+<section id="metrics-widgets">
+    <div class="widget">
+        <strong>Compliance Score:</strong> {{ metrics.compliance_score | default(0) }}
+    </div>
+    <div class="widget">
+        <strong>Open Placeholders:</strong> {{ metrics.open_placeholders | default(0) }}
+    </div>
+</section>
+
