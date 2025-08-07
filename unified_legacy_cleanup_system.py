@@ -5,7 +5,8 @@ import os
 import shutil
 import sqlite3
 from pathlib import Path
-from typing import List, Optional
+from typing import Dict, List, Optional
+import hashlib
 
 from scripts.unified_legacy_cleanup_system import (
     UnifiedLegacyCleanupSystem as _BaseCleanup,
@@ -118,6 +119,47 @@ class UnifiedLegacyCleanupSystem(_BaseCleanup):
             except Exception:  # pragma: no cover - ignore file errors
                 pass
         return removed
+
+    def remove_redundant_templates(
+        self, clusters: Dict[int, List[Path]], dry_run: bool = False
+    ) -> Dict[int, List[Path]]:
+        """Remove duplicate templates within each cluster.
+
+        Parameters
+        ----------
+        clusters:
+            Mapping of cluster labels to template paths.
+        dry_run:
+            When ``True`` only log actions without deleting files.
+
+        Returns
+        -------
+        Dict[int, List[Path]]
+            Cleaned clusters containing only unique templates.
+        """
+
+        cleaned: Dict[int, List[Path]] = {}
+        for label, paths in clusters.items():
+            seen: Dict[str, Path] = {}
+            unique: List[Path] = []
+            for path in paths:
+                if not path.exists():
+                    continue
+                file_hash = hashlib.sha256(path.read_bytes()).hexdigest()
+                if file_hash in seen:
+                    if not dry_run:
+                        path.unlink(missing_ok=True)
+                        log_cleanup_event(
+                            str(path),
+                            action="removed",
+                            reason=f"duplicate of {seen[file_hash]}",
+                            db_path=self.analytics_db,
+                        )
+                    continue
+                seen[file_hash] = path
+                unique.append(path)
+            cleaned[label] = unique
+        return cleaned
 
     def run_cleanup(self, dry_run: bool = False) -> bool:
         """Run cleanup and return ``True`` on success."""
