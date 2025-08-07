@@ -1,4 +1,10 @@
-"""Quantum-safe cryptographic helpers."""
+"""Quantum-safe cryptographic helpers.
+
+Steps:
+1. Generate random keys suitable for symmetric encryption.
+2. Hash data with SHA3-256 as a stand-in for post-quantum hashing.
+3. Serve as placeholders until full quantum-resistant algorithms are integrated.
+"""
 
 from hashlib import sha3_256
 import secrets
