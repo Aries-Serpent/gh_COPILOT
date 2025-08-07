@@ -265,6 +265,47 @@ class SyncManager:
             conn.commit()
 
 
+class SyncWatcher:
+    """Watch multiple database pairs and synchronize on changes."""
+
+    def __init__(self, manager: SyncManager | None = None) -> None:
+        self.manager = manager or SyncManager()
+
+    def watch_pairs(
+        self,
+        pairs: List[tuple[Path | str, Path | str]],
+        *,
+        interval: float = 1.0,
+        stop_event: threading.Event | None = None,
+        **kwargs: Any,
+    ) -> None:
+        """Watch each pair and trigger synchronization when modified.
+
+        A thread is spawned for each database pair using :meth:`SyncManager.watch`.
+        This method blocks until ``stop_event`` is set.
+        """
+
+        stop_event = stop_event or threading.Event()
+        threads: List[threading.Thread] = []
+        for db_a, db_b in pairs:
+            thread = threading.Thread(
+                target=self.manager.watch,
+                args=(db_a, db_b),
+                kwargs={"interval": interval, "stop_event": stop_event, **kwargs},
+                daemon=True,
+            )
+            thread.start()
+            threads.append(thread)
+
+        try:
+            while not stop_event.is_set():
+                time.sleep(interval)
+        finally:
+            stop_event.set()
+            for thread in threads:
+                thread.join()
+
+
 def watch_and_sync(
     db_a: Path | str,
     db_b: Path | str,
@@ -315,4 +356,4 @@ def list_events(analytics_db: Path | str, limit: int = 10) -> List[Dict[str, Any
     return events
 
 
-__all__ = ["SchemaMapper", "SyncManager", "list_events", "watch_and_sync"]
+__all__ = ["SchemaMapper", "SyncManager", "SyncWatcher", "list_events", "watch_and_sync"]

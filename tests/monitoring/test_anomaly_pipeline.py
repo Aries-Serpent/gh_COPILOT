@@ -2,6 +2,7 @@ import json
 import sqlite3
 import sys
 from types import SimpleNamespace
+import pytest
 
 
 def _stub_score(values):
@@ -9,9 +10,16 @@ def _stub_score(values):
     return sum(vals) / len(vals)
 
 
-sys.modules["quantum_algorithm_library_expansion"] = SimpleNamespace(
-    quantum_score_stub=_stub_score
-)
+
+
+@pytest.fixture(autouse=True)
+def _stub_quantum_module(monkeypatch):
+    """Provide a temporary quantum scoring stub."""
+    monkeypatch.setitem(
+        sys.modules,
+        "quantum_algorithm_library_expansion",
+        SimpleNamespace(quantum_score_stub=_stub_score),
+    )
 
 from unified_monitoring_optimization_system import anomaly_detection_loop
 from dashboard.enterprise_dashboard import anomaly_metrics
