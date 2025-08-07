@@ -15,7 +15,7 @@ The following steps were performed to ensure the latest artifacts are available:
 Run `python rename_files_with_spaces.py` after adding a new daily PDF. The script:
 
 1. Renames any files with spaces to use underscores.
-2. Converts each PDF to a Markdown file using `tools/convert_daily_whitepaper.py`.
+2. Converts each PDF to a Markdown file using `tools/convert_daily_whitepaper.py` (or pass `--pdf-file` for a single report).
 3. Updates `documentation/generated/daily_state_index.md` so both formats are linked.
 
 CI includes a regression check to ensure the most recent date has both `.pdf` and `.md` files.

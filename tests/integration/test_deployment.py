@@ -10,3 +10,10 @@ def test_deployment_config_has_name() -> None:
     data = json.loads(config_path.read_text())
     assert "deployment_name" in data
 
+
+def test_deployment_config_has_version() -> None:
+    """The deployment configuration should include a version."""
+    config_path = Path("deployment/deployment_config.json")
+    data = json.loads(config_path.read_text())
+    assert "version" in data
+

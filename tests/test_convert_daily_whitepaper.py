@@ -10,3 +10,4 @@ def test_latest_daily_state_update_has_markdown():
     assert original_md.exists() or sanitized_md.exists(), (
         f"Missing markdown for: {latest_pdf.name}"
     )
+    

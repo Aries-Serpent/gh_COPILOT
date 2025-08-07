@@ -15,3 +15,18 @@ interface.
 3. Distribute the generated certificates to the appropriate deployment
    targets.
 
+## Related Modules
+
+- [web_gui/certificates/quantum_crypto.py](../../web_gui/certificates/quantum_crypto.py)
+  – cryptographic helpers for certificate issuance
+- [web_gui/certificates/ssl_config.py](../../web_gui/certificates/ssl_config.py)
+  – SSL configuration utilities
+- [tests/web_gui/test_certificates.py](../../tests/web_gui/test_certificates.py)
+  – unit tests validating certificate operations
+
+## Additional Guides
+
+- [docs/COMPLIANCE_LOGGING_GUIDE.md](../COMPLIANCE_LOGGING_GUIDE.md) –
+  certificate logging and auditing practices
+
+
