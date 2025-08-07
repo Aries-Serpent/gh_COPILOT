@@ -1,4 +1,13 @@
-"""SSL context configuration helpers."""
+"""SSL context configuration helpers.
+
+Steps:
+1. Verify certificate and key files exist on disk.
+2. Build an :class:`ssl.SSLContext` and load the certificate chain.
+3. Optionally load a CA bundle for client verification.
+
+These helpers provide placeholder logic; production code would include
+robust error handling and automatic rotation hooks.
+"""
 
 from pathlib import Path
 import ssl
