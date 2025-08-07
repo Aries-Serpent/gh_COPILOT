@@ -6,11 +6,12 @@ import time
 
 from dashboard import compliance_metrics_updater as cmu
 from dashboard import enterprise_dashboard as ed
+import dashboard.integrated_dashboard as idash
 
 
 def test_metrics_endpoint(monkeypatch):
     monkeypatch.setattr(
-        ed,
+        idash,
         "_load_metrics",
         lambda: {"metrics": {"composite_score": 0.9, "recursion_status": "clear"}},
     )
@@ -49,3 +50,26 @@ def test_websocket_broadcast(monkeypatch, tmp_path: Path):
     message = asyncio.run(receive())
     payload = json.loads(message)
     assert payload["composite_score"] == 0.5
+
+
+def test_new_routes_and_dashboard_page(monkeypatch):
+    monkeypatch.setattr(ed, "_load_sync_events", lambda: [
+        {"timestamp": "t", "source_db": "a", "target_db": "b", "action": "sync"}
+    ])
+    monkeypatch.setattr(
+        ed,
+        "_load_audit_results",
+        lambda: [{"placeholder_type": "TODO", "count": 1}],
+    )
+    monkeypatch.setattr(idash, "_load_metrics", lambda: {})
+    monkeypatch.setattr(idash, "get_rollback_logs", lambda: [])
+    monkeypatch.setattr(idash, "_load_sync_events", lambda: [])
+    monkeypatch.setattr(idash, "_load_audit_results", lambda: [])
+    client = ed.app.test_client()
+    resp_sync = client.get("/sync_events")
+    assert resp_sync.get_json()[0]["action"] == "sync"
+    resp_audit = client.get("/audit_results")
+    assert resp_audit.get_json()[0]["placeholder_type"] == "TODO"
+    page = client.get("/").get_data(as_text=True)
+    assert '<ul id="sync_events">' in page
+    assert '<ul id="audit_results">' in page

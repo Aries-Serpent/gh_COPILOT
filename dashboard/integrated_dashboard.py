@@ -204,6 +204,8 @@ def index() -> str:
         "dashboard.html",
         metrics=_load_metrics(),
         rollbacks=get_rollback_logs(),
+        sync_events=_load_sync_events(),
+        audit_results=_load_audit_results(),
     )
 
 
