@@ -2,9 +2,14 @@
 import sqlite3
 import subprocess
 import sys
+import threading
+import time
+from pathlib import Path
 from typing import Any
+
 import pytest
 
+from database_first_synchronization_engine import SyncManager, watch_and_sync
 from scripts.database.unified_database_initializer import initialize_database
 
 
@@ -52,6 +57,63 @@ def test_synchronize_databases(tmp_path):
     with sqlite3.connect(log_db) as conn:
         count = conn.execute("SELECT COUNT(*) FROM cross_database_sync_operations").fetchone()[0]
     assert count >= 2
+
+
+def test_resolver_registry_conflict(tmp_path: Path) -> None:
+    db_a = tmp_path / "a.db"
+    db_b = tmp_path / "b.db"
+    for db, data in ((db_a, ("a", 1)), (db_b, ("b", 2))):
+        with sqlite3.connect(db) as conn:
+            conn.execute(
+                "CREATE TABLE items (id INTEGER PRIMARY KEY, data TEXT, updated_at INTEGER)"
+            )
+            conn.execute("INSERT INTO items VALUES (1, ?, ?)", data)
+
+    calls: list[int] = []
+
+    def custom(table: str, row_a: dict, row_b: dict) -> dict:
+        calls.append(row_a["id"])
+        return {"id": row_a["id"], "data": "from_registry", "updated_at": 3}
+
+    manager = SyncManager()
+    manager.sync(db_a, db_b, resolver_registry={"items": custom})
+
+    assert calls == [1]
+    for db in (db_a, db_b):
+        with sqlite3.connect(db) as conn:
+            row = conn.execute("SELECT data, updated_at FROM items WHERE id=1").fetchone()
+            assert row == ("from_registry", 3)
+
+
+def test_watch_and_sync(tmp_path: Path) -> None:
+    db_a = tmp_path / "a.db"
+    db_b = tmp_path / "b.db"
+    for db, label in ((db_a, "a"), (db_b, "b")):
+        with sqlite3.connect(db) as conn:
+            conn.execute(
+                "CREATE TABLE items (id INTEGER PRIMARY KEY, data TEXT, updated_at INTEGER)"
+            )
+            conn.execute("INSERT INTO items VALUES (1, ?, 1)", (label,))
+
+    stop = threading.Event()
+    t = threading.Thread(
+        target=watch_and_sync,
+        args=(db_a, db_b),
+        kwargs={"interval": 0.1, "stop_event": stop},
+    )
+    t.start()
+    try:
+        with sqlite3.connect(db_a) as conn:
+            conn.execute("UPDATE items SET data='new', updated_at=2 WHERE id=1")
+            conn.commit()
+        time.sleep(0.3)
+    finally:
+        stop.set()
+        t.join()
+
+    with sqlite3.connect(db_b) as conn:
+        row = conn.execute("SELECT data, updated_at FROM items WHERE id=1").fetchone()
+    assert row == ("new", 2)
 
 
 @pytest.mark.skip(reason="CLI integration requires external environment")

@@ -82,6 +82,9 @@ class SyncManager:
         *,
         resolver: Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | None = None,
         policy: ConflictPolicy | None = None,
+        resolver_registry: Dict[
+            str, Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | ConflictPolicy
+        ] | None = None,
     ) -> None:
         """Bidirectionally synchronize ``db_a`` and ``db_b``.
 
@@ -111,6 +114,14 @@ class SyncManager:
                 for table in tables:
                     rows_a = {row["id"]: dict(row) for row in conn_a.execute(f"SELECT * FROM {table}")}
                     rows_b = {row["id"]: dict(row) for row in conn_b.execute(f"SELECT * FROM {table}")}
+                    table_policy: ConflictPolicy = policy
+                    if resolver_registry and table in resolver_registry:
+                        custom = resolver_registry[table]
+                        table_policy = (
+                            custom
+                            if isinstance(custom, ConflictPolicy)
+                            else ResolverPolicy(custom)
+                        )
 
                     for pk in rows_a.keys() | rows_b.keys():
                         in_a = pk in rows_a
@@ -119,7 +130,7 @@ class SyncManager:
                             row = rows_a[pk]
                             other = rows_b[pk]
                             if row != other:
-                                merged = policy.resolve(table, row, other)
+                                merged = table_policy.resolve(table, row, other)
                                 decision = "a" if merged == row else "b"
                                 self._log_conflict(db_a, db_b, table, pk, decision)
                                 self._upsert(conn_a, table, merged)
@@ -148,6 +159,9 @@ class SyncManager:
         stop_event: threading.Event | None = None,
         resolver: Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | None = None,
         policy: ConflictPolicy | None = None,
+        resolver_registry: Dict[
+            str, Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | ConflictPolicy
+        ] | None = None,
     ) -> None:
         """Watch databases for changes and synchronize on modification."""
 
@@ -162,7 +176,13 @@ class SyncManager:
                 mt_a = db_a.stat().st_mtime if db_a.exists() else 0
                 mt_b = db_b.stat().st_mtime if db_b.exists() else 0
                 if mt_a != last_a or mt_b != last_b:
-                    self.sync(db_a, db_b, resolver=resolver, policy=policy)
+                    self.sync(
+                        db_a,
+                        db_b,
+                        resolver=resolver,
+                        policy=policy,
+                        resolver_registry=resolver_registry,
+                    )
                     last_a, last_b = mt_a, mt_b
             except Exception:
                 # Errors logged in :meth:`sync` ensure monitoring.
@@ -230,6 +250,33 @@ class SyncManager:
             )
             conn.commit()
 
+
+def watch_and_sync(
+    db_a: Path | str,
+    db_b: Path | str,
+    *,
+    interval: float = 1.0,
+    stop_event: threading.Event | None = None,
+    manager: SyncManager | None = None,
+    resolver: Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | None = None,
+    policy: ConflictPolicy | None = None,
+    resolver_registry: Dict[
+        str, Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | ConflictPolicy
+    ] | None = None,
+) -> None:
+    """Watch two databases for changes and synchronize automatically."""
+
+    manager = manager or SyncManager()
+    manager.watch(
+        db_a,
+        db_b,
+        interval=interval,
+        stop_event=stop_event,
+        resolver=resolver,
+        policy=policy,
+        resolver_registry=resolver_registry,
+    )
+
 def list_events(analytics_db: Path | str, limit: int = 10) -> List[Dict[str, Any]]:
     """Return recent synchronization events from ``analytics.db``."""
     events: List[Dict[str, Any]] = []
@@ -254,4 +301,4 @@ def list_events(analytics_db: Path | str, limit: int = 10) -> List[Dict[str, Any
     return events
 
 
-__all__ = ["SchemaMapper", "SyncManager", "list_events"]
+__all__ = ["SchemaMapper", "SyncManager", "list_events", "watch_and_sync"]
