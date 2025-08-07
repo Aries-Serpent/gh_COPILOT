@@ -25,9 +25,11 @@ that callers can depend on a stable API regardless of the environment.
 
 import importlib
 import logging
-from typing import Any, Dict, Iterable, List, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Tuple, TypeVar
 
 from flask import Blueprint, jsonify, request
+
+T = TypeVar("T")
 
 __all__ = ["QuantumEnhancedFramework", "quantum_bp"]
 
@@ -119,6 +121,40 @@ class QuantumEnhancedFramework:
         if self._score_templates is None:
             return [(t, 1.0) for t in templates]
         return self._score_templates(list(templates), tag)
+
+    def execute_with_fallback(
+        self,
+        classical_fn: Callable[..., T],
+        quantum_fn: Callable[..., T] | None = None,
+        *args: Any,
+        **kwargs: Any,
+    ) -> T:
+        """Execute a quantum function and gracefully fall back.
+
+        Parameters
+        ----------
+        classical_fn:
+            Function to execute when quantum support is unavailable or fails.
+        quantum_fn:
+            Optional quantum implementation. If ``None`` the ``classical_fn``
+            is used directly.
+
+        Returns
+        -------
+        T
+            Result of the successfully executed function.
+        """
+
+        chosen = quantum_fn if (quantum_fn and self.quantum_enabled) else None
+        if chosen is not None:
+            try:
+                return chosen(*args, **kwargs)
+            except Exception as exc:  # pragma: no cover - defensive
+                self.logger.warning(
+                    "Quantum execution failed, falling back to classical: %s",
+                    exc,
+                )
+        return classical_fn(*args, **kwargs)
 
 
 # ----------------------------------------------------------------------

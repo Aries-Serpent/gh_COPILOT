@@ -5,18 +5,23 @@ from __future__ import annotations
 from functools import wraps
 from typing import Callable, Iterable
 
-from flask import Flask, g, request, Response
+from secondary_copilot_validator import SecondaryCopilotValidator
+
+logger = logging.getLogger(__name__)
 
 
-def init_app(app: Flask) -> None:
-    """Load user roles from ``USER_ROLES`` mapping using request token."""
-    app.config.setdefault("USER_ROLES", {})
+def has_role(
+    user_roles: Iterable[str],
+    required_role: str,
+    validator: SecondaryCopilotValidator | None = None,
+) -> bool:
+    """Return ``True`` if ``required_role`` is present in ``user_roles``."""
 
-    @app.before_request
-    def _load_roles() -> None:
-        token = request.headers.get("Authorization", "").removeprefix("Bearer ")
-        roles: Iterable[str] = app.config["USER_ROLES"].get(token, [])
-        g.current_roles = set(roles)
+    allowed = required_role in set(user_roles)
+    if not allowed:
+        logger.warning("Missing required role: %s", required_role)
+    (validator or SecondaryCopilotValidator()).validate_corrections([str(allowed)])
+    return allowed
 
 
 def requires_role(role: str) -> Callable[[Callable[..., Response]], Callable[..., Response]]:

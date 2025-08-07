@@ -2,6 +2,8 @@
 
 from flask import Flask, session
 
+from secondary_copilot_validator import SecondaryCopilotValidator
+
 from web_gui.middleware import (
     input_validation,
     rate_limiting,
@@ -54,4 +56,17 @@ def test_session_management() -> None:
     resp = client.get("/")
     cookie = resp.headers["Set-Cookie"]
     assert "Secure" in cookie and "HttpOnly" in cookie
+
+
+def test_middleware_dual_copilot(monkeypatch) -> None:
+    app = create_app()
+    validator = SecondaryCopilotValidator()
+    calls: list[list[object]] = []
+    monkeypatch.setattr(
+        validator, "validate_corrections", lambda items, primary_success=True: calls.append(items) or True
+    )
+    app.wsgi_app = security_headers.security_headers_middleware(app.wsgi_app, validator=validator)
+    client = app.test_client()
+    client.get("/")
+    assert calls
 

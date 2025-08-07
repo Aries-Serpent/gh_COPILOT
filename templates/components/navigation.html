@@ -1,8 +1,16 @@
+{% macro navigation(links=None) %}
+{% set default_links = [
+    {'href': '/metrics', 'label': 'Metrics'},
+    {'href': '/rollback', 'label': 'Rollback Logs'},
+    {'href': '/quantum', 'label': 'Quantum'}
+] %}
+{% set nav_links = links if links is not none else default_links %}
 <nav>
     <ul>
-        <li><a href="/metrics">Metrics</a></li>
-        <li><a href="/rollback">Rollback Logs</a></li>
-        <li><a href="/quantum">Quantum</a></li>
+    {% for link in nav_links %}
+        <li><a href="{{ link.href }}">{{ link.label }}</a></li>
+    {% endfor %}
     </ul>
 </nav>
+{% endmacro %}
 

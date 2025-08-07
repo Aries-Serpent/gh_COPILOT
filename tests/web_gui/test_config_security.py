@@ -4,6 +4,7 @@ from typing import Generator
 import pytest
 
 from web_gui.scripts.config.production_config import ProductionConfig
+from web_gui.scripts.config.staging_config import StagingConfig
 
 
 @pytest.fixture(autouse=True)
@@ -43,4 +44,3 @@ def test_insecure_cookie_rejected(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("WEB_GUI_SESSION_COOKIE_SECURE", "0")
     with pytest.raises(ValueError):
         ProductionConfig()
-

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import sys
 from pathlib import Path
 from typing import Iterable
 
@@ -28,6 +29,12 @@ def _sanitize_name(name: str) -> str:
 
 import PyPDF2  # noqa: F401
 from PyPDF2 import PdfReader
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts.documentation.update_daily_state_index import update_index
 
 
 def convert_pdfs(pdf_dir: Path) -> Iterable[str]:
@@ -78,6 +85,7 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     for message in convert_pdfs(args.pdf_dir):
         logging.info(message)
+    update_index(source_dir=args.pdf_dir)
 
 
 if __name__ == "__main__":  # pragma: no cover

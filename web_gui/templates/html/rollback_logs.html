@@ -1,0 +1,12 @@
+{% extends "html/base_enterprise.html" %}
+
+{% block title %}Rollback Logs{% endblock %}
+
+{% block enterprise_content %}
+<h1 class="mb-4">Rollback Logs</h1>
+<ul class="list-group">
+    {% for log in logs %}
+    <li class="list-group-item">{{ log.timestamp }} - {{ log.event }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

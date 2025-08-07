@@ -317,7 +317,7 @@ def metrics_view() -> str:
 
 @_dashboard.get("/rollback-logs/view")
 def rollback_logs_view() -> str:
-    return render_template("rollback_logs.html", logs=get_rollback_logs())
+    return render_template("html/rollback_logs.html", logs=get_rollback_logs())
 
 
 @_dashboard.get("/audit-results/view")
@@ -337,7 +337,7 @@ def dashboard_compliance() -> Any:
 
 @_dashboard.get("/dashboard/rollback")
 def dashboard_rollback() -> str:
-    return render_template("rollback_logs.html", logs=get_rollback_logs())
+    return render_template("html/rollback_logs.html", logs=get_rollback_logs())
 
 
 def create_app(config: dict | None = None) -> Flask:

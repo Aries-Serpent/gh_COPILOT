@@ -1,5 +1,6 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
+# Route external traffic to the service
 metadata:
   name: app-ingress
 spec:
