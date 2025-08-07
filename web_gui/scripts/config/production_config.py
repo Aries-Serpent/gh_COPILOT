@@ -1,34 +1,34 @@
 """Secure production configuration for the Web GUI.
 
-This module enforces security-focused defaults for deployment.
-Each setting includes rationale to aid future maintenance.
+Provides a dataclass with hardened defaults suitable for deployment.
+Each field documents its security rationale to aid future maintenance.
 """
 
 from __future__ import annotations
 
-# Disable debug mode to avoid exposing sensitive stack traces to users.
-DEBUG = False
+import os
+from dataclasses import dataclass
+from pathlib import Path
 
-# Ensure session cookies are sent only over HTTPS to protect confidentiality.
-SESSION_COOKIE_SECURE = True
+__all__ = ["ProductionConfig"]
 
-# Prevent client-side scripts from accessing the session cookie.
-SESSION_COOKIE_HTTPONLY = True
+BASE_DIR = Path(__file__).resolve().parents[2]
+DATABASE_DIR = BASE_DIR / "databases"
 
-# Restrict cookies from being sent with cross-site requests, mitigating CSRF.
-SESSION_COOKIE_SAMESITE = "Strict"
 
-# Generate URLs with HTTPS by default to enforce encrypted connections.
-PREFERRED_URL_SCHEME = "https"
+@dataclass(frozen=True)
+class ProductionConfig:
+    """Configuration values for production environment."""
 
-# Enable CSRF protection to guard against cross-site request forgery attacks.
-WTF_CSRF_ENABLED = True
-
-# Ensure persistent login cookies are transmitted only over HTTPS.
-REMEMBER_COOKIE_SECURE = True
-
-# Prevent JavaScript from reading the persistent login cookie.
-REMEMBER_COOKIE_HTTPONLY = True
-
-# Apply strict same-site policy to persistent login cookies.
-REMEMBER_COOKIE_SAMESITE = "Strict"
+    DEBUG: bool = False  # Avoid exposing sensitive stack traces.
+    TESTING: bool = False
+    DATABASE_PATH: str = str(DATABASE_DIR / "production.db")
+    SECRET_KEY: str = os.getenv("FLASK_SECRET_KEY", "")
+    SESSION_COOKIE_SECURE: bool = True  # Send cookies only over HTTPS.
+    SESSION_COOKIE_HTTPONLY: bool = True  # Disallow JavaScript access.
+    SESSION_COOKIE_SAMESITE: str = "Strict"  # Mitigate CSRF.
+    PREFERRED_URL_SCHEME: str = "https"  # Force HTTPS links.
+    WTF_CSRF_ENABLED: bool = True  # Enable CSRF protection.
+    REMEMBER_COOKIE_SECURE: bool = True  # Persist cookies only via HTTPS.
+    REMEMBER_COOKIE_HTTPONLY: bool = True  # Block script access.
+    REMEMBER_COOKIE_SAMESITE: str = "Strict"  # Harden persistent cookies.

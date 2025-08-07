@@ -27,7 +27,9 @@ import importlib
 import logging
 from typing import Any, Dict, Iterable, List, Tuple
 
-__all__ = ["QuantumEnhancedFramework"]
+from flask import Blueprint, jsonify, request
+
+__all__ = ["QuantumEnhancedFramework", "quantum_bp"]
 
 
 class QuantumEnhancedFramework:
@@ -117,3 +119,33 @@ class QuantumEnhancedFramework:
         if self._score_templates is None:
             return [(t, 1.0) for t in templates]
         return self._score_templates(list(templates), tag)
+
+
+# ----------------------------------------------------------------------
+# Flask Blueprint Endpoints
+# ----------------------------------------------------------------------
+quantum_bp = Blueprint("quantum", __name__)
+framework = QuantumEnhancedFramework()
+
+
+@quantum_bp.get("/algorithms")
+def list_algorithms() -> Any:
+    """Expose available quantum algorithms via API."""
+    return jsonify({"algorithms": framework.available_algorithms()})
+
+
+@quantum_bp.post("/run/<name>")
+def run_algorithm_endpoint(name: str) -> Any:
+    """Run a quantum algorithm with graceful fallback."""
+    payload = request.get_json(silent=True) or {}
+    return jsonify(framework.run_algorithm(name, **payload))
+
+
+@quantum_bp.post("/score")
+def score_templates_endpoint() -> Any:
+    """Score templates using quantum heuristics when available."""
+    payload = request.get_json(silent=True) or {}
+    templates = payload.get("templates", [])
+    tag = payload.get("tag", "")
+    scores = framework.score_templates(templates, tag)
+    return jsonify({"scores": scores})
