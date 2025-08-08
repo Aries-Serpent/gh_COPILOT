@@ -12,7 +12,13 @@ def setup_logging(log_file: Path) -> logging.Logger:
         log_file.parent.mkdir(parents=True, exist_ok=True)
         fh = logging.FileHandler(log_file)
         fh.setLevel(logging.INFO)
+<<<<<<< HEAD
         formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+=======
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
         fh.setFormatter(formatter)
         logger.addHandler(fh)
 

@@ -4,9 +4,12 @@
 ### Document Overview
 This documentation suite provides comprehensive information about the quantum optimization features integrated into the PIS (Plan Issued Statement) Framework.
 
+<<<<<<< HEAD
 > **Note**
 > All quantum functionality operates in simulation mode only. Installing `qiskit-ibm-provider` or configuring an IBM Quantum token has no effect because hardware execution is not supported.
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ### Available Documents
 1. **[Quantum Optimization Overview](QUANTUM_OPTIMIZATION_OVERVIEW.md)**
    - Executive summary and business benefits
@@ -33,10 +36,13 @@ This documentation suite provides comprehensive information about the quantum op
    - Regulatory compliance
    - Security features
    - Audit requirements
+<<<<<<< HEAD
 6. **[Advanced Quantum Optimization Guide](ADVANCED_QUANTUM_OPTIMIZATION_GUIDE.md)**
    - Step-by-step module creation
    - CLI integration instructions
    - Testing and validation checklist
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 ### Quick Start
 For immediate implementation, start with the Integration Guide and follow the deployment checklist.
@@ -48,6 +54,7 @@ For immediate implementation, start with the Integration Guide and follow the de
 - [x] Compliance requirements met
 - [x] Security assessment completed
 
+<<<<<<< HEAD
 -### Generated Information
 **Documentation Version**: 1.2
 **Generated**: 2025-07-10T10:28:01.243876
@@ -64,6 +71,13 @@ The library now includes reference implementations for:
 6. Quantum teleportation
 All algorithms leverage Qiskit's simulator backend for reproducible results in
 test environments.
+=======
+### Generated Information
+- **Documentation Version**: 1.0
+- **Generated**: 2025-07-10T10:28:01.243876
+- **Total Documents**: 5
+- **Status**: Enterprise Review Ready
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 ---
 *Quantum Documentation Suite - Enterprise Grade*

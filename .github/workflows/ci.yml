@@ -1,4 +1,5 @@
 name: CI
+<<<<<<< HEAD
 on:
   push:
     tags:
@@ -164,14 +165,59 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10", "3.11"]
+=======
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11']
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+<<<<<<< HEAD
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
+=======
+      - name: Ensure .env file
+        run: cp .env.example .env
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements-test.txt
+          pip install qiskit-machine-learning
+
+      - name: Lint src
+        run: |
+          pip install flake8 bandit
+          flake8 src
+          bandit -r src -ll
+
+      - name: Run tests
+        run: make test
+
+  docker-build:
+    needs: lint-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
       - name: Build Docker image
         run: docker build -t gh_copilot .
 
@@ -182,6 +228,7 @@ jobs:
       - name: Cache Trivy database
         uses: actions/cache@v3
         with:
+<<<<<<< HEAD
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('requirements.txt', 'requirements-test.txt') }}
           restore-keys: |
@@ -239,3 +286,24 @@ jobs:
         with:
           name: codeql-results
           path: codeql-results
+=======
+          path: ~/.cache/trivy
+          key: ${{ runner.os }}-trivy-db-${{ steps.trivy-version.outputs.version }}
+          restore-keys: |
+            ${{ runner.os }}-trivy-db-
+
+      - name: Scan Docker image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: gh_copilot:latest
+          format: table
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Security scan
+        run: |
+          pip install bandit
+          bandit -r src -q
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

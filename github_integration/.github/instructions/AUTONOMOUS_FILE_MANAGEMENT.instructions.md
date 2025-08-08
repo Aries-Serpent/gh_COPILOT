@@ -23,7 +23,11 @@ applyTo: '**'
 class AutonomousFileManager:
     """🎯 Autonomous File System Manager with Database Intelligence"""
     
+<<<<<<< HEAD
     def __init__(self, workspace_path="${GH_COPILOT_WORKSPACE}"):
+=======
+    def __init__(self, workspace_path="e:/gh_COPILOT"):
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
         self.workspace_path = Path(workspace_path)
         self.production_db = self.workspace_path / "production.db"
         
@@ -93,7 +97,11 @@ class AutonomousBackupManager:
     """💾 Autonomous Backup System with Anti-Recursion Protection"""
     
     FORBIDDEN_BACKUP_LOCATIONS = [
+<<<<<<< HEAD
         "${GH_COPILOT_WORKSPACE}",  # NEVER backup within workspace
+=======
+        "e:/gh_COPILOT",  # NEVER backup within workspace
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
         "C:/temp/",  # NEVER use C:/temp
         "./backup/",  # NEVER use relative backup paths
     ]

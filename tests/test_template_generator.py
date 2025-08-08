@@ -2,6 +2,7 @@
 import sqlite3
 from pathlib import Path
 
+<<<<<<< HEAD
 try:
     from copilot.template_intelligence.generator import TemplateGenerator  # type: ignore[reportMissingImports]
 except ModuleNotFoundError:  # pragma: no cover - stub for missing package
@@ -21,6 +22,10 @@ except ModuleNotFoundError:  # pragma: no cover - stub for missing package
                     sql = "SELECT template_content FROM templates WHERE template_name = ?"
                     row = conn.execute(sql, (pattern,)).fetchone()
             return row[0].format(**mapping)
+=======
+from copilot.template_intelligence.generator import TemplateGenerator
+import logging
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def _create_db(path: Path) -> None:

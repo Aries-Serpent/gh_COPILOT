@@ -25,7 +25,11 @@ from web_gui/scripts.flask_apps.enterprise_dashboard import app, dashboard
 class WebGUIIntegrator:
     """🌐 Enterprise Web-GUI Integration Engine"""
     
+<<<<<<< HEAD
     def __init__(self, workspace_path=os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")):
+=======
+    def __init__(self, workspace_path="e:/gh_COPILOT"):
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
         self.workspace_path = Path(workspace_path)
         self.dashboard = dashboard
         self.flask_app = app
@@ -67,7 +71,11 @@ class TemplateIntelligenceEngine:
     
     def render_intelligent_template(self, template_name: str, context: Dict[str, Any]) -> str:
         """🎨 Render template with intelligent context injection"""
+<<<<<<< HEAD
         template_path = f"{os.getenv('GH_COPILOT_WORKSPACE', 'e:/gh_COPILOT')}/templates/html/{template_name}"
+=======
+        template_path = f"e:/gh_COPILOT/templates/html/{template_name}"
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
         
         # Enhance context with database intelligence
         enhanced_context = self.enhance_template_context(context)

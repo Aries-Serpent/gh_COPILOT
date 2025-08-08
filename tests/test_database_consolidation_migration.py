@@ -2,12 +2,22 @@
 import sqlite3
 from pathlib import Path
 
+<<<<<<< HEAD
 from scripts.database.database_consolidation_migration import consolidate_databases
 
 
 def benchmark_queries(queries, db_path=None):
     """Simple benchmark mock used for testing."""
     return {"within_time_target": True}
+=======
+from database_consolidation_migration import consolidate_databases
+import logging
+
+
+def benchmark_queries():
+    """Benchmark database queries"""
+    return []
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def _make_db(path: Path, table: str) -> Path:

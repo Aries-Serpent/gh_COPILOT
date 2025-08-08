@@ -31,7 +31,11 @@ import os
 
 # Initialize with your environment
 platform = TemplateIntelligencePlatform(
+<<<<<<< HEAD
     environment_root=os.getenv("GH_COPILOT_WORKSPACE", "/path/to/workspace"),
+=======
+    environment_root=os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"),
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     environment_type="development"
 )
 ```
@@ -129,6 +133,7 @@ recommendations = platform.get_environment_recommendations("production")
 print(recommendations)
 ```
 
+<<<<<<< HEAD
 ### Template Clustering and Cleanup
 ```python
 import os
@@ -142,6 +147,8 @@ clusters = utility.cluster_templates(list((utility.workspace_path / "generated_t
 cleanup_legacy_assets(utility.workspace_path / "cluster_output.json", dry_run=True)
 ```
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ## Best Practices
 
 ### 1. Naming Conventions

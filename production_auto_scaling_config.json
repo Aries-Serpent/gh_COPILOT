@@ -1,0 +1,22 @@
+{
+  "scaling_metrics": {
+    "cpu_utilization": {
+      "scale_up_threshold": "70_percent",
+      "scale_down_threshold": "30_percent"
+    },
+    "memory_utilization": {
+      "scale_up_threshold": "75_percent",
+      "scale_down_threshold": "25_percent"
+    },
+    "response_time": {
+      "scale_up_threshold": "2_seconds",
+      "scale_down_threshold": "0.5_seconds"
+    }
+  },
+  "scaling_policies": {
+    "cooldown_period": "300_seconds",
+    "scaling_adjustment": "50_percent",
+    "minimum_scaling_step": 1,
+    "maximum_scaling_step": 10
+  }
+}

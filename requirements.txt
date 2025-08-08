@@ -10,7 +10,10 @@ pandas==2.3.1               # Dataframe operations and analytics
 numpy==2.3.1                # Numerical optimization and simulation
 scikit-learn==1.7.0         # ML algorithms (e.g., clustering, MLP)
 qiskit>=1.4,<2.0            # Quantum optimizer backend
+<<<<<<< HEAD
 qiskit-ibm-provider>=0.7.0  # IBM Quantum hardware access
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 psutil==7.0.0               # System resource monitoring
 tqdm==4.67.1                # Progress bar for CLI and batch tasks
 PyYAML==6.0.2               # YAML config parsing
@@ -41,8 +44,11 @@ boto3==1.39.3  # Omit if not actually imported/used
 qiskit-aer==0.17.1  # Omit if not imported
 
 # --- Any other verified code dependencies can go here ---
+<<<<<<< HEAD
 py7zr
 websockets>=10.4  # Optional real-time streaming
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 # ===========================
 # End of requirements

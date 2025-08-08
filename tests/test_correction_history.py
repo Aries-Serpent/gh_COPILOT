@@ -3,11 +3,17 @@ import shutil
 import sqlite3
 from pathlib import Path
 
+<<<<<<< HEAD
 from scripts.database.database_first_windows_compatible_flake8_corrector import (
     CorrectionPattern,
     DatabaseFirstFlake8Corrector,
     FlakeViolation,
 )
+=======
+from database_first_windows_compatible_flake8_corrector import (
+import logging
+    CorrectionPattern, DatabaseFirstFlake8Corrector, FlakeViolation)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def test_correction_history_records(tmp_path, monkeypatch):
@@ -21,9 +27,16 @@ def test_correction_history_records(tmp_path, monkeypatch):
     dest_db = db_dir / "analytics.db"
     shutil.copy(src_db, dest_db)
 
+<<<<<<< HEAD
     migration_sql = (repo_root / "databases" / "migrations" / "add_correction_history.sql").read_text()
     with sqlite3.connect(dest_db) as conn:
         conn.execute("DROP TABLE IF EXISTS correction_history")
+=======
+    migration_sql = (
+        repo_root / "databases" / "migrations" / "add_correction_history.sql"
+    ).read_text()
+    with sqlite3.connect(dest_db) as conn:
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
         conn.execute("ALTER TABLE violations ADD COLUMN session_id TEXT")
         conn.executescript(migration_sql)
         try:
@@ -59,7 +72,13 @@ def test_correction_history_records(tmp_path, monkeypatch):
     corrector.save_correction_results_to_database([violation], [result])
 
     with sqlite3.connect(dest_db) as conn:
+<<<<<<< HEAD
         rows = conn.execute("SELECT file_path, violation_code, fix_applied FROM correction_history").fetchall()
+=======
+        rows = conn.execute(
+            "SELECT file_path, violation_code, fix_applied FROM correction_history"
+        ).fetchall()
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
     assert rows, "Correction history not recorded"
     assert len(rows) == len(result.violations_fixed)

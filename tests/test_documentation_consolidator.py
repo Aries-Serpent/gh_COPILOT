@@ -1,9 +1,18 @@
 #!/usr/bin/env python3
+<<<<<<< HEAD
 import os
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 import shutil
 import sqlite3
 from pathlib import Path
 
+<<<<<<< HEAD
+=======
+from scripts.documentation_consolidator import consolidate
+import logging
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 def _prepare_db(src: Path, dest: Path) -> None:
     shutil.copy(src, dest)
@@ -17,7 +26,11 @@ def _prepare_db(src: Path, dest: Path) -> None:
                 "BACKUP_LOG",
                 "Backup",
                 "data",
+<<<<<<< HEAD
                 str(Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())) / "backups" / "tmp.bak"),
+=======
+                "e:/gh_COPILOT/backups/tmp.bak",
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
             ),
         )
         conn.execute(
@@ -45,6 +58,7 @@ def test_documentation_consolidator(tmp_path, monkeypatch):
     shutil.copy(repo_root / "documentation" / "README.md", doc_dir / "README.md")
 
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+<<<<<<< HEAD
     monkeypatch.setenv("DOCUMENTATION_DB_PATH", str(db_dir / "documentation.db"))
     analytics_db = tmp_path / "analytics.db"
     monkeypatch.setenv("ANALYTICS_DB", str(analytics_db))
@@ -56,20 +70,35 @@ def test_documentation_consolidator(tmp_path, monkeypatch):
     module = importlib.import_module("scripts.documentation_consolidator")
     importlib.reload(module)
     consolidate = module.consolidate
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     consolidate()
 
     with sqlite3.connect(db_dir / "documentation.db") as conn:
         cur = conn.execute(
+<<<<<<< HEAD
             "SELECT COUNT(*) FROM enterprise_documentation WHERE source_path LIKE '%backup%' OR doc_type='BACKUP_LOG'"
         )
         assert cur.fetchone()[0] == 0
 
         cur = conn.execute("SELECT COUNT(*) FROM enterprise_documentation WHERE title='Duplicate'")
+=======
+            "SELECT COUNT(*) FROM enterprise_documentation "
+            "WHERE source_path LIKE '%backup%' OR doc_type='BACKUP_LOG'"
+        )
+        assert cur.fetchone()[0] == 0
+
+        cur = conn.execute(
+            "SELECT COUNT(*) FROM enterprise_documentation "
+            "WHERE title='Duplicate'"
+        )
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
         assert cur.fetchone()[0] == 1
 
         cur = conn.execute("SELECT COUNT(*) FROM documentation_templates")
         assert cur.fetchone()[0] > 0
 
+<<<<<<< HEAD
         cur = conn.execute("SELECT COUNT(*) FROM template_registry")
         assert cur.fetchone()[0] > 0
 
@@ -80,3 +109,7 @@ def test_documentation_consolidator(tmp_path, monkeypatch):
     with sqlite3.connect(analytics_db) as conn:
         cur = conn.execute("SELECT COUNT(*) FROM audit_log")
         assert cur.fetchone()[0] >= 2
+=======
+    assert (doc_dir / "generated" / "feature_matrix.csv").exists()
+    assert (doc_dir / "generated" / "feature_matrix.md").exists()
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

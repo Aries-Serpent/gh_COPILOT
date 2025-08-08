@@ -80,6 +80,7 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
    - Backup: http://localhost:5000/backup
    - Migration: http://localhost:5000/migration
 
+<<<<<<< HEAD
 5. **Metrics & Compliance Endpoints**:
    - Metrics JSON: http://localhost:5000/metrics
    - Compliance data (metrics + rollback logs): http://localhost:5000/compliance
@@ -109,6 +110,11 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
 
 ![Dashboard View](deployment/screenshots/dashboard.png)
 ![Metrics Page](deployment/screenshots/metrics.png)
+=======
+5. **API Endpoints**:
+   - Health Check: http://localhost:5000/api/health
+   - Scripts Data: http://localhost:5000/api/scripts
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 ### 📊 Database Integration
 

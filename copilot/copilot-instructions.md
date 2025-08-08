@@ -168,6 +168,7 @@ def validate_workspace_integrity():
 ```python
 class EnterpriseDocumentationManager:
     def generate_documentation(self, doc_type: str):
+<<<<<<< HEAD
         """Generate documentation with intelligent template selection."""
         existing_docs = self.query_documentation_database(doc_type)
         templates = self.discover_templates(doc_type)
@@ -175,11 +176,25 @@ class EnterpriseDocumentationManager:
         content = self.apply_template_intelligence([best_template], existing_docs)
         compliance = self.calculate_compliance(content)
         self.store_documentation(content, compliance_score=compliance)
+=======
+        # Query existing documentation patterns
+        existing_docs = self.query_documentation_database(doc_type)
+        
+        # Find relevant templates
+        templates = self.discover_templates(doc_type)
+        
+        # Generate using template intelligence
+        content = self.apply_template_intelligence(templates, existing_docs)
+        
+        # Store in database with compliance tracking
+        self.store_documentation(content, compliance_score=self.calculate_compliance())
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ```
 
 #### 2. Cross-Database Template Synchronization
 ```python
 def synchronize_templates():
+<<<<<<< HEAD
     """Sync templates across dev, staging and production with rollback."""
     source_dbs = ["development.db", "staging.db", "production.db"]
     try:
@@ -204,6 +219,15 @@ def synchronize_templates():
         raise
     finally:
         logger.info("Template synchronization complete")
+=======
+    """Sync templates across multiple databases"""
+    source_dbs = ['development.db', 'staging.db', 'production.db']
+    
+    for source_db in source_dbs:
+        templates = extract_templates(source_db)
+        for template in templates:
+            sync_template_across_databases(template, source_db)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ```
 
 #### 3. Enterprise Build Management
@@ -314,8 +338,13 @@ import hashlib      # Content hashing
 #### Environment Variables
 ```bash
 # Recommended environment setup
+<<<<<<< HEAD
 export GH_COPILOT_WORKSPACE="/path/to/workspace"
 export GH_COPILOT_DATABASE_PATH="$GH_COPILOT_WORKSPACE/databases"
+=======
+export GH_COPILOT_WORKSPACE="e:/gh_COPILOT"
+export GH_COPILOT_DATABASE_PATH="e:/gh_COPILOT/databases"
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 export GH_COPILOT_LOG_LEVEL="INFO"
 ```
 

@@ -76,12 +76,16 @@ class EnterpriseFlake8Corrector:
     def correct_file(self, file_path: str) -> bool:
         """Correct a single file"""
         try:
+<<<<<<< HEAD
             content = Path(file_path).read_text(encoding="utf-8")
             if not content.strip():
                 self.logger.info(
                     f"{TEXT_INDICATORS['info']} Skipping empty {file_path}"
                 )
                 return False
+=======
+            # Implementation for file correction
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
             return True
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} File correction failed: {e}")
