@@ -54,6 +54,11 @@ The console cannot reliably display lines longer than **4096 bytes**. Use standa
 
 If output might exceed the limit, redirect it to a log file and review it in chunks with these commands to prevent line overflows.
 
+The repository also provides `tools/shell_buffer_manager.sh`, which trims each
+line to 4 KB and stores any overflow in `/tmp/gh_copilot_sessions`. Use the
+`safe_shell_execute` helper from `utils.general_utils` to run commands through
+this buffer manager and receive a summary of overflow locations.
+
 ## Allowed Tools and Commands (Agent Behavior)
 
 When using the terminal or editing files, the agent must adhere to the following rules:
