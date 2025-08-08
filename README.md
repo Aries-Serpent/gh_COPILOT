@@ -391,13 +391,21 @@ schema and commit workflow.
 
 ### Codex Log Database
 
-`utils/codex_log_db.py` writes session actions to `databases/codex_log.db` and
-copies a finalized snapshot to `databases/codex_session_logs.db`. Configure the
-environment with `GH_COPILOT_WORKSPACE` and an external `GH_COPILOT_BACKUP_ROOT`
-before running tools. Optional variables such as `SESSION_ID_SOURCE` supply a
-custom session identifier and `TEST_MODE=1` disables writes during tests. Set
-`ALLOW_AUTOLFS=1` so the `.db` files are Git LFS‑tracked. After finalizing a
-session, include the databases in commits:
+Session tooling records actions in `databases/codex_log.db`. When
+`finalize_codex_log_db()` runs, the log is copied to
+`databases/codex_session_logs.db` and both files are staged for commit.
+
+#### Environment variables
+
+- `GH_COPILOT_WORKSPACE` – path to the repository root.
+- `GH_COPILOT_BACKUP_ROOT` – external backup directory.
+- `ALLOW_AUTOLFS` – set to `1` so the `.db` files are Git LFS‑tracked.
+- `SESSION_ID_SOURCE` – optional custom session identifier.
+- `TEST_MODE` – set to `1` to disable writes during tests.
+
+#### Commit workflow
+
+After calling `finalize_codex_log_db()` include the databases in your commit:
 
 ```bash
 git add databases/codex_log.db databases/codex_session_logs.db
