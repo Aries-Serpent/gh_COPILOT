@@ -1,5 +1,10 @@
 # Changelog
 
+## [4.1.22] - 2025-08-12
+- Documented session lifecycle APIs (`start_session`/`end_session`) and refreshed hybrid integration example.
+- Added disaster recovery usage snippet in backup guide.
+- Verified documentation spelling with `codespell`.
+
 ## [4.1.21] - 2025-08-11
 - Resolved hard-coded workspace path in `EnterpriseUtility` to honor
   `GH_COPILOT_WORKSPACE`, restoring cross-platform compatibility.
