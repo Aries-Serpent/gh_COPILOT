@@ -4,7 +4,11 @@ The project relies on several external packages and services:
 
 - **SQLite**: used for local data persistence. Databases are stored in the `databases/` folder.
 - **psutil**: required for performance monitoring scripts.
+<<<<<<< HEAD
 - **Flask** and related packages: used by the optional web dashboard in `dashboard/integrated_dashboard.py`.
+=======
+- **Flask** and related packages: used by the optional web dashboard in `web_gui/`.
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 - **tqdm** and **rich**: provide progress bars and colored console output.
 - **qiskit-machine-learning**: enables quantum-enhanced ML demos and tests.
 
@@ -22,11 +26,14 @@ pip install -r requirements-ml.txt     # Machine learning and analytics
                                        # (includes qiskit-machine-learning)
 ```
 
+<<<<<<< HEAD
 Running `bash setup.sh` installs both `requirements.txt` and
 `requirements-test.txt` automatically and executes
 `scripts/run_migrations.py` so local and CI environments share the same test
 dependencies and database schema.
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 For local testing or CI pipelines, use the provided `Makefile`:
 
 ```bash

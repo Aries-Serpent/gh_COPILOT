@@ -45,19 +45,31 @@
 **Recovery Steps**:
 1. **Verify Template Path**:
    ```bash
+<<<<<<< HEAD
    ls -la $GH_COPILOT_WORKSPACE/templates/html/
+=======
+   ls -la e:/gh_COPILOT/templates/html/
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
    ```
 
 2. **Check Flask Configuration**:
    ```python
+<<<<<<< HEAD
    app.template_folder = '$GH_COPILOT_WORKSPACE/templates/html'
+=======
+   app.template_folder = 'e:/gh_COPILOT/templates/html'
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
    ```
 
 3. **Fix Template Path in Code**:
    ```python
    # Absolute path approach
    import os
+<<<<<<< HEAD
    template_dir = os.path.abspath('$GH_COPILOT_WORKSPACE/templates/html')
+=======
+   template_dir = os.path.abspath('e:/gh_COPILOT/templates/html')
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
    app = Flask(__name__, template_folder=template_dir)
    ```
 
@@ -71,18 +83,30 @@
 **Recovery Steps**:
 1. **Verify Database Path**:
    ```bash
+<<<<<<< HEAD
    ls -la $GH_COPILOT_WORKSPACE/production.db
+=======
+   ls -la e:/gh_COPILOT/production.db
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
    ```
 
 2. **Check Permissions**:
    ```bash
+<<<<<<< HEAD
    chmod 664 $GH_COPILOT_WORKSPACE/production.db
+=======
+   chmod 664 e:/gh_COPILOT/production.db
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
    ```
 
 3. **Create Missing Database**:
    ```python
    import sqlite3
+<<<<<<< HEAD
    conn = sqlite3.connect('$GH_COPILOT_WORKSPACE/production.db')
+=======
+   conn = sqlite3.connect('e:/gh_COPILOT/production.db')
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
    conn.close()
    ```
 
@@ -95,7 +119,11 @@
 1. **Close All Connections**:
    ```bash
    # Find processes using the database
+<<<<<<< HEAD
    lsof $GH_COPILOT_WORKSPACE/production.db
+=======
+   lsof e:/gh_COPILOT/production.db
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
    ```
 
 2. **Restart Flask Application**:
@@ -223,11 +251,19 @@ pkill -f "enterprise_dashboard.py"
 
 # 2. Check and fix common issues
 python -c "import flask; print('Flask OK')"
+<<<<<<< HEAD
 ls -la $GH_COPILOT_WORKSPACE/production.db
 ls -la $GH_COPILOT_WORKSPACE/templates/html/
 
 # 3. Restart services
 cd $GH_COPILOT_WORKSPACE/web_gui/scripts/flask_apps
+=======
+ls -la e:/gh_COPILOT/production.db
+ls -la e:/gh_COPILOT/templates/html/
+
+# 3. Restart services
+cd e:/gh_COPILOT/web_gui/scripts/flask_apps
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 python enterprise_dashboard.py
 
 # 4. Verify functionality
@@ -240,7 +276,11 @@ curl http://localhost:5000/api/health
 pkill -f "enterprise_dashboard.py"
 
 # 2. Backup current state
+<<<<<<< HEAD
 cp -r $GH_COPILOT_WORKSPACE $GH_COPILOT_WORKSPACE_backup
+=======
+cp -r e:/gh_COPILOT e:/gh_COPILOT_backup
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 # 3. Restore from known good backup
 python backup_scripts/restore_latest_backup.py
@@ -259,6 +299,7 @@ python validation_scripts/validate_recovery.py
 ### Emergency Recovery (When Nothing Works)
 ```bash
 # 1. Download fresh copy from repository
+<<<<<<< HEAD
 git clone <repository> $GH_COPILOT_WORKSPACE_fresh
 
 # 2. Copy critical data
@@ -270,6 +311,19 @@ mv $GH_COPILOT_WORKSPACE_fresh $GH_COPILOT_WORKSPACE
 
 # 4. Reinstall and restart (dashboard only)
 cd $GH_COPILOT_WORKSPACE
+=======
+git clone <repository> e:/gh_COPILOT_fresh
+
+# 2. Copy critical data
+cp e:/gh_COPILOT/production.db e:/gh_COPILOT_fresh/
+
+# 3. Switch to fresh installation
+mv e:/gh_COPILOT e:/gh_COPILOT_failed
+mv e:/gh_COPILOT_fresh e:/gh_COPILOT
+
+# 4. Reinstall and restart (dashboard only)
+cd e:/gh_COPILOT
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 pip install -r web_gui/scripts/requirements.txt  # reinstall dashboard packages
 cd web_gui/scripts/flask_apps
 python enterprise_dashboard.py

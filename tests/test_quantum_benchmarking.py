@@ -1,10 +1,19 @@
 #!/usr/bin/env python3
+<<<<<<< HEAD
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 import pytest
 from qiskit_machine_learning.neural_networks import EstimatorQNN
 
 from quantum import benchmarking as benchmarking_module
+<<<<<<< HEAD
 from quantum.benchmarking import benchmark_physics_engine, benchmark_qnn, load_metrics
+=======
+from quantum.benchmarking import (benchmark_physics_engine, benchmark_qnn,
+import logging
+                                  load_metrics)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def test_load_metrics():

@@ -8,12 +8,25 @@ from pathlib import Path
 from time import perf_counter
 from typing import Any, Dict
 
+<<<<<<< HEAD
 from enterprise_modules.compliance import (
     anti_recursion_guard,
     validate_enterprise_operation,
 )
 
 # Imports are deferred in functions to avoid heavy dependencies at import time
+=======
+from qiskit.circuit.library import RealAmplitudes, ZZFeatureMap
+
+try:
+    from qiskit.primitives import Estimator
+    from qiskit_machine_learning.algorithms.classifiers import \
+        NeuralNetworkClassifier
+    from qiskit_machine_learning.neural_networks import EstimatorQNN
+except Exception:  # pragma: no cover - optional dependency
+    EstimatorQNN = None
+    NeuralNetworkClassifier = None
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 try:
     from qiskit.utils import algorithm_globals
@@ -39,12 +52,18 @@ __all__ = [
 ]
 
 
+<<<<<<< HEAD
 @anti_recursion_guard
 def load_metrics(path: str | Path = "production_performance_validation.json") -> Dict[str, Any]:
     """Load production performance metrics from a JSON file."""
     metrics_path = Path(path)
     if not validate_enterprise_operation(str(metrics_path)):
         raise RuntimeError("Invalid target path")
+=======
+def load_metrics(path: str | Path = "production_performance_validation.json") -> Dict[str, Any]:
+    """Load production performance metrics from a JSON file."""
+    metrics_path = Path(path)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     with metrics_path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
 
@@ -71,6 +90,7 @@ def benchmark_physics_engine() -> Dict[str, Any]:
 
 def benchmark_qnn() -> Dict[str, float]:
     """Benchmark the QNN predictive maintenance example."""
+<<<<<<< HEAD
     try:
         from qiskit.circuit.library import RealAmplitudes, ZZFeatureMap
         from qiskit.primitives import Estimator
@@ -78,6 +98,10 @@ def benchmark_qnn() -> Dict[str, float]:
         from qiskit_machine_learning.neural_networks import EstimatorQNN
     except Exception as exc:  # pragma: no cover - optional dependency
         raise ImportError("qiskit_machine_learning is required") from exc
+=======
+    if NeuralNetworkClassifier is None or EstimatorQNN is None:
+        raise ImportError("qiskit_machine_learning is required")
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
     _set_seed(42)
 
@@ -98,6 +122,11 @@ def benchmark_qnn() -> Dict[str, float]:
 
     feature_map = ZZFeatureMap(feature_dimension=2, reps=1)
     ansatz = RealAmplitudes(num_qubits=2, reps=1)
+<<<<<<< HEAD
+=======
+    if NeuralNetworkClassifier is None or EstimatorQNN is None:
+        raise ImportError("qiskit_machine_learning is required")
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
     circuit = feature_map.compose(ansatz)
     qnn = EstimatorQNN(

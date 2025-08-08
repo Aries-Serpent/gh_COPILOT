@@ -41,6 +41,7 @@ Batch options are also available via `start_all_services.bat`, `start_all_servic
 
 Standard session patterns are defined in `.github/instructions/SESSION_TEMPLATES.instructions.md`. They describe database-first workflows and validation steps for consistent enterprise sessions.
 
+<<<<<<< HEAD
 ## Anti-Recursion Guard
 
 Entry points that start or end a session should apply the
@@ -58,6 +59,8 @@ def main():
     ...
 ```
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ## Response Chunking
 
 All Copilot responses must follow the rules in `.github/instructions/RESPONSE_CHUNKING.instructions.md`:

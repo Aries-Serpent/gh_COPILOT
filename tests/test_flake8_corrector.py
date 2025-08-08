@@ -1,9 +1,19 @@
 #!/usr/bin/env python3
+<<<<<<< HEAD
 from pathlib import Path
 
 import pytest
 
 from scripts.database.database_first_windows_compatible_flake8_corrector import DatabaseFirstFlake8Corrector
+=======
+import pytest
+from pathlib import Path
+
+from database_first_windows_compatible_flake8_corrector import (
+import logging
+    DatabaseFirstFlake8Corrector,
+)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def test_flake8_scan_handles_non_ascii(tmp_path):

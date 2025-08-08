@@ -3,7 +3,12 @@ import logging
 import sqlite3
 from datetime import datetime, timedelta
 
+<<<<<<< HEAD
 from scripts.database.database_first_windows_compatible_flake8_corrector import DatabaseFirstFlake8Corrector
+=======
+from database_first_windows_compatible_flake8_corrector import \
+    DatabaseFirstFlake8Corrector
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def test_generate_completion_report_logs_once(tmp_path, caplog):
@@ -31,7 +36,13 @@ def test_secondary_validator_failure_updates_status(tmp_path, monkeypatch):
     db_dir.mkdir()
     analytics_db = db_dir / "analytics.db"
     with sqlite3.connect(analytics_db) as conn:
+<<<<<<< HEAD
         conn.execute("CREATE TABLE compliance_sessions (session_id TEXT PRIMARY KEY, status TEXT)")
+=======
+        conn.execute(
+            "CREATE TABLE compliance_sessions (session_id TEXT PRIMARY KEY, status TEXT)"
+        )
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
         conn.execute(
             "INSERT INTO compliance_sessions (session_id, status) VALUES (?, ?)",
             ("TEST", "COMPLETED"),
@@ -50,6 +61,7 @@ def test_secondary_validator_failure_updates_status(tmp_path, monkeypatch):
         "load_correction_patterns_from_database",
         lambda: None,
     )
+<<<<<<< HEAD
     monkeypatch.setattr(corrector, "run_flake8_scan", lambda: [type("V", (), {"file_path": "f.py"})()])
     monkeypatch.setattr(
         corrector,
@@ -65,6 +77,20 @@ def test_secondary_validator_failure_updates_status(tmp_path, monkeypatch):
             },
         )(),
     )
+=======
+    monkeypatch.setattr(corrector, "run_flake8_scan", lambda: [
+        type("V", (), {"file_path": "f.py"})()])
+    monkeypatch.setattr(corrector, "apply_correction_pattern", lambda fp, v: type(
+        "R",
+        (),
+        {
+            "success": True,
+            "violations_fixed": ["E1"],
+            "original_content": "",
+            "corrected_content": "",
+        },
+    )())
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
     corrector.execute_comprehensive_correction()
 

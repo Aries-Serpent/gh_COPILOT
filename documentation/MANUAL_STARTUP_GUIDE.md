@@ -43,6 +43,7 @@ python copilot_cli_relay_websocket.py
 python web_gui_scripts/flask_apps/enterprise_dashboard.py
 ```
 
+<<<<<<< HEAD
 ### Service Script Availability Checklist
 
 | Script Path | Expected Location | Status |
@@ -59,6 +60,8 @@ python web_gui_scripts/flask_apps/enterprise_dashboard.py
 | `start_all_services.sh` | `./start_all_services.sh` | ❌ Not found |
 | `START_ALL_SERVICES.py` | `./START_ALL_SERVICES.py` | ❌ Not found |
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ### Method 2: Batch Startup Scripts
 
 Choose one of the provided startup scripts:
@@ -160,11 +163,19 @@ When services start successfully, you should see:
 
 ## Success Criteria ✅
 
+<<<<<<< HEAD
 - [ ] All 7 services start without errors *(scripts missing)*
 - [ ] Dashboard accessible at http://localhost:8080 *(Flask not installed)*
 - [ ] Individual service endpoints respond *(services not running)*
 - [ ] WebSocket connections establish properly *(services not running)*
 - [ ] No port conflicts or dependency errors *(not tested)*
+=======
+- [ ] All 7 services start without errors
+- [ ] Dashboard accessible at http://localhost:8080
+- [ ] Individual service endpoints respond
+- [ ] WebSocket connections establish properly
+- [ ] No port conflicts or dependency errors
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 ## Next Steps
 

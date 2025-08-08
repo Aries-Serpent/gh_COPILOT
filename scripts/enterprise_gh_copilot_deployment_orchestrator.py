@@ -8,13 +8,17 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
+<<<<<<< HEAD
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 import sys
 
 import logging
 from pathlib import Path
 from datetime import datetime
 
+<<<<<<< HEAD
 from scripts.utilities.production_template_utils import generate_script_from_repository
 from utils.validation_utils import run_dual_copilot_validation
 from secondary_copilot_validator import SecondaryCopilotValidator
@@ -22,6 +26,15 @@ from enterprise_modules.compliance import pid_recursion_guard
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
+=======
+# Text-based indicators (NO Unicode emojis)
+TEXT_INDICATORS = {
+    'start': '[START]',
+    'success': '[SUCCESS]',
+    'error': '[ERROR]',
+    'info': '[INFO]'
+}
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 class EnterpriseUtility:
@@ -39,6 +52,7 @@ class EnterpriseUtility:
         try:
             # Utility implementation
             success = self.perform_utility_function()
+<<<<<<< HEAD
             validator = SecondaryCopilotValidator()
 
             def _primary():
@@ -54,6 +68,13 @@ class EnterpriseUtility:
             if success and validation_passed:
                 duration = (datetime.now() - start_time).total_seconds()
                 self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+=======
+
+            if success:
+                duration = (datetime.now() - start_time).total_seconds()
+                self.logger.info(
+                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -65,6 +86,7 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
+<<<<<<< HEAD
         name = f"{Path(__file__).stem}.py"
         return generate_script_from_repository(self.workspace_path, name)
 
@@ -80,6 +102,12 @@ class EnterpriseUtility:
 
 
 @pid_recursion_guard
+=======
+        # Implementation placeholder
+        return True
+
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 def main():
     """Main execution function"""
     utility = EnterpriseUtility()
@@ -94,5 +122,9 @@ def main():
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
+=======
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     success = main()
     sys.exit(0 if success else 1)

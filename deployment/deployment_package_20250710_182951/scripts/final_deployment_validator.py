@@ -52,6 +52,7 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
+<<<<<<< HEAD
         """Validate deployment readiness via database check."""
         db_path = self.workspace_path / "databases" / "production.db"
         config_file = self.workspace_path / "deployment_config.json"
@@ -87,6 +88,11 @@ class EnterpriseUtility:
             f"{TEXT_INDICATORS['error']} Deployment not ready"
         )
         return False
+=======
+        """Perform the utility function"""
+        # Implementation placeholder
+        return True
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def main():
