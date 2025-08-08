@@ -4,10 +4,12 @@
 This module re-exports :class:`EnterpriseUtility` and :func:`collect_metrics`
 from ``scripts.monitoring.unified_monitoring_optimization_system`` and
 provides a ``push_metrics`` helper used by tests and lightweight integrations
-to store arbitrary monitoring metrics in ``analytics.db``.  It also exposes
-``auto_heal_session`` which couples anomaly detection with the session
-management subsystem to restart sessions when system metrics deviate
-significantly from learned baselines.
+to store arbitrary monitoring metrics in ``analytics.db``. Table names supplied
+to ``push_metrics`` are validated to contain only alphanumeric characters and
+underscores to prevent SQL injection.  It also exposes ``auto_heal_session``
+which couples anomaly detection with the session management subsystem to
+restart sessions when system metrics deviate significantly from learned
+baselines.
 """
 
 from __future__ import annotations
@@ -18,6 +20,7 @@ import pickle
 import sqlite3
 import time
 import logging
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, TYPE_CHECKING
@@ -65,6 +68,16 @@ __all__ = [
     "record_quantum_score",
 ]
 
+_TABLE_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+
+def _validate_table_name(table: str) -> str:
+    """Ensure ``table`` is a safe SQLite identifier."""
+
+    if not _TABLE_NAME_RE.match(table):
+        raise ValueError(f"invalid table name: {table!r}")
+    return table
+
 if TYPE_CHECKING:  # pragma: no cover - imported for type hints only
     from scripts.utilities.unified_session_management_system import (
         UnifiedSessionManagementSystem,
@@ -84,6 +97,8 @@ def _ensure_table(conn: sqlite3.Connection, table: str, with_session: bool) -> N
         When ``True`` the table includes a ``session_id`` column linked to
         ``unified_wrapup_sessions``.
     """
+
+    table = _validate_table_name(table)
 
     if with_session:
         conn.execute(
@@ -136,6 +151,7 @@ def push_metrics(
         entry.
     """
 
+    table = _validate_table_name(table)
     path = db_path or DB_PATH
     with sqlite3.connect(path) as conn:
         _ensure_table(conn, table, session_id is not None)

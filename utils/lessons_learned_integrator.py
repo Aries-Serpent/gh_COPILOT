@@ -100,6 +100,69 @@ def apply_lessons(logger, lessons: List[Dict[str, str]]) -> None:
         logger.info("[INFO] Lesson applied: %s | tags=%s", lesson["description"], lesson["tags"])
 
 
+def extract_lessons_from_codex_logs(db_path: Path) -> List[Dict[str, str]]:
+    """Interpret Codex log patterns and convert them into lessons.
+
+    This helper scans the ``codex_actions`` table produced by
+    :mod:`utils.codex_log_db` and derives lessons from notable patterns in the
+    log statements.  Currently, statements containing ``error``/``failed`` are
+    tagged as ``error`` and those containing ``warning`` are tagged as
+    ``warning``.  Only entries matching these patterns are returned.
+
+    Parameters
+    ----------
+    db_path:
+        Path to the Codex log SQLite database containing the
+        ``codex_actions`` table.
+
+    Returns
+    -------
+    list of dict
+        Lessons in the format expected by :func:`store_lesson` with fields
+        ``description``, ``source``, ``timestamp``, ``validation_status`` and
+        ``tags``.
+    """
+
+    lessons: List[Dict[str, str]] = []
+    if not db_path.exists():
+        return lessons
+    try:
+        with sqlite3.connect(db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+            cur.execute(
+                """
+                SELECT statement, ts
+                FROM codex_actions
+                WHERE statement IS NOT NULL AND TRIM(statement) != ''
+                """
+            )
+            seen: set[str] = set()
+            for row in cur.fetchall():
+                statement = row["statement"]
+                lowered = statement.lower()
+                tags: list[str] = []
+                if "error" in lowered or "failed" in lowered:
+                    tags.append("error")
+                if "warning" in lowered:
+                    tags.append("warning")
+                if not tags or statement in seen:
+                    continue
+                seen.add(statement)
+                lessons.append(
+                    {
+                        "description": statement,
+                        "source": "codex_log",
+                        "timestamp": row["ts"],
+                        "validation_status": "pending",
+                        "tags": ",".join(tags),
+                    }
+                )
+    except sqlite3.Error as exc:  # pragma: no cover - log unexpected DB errors
+        _log_event({"error": str(exc)}, table="lessons_learned_errors", db_path=db_path)
+    return lessons
+
+
 def store_lesson(
     description: str,
     source: str,

@@ -73,18 +73,36 @@ For detailed instructions, see the generated documentation files in this directo
 
 ### 🛠 Daily Whitepaper Conversion
 
-After adding new PDFs to `daily state update/`, run:
+After adding new PDFs to `daily_state_update/`, ensure Git LFS files are
+materialized and then run the converter:
 
 ```bash
+git lfs fetch --all
+git lfs checkout
 python tools/convert_daily_whitepaper.py
+# or convert a single file
+python tools/convert_daily_whitepaper.py --pdf-file path/to/report.pdf
 ```
 
-This generates Markdown copies of each PDF and skips files already converted.
+This sequence downloads any missing LFS content, generates Markdown copies of
+each PDF, skips files already converted, and refreshes the index linking all
+available reports.
+
+### 📝 Daily State Generator
+
+Generate a daily summary in both Markdown and PDF formats:
+
+```bash
+python scripts/documentation/daily_state_generator.py
+```
+
+The script writes both files to `documentation/generated/daily state update/` and
+validates their creation using the dual-copilot pattern.
 
 ### 📚 Step-by-Step Document Workflow
 
 1. **Name the file**
-   - Place new PDFs in `documentation/generated/daily state update/`.
+   - Place new PDFs in `documentation/generated/daily_state_update/`.
    - Use the format `gh_COPILOT Project White‑Paper Blueprint (YYYY‑MM‑DD).pdf`.
 2. **Track large files with Git LFS**
    - Ensure Git LFS is installed and tracking PDFs:
@@ -93,13 +111,18 @@ This generates Markdown copies of each PDF and skips files already converted.
      git lfs track "*.pdf"
      git add .gitattributes
      ```
-3. **Convert PDFs to Markdown**
-   - Generate Markdown versions to keep the repository text-friendly:
+3. **Fetch and materialize LFS content**
+   - Ensure PDFs are downloaded before conversion:
+     ```bash
+     git lfs fetch --all
+     git lfs checkout
+     ```
+4. **Convert PDFs to Markdown and update the index**
+   - Generate Markdown versions to keep the repository text-friendly and
+     automatically rebuild `daily_state_index.md`:
      ```bash
      python tools/convert_daily_whitepaper.py
      ```
-4. **Update the index**
-   - Add a new row to `documentation/generated/daily_state_index.md` linking to both the PDF and Markdown files.
 
 Following these steps ensures documentation stays consistent and searchable.
 

@@ -1,0 +1,10 @@
+{% extends 'html/mobile/base_enterprise.html' %}
+{% from 'components/metrics_widgets.html' import metrics_widgets %}
+
+{% block title %}Compliance Metrics{% endblock %}
+
+{% block content %}
+<h1>Compliance Metrics</h1>
+{{ metrics_widgets(metrics) }}
+{% endblock %}
+

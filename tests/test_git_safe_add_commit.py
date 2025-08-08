@@ -93,3 +93,51 @@ def test_shell_help(tmp_path: Path) -> None:
     proc = subprocess.run(["bash", str(SH_SCRIPT), "-h"], cwd=tmp_path, capture_output=True, text=True)
     assert proc.returncode == 0
     assert "ALLOW_AUTOLFS" in proc.stdout
+
+
+def test_session_logs_auto_added(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    init_repo(tmp_path)
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
+    session_db = db_dir / "codex_session_logs.db"
+    session_db.write_bytes(b"0")
+
+    env = os.environ.copy()
+    env["ALLOW_AUTOLFS"] = "1"
+    env["PYTHONPATH"] = str(Path.cwd())
+    subprocess.run(["python", str(SCRIPT), "msg"], cwd=tmp_path, env=env, check=True)
+
+    tracked = subprocess.run(
+        ["git", "ls-files"], cwd=tmp_path, text=True, capture_output=True, check=True
+    ).stdout.splitlines()
+    assert "databases/codex_session_logs.db" in tracked
+    gitattributes = (tmp_path / ".gitattributes").read_text(encoding="utf-8")
+    assert "*.db" in gitattributes
+
+
+def test_session_logs_staged(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    init_repo(tmp_path)
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
+    session_db = db_dir / "codex_session_logs.db"
+    session_db.write_bytes(b"0")
+
+    hooks = tmp_path / ".git" / "hooks"
+    hook = hooks / "pre-commit"
+    hook.write_text("#!/bin/sh\nexit 1", encoding="utf-8")
+    hook.chmod(0o755)
+
+    env = os.environ.copy()
+    env["ALLOW_AUTOLFS"] = "1"
+    env["PYTHONPATH"] = str(Path.cwd())
+    result = subprocess.run(["python", str(SCRIPT), "msg"], cwd=tmp_path, env=env)
+    assert result.returncode != 0
+
+    staged = subprocess.run(
+        ["git", "diff", "--name-only", "--cached"],
+        cwd=tmp_path,
+        text=True,
+        capture_output=True,
+        check=True,
+    ).stdout.splitlines()
+    assert "databases/codex_session_logs.db" in staged

@@ -9,6 +9,23 @@ gh_COPILOT toolkit.
 > `IBM_BACKEND` are accepted for future compatibility but are treated as
 > no-ops. Hardware execution is not yet supported.
 
+## Framework and Models
+
+- `framework` – core abstractions for backend management. The
+  `QuantumExecutor` automatically falls back to a lightweight simulator when
+  no quantum hardware is available.
+- `models` – base interfaces for quantum-enabled models that build circuits and
+  execute them through the framework.
+
+### Extending Models
+
+Subclass :class:`quantum.models.QuantumModel` and implement ``build_circuit``
+to describe the quantum workload. For robust behavior, override ``run`` and
+provide a classical fallback when quantum execution fails. The
+``ParityModel`` demonstrates this pattern by computing the parity of a list of
+bits on the simulator and reverting to a classical parity check if an error
+occurs.
+
 ## Optimizers
 - `optimizers.quantum_optimizer.QuantumOptimizer` – classical/quantum hybrid
   optimizer with progress logging. Events are recorded using

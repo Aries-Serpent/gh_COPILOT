@@ -16,17 +16,17 @@ This guide outlines recovery procedures and common failure modes for the
    to bring databases back into consistency.
 
 ## Real-Time Synchronization
-`SyncManager` can operate in real time through the `SyncWatcher` utility. The
-watcher observes one or more database pairs and triggers a synchronization when
-either side changes:
+`SyncEngine` replaces the legacy `SyncManager`/`SyncWatcher` pair and broadcasts
+changes to peers over WebSocket.
 
 ```python
-from database_first_synchronization_engine import SyncManager, SyncWatcher
+import os
+from src.sync.engine import SyncEngine
 
-manager = SyncManager()
-watcher = SyncWatcher(manager)
-watcher.watch_pairs([(db_a, db_b), (db_c, db_d)], policy="last-write-wins")
+engine = SyncEngine()
+await engine.open_websocket(os.environ["SYNC_ENGINE_WS_URL"], apply_callback)
 ```
+
 
 ## Conflict Policies
 The synchronization engine supports pluggable conflict resolution. Use the

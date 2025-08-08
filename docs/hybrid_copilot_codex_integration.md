@@ -17,8 +17,8 @@ class EnhancedHybridCopilotCodexOrchestrator(HybridCopilotCodexOrchestrator):
         self.database_ecosystem = self.initialize_27_database_ecosystem()
 
     def execute_with_enterprise_hybrid_validation(self, task_name: str, phases: List[ProcessPhase]):
-        session_validation = self.session_manager.validate_session_startup()
-        if not session_validation.passed:
+        session_active = self.session_manager.start_session()
+        if not session_active:
             raise SessionIntegrityError("Enterprise session validation failed")
 
         primary_executor = RepositoryAwareCopilotExecutor(
@@ -44,6 +44,7 @@ class EnhancedHybridCopilotCodexOrchestrator(HybridCopilotCodexOrchestrator):
             enterprise_standards=self.load_enterprise_compliance_rules()
         )
 
+        self.session_manager.end_session()
         security_validation = self.session_manager.validate_no_recursive_folders()
         zero_byte_validation = self.session_manager.zero_byte_protector.scan_and_protect()
 

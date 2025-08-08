@@ -31,3 +31,5 @@ Both modules expose a `quantum_hook` function that computes a
 quantum-inspired score via `quantum_score_stub`. The score is stored with the
 metrics and can drive advanced anomaly detection or future quantum-based
 optimizations.
+
+Results from these modules are written to `databases/analytics.db`. When `WEB_DASHBOARD_ENABLED=1`, the dashboard streams these health and performance metrics for live monitoring.

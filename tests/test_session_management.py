@@ -5,15 +5,25 @@ import pytest
 
 import unified_session_management_system as usm
 from unified_session_management_system import ensure_no_zero_byte_files, finalize_session
+import utils.validation_utils as validation_utils
 from utils.validation_utils import _LOCK_DIR
 import sys
 import types
+from utils import codex_log_db
 
 _stub = types.ModuleType("correction_logger_and_rollback")
 _stub.CorrectionLoggerRollback = object
 sys.modules.setdefault("scripts.correction_logger_and_rollback", _stub)
 import scripts
 scripts.correction_logger_and_rollback = _stub
+sys.modules["utils"].validation_utils = validation_utils
+
+sk_stub = types.ModuleType("sklearn")
+ensemble_stub = types.ModuleType("sklearn.ensemble")
+ensemble_stub.IsolationForest = object
+sk_stub.ensemble = ensemble_stub
+sys.modules.setdefault("sklearn", sk_stub)
+sys.modules.setdefault("sklearn.ensemble", ensemble_stub)
 
 
 class DummyValidator:
@@ -45,11 +55,12 @@ def test_recursion_guard_on_start_session(monkeypatch, tmp_path):
     lock_file.unlink(missing_ok=True)
 
 
-def test_ensure_no_zero_byte_files_detects(tmp_path):
+def test_ensure_no_zero_byte_files_detects(tmp_path, monkeypatch):
     empty_file = tmp_path / "empty.txt"
     empty_file.touch()
+    monkeypatch.setattr(codex_log_db, "CODEX_LOG_DB", tmp_path / "codex_log.db")
     with pytest.raises(RuntimeError):
-        with ensure_no_zero_byte_files(tmp_path):
+        with ensure_no_zero_byte_files(tmp_path, "s1"):
             pass
 
 
@@ -77,12 +88,17 @@ def test_lifecycle_logging(monkeypatch, tmp_path, caplog):
         raising=False,
     )
     monkeypatch.setattr(usms.UnifiedSessionManagementSystem, "_cleanup_zero_byte_files", lambda self: [])
+    codex_db = tmp_path / "codex_log.db"
+    monkeypatch.setattr(codex_log_db, "CODEX_LOG_DB", codex_db)
     system = usms.UnifiedSessionManagementSystem(workspace_root=str(tmp_path))
+    assert not codex_db.exists()
     with caplog.at_level(logging.INFO):
         system.start_session()
         system.end_session()
     assert any("Lifecycle start" in r.getMessage() for r in caplog.records)
     assert any("Lifecycle end" in r.getMessage() for r in caplog.records)
+    codex_log_db.record_codex_action(system.session_id, "session_complete", "ok")
+    assert codex_db.exists()
 
 
 def test_metrics_and_recovery(monkeypatch, tmp_path):
@@ -148,10 +164,11 @@ def test_metrics_and_recovery(monkeypatch, tmp_path):
 def test_zero_byte_logging(tmp_path, monkeypatch):
     db_file = tmp_path / "analytics.db"
     monkeypatch.setattr(usm, "ANALYTICS_DB", db_file)
+    monkeypatch.setattr(codex_log_db, "CODEX_LOG_DB", tmp_path / "codex_log.db")
     empty = tmp_path / "empty.txt"
     empty.touch()
     with pytest.raises(RuntimeError):
-        with ensure_no_zero_byte_files(tmp_path):
+        with ensure_no_zero_byte_files(tmp_path, "s1"):
             pass
     import sqlite3
     with sqlite3.connect(db_file) as conn:
@@ -165,6 +182,9 @@ def test_finalize_session_records_hash(tmp_path, monkeypatch):
     (log_dir / "session.log").write_text("hello")
     db_file = tmp_path / "analytics.db"
     monkeypatch.setattr(usm, "ANALYTICS_DB", db_file)
+    monkeypatch.setattr(codex_log_db, "CODEX_LOG_DB", tmp_path / "codex_log.db")
+    lock_file = _LOCK_DIR / "finalize_session.lock"
+    lock_file.unlink(missing_ok=True)
     digest = finalize_session(log_dir)
     import sqlite3
     with sqlite3.connect(db_file) as conn:
@@ -172,10 +192,11 @@ def test_finalize_session_records_hash(tmp_path, monkeypatch):
     assert stored == digest
 
 
-def test_finalize_session_recursion_guard(tmp_path):
+def test_finalize_session_recursion_guard(tmp_path, monkeypatch):
     log_dir = tmp_path / "logs"
     log_dir.mkdir()
     (log_dir / "session.log").write_text("data")
+    monkeypatch.setattr(codex_log_db, "CODEX_LOG_DB", tmp_path / "codex_log.db")
     lock_file = _LOCK_DIR / "finalize_session.lock"
     lock_file.touch()
     with pytest.raises(RuntimeError):
@@ -189,5 +210,6 @@ def test_finalize_session_empty_log(tmp_path, monkeypatch):
     (log_dir / "session.log").touch()
     db_file = tmp_path / "analytics.db"
     monkeypatch.setattr(usm, "ANALYTICS_DB", db_file)
+    monkeypatch.setattr(codex_log_db, "CODEX_LOG_DB", tmp_path / "codex_log.db")
     with pytest.raises(RuntimeError):
         finalize_session(log_dir)

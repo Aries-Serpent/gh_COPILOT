@@ -1,0 +1,2 @@
+// Security validation helpers placeholder
+

@@ -1,0 +1,23 @@
+# Kubernetes deployment for web GUI with quantum support
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deployment
+spec:
+  replicas: 2  # Number of pod replicas
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+      - name: app
+        image: gh-copilot-app:latest  # Container image to deploy
+        ports:
+        - containerPort: 8000  # Exposed application port
+        env:
+        - name: QUANTUM_ENABLED       # Enable quantum features
+          value: "true"

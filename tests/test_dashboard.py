@@ -14,7 +14,12 @@ def test_metrics_endpoint(monkeypatch):
     monkeypatch.setattr(
         idash,
         "_load_metrics",
-        lambda: {"metrics": {"composite_score": 0.9, "recursion_status": "clear"}},
+        lambda: {"composite_score": 0.9, "recursion_status": "clear"},
+    )
+    monkeypatch.setattr(
+        idash,
+        "_load_placeholder_history",
+        lambda: [{"date": "2024-01-01", "count": 1}],
     )
     client = ed.app.test_client()
     resp = client.get("/metrics")
@@ -22,6 +27,21 @@ def test_metrics_endpoint(monkeypatch):
     data = resp.get_json()
     assert data["metrics"]["composite_score"] == 0.9
     assert data["metrics"]["recursion_status"] == "clear"
+    assert data["placeholder_history"][0]["count"] == 1
+
+
+def test_metrics_stream_history(monkeypatch):
+    monkeypatch.setattr(idash, "_load_metrics", lambda: {"placeholder_removal": 1})
+    monkeypatch.setattr(
+        idash,
+        "_load_placeholder_history",
+        lambda: [{"date": "2024-01-01", "count": 1}],
+    )
+    client = ed.app.test_client()
+    resp = client.get("/metrics_stream?once=1")
+    line = resp.data.decode().split("\n")[0]
+    payload = json.loads(line.split("data: ")[1])
+    assert payload["placeholder_history"][0]["count"] == 1
 
 
 def test_websocket_broadcast(monkeypatch, tmp_path: Path):
@@ -62,6 +82,7 @@ def test_new_routes_and_dashboard_page(monkeypatch):
         "_load_audit_results",
         lambda: [{"placeholder_type": "TODO", "count": 1}],
     )
+    monkeypatch.setattr(ed, "_load_corrections", lambda: [])
     monkeypatch.setattr(idash, "_load_metrics", lambda: {})
     monkeypatch.setattr(idash, "get_rollback_logs", lambda: [])
     monkeypatch.setattr(idash, "_load_sync_events", lambda: [])

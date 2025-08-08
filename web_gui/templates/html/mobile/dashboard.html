@@ -1,0 +1,22 @@
+{% extends "html/mobile/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block enterprise_content %}
+<div class="container-fluid">
+  <h1 class="h4">Dashboard</h1>
+  <div id="progress"></div>
+  <ul class="list-unstyled">
+    <li>Placeholder Removals: {{ metrics.get('placeholder_removal', 0) }}</li>
+    <li>Compliance Score: {{ '%.3f'|format(metrics.get('compliance_score', 0)) }}</li>
+    <li>Violations: {{ metrics.get('violation_count', 0) }}</li>
+    <li>Rollbacks: {{ metrics.get('rollback_count', 0) }}</li>
+  </ul>
+  <div class="mt-3">
+    <a class="btn btn-primary btn-sm" href="/dashboard/compliance">Compliance Metrics</a>
+    <a class="btn btn-secondary btn-sm" href="/dashboard/rollback">Rollback Logs</a>
+    <a class="btn btn-secondary btn-sm" href="/dashboard/corrections">Correction History</a>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/dashboard_intelligence.js') }}"></script>
+{% endblock %}

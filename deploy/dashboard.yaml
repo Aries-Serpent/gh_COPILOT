@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  dashboard:
+    build: ..
+    command: python dashboard/enterprise_dashboard.py
+    environment:
+      - GH_COPILOT_WORKSPACE=/app
+      - GH_COPILOT_BACKUP_ROOT=/backup
+      - FLASK_SECRET_KEY=${FLASK_SECRET_KEY:-your_secret_key}
+      - LOG_WEBSOCKET_ENABLED=1
+    ports:
+      - "8080:8080"
+      - "8765:8765"

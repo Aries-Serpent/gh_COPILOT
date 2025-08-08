@@ -20,7 +20,7 @@ staged_db_files=$(git diff --cached --name-only -- '*.db')
 
 # Verify each staged .db file is managed by Git LFS
 for f in $staged_db_files; do
-  if ! git lfs ls-files "$f" >/dev/null 2>&1; then
+  if ! git lfs ls-files | grep -Fq " $f"; then
     echo "Error: $f is a .db file not tracked by Git LFS" >&2
     echo "Run 'git lfs track \"*.db\"' and re-add the file." >&2
     exit 1

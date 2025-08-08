@@ -214,6 +214,7 @@ print(f"Zero-byte Protection: {validation['zero_byte_protection']}")
 - **Zero-Byte Validation:** Real-time file integrity monitoring
 - **Enterprise Protocols:** Comprehensive compliance framework
 - **Emergency Prevention:** Automatic violation detection and correction
+- **Binary Asset Enforcement:** Verify new databases and other binary files are tracked with Git LFS using `git lfs ls-files`.
 
 ### Compliance Standards
 - **Data Integrity:** SHA-256 validation and backup protection
@@ -221,6 +222,7 @@ print(f"Zero-byte Protection: {validation['zero_byte_protection']}")
 - **Process Monitoring:** Real-time system health and performance tracking
 - **Error Prevention:** Graceful failure handling and recovery protocols
 - **Quality Assurance:** Enterprise-grade validation and testing frameworks
+- **Mandatory Checks:** Run `ruff` and `pytest` before committing to ensure lint and tests pass.
 
 ## 📚 Enterprise API Reference
 

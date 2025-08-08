@@ -99,3 +99,19 @@ def test_metrics_include_anomaly_and_quantum(gui_app):
     assert data["latest_anomaly_score"] == 0.4
     assert data["latest_anomaly_composite"] == 0.5
     assert data["latest_quantum_score"] == 0.9
+
+
+def test_quantum_dashboard_view(gui_app, monkeypatch):
+    import scripts.validation.secondary_copilot_validator as scv
+
+    monkeypatch.setattr(
+        scv.SecondaryCopilotValidator,
+        "validate_corrections",
+        lambda self, files, primary_success=None: True,
+    )
+    monkeypatch.setattr(gui, "get_quantum_metrics", lambda: {"quantum_score": 0.1})
+    monkeypatch.setattr(gui, "render_template", lambda template, **ctx: str(ctx))
+    client = gui_app.test_client()
+    resp = client.get("/quantum-dashboard")
+    assert resp.status_code == 200
+    assert "quantum_score" in resp.get_data(as_text=True)

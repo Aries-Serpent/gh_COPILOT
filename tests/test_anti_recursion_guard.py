@@ -133,3 +133,29 @@ def test_detect_recursion_aborts_on_depth(monkeypatch, tmp_path):
 
     assert str(root.resolve()) in paths
     assert str(aborted_path.resolve()) in paths
+
+
+def test_anti_recursion_guard_logs_violation(monkeypatch, tmp_path):
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+
+    def _ensure(db_path, validate=True):
+        with sqlite3.connect(db_path) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS violation_logs (timestamp TEXT, details TEXT)"
+            )
+            conn.commit()
+
+    monkeypatch.setattr(compliance, "ensure_violation_logs", _ensure)
+
+    @compliance.anti_recursion_guard
+    def recurse(n: int) -> None:
+        if n > 0:
+            recurse(n - 1)
+
+    with pytest.raises(RuntimeError):
+        recurse(compliance.MAX_RECURSION_DEPTH)
+
+    db = tmp_path / "databases" / "analytics.db"
+    with sqlite3.connect(db) as conn:
+        count = conn.execute("SELECT COUNT(*) FROM violation_logs").fetchone()[0]
+    assert count > 0

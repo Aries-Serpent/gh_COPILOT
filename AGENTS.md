@@ -3,6 +3,7 @@
 
 *This guide is intended for AI contributors (OpenAI Codex/ChatGPT agents) working on the **gh\_COPILOT** repository. It outlines the required environment setup, permitted actions, coding standards, testing procedures, and other protocols that the agent **must** follow to produce acceptable pull requests.*
 Additional instruction modules reside in `.github/instructions/`. These `.instructions.md` files provide focused guidance on specialized workflows and supplement this main guide. Key compliance topics include **DUAL_COPILOT_PATTERN**, **ZERO_TOLERANCE_VISUAL_PROCESSING**, **COMPREHENSIVE_SESSION_INTEGRITY**, **AUTONOMOUS_FILE_MANAGEMENT**, **RESPONSE_CHUNKING**, **WEB_GUI_INTEGRATION**, **QUANTUM_OPTIMIZATION**, **PHASE4_PHASE5_INTEGRATION**, **SESSION_TEMPLATES**, **SESSION_INSTRUCTION**, **ENHANCED_LEARNING_COPILOT**, and **ENHANCED_COGNITIVE_PROCESSING**. Review these modules regularly to ensure your contributions remain in full compliance.
+Supplemental guides for quantum preparation, executive workflows, and certification processes are located under `docs/quantum_preparation`, `docs/executive_guides`, and `docs/certification`.
 
 
 ## Environment Setup
@@ -20,14 +21,19 @@ Ensure the development environment is correctly configured **before** making any
 * **Python & Tools**: Use **Python 3.8+** (already provided in Codex). The setup will install necessary system packages (development headers, build tools, SQLite, etc.) and Python packages as specified by the project. Do **not** install additional packages beyond those listed in `requirements.txt` (and optional `requirements-web.txt`, `requirements-ml.txt`, etc.). **Only use** the dependencies declared by the project. If you believe a new package is required, **do not install it yourself** – instead, mention the need in the PR description for maintainers.
 * **Virtual Environment**: Always activate the Python virtual environment after running setup. For example, use `source .venv/bin/activate` to ensure you’re using the project’s isolated environment and packages.
 * **Git LFS Pre-commit Hook**: Install `tools/pre-commit-lfs.sh` as a local pre-commit hook (e.g., `cp tools/pre-commit-lfs.sh .git/hooks/pre-commit-lfs && chmod +x .git/hooks/pre-commit-lfs`) and run it before committing to verify all `.db` files are tracked by Git LFS.
+* **Auto LFS Policy Sync**: Binary rules in `.codex_lfs_policy.yaml` generate `.gitattributes`. After policy changes or when new binary types appear, run `python artifact_manager.py --sync-gitattributes` and re-stage affected files to ensure LFS tracking remains accurate.
 * **Environment Variables**: Certain environment variables must be set for the toolkit to function correctly. In particular:
 
   * **GH\_COPILOT\_WORKSPACE** – Absolute path to the repository’s root workspace. This should point to the project root (in the Codex container it defaults to `/app`, but set it explicitly). Many scripts use this to locate files and databases.
   * **GH\_COPILOT\_BACKUP\_ROOT** – Path to an **external** backup directory (must be outside the workspace). This enforces anti-recursion: backups **must not** be stored under the project root. If not set, the toolkit defaults to a temp directory (e.g. `/tmp/<user>/gh_COPILOT_Backups` on Linux). It’s recommended to set this to a dedicated folder.
+  * **SESSION_ID_SOURCE** – Optional override for the session identifier used by Codex logging. When unset, a UUID is generated.
   * **TEST_MODE** – Set to "1" in test environments to disable side effects (e.g., database writes) in scripts like `scripts/wlc_session_manager.py`.
-  * *Optional variables:* **WORKSPACE\_ROOT** (alias for `GH_COPILOT_WORKSPACE`), **FLASK\_SECRET\_KEY** (for the optional Flask web UI, default `'your_secret_key'` – replace in production), **FLASK\_RUN\_PORT** (Flask dev server port, default 5000), **CONFIG\_PATH** (path to a custom config file if not using the default `config/enterprise.json`), **WEB\_DASHBOARD\_ENABLED** (`"1"` or `"0"` to toggle logging of performance metrics with `[DASHBOARD]` tags). Configure these as needed if using those features.
+  * **ALLOW_AUTOLFS** – Set to "1" to enable automatic Git LFS tracking for binary or large files.
+  * **SYNC_ENGINE_WS_URL** – Optional WebSocket endpoint for real-time database synchronization. When set, `SyncEngine` broadcasts changes through this URL, logs events to `analytics.db`, and streams metrics to the dashboard's `/metrics_stream` endpoint.
+  * *Optional variables:* **WORKSPACE\_ROOT** (alias for `GH_COPILOT_WORKSPACE`), **FLASK\_SECRET\_KEY** (for the optional Flask web UI, default `'your_secret_key'` – replace in production), **FLASK\_RUN\_PORT** (Flask dev server port, default 5000), **CONFIG\_PATH** (path to a custom config file if not using the default `config/enterprise.json`), **WEB\_DASHBOARD\_ENABLED** (`"1"` or `"0"` to enable the dashboard and metrics stream). Configure these as needed if using those features.
 * After installing dependencies and setting variables, **run the test suite** (see [Testing and Validation](#testing-and-validation)) to verify the environment is correctly set up.
 * For procedures on restoring Git LFS-managed files, consult [docs/git_lfs_recovery.md](docs/git_lfs_recovery.md).
+* For details on the Codex logging database schema and commit workflow, see [docs/codex_logging.md](docs/codex_logging.md).
 
 ## Output Safety and `clw`
 
@@ -48,6 +54,11 @@ The console cannot reliably display lines longer than **4096 bytes**. Use standa
 - `grep -n "pattern" <file>` – search with line numbers. Example: `grep -n "ERROR" build.log | head`
 
 If output might exceed the limit, redirect it to a log file and review it in chunks with these commands to prevent line overflows.
+
+The repository also provides `tools/shell_buffer_manager.sh`, which trims each
+line to 4 KB and stores any overflow in `/tmp/gh_copilot_sessions`. Use the
+`safe_shell_execute` helper from `utils.general_utils` to run commands through
+this buffer manager and receive a summary of overflow locations.
 
 ## Allowed Tools and Commands (Agent Behavior)
 
@@ -138,7 +149,7 @@ In the **gh\_COPILOT** toolkit, multiple agent components work together. These r
 | Agent System                            | Core Function                                                                                                                |
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | **DualCopilotOrchestrator**             | Primary executor with a secondary validator (dual-agent pattern for critical tasks).                                         |
-| **UnifiedMonitoringOptimizationSystem** | Continuous health monitoring of the system (ensures uptime, performance metrics).                                            |
+| **UnifiedMonitoringOptimizationSystem** | Continuous health monitoring of the system (ensures uptime, performance metrics). Exposes `collect_metrics()` and `quantum_hook()` APIs for structured metric capture and optional quantum-inspired scoring. |
 | **QuantumOptimizationEngine**           | Provides quantum-inspired scoring for template ranking. Uses `QuantumExecutor` when available and seamlessly falls back to classical scoring. Simulation mode mirrors production logic for environments without quantum modules. |
 | **UnifiedScriptGenerationSystem**       | Generates scripts based on patterns from `production.db` (automating common tasks using database-driven templates).          |
 | **UnifiedSessionManagementSystem**      | Manages session integrity (zero-byte file checks, anti-recursion enforcement, ensures each session starts/ends cleanly).     |

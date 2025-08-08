@@ -1,0 +1,8 @@
+<div class="metrics-widgets">
+  {% for widget in widgets %}
+    <div class="widget">
+      <h3>{{ widget.title }}</h3>
+      <p>{{ widget.value }}</p>
+    </div>
+  {% endfor %}
+</div>
