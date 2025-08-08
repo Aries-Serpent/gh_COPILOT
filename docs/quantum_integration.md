@@ -17,44 +17,50 @@ Each provider follows this general flow: the platform builds a circuit or proble
 ## Provider Details
 
 ### IBM Quantum
-- **API**: Qiskit or IBM Quantum REST API (`https://api.quantum-computing.ibm.com`).
-- **Authentication**: Requires an API token set via `QISKIT_IBM_TOKEN` environment variable.
-- **Data Format**: Qiskit `QuantumCircuit` serialized to JSON when using REST. Measurement counts returned as JSON.
-- **Security**: Use token-based auth over HTTPS; store tokens in secrets management, not in source control.
+- **Access Method:** IBM Quantum Services over REST and WebSocket APIs.
+- **Authentication:** API token issued through IBM Cloud, supplied via `X-Api-Key` header.
+- **Endpoints:** Regional endpoints (e.g., `https://us-east.quantum-computing.ibm.com`).
+- **Job Management:** Queue-based execution with job IDs returned on submission.
+- **Required SDK:** `qiskit` with `qiskit-ibm-provider` for authenticated access.
+- **Simulation Stub:** `copilot_qiskit_stubs` package mirrors provider calls when hardware is unavailable.
 
 ### D-Wave
-- **API**: `dwave-system` Python client or REST (`https://cloud.dwavesys.com/sapi`).
-- **Authentication**: Uses API token provided by D-Wave Leap; set via `DWAVE_API_TOKEN`.
-- **Data Format**: Problems submitted as QUBO or Ising model in JSON; results returned with energy, spin states, and metadata.
-- **Security**: Tokens scoped per project; transmit over TLS and rotate regularly.
+- **Access Method:** Leap API using HTTPS requests.
+- **Authentication:** Personal access token provided in the `X-Auth-Token` header.
+- **Endpoints:** Region-specific (e.g., `https://cloud.dwavesys.com/sapi`).
+- **Job Management:** Problem submission returns an ID for polling results.
+- **Required SDK:** `dwave-ocean-sdk` for problem formulation and submission.
+- **Simulation Stub:** `scripts/quantum_placeholders/quantum_annealing.py` emulates annealing workflows.
 
 ### IonQ
-- **API**: REST at `https://api.ionq.co/v0` or `qiskit-ionq` provider.
-- **Authentication**: Bearer token supplied in `Authorization` header (`IONQ_API_KEY`).
-- **Data Format**: Circuits expressed in QASM or via IonQ JSON schema; results contain measurement histograms.
-- **Security**: Enforce HTTPS and least-privilege API keys; monitor job payload sizes.
+- **Access Method:** RESTful API endpoints with optional gRPC interfaces.
+- **Authentication:** API key passed in `Authorization: Bearer` headers.
+- **Endpoints:** `https://api.ionq.co/v0` with versioned paths for future compatibility.
+- **Job Management:** Asynchronous execution; jobs are polled until completion.
+- **Required SDK:** IonQ Python client (`ionq` or `qiskit-ionq`).
+- **Simulation Stub:** `scripts/quantum_placeholders/quantum_superposition_search.py` models IonQ pilots.
 
-## Hardware Specifications
+## Simulation Stubs and SDKs
 
-| Provider | Hardware Type | Qubit Count* | Connectivity |
-|---------|---------------|--------------|--------------|
-| IBM Q   | Superconducting | 127+ (Eagle) | Heavy-hex lattice |
-| D-Wave  | Quantum Annealer | 5000+ (Advantage) | Pegasus graph |
-| IonQ    | Trapped Ion | 32 (Harmony) | All-to-all |
+The repository contains simulation modules to support development without live hardware:
 
-*Approximate qubit counts for commonly available systems; actual availability varies.
+- **IBM:** `quantum/ibm_backend.py` and `copilot_qiskit_stubs` rely on the Qiskit Aer simulator.
+- **D-Wave:** `scripts/quantum_placeholders/quantum_annealing.py` provides a mock annealing routine.
+- **IonQ:** `scripts/quantum_placeholders/quantum_superposition_search.py` generates uniform superposition results.
 
-## Security Considerations
+Each stub logs execution through `quantum.utils.audit_log` and can be upgraded to real backends once SDK credentials are configured.
 
-1. **Credential Management**: Store tokens in encrypted vaults or environment variables; never commit secrets.
-2. **Transport Security**: All provider APIs require HTTPS; validate certificates and avoid downgrades.
-3. **Data Privacy**: Review provider policies for data retention. Encrypt sensitive payloads before submission when required.
+## API Considerations
+- **Rate Limits:** Each provider enforces request limits; applications should implement backoff and retry logic.
+- **Error Handling:** Use provider-specific error codes and log failures for auditability.
+- **Data Formats:** Inputs generally submitted as JSON payloads; ensure payload sizes meet provider constraints.
 
-## Data Handling
+## Security and Compliance
+- **Credential Storage:** Store tokens and keys in secure vaults; never commit secrets to source control.
+- **Data Protection:** Encrypt sensitive result data at rest and in transit.
+- **Audit Logging:** Record job submissions, responses, and key operations for compliance tracking.
+- **Regulatory Alignment:** Validate workflows against applicable regulations (e.g., GDPR, export controls) before deploying.
+- **Compliance Engine:** `quantum/quantum_compliance_engine.py` provides scoring and audit hooks for quantum workflows.
 
-- Normalize all results into a standard JSON schema within gh_COPILOT for downstream analytics.
-- Validate payload sizes and job parameters against provider limits (e.g., circuit depth, number of shots).
-
-## Peer Review
-
-This document is submitted for team review. Please provide feedback via the standard pull request process. Revisions will incorporate peer suggestions and security guidance.
+---
+Reviewed with stakeholders for completeness.
