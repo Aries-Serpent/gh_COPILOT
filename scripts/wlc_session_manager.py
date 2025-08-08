@@ -236,6 +236,12 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         if entry_id is None:
             raise RuntimeError("Failed to create session entry in the database.")
         log_action(session_id, "session_start", "WLC session starting")
+        log_codex_action(
+            session_id,
+            "start",
+            "WLC session starting",
+            datetime.now(UTC).isoformat(),
+        )
         compliance_score = 1.0
         try:
             with ensure_no_zero_byte_files(
@@ -252,7 +258,12 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
                     if os.getenv("TEST"):
                         sleep_time = 0.01
                     time.sleep(sleep_time)
-
+                log_codex_action(
+                    session_id,
+                    "generation",
+                    f"Generated {steps} steps",
+                    datetime.now(UTC).isoformat(),
+                )
                 orchestrator = UnifiedWrapUpOrchestrator(
                     workspace_path=str(CrossPlatformPathManager.get_workspace_path())
                 )
@@ -310,6 +321,12 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
 
         validator = SecondaryCopilotValidator()
         validator.validate_corrections([__file__])
+        log_codex_action(
+            session_id,
+            "validation",
+            "Secondary copilot validation complete",
+            datetime.now(UTC).isoformat(),
+        )
 
     if os.getenv("WLC_RUN_ORCHESTRATOR") == "1":
         orchestrator = UnifiedWrapUpOrchestrator(
@@ -319,6 +336,12 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         orchestrator.execute_unified_wrapup()
         log_action(session_id, "env_orchestrator_complete", "Env orchestrator finished")
     finalize_codex_log_db()
+    log_codex_action(
+        session_id,
+        "wrap_up",
+        "WLC session wrap-up finalized",
+        datetime.now(UTC).isoformat(),
+    )
     logging.info("WLC session completed")
 
 
