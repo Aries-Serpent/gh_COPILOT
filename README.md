@@ -887,8 +887,15 @@ This script reads from `analytics.db` and writes `dashboard/compliance/metrics.j
 Real-time data synchronization is provided by `src.sync.engine.SyncEngine`.
 To enable WebSocket-based propagation, start a broadcast WebSocket server and
 set `SYNC_ENGINE_WS_URL` to its endpoint (for example, `ws://localhost:8765`).
-Instantiate `SyncEngine` and call `await engine.open_websocket(os.environ["SYNC_ENGINE_WS_URL"], apply_callback)`
-where `apply_callback` applies incoming changes locally. See `docs/realtime_sync.md` for details.
+
+```python
+from src.sync.engine import SyncEngine
+
+engine = SyncEngine()
+await engine.open_websocket(os.environ["SYNC_ENGINE_WS_URL"], apply_callback)
+```
+
+`apply_callback` should apply incoming changes locally. See `docs/realtime_sync.md` for more details.
 
 Synchronization outcomes are logged to `databases/analytics.db`, allowing the dashboard to surface live sync statistics.
 
