@@ -27,10 +27,6 @@ engine = SyncEngine()
 await engine.open_websocket(os.environ["SYNC_ENGINE_WS_URL"], apply_callback)
 ```
 
-`apply_callback` applies incoming changes locally. Synchronization events and
-conflict statistics are stored in `databases/analytics.db`. The dashboard reads
-these records to display live synchronization metrics alongside other system
-health data.
 
 ## Conflict Policies
 The synchronization engine supports pluggable conflict resolution. Use the
