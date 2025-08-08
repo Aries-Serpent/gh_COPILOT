@@ -8,6 +8,8 @@ from typing import Any, Dict, List
 
 from flask import Blueprint, jsonify
 
+from src.dashboard.auth import require_session
+
 # Default path to analytics database storing correction logs
 ANALYTICS_DB = Path("databases/analytics.db")
 
@@ -40,6 +42,7 @@ def fetch_recent_correction_logs(limit: int = 10, db_path: Path = ANALYTICS_DB) 
 
 
 @bp.route("/correction-logs")
+@require_session()
 def correction_logs() -> Any:
     """Flask route exposing recent correction logs as JSON."""
     return jsonify(fetch_recent_correction_logs(db_path=ANALYTICS_DB))
