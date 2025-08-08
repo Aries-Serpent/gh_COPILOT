@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
+from typing import Callable, Dict, Optional
 
 from .engine import Engine
 
@@ -37,16 +38,27 @@ def _configure_logger() -> None:
 _configure_logger()
 
 
-def run_sync(a_path: str | Path, b_path: str | Path) -> None:
+def run_sync(
+    a_path: str | Path,
+    b_path: str | Path,
+    log_hook: Optional[Callable[[str, Dict[str, str]], None]] = None,
+) -> None:
     """Synchronize two SQLite databases and log start, success, and errors."""
 
-    logger.info("Sync started")
+    ctx = {"a_path": str(a_path), "b_path": str(b_path)}
+    logger.info("Sync started %s", ctx)
+    if log_hook:
+        log_hook("sync.start", ctx)
     try:
         engine_a = Engine(a_path)
         engine_b = Engine(b_path)
         engine_a.sync_with(engine_b)
-        logger.info("Sync completed successfully")
-    except Exception:  # pragma: no cover - ensures logging of unexpected errors
-        logger.exception("Sync failed")
+        logger.info("Sync completed successfully %s", ctx)
+        if log_hook:
+            log_hook("sync.end", ctx)
+    except Exception as exc:  # pragma: no cover - ensures logging of unexpected errors
+        logger.exception("Sync failed %s", ctx)
+        if log_hook:
+            log_hook("sync.error", {**ctx, "exception": repr(exc)})
         raise
 
