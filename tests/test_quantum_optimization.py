@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+<<<<<<< HEAD
 """Tests for quantum_optimization module."""
 
 import logging
@@ -54,3 +55,12 @@ def test_progress_logging(monkeypatch, caplog):
     assert any("PID: 1234" in rec.getMessage() for rec in caplog.records)
     step_logs = [rec for rec in caplog.records if "Step" in rec.getMessage()]
     assert len(step_logs) == 3
+=======
+from quantum.quantum_optimization import EnterpriseUtility
+import logging
+
+
+def test_perform_utility_function_converges():
+    util = EnterpriseUtility()
+    assert util.perform_utility_function() is True
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

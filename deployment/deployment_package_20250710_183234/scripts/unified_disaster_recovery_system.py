@@ -10,6 +10,7 @@ Enterprise Standards Compliance:
 """
 
 import logging
+<<<<<<< HEAD
 import shutil
 import sys
 from pathlib import Path
@@ -17,6 +18,11 @@ from datetime import datetime
 
 from utils.cross_platform_paths import CrossPlatformPathManager
 
+=======
+from pathlib import Path
+from datetime import datetime
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
     'start': '[START]',
@@ -29,10 +35,15 @@ TEXT_INDICATORS = {
 class EnterpriseUtility:
     """Enterprise utility class"""
 
+<<<<<<< HEAD
     def __init__(self, workspace_path: str | None = None):
         self.workspace_path = (
             Path(workspace_path) if workspace_path else CrossPlatformPathManager.get_workspace_path()
         )
+=======
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+        self.workspace_path = Path(workspace_path)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
         self.logger = logging.getLogger(__name__)
 
     def execute_utility(self) -> bool:
@@ -59,6 +70,7 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
+<<<<<<< HEAD
         try:
             backup_dir = CrossPlatformPathManager.get_backup_root()
             source = backup_dir / "production_backup"
@@ -88,6 +100,10 @@ class EnterpriseUtility:
                 f"{TEXT_INDICATORS['error']} Recovery error: {exc}"
             )
             return False
+=======
+        # Implementation placeholder
+        return True
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def main():

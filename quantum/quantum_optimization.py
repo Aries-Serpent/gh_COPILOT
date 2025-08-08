@@ -10,6 +10,7 @@ Enterprise Standards Compliance:
 """
 
 import logging
+<<<<<<< HEAD
 import os
 import sys
 import time
@@ -18,6 +19,12 @@ from pathlib import Path
 
 from tqdm import tqdm
 
+=======
+import sys
+from datetime import datetime
+from pathlib import Path
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
     'start': '[START]',
@@ -30,6 +37,7 @@ TEXT_INDICATORS = {
 class EnterpriseUtility:
     """Enterprise utility class"""
 
+<<<<<<< HEAD
     def __init__(self, workspace_path: Path = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
@@ -44,6 +52,21 @@ class EnterpriseUtility:
         try:
             # Utility implementation
             success = self.perform_utility_function(iterations=iterations)
+=======
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+        self.workspace_path = Path(workspace_path)
+        self.logger = logging.getLogger(__name__)
+
+    def execute_utility(self) -> bool:
+        """Execute utility function"""
+        start_time = datetime.now()
+        self.logger.info(
+            f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+
+        try:
+            # Utility implementation
+            success = self.perform_utility_function()
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
@@ -64,12 +87,17 @@ class EnterpriseUtility:
         self.logger.info(
             f"{TEXT_INDICATORS['info']} Executing {method_name}")
 
+<<<<<<< HEAD
     def perform_utility_function(self, iterations: int = 100) -> bool:
+=======
+    def perform_utility_function(self) -> bool:
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
         """Run a simple gradient descent optimization."""
         self.log_execution("perform_utility_function")
 
         x = 0.0
         lr = 0.1
+<<<<<<< HEAD
         start = time.perf_counter()
 
         with tqdm(total=iterations,
@@ -84,6 +112,11 @@ class EnterpriseUtility:
                 bar.update(1)
                 self.logger.info(
                     f"{TEXT_INDICATORS['info']} Step {i + 1}/{iterations} | x={x:.4f} | ETC={etc:.1f}s")
+=======
+        for _ in range(100):
+            grad = 2 * x + 2
+            x -= lr * grad
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
         self.logger.info(
             f"{TEXT_INDICATORS['info']} Optimized value {x:.4f}")

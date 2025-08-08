@@ -8,15 +8,21 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Database-first architecture
 """
+<<<<<<< HEAD
 
 import sys
 
 import os
+=======
+import sys
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 import sqlite3
 import logging
 from pathlib import Path
 from datetime import datetime
 
+<<<<<<< HEAD
 from enterprise_modules.compliance import validate_enterprise_operation
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 
@@ -27,6 +33,15 @@ TEXT_INDICATORS = {
     "error": "[ERROR]",
     "database": "[DATABASE]",
     "info": "[INFO]",
+=======
+# Text-based indicators (NO Unicode emojis)
+TEXT_INDICATORS = {
+    'start': '[START]',
+    'success': '[SUCCESS]',
+    'error': '[ERROR]',
+    'database': '[DATABASE]',
+    'info': '[INFO]'
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 }
 
 
@@ -85,8 +100,13 @@ def main():
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     if os.getenv("GH_COPILOT_DISABLE_VALIDATION") != "1":
         validate_enterprise_operation()
     success = main()
     SecondaryCopilotValidator().validate_corrections([__file__])
+=======
+
+    success = main()
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     sys.exit(0 if success else 1)

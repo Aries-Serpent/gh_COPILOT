@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import logging
+<<<<<<< HEAD
 import sqlite3
 
 from scripts.optimization.advanced_qubo_optimization import (
@@ -25,10 +26,15 @@ class SimpleDummyTqdm:
     def close(self):
         pass
 
+=======
+
+from advanced_qubo_optimization import solve_qubo_bruteforce
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 logging.getLogger().setLevel(logging.CRITICAL)
 
 
+<<<<<<< HEAD
 def test_solve_qubo_bruteforce(monkeypatch):
     matrix = [[1.0, -2.0], [-2.0, 1.0]]
     bars = []
@@ -108,3 +114,10 @@ def test_execute_utility_progress_and_db(tmp_path, monkeypatch, caplog):
     assert bars and bars[0].updates == 4
     assert "Loaded 1 optimization templates" in caplog.text
     assert called["valid"]
+=======
+def test_solve_qubo_bruteforce():
+    matrix = [[1.0, -2.0], [-2.0, 1.0]]
+    solution, energy = solve_qubo_bruteforce(matrix)
+    assert solution == [1, 1]
+    assert energy == -2.0
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

@@ -1,9 +1,12 @@
 # QUANTUM INTEGRATION GUIDE
 ## Implementation and Deployment
 
+<<<<<<< HEAD
 > **Note**
 > All quantum features run in simulation only. Installing `qiskit-ibm-provider`, setting `QISKIT_IBM_TOKEN`, or toggling `QUANTUM_USE_HARDWARE` has no effect because hardware execution is not supported.
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ### Integration Architecture
 ```
 PIS Framework
@@ -18,9 +21,13 @@ PIS Framework
 ```
 
 ### Database Integration
+<<<<<<< HEAD
 The quantum utilities operate in simulation mode and are designed to work with
 the database-first architecture. The included **Quantum Database Search** module
 simulates Grover-based lookup capabilities for any database column:
+=======
+The quantum features are fully integrated with the database-first architecture:
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 ```sql
 -- Quantum optimization metrics table
@@ -33,6 +40,7 @@ CREATE TABLE quantum_optimization_metrics (
 );
 ```
 
+<<<<<<< HEAD
 ### Quantum Database Search Usage
 ```python
 from quantum.algorithms.database_search import QuantumDatabaseSearch
@@ -45,6 +53,8 @@ search = QuantumDatabaseSearch(
 found = search.execute_algorithm("production.db")
 ```
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ### API Integration
 ```python
 # Quantum optimization API
@@ -72,6 +82,7 @@ result = quantum_engine.optimize_code_analysis(
 }
 ```
 
+<<<<<<< HEAD
 ### Hardware Backends
 Hardware backends are not supported. The orchestrator accepts `--hardware` and
 `--backend` flags but always runs on the local simulator. Tokens and backend
@@ -85,6 +96,14 @@ integration roadmap.
 - [ ] Performance monitoring enabled *(not started)*
 - [ ] Enterprise compliance validated *(not started)*
 - [ ] Documentation review completed *(not started)*
+=======
+### Deployment Checklist
+- [ ] Quantum simulation environment
+- [ ] Database schema updated
+- [ ] Performance monitoring enabled
+- [ ] Enterprise compliance validated
+- [ ] Documentation review completed
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 ---
 *Integration Guide v1.0*

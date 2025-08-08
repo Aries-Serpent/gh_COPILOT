@@ -1,4 +1,5 @@
 # QUANTUM ENTERPRISE COMPLIANCE
+<<<<<<< HEAD
 > **Experimental Features**
 > Quantum routines are under active development and may change.
 ## Regulatory and Security Compliance
@@ -12,6 +13,10 @@ mirror production logic and run classically for deterministic testing and
 compliance audits. Hardware support is not yet available; the steps in the
 **Optional Hardware Setup** section are placeholders for future integration.
 
+=======
+## Regulatory and Security Compliance
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ### Compliance Framework
 The quantum-enhanced PIS Framework meets all enterprise compliance requirements:
 
@@ -32,6 +37,7 @@ The quantum-enhanced PIS Framework meets all enterprise compliance requirements:
 3. **Quantum Random Number Generation**: True randomness for security
 4. **Quantum Error Correction**: Data integrity assurance
 
+<<<<<<< HEAD
 ### Implemented Quantum Routines
 - **Quantum Annealing Optimization**: Transverse-field Ising model that flips
   qubits when given negative costs. Simulation uses Qiskit's Aer backend and
@@ -61,6 +67,8 @@ The quantum-enhanced PIS Framework meets all enterprise compliance requirements:
 - **Variational Quantum Eigensolver** *(hardware integration pending)*
 - **Quantum Teleportation** *(research stage)*
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ### Audit Trail
 All quantum operations are fully logged and auditable:
 
@@ -89,6 +97,7 @@ CREATE TABLE quantum_audit_log (
 - **Quantum Secure**: ✅ Compliant
 - **Audit Ready**: ✅ Documentation Complete
 
+<<<<<<< HEAD
 ### Optional Hardware Setup *(placeholder)
 Hardware execution is not yet supported. The steps below outline the future flow:
 1. Install `qiskit-ibm-provider` in the project virtual environment.
@@ -101,6 +110,8 @@ Hardware execution is not yet supported. The steps below outline the future flow
 The toolkit ignores backend selection and token values and always operates in
 simulation mode. Hardware integration will arrive with the upcoming `QuantumExecutor` module.
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ---
 *Compliance Report v1.0*
 *Enterprise Security Certified*

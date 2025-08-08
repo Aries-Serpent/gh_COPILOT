@@ -1,0 +1,27 @@
+{
+  "metrics_collection": {
+    "system_metrics": {
+      "cpu_utilization": "1_second_interval",
+      "memory_usage": "1_second_interval",
+      "disk_io": "1_second_interval",
+      "network_io": "1_second_interval"
+    },
+    "application_metrics": {
+      "response_time": "per_request",
+      "throughput": "continuous",
+      "error_rate": "continuous",
+      "availability": "continuous"
+    },
+    "database_metrics": {
+      "query_performance": "per_query",
+      "connection_pool": "continuous",
+      "lock_contention": "continuous",
+      "buffer_cache": "continuous"
+    }
+  },
+  "visualization": {
+    "real_time_dashboards": "enabled",
+    "historical_trends": "enabled",
+    "predictive_charts": "enabled"
+  }
+}

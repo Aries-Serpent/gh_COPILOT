@@ -1,9 +1,12 @@
 # QUANTUM PERFORMANCE METRICS
 ## Comprehensive Performance Analysis
 
+<<<<<<< HEAD
 > **Note**
 > All benchmarks are generated using the simulator. Installing `qiskit-ibm-provider` or configuring an IBM Quantum token has no effect because hardware execution is not supported.
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ### Baseline Performance Comparison
 
 | Metric | Classical | Quantum | Improvement |

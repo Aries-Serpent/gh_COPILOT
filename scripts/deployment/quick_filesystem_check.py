@@ -5,6 +5,10 @@ Quick Filesystem Check Script
 
 import os
 import sys
+<<<<<<< HEAD
+=======
+import logging
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 print("FILESYSTEM ISOLATION CHECK")
 print("=" * 50)
@@ -13,7 +17,11 @@ print("=" * 50)
 print(f"Python executable: {sys.executable}")
 
 # Check virtual environment
+<<<<<<< HEAD
 venv = os.environ.get("VIRTUAL_ENV", "Not set")
+=======
+venv = os.environ.get('VIRTUAL_ENV', 'Not set')
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 print(f"Virtual environment: {venv}")
 
 # Check current directory
@@ -37,10 +45,19 @@ else:
     print("\n[SUCCESS] NO VIOLATIONS - FILESYSTEM ISOLATION COMPLIANT")
 
 # Save quick results
+<<<<<<< HEAD
 with open("quick_filesystem_check.txt", "w") as f:
+=======
+with open('quick_filesystem_check.txt', 'w') as f:
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     f.write(f"Python: {sys.executable}\n")
     f.write(f"Venv: {venv}\n")
     f.write(f"CWD: {os.getcwd()}\n")
     f.write(f"Violations: {violations}\n")
 
+<<<<<<< HEAD
 print(f"\nResults saved to: {os.path.join(os.getcwd(), 'quick_filesystem_check.txt')}")
+=======
+print(
+        f"\nResults saved to: {os.path.join(os.getcwd(), 'quick_filesystem_check.txt')}")
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

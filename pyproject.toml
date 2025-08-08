@@ -15,6 +15,7 @@ dependencies = [
 [project.scripts]
 final-enterprise-orchestrator = "copilot.orchestrators.final_enterprise_orchestrator:main"
 unified-deployment-orchestrator = "copilot.orchestrators.unified_deployment_orchestrator:main"
+<<<<<<< HEAD
 
 [tool.setuptools.packages.find]
 exclude = ["scripts.quantum_placeholders"]
@@ -78,3 +79,5 @@ exclude = [
     "quantum/*",
     "quantum_optimizer.py",
 ]
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
