@@ -10,20 +10,20 @@ def test_extract_lessons_from_codex_logs(tmp_path):
     db = tmp_path / "codex_log.db"
     with sqlite3.connect(db) as conn:
         conn.execute(
-            "CREATE TABLE codex_log (session_id TEXT, event TEXT, summary TEXT, ts TEXT)"
+            "CREATE TABLE codex_actions (session_id TEXT, action TEXT, statement TEXT, ts TEXT, metadata TEXT)"
         )
         conn.execute(
-            "INSERT INTO codex_log VALUES (?,?,?,?)",
-            ("s1", "end", "Be concise", "2024-01-01T00:00:00Z"),
+            "INSERT INTO codex_actions VALUES (?,?,?,?,?)",
+            ("s1", "end", "Error: Be concise", "2024-01-01T00:00:00Z", ""),
         )
     lessons = extract_lessons_from_codex_logs(db)
     assert lessons == [
         {
-            "description": "Be concise",
+            "description": "Error: Be concise",
             "source": "codex_log",
             "timestamp": "2024-01-01T00:00:00Z",
             "validation_status": "pending",
-            "tags": "codex",
+            "tags": "error",
         }
     ]
 
@@ -41,11 +41,11 @@ def test_run_session_stores_codex_lessons(tmp_path, monkeypatch):
     codex_db.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(codex_db) as conn:
         conn.execute(
-            "CREATE TABLE codex_log (session_id TEXT, event TEXT, summary TEXT, ts TEXT)"
+            "CREATE TABLE codex_actions (session_id TEXT, action TEXT, statement TEXT, ts TEXT, metadata TEXT)"
         )
         conn.execute(
-            "INSERT INTO codex_log VALUES (?,?,?,?)",
-            ("s1", "end", "Review results", "2024-01-02T00:00:00Z"),
+            "INSERT INTO codex_actions VALUES (?,?,?,?,?)",
+            ("s1", "end", "Warning: Review results", "2024-01-02T00:00:00Z", ""),
         )
     monkeypatch.setattr(codex_db_mod, "CODEX_LOG_DB", codex_db)
 
@@ -89,4 +89,4 @@ def test_run_session_stores_codex_lessons(tmp_path, monkeypatch):
     session_db = workspace / "databases" / "session.db"
     wsm.run_session(0, session_db, False, run_orchestrator=False)
 
-    assert any(lesson["description"] == "Review results" for lesson in stored)
+    assert any(lesson["description"] == "Warning: Review results" for lesson in stored)
