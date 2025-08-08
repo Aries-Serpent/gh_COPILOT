@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from collections import deque
 from dataclasses import dataclass
+import logging
 from typing import Callable, Deque, List, Optional, Set
 
 
@@ -27,6 +28,7 @@ class SyncEngine:
         self._listeners: List[Callable[[Change], None]] = []
         self.outgoing: Deque[Change] = deque()
         self._applied_ids: Set[str] = set()
+        self._log = logging.getLogger("sync")
 
     # change-listener
     def register_listener(self, callback: Callable[[Change], None]) -> None:
@@ -44,10 +46,16 @@ class SyncEngine:
     # outgoing queue propagation
     def propagate(self, send: Callable[[Change], None]) -> None:
         """Send queued changes to peers using ``send`` and clear the queue."""
-
-        while self.outgoing:
-            change = self.outgoing.popleft()
-            send(change)
+        self._log.info("start")
+        try:
+            while self.outgoing:
+                change = self.outgoing.popleft()
+                send(change)
+        except Exception:
+            self._log.exception("error")
+            raise
+        else:
+            self._log.info("end")
 
     # idempotent remote apply with conflict detection
     def apply_remote_change(
@@ -63,13 +71,21 @@ class SyncEngine:
         detected.
         """
 
-        if change.id in self._applied_ids:
-            return False
+        self._log.info("start")
+        try:
+            if change.id in self._applied_ids:
+                self._log.info("end")
+                return False
 
-        if conflict and conflict(change):
+            if conflict and conflict(change):
+                self._applied_ids.add(change.id)
+                self._log.info("end")
+                return False
+
+            apply(change)
             self._applied_ids.add(change.id)
-            return False
-
-        apply(change)
-        self._applied_ids.add(change.id)
-        return True
+            self._log.info("end")
+            return True
+        except Exception:
+            self._log.exception("error")
+            raise
