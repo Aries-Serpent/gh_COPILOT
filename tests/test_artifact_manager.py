@@ -99,7 +99,7 @@ def test_package_session_includes_codex_log_db(repo: Path) -> None:
     archive = package_session(tmp_dir, repo, policy)
     assert archive and archive.exists(), "archive missing"
     with ZipFile(archive) as zf:
-        assert "codex_log.db" in zf.namelist()
+        assert "databases/codex_log.db" in zf.namelist()
 
 
 def test_package_session_no_changes_returns_none(repo: Path, caplog: pytest.LogCaptureFixture) -> None:

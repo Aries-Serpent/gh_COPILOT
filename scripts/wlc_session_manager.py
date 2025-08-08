@@ -25,7 +25,6 @@ from __future__ import annotations
 import argparse
 import logging
 import os
-import subprocess
 import sqlite3
 import sys
 import time
@@ -323,7 +322,6 @@ def main(argv: list[str] | None = None) -> None:
         repo_root = Path(__file__).resolve().parents[1]
         tmp_dir = repo_root / "tmp"
         tmp_dir.mkdir(exist_ok=True)
-        subprocess.run(["git", "add", "databases/codex_log.db"], cwd=repo_root, check=False)
         package_session(
             tmp_dir,
             repo_root,
