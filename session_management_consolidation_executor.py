@@ -74,7 +74,7 @@ class EnterpriseUtility:
     def perform_utility_function(self) -> bool:
         """Check workspace for zero-byte files and log any findings."""
         try:
-            with ensure_no_zero_byte_files(self.workspace_path):
+            with ensure_no_zero_byte_files(self.workspace_path, "consolidation"):
                 return True
         except RuntimeError as exc:
             self.logger.error("[ERROR] %s", exc)
