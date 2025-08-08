@@ -22,6 +22,7 @@ RUN cp .env.example .env
 ENV GH_COPILOT_WORKSPACE=/app
 ENV GH_COPILOT_BACKUP_ROOT=/backup
 ENV FLASK_SECRET_KEY=changeme
+ENV LOG_WEBSOCKET_ENABLED=1
 
 # Switch to the non-root user
 USER appuser
@@ -34,7 +35,8 @@ USER appuser
 # Port 5005: Authentication service
 # Port 5006: Reserved for future use
 # Port 8080: Web interface
-EXPOSE 5000 5001 5002 5003 5004 5005 5006 8080
+# Port 8765: WebSocket metrics stream
+EXPOSE 5000 5001 5002 5003 5004 5005 5006 8080 8765
 
 HEALTHCHECK --interval=30s --timeout=5s CMD ["python", "scripts/docker_healthcheck.py"]
 
