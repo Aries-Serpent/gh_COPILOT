@@ -858,6 +858,14 @@ uses Server-Sent Events by default and works with Flask's ``Response`` when
 
 Compliance metrics are generated with `dashboard/compliance_metrics_updater.py`.
 This script reads from `analytics.db` and writes `dashboard/compliance/metrics.json`.
+### SyncEngine WebSocket Configuration
+
+Real-time data synchronization is provided by `src.sync.engine.SyncEngine`.
+To enable WebSocket-based propagation, start a broadcast WebSocket server and
+set `SYNC_ENGINE_WS_URL` to its endpoint (for example, `ws://localhost:8765`).
+Instantiate `SyncEngine` and call `await engine.open_websocket(os.environ["SYNC_ENGINE_WS_URL"], apply_callback)`
+where `apply_callback` applies incoming changes locally. See `docs/realtime_sync.md` for details.
+
 The compliance score is averaged from records in the `correction_logs` table.
 Correction history is summarized via `scripts/correction_logger_and_rollback.py`.
 The `summarize_corrections()` routine now keeps only the most recent entries
