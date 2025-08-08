@@ -35,6 +35,23 @@ The module automatically creates `codex_log.db` if it does not exist and
 `finalize_codex_log_db()` copies it to `codex_session_logs.db` while staging both
 files with `git add`.
 
+### Helper script
+
+For a simplified workflow, `scripts/DEDICATED_CODEX_LOG_DATABASE_TASKS.py` wraps
+these utilities:
+
+```python
+from scripts.DEDICATED_CODEX_LOG_DATABASE_TASKS import (
+    finalize_session,
+    initialize_session,
+    log_action,
+)
+
+initialize_session(session_id)
+log_action(session_id, "generate", "created script")
+finalize_session(session_id, "session complete")
+```
+
 ### Environment variables
 
 `GH_COPILOT_WORKSPACE` must point to the repository root so the utility can
