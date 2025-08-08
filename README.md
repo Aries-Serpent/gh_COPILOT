@@ -381,6 +381,13 @@ python scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py --SessionStart -AutoFi
 python scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py --SessionEnd
 ```
 
+Codex session activity is recorded in the `databases/codex_log.db` SQLite
+database. Set `GH_COPILOT_WORKSPACE` to the repository root and
+`GH_COPILOT_BACKUP_ROOT` to an external path before running the CLI. Because
+`codex_log.db` is a binary artifact, ensure Git LFS is installed and tracking
+the file. See [docs/codex_logging.md](docs/codex_logging.md) for the database
+schema and commit workflow.
+
 ### Unified Deployment Orchestrator CLI
 Manage orchestration tasks with start/stop controls:
 
