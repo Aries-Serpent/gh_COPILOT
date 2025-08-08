@@ -14,3 +14,17 @@ def test_chunker_splits_long_line():
     assert len(chunks) == 3
     assert all(len(c[0]) <= 10 for c in chunks)
     assert all(c[1] for c in chunks)
+
+
+def test_chunker_splits_log_line_at_fields():
+    chunker = OutputChunker(max_line_length=30)
+    line = "2023-10-05 12:34:56 INFO message part1 part2"
+    chunks = [c[0] for c in chunker.chunk_line(line)]
+    assert chunks == ["2023-10-05 12:34:56 INFO", "message part1 part2"]
+
+
+def test_chunker_splits_csv_at_commas():
+    chunker = OutputChunker(max_line_length=7)
+    line = "a,b,c,d,e,f"
+    chunks = [c[0] for c in chunker.chunk_line(line)]
+    assert chunks == ["a,b,c,d", "e,f"]
