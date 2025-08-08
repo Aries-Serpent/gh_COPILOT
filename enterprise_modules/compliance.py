@@ -68,14 +68,23 @@ def anti_recursion_guard(func: F) -> F:
             ancestor = ppid
             while ancestor:
                 if ancestor == pid:
+                    _log_violation(
+                        f"anti_recursion_guard:pid_loop:pid={pid}:ppid={ppid}"
+                    )
                     raise RuntimeError("PID loop detected")
                 ancestor = _PID_PARENTS.get(ancestor)
             threads = _PID_THREADS.setdefault(pid, set())
             if threads and tid not in threads:
+                _log_violation(
+                    f"anti_recursion_guard:duplicate_pid:pid={pid}:tid={tid}"
+                )
                 raise RuntimeError("Duplicate PID execution")
 
             depth = _PID_DEPTHS.get(pid, 0)
             if depth >= MAX_RECURSION_DEPTH:
+                _log_violation(
+                    f"anti_recursion_guard:depth_exceeded:pid={pid}:depth={depth}"
+                )
                 raise RuntimeError("Recursion depth exceeded")
             depth += 1
             _PID_DEPTHS[pid] = depth
@@ -96,6 +105,9 @@ def anti_recursion_guard(func: F) -> F:
                 if isinstance(candidate, (str, os.PathLike)):
                     target = Path(candidate)
             if target is not None and _detect_recursion(target):
+                _log_violation(
+                    f"anti_recursion_guard:path_recursion:path={target}"
+                )
                 raise RuntimeError("Path recursion detected")
             return func(*args, **kwargs)
         finally:
@@ -190,12 +202,25 @@ def _log_violation(details: str) -> None:
     analytics_db = workspace / "databases" / "analytics.db"
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     ensure_violation_logs(analytics_db, validate=False)
-    with sqlite3.connect(analytics_db) as conn:
-        conn.execute(
-            "INSERT INTO violation_logs (timestamp, details) VALUES (?, ?)",
-            (datetime.now().isoformat(), details),
-        )
-        conn.commit()
+    try:
+        with sqlite3.connect(analytics_db) as conn:
+            conn.execute(
+                "INSERT INTO violation_logs (timestamp, details) VALUES (?, ?)",
+                (datetime.now().isoformat(), details),
+            )
+            conn.commit()
+    except sqlite3.Error as exc:
+        try:
+            logging.error("Failed to log violation: %s", exc)
+            send_dashboard_alert(
+                {
+                    "event": "violation_log_error",
+                    "details": details,
+                    "error": str(exc),
+                }
+            )
+        except Exception:
+            pass
 
 
 def _log_rollback(target: str, backup: str | None = None) -> None:
@@ -204,12 +229,26 @@ def _log_rollback(target: str, backup: str | None = None) -> None:
     analytics_db = workspace / "databases" / "analytics.db"
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     ensure_rollback_logs(analytics_db, validate=False)
-    with sqlite3.connect(analytics_db) as conn:
-        conn.execute(
-            "INSERT INTO rollback_logs (target, backup, timestamp) VALUES (?, ?, ?)",
-            (target, backup, datetime.now().isoformat()),
-        )
-        conn.commit()
+    try:
+        with sqlite3.connect(analytics_db) as conn:
+            conn.execute(
+                "INSERT INTO rollback_logs (target, backup, timestamp) VALUES (?, ?, ?)",
+                (target, backup, datetime.now().isoformat()),
+            )
+            conn.commit()
+    except sqlite3.Error as exc:
+        try:
+            logging.error("Failed to log rollback: %s", exc)
+            send_dashboard_alert(
+                {
+                    "event": "rollback_log_error",
+                    "target": target,
+                    "backup": backup,
+                    "error": str(exc),
+                }
+            )
+        except Exception:
+            pass
 
 
 def _ensure_recursion_pid_log(db_path: Path) -> None:

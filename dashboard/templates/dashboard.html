@@ -4,6 +4,8 @@
     <title>Compliance Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="{{ url_for('static', filename='main.js') }}"></script>
+    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='placeholder_chart.js') }}"></script>
     <script>
         function updateMetrics(data){
             document.getElementById('placeholder_removal').textContent = data.placeholder_removal;
@@ -95,11 +97,20 @@
             if(!!window.EventSource){
                 const es = new EventSource('/metrics_stream');
                 es.onmessage = function(evt){
-                    updateMetrics(JSON.parse(evt.data));
+                    const payload = JSON.parse(evt.data);
+                    updateMetrics(payload);
+                    if(window.updatePlaceholderChart){
+                        window.updatePlaceholderChart(payload.placeholder_history || []);
+                    }
                 };
             }else{
                 setInterval(function(){
-                    fetch('/metrics').then(r=>r.json()).then(updateMetrics);
+                    fetch('/metrics').then(r=>r.json()).then(payload => {
+                        updateMetrics(payload.metrics);
+                        if(window.updatePlaceholderChart){
+                            window.updatePlaceholderChart(payload.placeholder_history || []);
+                        }
+                    });
                 },5000);
             }
             pollCompliance();
@@ -131,6 +142,8 @@
     <ul id="placeholder_breakdown"></ul>
     <h3>Compliance Trend</h3>
     <ul id="compliance_trend"></ul>
+    <h3>Placeholder History</h3>
+    <canvas id="placeholderChart"></canvas>
 </div>
 <h2>Recent Corrections</h2>
 <ul id="corrections">

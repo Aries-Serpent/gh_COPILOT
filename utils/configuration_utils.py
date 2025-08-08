@@ -5,21 +5,24 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from utils.cross_platform_paths import CrossPlatformPathManager
 
 import yaml
 
 
-def load_enterprise_configuration(config_path: Optional[str] = None) -> Dict[str, Any]:
+def load_enterprise_configuration(
+    config_path: Path | str | None = None,
+) -> Dict[str, Any]:
     """Load enterprise configuration from JSON or YAML with environment overrides."""
     workspace_root = CrossPlatformPathManager.get_workspace_path()
 
-    if config_path is None:
-        config_path = workspace_root / "config" / "enterprise.json"
-    else:
-        config_path = Path(config_path)
+    cfg_path = (
+        Path(config_path)
+        if config_path is not None
+        else workspace_root / "config" / "enterprise.json"
+    )
 
     defaults = {
         "workspace_root": str(workspace_root),
@@ -30,15 +33,15 @@ def load_enterprise_configuration(config_path: Optional[str] = None) -> Dict[str
 
     config: Dict[str, Any] = {}
     try:
-        with open(config_path, "r", encoding="utf-8") as fh:
-            if config_path.suffix.lower() in {".yaml", ".yml"}:
+        with open(cfg_path, "r", encoding="utf-8") as fh:
+            if cfg_path.suffix.lower() in {".yaml", ".yml"}:
                 config = yaml.safe_load(fh) or {}
             else:
                 config = json.load(fh)
     except FileNotFoundError:
         pass  # Use defaults only
     except (json.JSONDecodeError, yaml.YAMLError) as exc:
-        raise ValueError(f"Invalid configuration file: {config_path}") from exc
+        raise ValueError(f"Invalid configuration file: {cfg_path}") from exc
 
     cfg = {**defaults, **config}
 
@@ -61,7 +64,10 @@ def validate_environment_compliance() -> bool:
     return str(workspace).endswith("gh_COPILOT")
 
 
-def operations___init__(workspace_path: Optional[str] = None, config_path: Optional[str] = None) -> Dict[str, Any]:
+def operations___init__(
+    workspace_path: Path | str | None = None,
+    config_path: Path | str | None = None,
+) -> Dict[str, Any]:
     """Universal initialization pattern for scripts.
 
     This helper sets ``GH_COPILOT_WORKSPACE`` if ``workspace_path`` is provided

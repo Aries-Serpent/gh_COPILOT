@@ -5,12 +5,18 @@ import numpy as np
 from typing import Callable, Optional, Any, Dict, List, Tuple
 from datetime import datetime
 from importlib import import_module
+import logging
 
 from utils.cross_platform_paths import CrossPlatformPathManager
 import os
 from pathlib import Path
 from utils.lessons_learned_integrator import fetch_lessons_by_tag
 from quantum.utils.backend_provider import get_backend
+
+from tqdm import tqdm
+from quantum.algorithms.base import TEXT_INDICATORS
+
+logger = logging.getLogger(__name__)
 
 try:
     from qiskit import QuantumCircuit, Aer, execute
@@ -50,11 +56,13 @@ def validate_workspace() -> bool:
     return chunk_anti_recursion_validation()
 
 
-def validate_no_recursive_folders() -> None:
+def validate_no_recursive_folders(max_depth: Optional[int] = None) -> None:
     """Ensure workspace and backup directories are distinct and non-nesting.
 
     Walks both roots, resolving symlinks and comparing inodes so that no
-    subdirectory can link back to either root.
+    subdirectory can link back to either root. Traversal can optionally be
+    limited to ``max_depth`` levels below each root to avoid excessive or
+    unwanted inspection of very deep directory trees.
     """
 
     workspace = CrossPlatformPathManager.get_workspace_path().resolve()
@@ -77,13 +85,24 @@ def validate_no_recursive_folders() -> None:
         except ValueError:
             return False
 
+    def on_error(err: OSError) -> None:
+        if isinstance(err, PermissionError):
+            return
+        raise err
+
     for base, target in ((workspace, backup_root), (backup_root, workspace)):
-        for root, dirs, _ in os.walk(base, followlinks=True):
+        for root, dirs, _ in os.walk(base, followlinks=True, onerror=on_error):
+            if max_depth is not None:
+                depth = len(Path(root).resolve().relative_to(base).parts)
+                if depth >= max_depth:
+                    dirs[:] = []
             for d in dirs:
                 path = Path(root) / d
                 try:
                     resolved = path.resolve()
                     inode = resolved.stat().st_ino
+                except PermissionError:
+                    continue
                 except OSError:
                     continue
                 if inode in {workspace_inode, backup_inode} or resolved in {
@@ -92,17 +111,29 @@ def validate_no_recursive_folders() -> None:
                 }:
                     raise RuntimeError(f"Subdirectory {path} links back to {resolved}")
                 if is_nested(resolved, target):
-                    raise RuntimeError(f"Subdirectory {path} nests within {target}: {resolved}")
+                    raise RuntimeError(
+                        f"Subdirectory {path} nests within {target}: {resolved}"
+                    )
 
 
 def detect_c_temp_violations() -> Optional[str]:
-    forbidden = ["E:/temp/", "E:\\temp\\"]
-    workspace = str(CrossPlatformPathManager.get_workspace_path())
-    backup_root = str(CrossPlatformPathManager.get_backup_root())
-    for path in (workspace, backup_root):
-        for forbidden_path in forbidden:
-            if path.startswith(forbidden_path):
-                return path
+    """Return offending path when rooted in legacy ``E:/temp`` (case-insensitive)."""
+
+    forbidden_raw = ["E:/temp", "E:\\temp"]
+
+    def normalize(path: str) -> str:
+        return Path(path).as_posix().lower().rstrip("/") + "/"
+
+    workspace_obj = CrossPlatformPathManager.get_workspace_path()
+    backup_obj = CrossPlatformPathManager.get_backup_root()
+    workspace = normalize(str(workspace_obj))
+    backup = normalize(str(backup_obj))
+    forbidden = [normalize(p) for p in forbidden_raw]
+    for forbidden_path in forbidden:
+        if workspace.startswith(forbidden_path):
+            return Path(workspace_obj).as_posix()
+        if backup.startswith(forbidden_path):
+            return Path(backup_obj).as_posix()
     return None
 
 
@@ -303,7 +334,13 @@ class QuantumOptimizer:
         best_x = x.copy()
         best_val = self.objective_function(x)
         current_temp = temp
-        for i in range(max_iter):
+        for i in tqdm(
+            range(max_iter),
+            desc=f"{TEXT_INDICATORS['progress']} annealing",
+            unit="iter",
+            leave=False,
+            dynamic_ncols=True,
+        ):
             x_new = x + np.random.uniform(-0.1, 0.1, size=dim)
             for j, (a, b) in enumerate(self.variable_bounds):
                 x_new[j] = np.clip(x_new[j], a, b)
@@ -336,7 +373,13 @@ class QuantumOptimizer:
             dim = len(self.variable_bounds)
             best_x = None
             best_val = float("inf")
-            for i in range(niter):
+            for i in tqdm(
+                range(niter),
+                desc=f"{TEXT_INDICATORS['progress']} basin-hop",
+                unit="iter",
+                leave=False,
+                dynamic_ncols=True,
+            ):
                 x = np.array([np.random.uniform(a, b) for a, b in self.variable_bounds])
                 val = self.objective_function(x)
                 if val < best_val:
@@ -404,11 +447,11 @@ if __name__ == "__main__":
     bounds = [(-5, 5), (-5, 5)]
     optimizer = QuantumOptimizer(objective_function=quad_obj, variable_bounds=bounds, method="simulated_annealing")
     summary = optimizer.run()
-    print("Optimization result:")
-    print(summary["result"])
-    print("History:")
+    logger.info("Optimization result:")
+    logger.info(summary["result"])
+    logger.info("History:")
     for event in summary["history"]:
-        print(event)
+        logger.info(event)
 
 
 def run_quantum_routine(name: str, *args, use_hardware: bool = False, **kwargs):

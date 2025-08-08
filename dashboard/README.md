@@ -40,6 +40,8 @@ This module is designed to meet enterprise auditability and compliance standards
   `web_gui.scripts.flask_apps.enterprise_dashboard`)
 - **Templates:** Jinja2 HTML (`dashboard/templates/`)
 - **Static Content:** CSS, JS, images (`dashboard/static/`)
+- **Correction Log UI:** Vue component (`web/dashboard/components/CorrectionLog.vue`) fetches
+  `/corrections/logs` and supports client-side filtering and pagination.
 - **Data Sources:** `production.db`, `analytics.db`, `monitoring.db`
 - **Primary Endpoints:** `/`, `/database`, `/backup`, `/migration`, `/deployment`, `/api/scripts`, `/api/health`, `/metrics_stream`, `/dashboard/compliance`
 - **Session Logging:** All actions are recorded in `production.db` and mirrored in `analytics.db`
