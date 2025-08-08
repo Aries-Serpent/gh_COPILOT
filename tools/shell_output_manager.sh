@@ -9,20 +9,32 @@ SESSION_ID=$(date +%s)
 safe_execute() {
     local command="$1"
     local temp_file="${TEMP_DIR}/overflow_${SESSION_ID}.log"
+    local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+    local chunk_index=0
+    local overflow_count=0
 
     mkdir -p "$TEMP_DIR"
 
-    # Execute with line length monitoring
-    $command 2>&1 | while IFS= read -r line; do
+    echo "[SESSION] $timestamp - Command: $command" >&2
+
+    while IFS= read -r line; do
+        chunk_index=$((chunk_index+1))
         line_length=${#line}
         if [ "$line_length" -gt "$MAX_LINE_LENGTH" ]; then
             # Truncate and redirect overflow
             echo "${line:0:$MAX_LINE_LENGTH}" >&1
             echo "[OVERFLOW] Line truncated at $MAX_LINE_LENGTH chars. Full content: $temp_file" >&1
             echo "$line" >> "$temp_file"
+            overflow_count=$((overflow_count+1))
         else
             echo "$line" >&1
         fi
-    done
+    done < <(eval "$command" 2>&1)
+
+    echo "[SUMMARY] chunks=$chunk_index, truncated=$overflow_count, overflow_log=$temp_file" >&2
 }
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]] && [ "$#" -gt 0 ]; then
+    safe_execute "$*"
+fi
 
