@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from copy import deepcopy
-from typing import Any, Dict
+from typing import Any, Dict, Iterator
 
 from . import logger
 
@@ -10,11 +10,11 @@ from . import logger
 class SchemaMapper:
     """Apply updates to a schema with conflict resolution strategies."""
 
-    def __init__(self, base_schema: Dict[str, Any]):
+    def __init__(self, base_schema: Dict[str, Any]) -> None:
         self.schema = base_schema
 
     @contextmanager
-    def transaction(self):
+    def transaction(self) -> Iterator[None]:
         """Provide a transactional context with rollback support."""
         snapshot = deepcopy(self.schema)
         try:
