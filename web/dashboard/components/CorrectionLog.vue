@@ -1,5 +1,6 @@
 <template>
   <div>
+    <input v-model="filter" placeholder="Filter logs" />
     <ul class="correction-log">
       <li v-for="log in pagedLogs" :key="log.timestamp">
         <span class="timestamp">{{ log.timestamp }}</span>
@@ -17,26 +18,30 @@
 <script>
 export default {
   name: 'CorrectionLog',
-  props: {
-    logs: {
-      type: Array,
-      default: () => [],
-    },
-    pageSize: {
-      type: Number,
-      default: 5,
-    },
-  },
   data() {
-    return { page: 1 };
+    return {
+      logs: [],
+      page: 1,
+      pageSize: 5,
+      filter: '',
+    };
   },
   computed: {
+    filteredLogs() {
+      if (!this.filter) return this.logs;
+      const term = this.filter.toLowerCase();
+      return this.logs.filter(
+        (l) =>
+          l.entity.toLowerCase().includes(term) ||
+          l.resolution.toLowerCase().includes(term)
+      );
+    },
     totalPages() {
-      return Math.ceil(this.logs.length / this.pageSize) || 1;
+      return Math.ceil(this.filteredLogs.length / this.pageSize) || 1;
     },
     pagedLogs() {
       const start = (this.page - 1) * this.pageSize;
-      return this.logs.slice(start, start + this.pageSize);
+      return this.filteredLogs.slice(start, start + this.pageSize);
     },
   },
   methods: {
@@ -46,6 +51,16 @@ export default {
     prevPage() {
       if (this.page > 1) this.page -= 1;
     },
+    fetchLogs() {
+      fetch('/corrections/logs?limit=50')
+        .then((r) => r.json())
+        .then((d) => {
+          this.logs = d;
+        });
+    },
+  },
+  created() {
+    this.fetchLogs();
   },
 };
 </script>
