@@ -291,6 +291,7 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
             tags="wlc",
         )
         codex_db = CrossPlatformPathManager.get_workspace_path() / "databases" / "codex_log.db"
+        # Derive actionable lessons from Codex log patterns
         for lesson in extract_lessons_from_codex_logs(codex_db):
             store_lesson(**lesson)
 
@@ -318,7 +319,7 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         log_action(session_id, "env_orchestrator_start", "Running orchestrator via env flag")
         orchestrator.execute_unified_wrapup()
         log_action(session_id, "env_orchestrator_complete", "Env orchestrator finished")
-
+    finalize_codex_log_db()
     logging.info("WLC session completed")
 
 

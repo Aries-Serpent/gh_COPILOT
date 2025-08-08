@@ -34,3 +34,23 @@ def test_record_codex_action_inserts_row(tmp_path, monkeypatch):
 
     assert rows == [("s1", "act", "stmt", "meta")]
 
+
+def test_finalize_codex_log_db_copies_db(tmp_path, monkeypatch):
+    """finalize_codex_log_db should copy codex_log.db to destination."""
+    src = tmp_path / "codex_log.db"
+    dest = tmp_path / "codex_session_logs.db"
+    monkeypatch.setattr(codex_log_db, "CODEX_LOG_DB", src)
+    monkeypatch.setattr(codex_log_db, "CODEX_SESSION_LOG_DB", dest)
+
+    codex_log_db.log_codex_action("s1", "act", "stmt")
+    copied = codex_log_db.finalize_codex_log_db()
+
+    assert copied == dest
+    assert dest.exists()
+    with sqlite3.connect(dest) as conn:
+        rows = conn.execute(
+            "SELECT session_id, action, statement FROM codex_actions"
+        ).fetchall()
+
+    assert rows == [("s1", "act", "stmt")]
+
