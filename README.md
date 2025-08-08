@@ -389,6 +389,24 @@ is Git LFS-tracked; ensure `ALLOW_AUTOLFS=1` and verify with `git lfs status`
 before committing. See [docs/codex_logging.md](docs/codex_logging.md) for the
 schema and commit workflow.
 
+### Codex Log Database
+
+`utils/codex_log_db.py` writes session actions to `databases/codex_log.db` and
+copies a finalized snapshot to `databases/codex_session_logs.db`. Configure the
+environment with `GH_COPILOT_WORKSPACE` and an external `GH_COPILOT_BACKUP_ROOT`
+before running tools. Optional variables such as `SESSION_ID_SOURCE` supply a
+custom session identifier and `TEST_MODE=1` disables writes during tests. Set
+`ALLOW_AUTOLFS=1` so the `.db` files are Git LFS‑tracked. After finalizing a
+session, include the databases in commits:
+
+```bash
+git add databases/codex_log.db databases/codex_session_logs.db
+git lfs status databases/codex_log.db
+```
+
+See [docs/codex_logging.md](docs/codex_logging.md) for full API usage and
+workflow details.
+
 ### Unified Deployment Orchestrator CLI
 Manage orchestration tasks with start/stop controls:
 

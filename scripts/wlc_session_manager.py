@@ -45,7 +45,12 @@ from utils.lessons_learned_integrator import (
 )
 from unified_session_management_system import ensure_no_zero_byte_files
 from utils.logging_utils import ANALYTICS_DB
-from utils.codex_log_db import init_codex_log_db, record_codex_action
+from utils.codex_log_db import (
+    init_codex_log_db,
+    record_codex_action,
+    finalize_codex_log_db,
+    log_codex_action,
+)
 
 
 def log_action(session_id: str, action: str, statement: str) -> None:

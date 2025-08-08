@@ -2,6 +2,7 @@
 
 import json
 import sqlite3
+import pytest
 
 from utils import codex_action_logger
 
@@ -43,4 +44,17 @@ def test_record_and_finalize(tmp_path, monkeypatch):
         ).fetchall()
 
     assert rows == [("s1", "action", "statement", json.dumps({"foo": "bar"}))]
+
+
+def test_calls_without_init_raise(monkeypatch):
+    """Calling logging helpers before init should raise ``RuntimeError``."""
+
+    monkeypatch.setattr(codex_action_logger, "_CODEX_LOG_DB", None)
+    monkeypatch.setattr(codex_action_logger, "_SESSION_ID", None)
+
+    with pytest.raises(RuntimeError):
+        codex_action_logger.record_codex_action("a", "b")
+
+    with pytest.raises(RuntimeError):
+        codex_action_logger.finalize_codex_log_db()
 

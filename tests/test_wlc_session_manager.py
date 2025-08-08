@@ -4,6 +4,7 @@ from pathlib import Path
 
 import scripts.wlc_session_manager as wsm
 from unified_session_management_system import prevent_recursion
+import subprocess
 
 
 class DummyValidator:
@@ -173,3 +174,54 @@ def test_prevent_recursion_blocks_nested_calls():
     with pytest.raises(RuntimeError):
         recurse()
     assert calls == [0]
+
+
+def test_run_session_creates_and_stages_codex_db(tmp_path, monkeypatch):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    backup_root = tmp_path / "backup"
+    backup_root.mkdir()
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+    monkeypatch.delenv("TEST_MODE", raising=False)
+
+    subprocess.run(["git", "init"], cwd=workspace, check=True, capture_output=True)
+
+    import utils.codex_log_db as cldb
+    monkeypatch.setattr(cldb, "CODEX_LOG_DB", workspace / "databases" / "codex_log.db")
+    monkeypatch.setattr(
+        cldb, "CODEX_SESSION_LOG_DB", workspace / "databases" / "codex_session_logs.db"
+    )
+
+    monkeypatch.setattr(wsm, "SecondaryCopilotValidator", lambda: DummyValidator())
+    from contextlib import contextmanager
+
+    @contextmanager
+    def _no_zero_byte(_path=None, _session_id=None):
+        yield
+
+    monkeypatch.setattr(wsm, "ensure_no_zero_byte_files", _no_zero_byte)
+    monkeypatch.setattr(wsm, "extract_lessons_from_codex_logs", lambda db: [])
+    monkeypatch.setattr(wsm, "store_lesson", lambda **kw: None)
+    monkeypatch.setattr(wsm, "_zero_byte_count", lambda session_id: 0)
+    class _DummyOrchestrator:
+        def __init__(self, workspace_path=None):
+            pass
+
+        def execute_unified_wrapup(self):
+            return type("R", (), {"compliance_score": 100.0})()
+
+    monkeypatch.setattr(wsm, "UnifiedWrapUpOrchestrator", _DummyOrchestrator)
+
+    wsm.run_session(1, workspace / "production.db", False, run_orchestrator=False)
+
+    codex_db = workspace / "databases" / "codex_log.db"
+    assert codex_db.exists()
+    ls_output = subprocess.run(
+        ["git", "ls-files", "--stage", str(codex_db.relative_to(workspace))],
+        cwd=workspace,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    assert ls_output.strip()
