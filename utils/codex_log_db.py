@@ -1,23 +1,16 @@
-"""Codex session logging utilities."""
+"""Codex action logging utilities."""
 
 from __future__ import annotations
 
 import sqlite3
-from contextlib import contextmanager
-from datetime import UTC, datetime
 from pathlib import Path
-from typing import Iterator
-
-from utils.cross_platform_paths import CrossPlatformPathManager
 
 
 CODEX_LOG_DB = Path("databases/codex_log.db")
-DB_NAME = "codex_log.db"
-TABLE_NAME = "codex_log"
 
 
 def init_db() -> None:
-    """Initialize the Codex log database and create required tables."""
+    """Create the ``codex_actions`` table if it doesn't exist."""
     CODEX_LOG_DB.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(CODEX_LOG_DB) as conn:
         conn.execute(
@@ -29,16 +22,6 @@ def init_db() -> None:
                 action TEXT,
                 statement TEXT,
                 metadata TEXT
-            )
-            """
-        )
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS codex_log (
-                session_id TEXT,
-                event TEXT,
-                summary TEXT,
-                ts TEXT
             )
             """
         )
@@ -118,23 +101,7 @@ def log_codex_action(
         )
 
 
-def log_codex_start(session_id: str) -> None:
-    """Record the start of a Codex session."""
-    with codex_log_cursor() as cursor:
-        cursor.execute(
-            "INSERT INTO codex_log (session_id, event, summary, ts) VALUES (?, ?, ?, ?)",
-            (session_id, "start", "", datetime.now(UTC).isoformat()),
-        )
-
-
-def log_codex_end(session_id: str, summary: str) -> None:
-    """Record the end of a Codex session."""
-    with codex_log_cursor() as cursor:
-        cursor.execute(
-            "INSERT INTO codex_log (session_id, event, summary, ts) VALUES (?, ?, ?, ?)",
-            (session_id, "end", summary, datetime.now(UTC).isoformat()),
-        )
-
+__all__ = ["CODEX_LOG_DB", "init_db", "log_codex_action"]
 
 __all__ = [
     "init_db",

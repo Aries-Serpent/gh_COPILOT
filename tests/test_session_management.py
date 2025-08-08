@@ -90,6 +90,7 @@ def test_lifecycle_logging(monkeypatch, tmp_path, caplog):
     codex_db = tmp_path / "codex_log.db"
     monkeypatch.setattr(codex_log_db, "CODEX_LOG_DB", codex_db)
     system = usms.UnifiedSessionManagementSystem(workspace_root=str(tmp_path))
+    assert not codex_db.exists()
     with caplog.at_level(logging.INFO):
         system.start_session()
         system.end_session()
