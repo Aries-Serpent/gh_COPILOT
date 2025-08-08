@@ -51,6 +51,7 @@ from utils.codex_log_db import init_codex_log_db, record_codex_action, log_codex
 def log_action(session_id: str, action: str, statement: str) -> None:
     """Log a codex action with a UTC timestamp."""
     record_codex_action(session_id, action, statement, datetime.now(UTC).isoformat())
+    log_codex_logger_action(action, statement)
 
 try:
     from scripts.orchestrators.unified_wrapup_orchestrator import (
@@ -236,6 +237,7 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         if entry_id is None:
             raise RuntimeError("Failed to create session entry in the database.")
         init_codex_log_db()
+        init_codex_logs_db()
         log_action(session_id, "session_start", "WLC session starting")
         record_codex_action(
             session_id,

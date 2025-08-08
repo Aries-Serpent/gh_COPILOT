@@ -4,29 +4,70 @@ This document describes how Codex sessions record activity in the repository.
 
 ## Database schema
 
-Codex events are stored in `databases/codex_log.db`, an SQLite database with a
-single table:
+Codex events are stored in `databases/codex_log.db`, an SQLite database with two
+tables:
 
 - `codex_actions`
   - `id` – integer primary key
   - `session_id` – identifier for the Codex session
-  - `ts` – timestamp when the action was recorded
+  - `ts` – ISO 8601 UTC timestamp when the action was recorded
   - `action` – name of the action
   - `statement` – free‑form details about the action
-  - `metadata` – optional JSON or text metadata
+  - `metadata` – optional metadata stored as JSON text
+- `codex_log`
+  - `session_id` – identifier for the Codex session
+  - `event` – `start` or `end`
+  - `summary` – optional session summary text
+  - `ts` – ISO 8601 UTC timestamp when the event was recorded
 
 ## Usage
 
 Utilities in `utils/codex_log_db.py` manage the database:
 
 ```python
-from utils.codex_log_db import init_codex_log_db, record_codex_action
+from utils.codex_log_db import (
+    init_codex_log_db,
+    record_codex_action,
+    finalize_codex_log_db,
+)
 
 init_codex_log_db()
-record_codex_action(session_id, "generate", "created script", metadata="...")
+record_codex_action(session_id, "generate", "created script", metadata={"foo": 1})
+finalize_codex_log_db()
 ```
 
-The module automatically creates `codex_log.db` if it does not exist.
+The module automatically creates `codex_log.db` if it does not exist and
+`finalize_codex_log_db()` copies it to `codex_session_logs.db` while staging both
+files with `git add`.
+
+### Helper script
+
+For a simplified workflow, `scripts/DEDICATED_CODEX_LOG_DATABASE_TASKS.py` wraps
+these utilities:
+
+```python
+from scripts.DEDICATED_CODEX_LOG_DATABASE_TASKS import (
+    finalize_session,
+    initialize_session,
+    log_action,
+)
+
+initialize_session(session_id)
+log_action(session_id, "generate", "created script")
+finalize_session(session_id, "session complete")
+```
+
+### Context manager
+
+Use :class:`utils.codex_log_db.CodexSessionLogger` to automatically manage the
+start and end of a Codex session:
+
+```python
+from utils.codex_log_db import CodexSessionLogger
+
+with CodexSessionLogger(session_id) as logger:
+    logger.log("generate", "created script")
+```
 
 ### Environment variables
 

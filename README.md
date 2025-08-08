@@ -401,6 +401,37 @@ is Git LFS-tracked; ensure `ALLOW_AUTOLFS=1` and verify with `git lfs status`
 before committing. See [docs/codex_logging.md](docs/codex_logging.md) for the
 schema and commit workflow.
 
+### Codex Log Database
+
+Session tooling records actions in `databases/codex_log.db`. When
+`finalize_codex_log_db()` runs, the log is copied to
+`databases/codex_session_logs.db` and both files are staged for commit.
+For a simplified per-action audit trail, the `utils/codex_logger.py`
+helper stores timestamped `action` and `statement` entries in
+`databases/codex_logs.db`. Call `codex_logger.log_action()` during the
+session and `codex_logger.finalize_db()` to stage the database for
+commit.
+
+#### Environment variables
+
+- `GH_COPILOT_WORKSPACE` – path to the repository root.
+- `GH_COPILOT_BACKUP_ROOT` – external backup directory.
+- `ALLOW_AUTOLFS` – set to `1` so the `.db` files are Git LFS‑tracked.
+- `SESSION_ID_SOURCE` – optional custom session identifier.
+- `TEST_MODE` – set to `1` to disable writes during tests.
+
+#### Commit workflow
+
+After calling `finalize_codex_log_db()` include the databases in your commit:
+
+```bash
+git add databases/codex_log.db databases/codex_session_logs.db
+git lfs status databases/codex_log.db
+```
+
+See [docs/codex_logging.md](docs/codex_logging.md) for full API usage and
+workflow details.
+
 ### Unified Deployment Orchestrator CLI
 Manage orchestration tasks with start/stop controls:
 
