@@ -106,11 +106,22 @@ class EnterpriseDocumentationManager:
     def query_documentation(self, doc_type: str) -> list[tuple[str, str, str | None]]:
         """Return ``doc_id``, ``content`` and ``source_path`` for the given ``doc_type``."""
         if not self.db_path.exists():
-            self.logger.error(f"{TEXT_INDICATORS['error']} Missing database {self.db_path}")
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Missing database {self.db_path}"
+            )
             return []
-        query = "SELECT doc_id, content, source_path FROM enterprise_documentation WHERE doc_type=?"
-        with sqlite3.connect(self.db_path) as conn:
-            return conn.execute(query, (doc_type,)).fetchall()
+
+        query = (
+            "SELECT doc_id, content, source_path FROM enterprise_documentation WHERE doc_type=?"
+        )
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                return conn.execute(query, (doc_type,)).fetchall()
+        except sqlite3.Error as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Failed to query documentation: {exc}"
+            )
+            return []
 
     # ------------------------------------------------------------------
     def select_template(self, doc_type: str) -> str:

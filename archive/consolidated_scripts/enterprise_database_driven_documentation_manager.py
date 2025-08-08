@@ -147,10 +147,21 @@ class DocumentationManager:
         return count
 
 
+# Keep reference to the original class so tests that temporarily replace
+# ``DocumentationManager`` do not leak those changes to subsequent tests.
+_ORIGINAL_DOCUMENTATION_MANAGER = DocumentationManager
+
+
 def dual_validate() -> bool:
-    manager = DocumentationManager()
-    processed = manager.render()
-    return processed > 0
+    cls = DocumentationManager
+    try:
+        manager = cls()
+        processed = manager.render()
+        return processed > 0
+    finally:
+        # Restore the original class to avoid cross-test contamination when
+        # ``DocumentationManager`` is patched in a test.
+        globals()["DocumentationManager"] = _ORIGINAL_DOCUMENTATION_MANAGER
 
 
 if __name__ == "__main__":

@@ -26,6 +26,10 @@ from scripts.monitoring.unified_monitoring_optimization_system import main as mo
 monitoring_main()
 ```
 
+## Metrics Collection and Quantum Scoring
+
+`UnifiedMonitoringOptimizationSystem.collect_metrics()` gathers CPU, memory, and uptime statistics into a structured dictionary. Pass those metrics to `quantum_hook()` to append a quantum-inspired anomaly score before persisting to `analytics.db`.
+
 ## Self-Healing Sessions
 
 `unified_monitoring_optimization_system.auto_heal_session` merges anomaly

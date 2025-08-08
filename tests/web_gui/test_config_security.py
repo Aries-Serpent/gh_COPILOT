@@ -4,7 +4,6 @@ from typing import Generator
 import pytest
 
 from web_gui.scripts.config.production_config import ProductionConfig
-from web_gui.scripts.config.staging_config import StagingConfig
 
 
 @pytest.fixture(autouse=True)

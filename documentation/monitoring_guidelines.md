@@ -6,7 +6,8 @@ This document outlines configuration options for the Unified Monitoring Optimiza
 
 - `contamination`: float between 0 and 0.5 controlling expected fraction of anomalies for `detect_anomalies` and `auto_heal_session`.
 - `db_path`: optional path to `analytics.db` for storing metrics, anomaly results and quantum scores.
-- `table`: metrics table name for `push_metrics`.
+- `table`: metrics table name for `push_metrics`. Names must contain only
+  letters, numbers, and underscores.
 - `session_id`: identifier linking metrics to session lifecycle data.
 
 ## Quantum Integration

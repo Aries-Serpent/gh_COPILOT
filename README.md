@@ -8,7 +8,7 @@
 ![Coverage](https://img.shields.io/badge/coverage-automated-blue)
 ![Ruff](https://img.shields.io/badge/ruff-linted-blue)
 
-**Status:** Active development with incremental improvements. Disaster recovery now enforces external backup roots and has verified restore tests, while session-management enhancements remain under construction.
+**Status:** Active development with incremental improvements. Disaster recovery now enforces external backup roots with verified restore tests, and session-management lifecycle APIs (`start_session` / `end_session`) are now available. Monitoring modules expose a unified metrics API via `UnifiedMonitoringOptimizationSystem.collect_metrics` with optional quantum scoring hooks, and Git LFS rules are auto-synced from `.codex_lfs_policy.yaml` to ensure binary assets are tracked.
 
 > Combined checks: run `python scripts/run_checks.py` to execute `ruff` and `pytest` sequentially.
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
@@ -38,6 +38,8 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Lessons Learned Integration:** sessions automatically apply lessons from `learning_monitor.db`
 - **Database-First Architecture:** `databases/production.db` used as primary reference
 - **DUAL COPILOT Pattern:** primary/secondary validation framework available
+- **Unified Monitoring Optimization:** `collect_metrics` and `auto_heal_session` enable anomaly detection with quantum-inspired scoring
+- **Automatic Git LFS Policy:** `.codex_lfs_policy.yaml` and `artifact_manager.py --sync-gitattributes` govern binary tracking
 - **Dual Copilot Enforcement:** automation scripts now trigger secondary
   validation via `SecondaryCopilotValidator` with aggregated results.
 - **Archive Migration Executor:** dual-copilot validation added for log archival workflows.
@@ -62,6 +64,9 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
 - **Anti-Recursion Guards:** backup and session modules now enforce external backup roots.
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, `add_code_audit_history.sql`, `add_violation_logs.sql`, and `add_rollback_logs.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
+- **Real-Time Sync Engine:** `SyncManager` and `SyncWatcher` log synchronization outcomes to `analytics.db` and, when `SYNC_ENGINE_WS_URL` is set, broadcast updates over WebSocket for the dashboard.
+- **Dashboard Metrics View:** compliance, synchronization, and monitoring metrics refresh live when `WEB_DASHBOARD_ENABLED=1`.
+- **Monitoring Pipeline:** anomaly detection results stored in `analytics.db` appear on the dashboard's monitoring panels and stream through `/metrics_stream` when the dashboard is enabled.
 
 - **Quantum Placeholder Utilities:** see [quantum/README.md](quantum/README.md) for simulated optimizer and search helpers. `quantum_optimizer.run_quantum_routine` includes placeholder hooks for annealing and search routines; entanglement correction is not implemented. These stubs run on Qiskit simulators and ignore `use_hardware=True` until real hardware integration lands. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) for current status.
 - **Phase 6 Quantum Demo:** `quantum_integration_orchestrator.py` demonstrates a simulated quantum
@@ -274,6 +279,13 @@ Both ``session_protocol_validator.py`` and ``session_management_consolidation_ex
 are stable CLI wrappers. They delegate to the core implementations under
 ``validation.protocols.session`` and ``session_management_consolidation_executor`` and can
 be used directly in automation scripts.
+
+The lightweight `src/session/validators.py` module exposes a
+`validate_lifecycle` helper that checks for open database connections,
+pending transactions, stray temporary files, empty log files, and
+orphaned session metadata.  `SessionManager.shutdown()` invokes this
+helper to ensure each session concludes cleanly and raises a
+`RuntimeError` when any resources remain.
 - ``unified_session_management_system.py`` starts new sessions via enterprise compliance checks.
 - ``continuous_operation_monitor.py`` records uptime and resource usage to ``analytics.db``.
 Import these modules directly in your own scripts for easier maintenance.
@@ -887,6 +899,12 @@ python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 # Features: Real-time metrics, database visualization, system monitoring
 ```
 
+### Staging Deployment
+```bash
+bash deploy/dashboard_deploy.sh staging
+```
+This script builds the dashboard, runs migrations, applies WebSocket settings, starts the service, and performs a smoke test.
+
 ### Enable Streaming
 
 Set the environment variable `LOG_WEBSOCKET_ENABLED=1` to allow real-time
@@ -897,6 +915,23 @@ uses Server-Sent Events by default and works with Flask's ``Response`` when
 
 Compliance metrics are generated with `dashboard/compliance_metrics_updater.py`.
 This script reads from `analytics.db` and writes `dashboard/compliance/metrics.json`.
+### SyncEngine WebSocket Configuration
+
+Real-time data synchronization is provided by `src.sync.engine.SyncEngine`.
+To enable WebSocket-based propagation, start a broadcast WebSocket server and
+set `SYNC_ENGINE_WS_URL` to its endpoint (for example, `ws://localhost:8765`).
+
+```python
+from src.sync.engine import SyncEngine
+
+engine = SyncEngine()
+await engine.open_websocket(os.environ["SYNC_ENGINE_WS_URL"], apply_callback)
+```
+
+`apply_callback` should apply incoming changes locally. See `docs/realtime_sync.md` for more details.
+
+Synchronization outcomes are logged to `databases/analytics.db`, allowing the dashboard to surface live sync statistics.
+
 The compliance score is averaged from records in the `correction_logs` table.
 Correction history is summarized via `scripts/correction_logger_and_rollback.py`.
 The `summarize_corrections()` routine now keeps only the most recent entries
@@ -979,7 +1014,7 @@ gh_COPILOT/
 - **`dashboard/integrated_dashboard.py`** - Unified compliance dashboard
 - **`scripts/monitoring/continuous_operation_monitor.py`** - Continuous operation utility
 - **`scripts/monitoring/enterprise_compliance_monitor.py`** - Compliance monitoring utility
-- **`scripts/monitoring/unified_monitoring_optimization_system.py`** - Aggregates performance metrics
+- **`scripts/monitoring/unified_monitoring_optimization_system.py`** - Aggregates performance metrics and provides ``push_metrics`` with validated table names
 
 ---
 

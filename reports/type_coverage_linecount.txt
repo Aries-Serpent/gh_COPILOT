@@ -1,0 +1,5 @@
+    218     218      7      7 total
+    145     145      1      1 analytics_db_inspector
+     28      28      2      2 analytics.pattern_recognition
+     25      25      2      2 analytics.performance_analysis
+     20      20      2      2 analytics.user_behavior
