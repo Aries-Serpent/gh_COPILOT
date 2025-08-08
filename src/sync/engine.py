@@ -7,6 +7,7 @@ remote updates with conflict detection and idempotency checks.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 from collections import deque
 from dataclasses import dataclass
@@ -61,6 +62,53 @@ class SyncEngine:
             raise
         else:
             self._log.info("end")
+
+    async def open_websocket(
+        self, uri: str, apply: Callable[[Change], None]
+    ) -> None:
+        """Synchronize with peers over a WebSocket ``uri``.
+
+        Local changes queued via :meth:`notify_change` are broadcast to the
+        server, and incoming messages are applied using
+        :meth:`apply_remote_change` with the supplied *apply* callback.
+        The coroutine runs until the connection is closed or cancelled.
+        """
+
+        async with websockets.connect(uri) as websocket:
+            async def sender() -> None:
+                while True:
+                    while self.outgoing:
+                        change = self.outgoing.popleft()
+                        await websocket.send(
+                            json.dumps(
+                                {
+                                    "id": change.id,
+                                    "payload": change.payload,
+                                    "timestamp": change.timestamp,
+                                }
+                            )
+                        )
+                    await asyncio.sleep(0.01)
+
+            async def receiver() -> None:
+                async for message in websocket:
+                    data = json.loads(message)
+                    change = Change(
+                        id=data["id"],
+                        payload=data["payload"],
+                        timestamp=data["timestamp"],
+                    )
+                    self.apply_remote_change(change, apply)
+
+            send_task = asyncio.create_task(sender())
+            try:
+                await receiver()
+            except ConnectionClosed:
+                pass
+            finally:
+                send_task.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await send_task
 
     # idempotent remote apply with conflict detection
     def apply_remote_change(

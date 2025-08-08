@@ -10,6 +10,11 @@ channel. To enable WebSocket-based synchronization:
    `await engine.open_websocket(os.environ["SYNC_ENGINE_WS_URL"], apply)`
    where `apply` is a callback that applies received changes locally.
 
+   The engine registers a change listener internally and automatically
+   forwards all locally notified changes. Install the optional
+   [`websockets`](https://pypi.org/project/websockets/) dependency to enable
+   network communication.
+
 Queued local changes are sent automatically, and remote changes are applied
 in real time, enabling bi-directional updates across clients.
 
