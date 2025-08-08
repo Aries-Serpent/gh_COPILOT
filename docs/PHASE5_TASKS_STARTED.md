@@ -103,3 +103,8 @@ These task stubs originate from the gap analysis report and have been formally s
  - [x] 19. Clarify Quantum Placeholder Features — 100% complete
  - [ ] 20. Implement Compliance Metrics Calculations — 40% complete
 - [x] Dual-copilot hooks added to `docs_metrics_validator.py` and `backup_archiver.py`
+
+## Follow-up Actions from Dashboard Walkthrough
+- Add sidebar shortcut for compliance reports in dashboard navigation.
+- Provide tooltip explanations for lint, test, and placeholder metrics.
+- Document manual rollback workflow with a detailed example.

@@ -89,4 +89,3 @@ def test_finalize_codex_log_db_copies_db(tmp_path, monkeypatch):
 
     assert rows == [("s1", "act", "stmt")]
     assert any(cmd[:2] == ["git", "add"] for cmd in calls)
-
