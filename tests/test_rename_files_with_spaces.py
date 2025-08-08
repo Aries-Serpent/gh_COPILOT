@@ -2,7 +2,6 @@ from pathlib import Path, PureWindowsPath
 import types
 import sys
 
-import pytest
 import rename_files_with_spaces as rfs
 
 def test_relative_path_unix():
