@@ -4,6 +4,10 @@
 import os
 from pathlib import Path
 from typing import Optional
+<<<<<<< HEAD
+=======
+import logging
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 DEFAULT_ENV_VAR = "GH_COPILOT_WORKSPACE"
 

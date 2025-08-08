@@ -25,7 +25,7 @@ cd web_gui/scripts
 pip install -r requirements.txt  # install only if the web dashboard is required
 
 # Deploy to staging
-python deployment_scripts/deploy_to_staging.py
+python ../../deployment/scripts/deploy_to_staging.py
 
 # Validate deployment
 python validation_scripts/test_staging.py
@@ -37,7 +37,10 @@ python validation_scripts/test_staging.py
 python validation_scripts/pre_production_check.py
 
 # Deploy to production
-python deployment_scripts/deploy_to_production.py
+python ../../deployment/scripts/deploy_to_production.py
+
+# Optional quantum module deployment
+python ../../deployment/scripts/quantum_deployment.py
 
 # Start Flask application
 cd web_gui/scripts/flask_apps
@@ -65,7 +68,7 @@ waitress-serve --host=0.0.0.0 --port=5000 enterprise_dashboard:app
 pkill -f "python enterprise_dashboard.py"
 
 # Immediate rollback
-python deployment_scripts/emergency_rollback.py
+python ../../deployment/scripts/rollback_procedures.py
 
 # Restore from backup
 python backup_scripts/restore_backup.py --backup latest
@@ -95,6 +98,7 @@ python backup_scripts/restore_backup.py --backup latest
 
 ### Flask Configuration
 ```python
+<<<<<<< HEAD
 import os
 # Production settings
 app.config['DEBUG'] = False
@@ -102,6 +106,13 @@ app.config['SECRET_KEY'] = os.environ['FLASK_SECRET_KEY']
 app.config['DATABASE_URL'] = 'production_database_path'
 ```
 Secrets must be supplied via environment variables (e.g. `FLASK_SECRET_KEY`).
+=======
+# Production settings
+app.config['DEBUG'] = False
+app.config['SECRET_KEY'] = 'production_secret_key'
+app.config['DATABASE_URL'] = 'production_database_path'
+```
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 ### Template Configuration
 ```python

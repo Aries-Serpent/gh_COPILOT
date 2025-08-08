@@ -1,17 +1,20 @@
-.PHONY: create-env setup test lint clean-logs
+.PHONY: create-env setup test lint clean-logs convert-daily-whitepaper
 
 create-env:
 	python scripts/setup_environment.py
 
 setup: create-env
-        pip install -r requirements-test.txt
+	pip install -r requirements-test.txt
 
 lint:
 	ruff format .
 	ruff check . --exit-zero
 
 test: setup lint
-        pytest -q --disable-warnings --maxfail=10 --exitfirst tests
+	pytest -q --disable-warnings --maxfail=10 --exitfirst tests
 
 clean-logs:
-        bash scripts/clean_zero_logs.sh logs
+	bash scripts/clean_zero_logs.sh logs
+
+convert-daily-whitepaper:
+	python tools/convert_daily_whitepaper.py

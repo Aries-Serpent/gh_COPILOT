@@ -1,12 +1,15 @@
+<<<<<<< HEAD
 """Utilities for the Unified Monitoring Optimization System.
 
 This module re-exports :class:`EnterpriseUtility` and :func:`collect_metrics`
 from ``scripts.monitoring.unified_monitoring_optimization_system`` and
 provides a ``push_metrics`` helper used by tests and lightweight integrations
-to store arbitrary monitoring metrics in ``analytics.db``.  It also exposes
-``auto_heal_session`` which couples anomaly detection with the session
-management subsystem to restart sessions when system metrics deviate
-significantly from learned baselines.
+to store arbitrary monitoring metrics in ``analytics.db``. Table names supplied
+to ``push_metrics`` are validated to contain only alphanumeric characters and
+underscores to prevent SQL injection.  It also exposes ``auto_heal_session``
+which couples anomaly detection with the session management subsystem to
+restart sessions when system metrics deviate significantly from learned
+baselines.
 """
 
 from __future__ import annotations
@@ -17,6 +20,8 @@ import pickle
 import sqlite3
 import time
 import logging
+import re
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, TYPE_CHECKING
 
@@ -56,11 +61,22 @@ __all__ = [
     "push_metrics",
     "train_anomaly_model",
     "detect_anomalies",
+    "get_anomaly_summary",
     "QuantumInterface",
     "auto_heal_session",
     "anomaly_detection_loop",
     "record_quantum_score",
 ]
+
+_TABLE_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+
+def _validate_table_name(table: str) -> str:
+    """Ensure ``table`` is a safe SQLite identifier."""
+
+    if not _TABLE_NAME_RE.match(table):
+        raise ValueError(f"invalid table name: {table!r}")
+    return table
 
 if TYPE_CHECKING:  # pragma: no cover - imported for type hints only
     from scripts.utilities.unified_session_management_system import (
@@ -81,6 +97,8 @@ def _ensure_table(conn: sqlite3.Connection, table: str, with_session: bool) -> N
         When ``True`` the table includes a ``session_id`` column linked to
         ``unified_wrapup_sessions``.
     """
+
+    table = _validate_table_name(table)
 
     if with_session:
         conn.execute(
@@ -133,6 +151,7 @@ def push_metrics(
         entry.
     """
 
+    table = _validate_table_name(table)
     path = db_path or DB_PATH
     with sqlite3.connect(path) as conn:
         _ensure_table(conn, table, session_id is not None)
@@ -212,23 +231,27 @@ def train_anomaly_model(
     db_path: Optional[Path] = None,
     model_path: Optional[Path] = None,
     contamination: float = 0.1,
+    limit: int = 100,
 ) -> Optional[int]:
     """Fit an :class:`IsolationForest` using historical metrics.
 
     Metrics are read from the ``monitoring_metrics`` table in ``analytics.db``.
-    The fitted model along with the feature ordering is persisted to
-    ``model_path`` and a training record is logged to ``anomaly_model_metadata``
-    for dashboard visibility.
+    The fitted model along with the feature ordering is persisted to the
+    ``anomaly_models`` table and optionally to ``model_path`` for backwards
+    compatibility.
 
     Parameters
     ----------
     db_path:
         Optional path to the analytics database. Defaults to :data:`DB_PATH`.
     model_path:
-        Optional path where the trained model is persisted. Defaults to
-        :data:`MODEL_PATH`.
+        Optional path where the trained model is also persisted as a pickle
+        file. Defaults to :data:`MODEL_PATH`.
     contamination:
         Proportion of outliers expected in the historical data.
+    limit:
+        Maximum number of recent metric rows used for training. Older entries
+        are ignored.
 
     Returns
     -------
@@ -243,41 +266,46 @@ def train_anomaly_model(
     with sqlite3.connect(db_file) as conn:
         try:
             rows = conn.execute(
-                "SELECT metrics_json FROM monitoring_metrics ORDER BY id"
+                "SELECT metrics_json FROM monitoring_metrics ORDER BY id DESC LIMIT ?",
+                (limit,),
             ).fetchall()
         except sqlite3.Error:
             return None
     if not rows:
         return None
 
-    metrics_list = [json.loads(row[0]) for row in rows]
+    # restore chronological order
+    metrics_list = [json.loads(row[0]) for row in reversed(rows)]
     keys = sorted(metrics_list[0])
     data = [[m[k] for k in keys] for m in metrics_list]
     model = _train_isolation_forest(data, contamination=contamination)
 
+    payload = {"model": model, "keys": keys}
+
     model_file.parent.mkdir(parents=True, exist_ok=True)
     with open(model_file, "wb") as fh:
-        pickle.dump({"model": model, "keys": keys}, fh)
+        pickle.dump(payload, fh)
 
+    blob = pickle.dumps(payload)
     with sqlite3.connect(db_file) as conn:
         conn.execute(
             """
-            CREATE TABLE IF NOT EXISTS anomaly_model_metadata (
+            CREATE TABLE IF NOT EXISTS anomaly_models (
                 version INTEGER PRIMARY KEY AUTOINCREMENT,
                 trained_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                model_path TEXT NOT NULL,
+                model BLOB NOT NULL,
                 contamination REAL NOT NULL,
                 row_count INTEGER NOT NULL
             )
             """
         )
         conn.execute(
-            "INSERT INTO anomaly_model_metadata (model_path, contamination, row_count) VALUES (?, ?, ?)",
-            (str(model_file), contamination, len(data)),
+            "INSERT INTO anomaly_models (model, contamination, row_count) VALUES (?, ?, ?)",
+            (blob, contamination, len(data)),
         )
         conn.commit()
         version = conn.execute(
-            "SELECT MAX(version) FROM anomaly_model_metadata"
+            "SELECT MAX(version) FROM anomaly_models"
         ).fetchone()[0]
     return int(version)
 
@@ -309,13 +337,13 @@ def detect_anomalies(
 ) -> List[Dict[str, float]]:
     """Identify anomalous metric entries and persist results.
 
-    The function loads a persisted :class:`IsolationForest` model, training it
-    periodically from historical data stored in ``analytics.db``. It then
-    computes anomaly scores for ``history`` using this model. When the optional
-    :func:`quantum_score_stub` is available a composite health metric is
-    produced by averaging the anomaly score with the quantum score. All
-    detected anomalies are stored in ``analytics.db`` for dashboard
-    consumption.
+    The function loads a persisted :class:`IsolationForest` model from
+    ``analytics.db``, training it periodically from recent historical metrics
+    stored in ``analytics.db``. It then computes anomaly scores for ``history``
+    using this model. When the optional :func:`quantum_score_stub` is available
+    a composite health metric is produced by averaging the anomaly score with
+    the quantum score. All detected anomalies are stored in ``analytics.db``
+    for dashboard consumption.
 
     Parameters
     ----------
@@ -347,18 +375,28 @@ def detect_anomalies(
     db_file = db_path or DB_PATH
     model_file = model_path or MODEL_PATH
 
-    needs_train = True
-    if model_file.exists():
-        age = time.time() - model_file.stat().st_mtime
-        needs_train = age > retrain_interval
-    if needs_train:
+    payload = None
+    with sqlite3.connect(db_file) as conn:
+        row = conn.execute(
+            "SELECT trained_at, model FROM anomaly_models ORDER BY version DESC LIMIT 1"
+        ).fetchone()
+    if row:
+        trained_at = datetime.fromisoformat(row[0])
+        age = time.time() - trained_at.timestamp()
+        if age > retrain_interval:
+            row = None
+    if row is None:
         train_anomaly_model(
             db_path=db_file, model_path=model_file, contamination=contamination
         )
+        with sqlite3.connect(db_file) as conn:
+            row = conn.execute(
+                "SELECT trained_at, model FROM anomaly_models ORDER BY version DESC LIMIT 1"
+            ).fetchone()
+    if row:
+        payload = pickle.loads(row[1])
 
-    if model_file.exists():
-        with open(model_file, "rb") as fh:
-            payload = pickle.load(fh)
+    if payload is not None:
         model = payload["model"]
         keys = payload["keys"]
         data = [[m.get(k, 0.0) for k in keys] for m in history_list]
@@ -404,6 +442,37 @@ def detect_anomalies(
         conn.commit()
 
     return anomalies
+
+
+def get_anomaly_summary(
+    *, limit: int = 10, db_path: Optional[Path] = None
+) -> List[Dict[str, float]]:
+    """Return recent anomaly scores from ``analytics.db``.
+
+    Parameters
+    ----------
+    limit:
+        Maximum number of recent anomaly rows to return.
+    db_path:
+        Optional path to the analytics database. Defaults to :data:`DB_PATH`.
+
+    Returns
+    -------
+    list of dict
+        Each entry contains ``timestamp`` and ``anomaly_score``.
+    """
+
+    db_file = db_path or DB_PATH
+    if not db_file.exists():
+        return []
+    with sqlite3.connect(db_file) as conn:
+        rows = conn.execute(
+            "SELECT timestamp, anomaly_score FROM anomaly_results ORDER BY id DESC LIMIT ?",
+            (limit,),
+        ).fetchall()
+    return [
+        {"timestamp": row[0], "anomaly_score": float(row[1])} for row in rows
+    ]
 
 
 def record_quantum_score(
@@ -577,3 +646,169 @@ class QuantumInterface:
         score = record_quantum_score(metrics, db_path=db_path)
         metrics["quantum_score"] = score
         return score
+=======
+#!/usr/bin/env python3
+"""
+UnifiedMonitoringOptimizationSystem - Enterprise Utility Script
+Generated: 2025-07-10 18:10:23
+
+Enterprise Standards Compliance:
+- Flake8/PEP 8 Compliant
+- Emoji-free code (text-based indicators only)
+- Visual processing indicators
+"""
+
+import json
+import logging
+import os
+import sqlite3
+import sys
+import uuid
+from datetime import datetime
+from pathlib import Path
+
+# Text-based indicators (NO Unicode emojis)
+TEXT_INDICATORS = {
+    'start': '[START]',
+    'success': '[SUCCESS]',
+    'error': '[ERROR]',
+    'info': '[INFO]'
+}
+
+# Weight applied to memory usage when computing performance delta
+MEMORY_WEIGHT = 0.5
+
+
+class EnterpriseUtility:
+    """Enterprise utility class"""
+
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+        self.workspace_path = Path(workspace_path)
+        self.logger = logging.getLogger(__name__)
+
+    def execute_utility(self) -> bool:
+        """Execute utility function"""
+        start_time = datetime.now()
+        self.logger.info(
+            f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+
+        try:
+            # Utility implementation
+            success = self.perform_utility_function()
+
+            if success:
+                duration = (datetime.now() - start_time).total_seconds()
+                self.logger.info(
+                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                return True
+            else:
+                self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
+                return False
+
+        except Exception as e:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
+            return False
+
+    def perform_utility_function(self) -> bool:
+        """Aggregate performance metrics and store optimization data.
+
+        This function reads metrics from ``performance_monitoring.db`` and
+        records aggregated results in ``optimization_metrics.db``. The workspace
+        location can be overridden via the ``GH_COPILOT_WORKSPACE`` environment
+        variable.
+        """
+        workspace = Path(
+            os.getenv("GH_COPILOT_WORKSPACE", self.workspace_path))
+        perf_db = workspace / "databases" / "performance_monitoring.db"
+        opt_db = workspace / "databases" / "optimization_metrics.db"
+
+        if not perf_db.exists() or not opt_db.exists():
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Missing databases"
+            )
+            return False
+
+        try:
+            with sqlite3.connect(perf_db) as perf_conn:
+                cur = perf_conn.execute(
+                    """
+                    SELECT AVG(cpu_percent),
+                           AVG(memory_percent),
+                           AVG(disk_usage_percent),
+                           AVG(network_io_bytes)
+                    FROM performance_metrics
+                    """
+                )
+                row = cur.fetchone()
+                if row is None:
+                    self.logger.error(
+                        f"{TEXT_INDICATORS['error']} No performance data"
+                    )
+                    return False
+
+            avg_cpu, avg_mem, avg_disk, avg_net = [float(v or 0) for v in row]
+
+            performance_delta = 100.0 - avg_cpu - MEMORY_WEIGHT * avg_mem
+
+            metrics = {
+                "avg_cpu": avg_cpu,
+                "avg_memory": avg_mem,
+                "avg_disk": avg_disk,
+                "avg_network_io": avg_net,
+            }
+
+            with sqlite3.connect(opt_db) as opt_conn:
+                opt_conn.execute(
+                    """
+                    INSERT INTO optimization_metrics (
+                        session_id,
+                        timestamp,
+                        performance_delta,
+                        cpu_usage,
+                        memory_usage,
+                        disk_io,
+                        metrics_json
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        str(uuid.uuid4()),
+                        datetime.utcnow().isoformat(),
+                        performance_delta,
+                        avg_cpu,
+                        avg_mem,
+                        avg_disk,
+                        json.dumps(metrics),
+                    ),
+                )
+                opt_conn.commit()
+
+            return True
+        except sqlite3.Error as db_exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Database error: {db_exc}"
+            )
+            return False
+        except Exception as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Unexpected error: {exc}"
+            )
+            raise
+
+
+def main():
+    """Main execution function"""
+    utility = EnterpriseUtility()
+    success = utility.execute_utility()
+
+    if success:
+        print(f"{TEXT_INDICATORS['success']} Utility completed")
+    else:
+        print(f"{TEXT_INDICATORS['error']} Utility failed")
+
+    return success
+
+
+if __name__ == "__main__":
+    success = main()
+    sys.exit(0 if success else 1)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

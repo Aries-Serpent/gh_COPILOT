@@ -8,10 +8,14 @@ version = "0.1.0"
 description = "Reusable modules and orchestrators for gh_COPILOT"
 authors = [{name = "gh_COPILOT Team"}]
 requires-python = ">=3.8"
+dependencies = [
+    "PyPDF2==3.0.1",
+]
 
 [project.scripts]
 final-enterprise-orchestrator = "copilot.orchestrators.final_enterprise_orchestrator:main"
 unified-deployment-orchestrator = "copilot.orchestrators.unified_deployment_orchestrator:main"
+<<<<<<< HEAD
 
 [tool.setuptools.packages.find]
 exclude = ["scripts.quantum_placeholders"]
@@ -75,3 +79,5 @@ exclude = [
     "quantum/*",
     "quantum_optimizer.py",
 ]
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

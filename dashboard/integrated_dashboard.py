@@ -25,6 +25,9 @@ from enterprise_modules.compliance import (
     get_latest_compliance_score,
 )
 from utils.validation_utils import calculate_composite_compliance_score
+from web_gui import middleware, security
+from web_gui.certificates import init_app as init_certificates
+from web_gui.dashboards.quantum_dashboard import get_metrics as get_quantum_metrics
 
 # Paths and database locations
 METRICS_FILE = Path(__file__).with_name("metrics.json")
@@ -145,6 +148,23 @@ def _load_metrics() -> dict[str, Any]:
     return metrics
 
 
+def _load_placeholder_history(limit: int = 30) -> list[dict[str, Any]]:
+    """Return daily counts of placeholders from placeholder_audit."""
+    rows: list[dict[str, Any]] = []
+    if not ANALYTICS_DB.exists():
+        return rows
+    try:
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            cur = conn.execute(
+                "SELECT DATE(timestamp) as day, COUNT(*) FROM placeholder_audit GROUP BY day ORDER BY day DESC LIMIT ?",
+                (limit,),
+            )
+            rows = [{"date": r[0], "count": r[1]} for r in cur.fetchall()][::-1]
+    except sqlite3.Error:
+        pass
+    return rows
+
+
 def get_rollback_logs(limit: int = 10) -> list[dict[str, Any]]:
     """Return recent rollback log entries."""
     records: list[dict[str, Any]] = []
@@ -204,12 +224,19 @@ def index() -> str:
         "dashboard.html",
         metrics=_load_metrics(),
         rollbacks=get_rollback_logs(),
+        sync_events=_load_sync_events(),
+        audit_results=_load_audit_results(),
     )
 
 
 @_dashboard.get("/metrics")
 def metrics() -> Any:
-    return jsonify(_load_metrics())
+    return jsonify(
+        {
+            "metrics": _load_metrics(),
+            "placeholder_history": _load_placeholder_history(),
+        }
+    )
 
 
 @_dashboard.get("/metrics_stream")
@@ -219,7 +246,9 @@ def metrics_stream() -> Response:
 
     def generate() -> Any:
         while True:
-            payload = json.dumps(_load_metrics())
+            metrics = _load_metrics()
+            metrics["placeholder_history"] = _load_placeholder_history()
+            payload = json.dumps(metrics)
             yield f"data: {payload}\n\n"
             if once:
                 break
@@ -246,6 +275,13 @@ def sync_events() -> Any:
 @_dashboard.get("/corrections")
 def get_corrections() -> Any:
     return jsonify(_load_corrections())
+
+
+@_dashboard.get("/corrections/view")
+def corrections_view() -> Any:
+    """Render correction history using HTML template."""
+    data = _load_corrections()
+    return render_template("corrections.html", corrections=data.get("corrections", []))
 
 
 @_dashboard.get("/compliance")
@@ -306,7 +342,7 @@ def metrics_view() -> str:
 
 @_dashboard.get("/rollback-logs/view")
 def rollback_logs_view() -> str:
-    return render_template("rollback_logs.html", logs=get_rollback_logs())
+    return render_template("html/rollback_logs.html", logs=get_rollback_logs())
 
 
 @_dashboard.get("/audit-results/view")
@@ -319,6 +355,11 @@ def sync_events_view() -> str:
     return render_template("sync_events.html", events=_load_sync_events())
 
 
+@_dashboard.get("/quantum-dashboard")
+def quantum_dashboard_view() -> str:
+    return render_template("html/quantum_dashboard.html", metrics=get_quantum_metrics())
+
+
 @_dashboard.get("/dashboard/compliance")
 def dashboard_compliance() -> Any:
     return jsonify({"metrics": _load_metrics(), "rollbacks": get_rollback_logs()})
@@ -326,15 +367,27 @@ def dashboard_compliance() -> Any:
 
 @_dashboard.get("/dashboard/rollback")
 def dashboard_rollback() -> str:
-    return render_template("rollback_logs.html", logs=get_rollback_logs())
+    return render_template("html/rollback_logs.html", logs=get_rollback_logs())
 
 
-def create_app() -> Flask:
+def create_app(config: dict | None = None) -> Flask:
     app = Flask(
         __name__,
         template_folder=str(Path(__file__).parent / "templates"),
         static_folder=str(Path(__file__).parent / "static"),
     )
+    app.jinja_loader.searchpath.append(
+        str(Path(__file__).resolve().parents[1] / "web_gui" / "templates")
+    )
+
+    if config:
+        app.config.update(config)
+
+    # Initialize subsystems
+    init_certificates(app)
+    security.init_app(app)
+    middleware.init_app(app)
+
     app.register_blueprint(_dashboard)
     return app
 

@@ -1,0 +1,36 @@
+/*!
+ * Enterprise Theme Overrides
+ * Bootstrap 5 customizations for the enterprise dashboard.
+ */
+
+/* Color palette */
+:root {
+  --bs-primary: #0056b3;
+  --bs-secondary: #6c757d;
+  --bs-body-color: #212529;
+  --bs-body-bg: #f8f9fa;
+}
+
+/* Navbar */
+.navbar-enterprise {
+  background-color: var(--bs-primary);
+  color: #fff;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+.btn-primary:hover {
+  background-color: #004085;
+  border-color: #003766;
+}
+
+/* Responsive container tweak */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1140px;
+  }
+}

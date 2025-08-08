@@ -11,8 +11,13 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
+<<<<<<< HEAD
 from secondary_copilot_validator import SecondaryCopilotValidator
 from typing import List, Tuple
+=======
+from typing import List, Tuple
+import logging
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def _latest_report(directory: Path) -> Path | None:
@@ -66,6 +71,7 @@ def generate_next_session_prompt(directory: Path | None = None) -> str:
         prompt_lines.append("Key Tasks:")
         for task in tasks:
             prompt_lines.append(f"- {task}")
+<<<<<<< HEAD
     prompt = "\n".join(prompt_lines)
     files = []
     if report and report.exists():
@@ -75,6 +81,9 @@ def generate_next_session_prompt(directory: Path | None = None) -> str:
     if files:
         SecondaryCopilotValidator().validate_corrections(files)
     return prompt
+=======
+    return "\n".join(prompt_lines)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def main() -> None:

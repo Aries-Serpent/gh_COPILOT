@@ -33,6 +33,7 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import shutil
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -330,6 +331,17 @@ def package_session(
 
     sessions_dir = repo_root / lfs_policy.session_artifact_dir
     logger.info("Session artifacts directory resolved to %s", sessions_dir)
+
+    codex_log = repo_root / "databases" / "codex_log.db"
+    if codex_log.exists():
+        target_dir = tmp_dir / "databases"
+        try:
+            target_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(codex_log, target_dir / "codex_log.db")
+        except OSError as exc:  # pragma: no cover - log only
+            logger.error(
+                "Failed to copy %s into %s: %s", codex_log, target_dir, exc
+            )
 
     changed_files = detect_tmp_changes(tmp_dir, repo_root)
     if not changed_files:

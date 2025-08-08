@@ -1,9 +1,14 @@
 [flake8]
+<<<<<<< HEAD
 max-line-length = 120
+=======
+max-line-length = 100
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 extend-ignore = E203,W503
 exclude =
     .git,
     __pycache__,
+<<<<<<< HEAD
     archive,
     archives,
     build,
@@ -28,3 +33,11 @@ exclude =
     enterprise_modules/*,
     quantum/*,
     quantum_optimizer.py
+=======
+    build,
+    builds,
+    archives,
+    deployment_package_*,
+    databases/*.db,
+    *.log
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

@@ -7,7 +7,10 @@ from typing import Any, Dict, Iterable, List, Tuple, Callable
 from functools import wraps
 import tempfile
 import os
-import psutil
+try:  # pragma: no cover - optional dependency
+    import psutil
+except ModuleNotFoundError:  # pragma: no cover
+    psutil = None  # type: ignore[assignment]
 
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.lessons_learned_integrator import store_lesson
@@ -232,7 +235,7 @@ def anti_recursion_guard(func: Callable) -> Callable:
                 existing = int(pid_file.read_text().strip())
             except ValueError:
                 existing = None
-            if existing and psutil.pid_exists(existing):
+            if existing and (psutil and psutil.pid_exists(existing)):
                 raise RuntimeError("PID guard triggered")
         try:
             lock_file.touch()

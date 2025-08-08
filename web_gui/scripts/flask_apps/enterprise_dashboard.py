@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+<<<<<<< HEAD
 """Enterprise compliance dashboard with real-time metrics."""
 
 from __future__ import annotations
@@ -25,14 +26,17 @@ from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
 from config.secret_manager import get_secret
 from utils.cross_platform_paths import CrossPlatformPathManager
 from enterprise_modules.compliance import get_latest_compliance_score
+from web_gui import middleware
 
 workspace_root = CrossPlatformPathManager.get_workspace_path()
 ANALYTICS_DB = Path(os.getenv("ANALYTICS_DB", workspace_root / "databases" / "analytics.db"))
 COMPLIANCE_DIR = Path(os.getenv("COMPLIANCE_DIR", workspace_root / "dashboard" / "compliance"))
 
 TEMPLATES = Path(__file__).resolve().parents[2] / "templates"
-app = Flask(__name__, template_folder=str(TEMPLATES))
+STATIC = Path(__file__).resolve().parents[2] / "static"
+app = Flask(__name__, template_folder=str(TEMPLATES), static_folder=str(STATIC))
 app.secret_key = get_secret("FLASK_SECRET_KEY", "dev_key")
+middleware.init_app(app)
 LOG_FILE = Path("artifacts/logs/dashboard") / "dashboard.log"
 LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()])
@@ -330,6 +334,12 @@ def metrics_table() -> Any:
     return render_template("metrics_table.html", metrics=metrics)
 
 
+@app.get("/compliance_metrics")
+def compliance_metrics_page() -> Any:
+    metrics = _fetch_metrics()
+    return render_template("html/compliance_metrics.html", metrics=metrics)
+
+
 @app.get("/health")
 def health() -> Any:
     start = time.time()
@@ -395,3 +405,129 @@ def calculate_etc(start_time: float, current_progress: int, total_work: int) -> 
 
 if __name__ == "__main__":
     app.run(port=5000)
+=======
+"""
+EnterpriseDashboard - Enterprise Utility Script
+Generated: 2025-07-10 18:16:03
+
+Enterprise Standards Compliance:
+- Flake8/PEP 8 Compliant
+- Emoji-free code (text-based indicators only)
+- Visual processing indicators
+"""
+import flask
+
+import sys
+import logging
+import sqlite3
+from pathlib import Path
+from datetime import datetime
+from typing import List, Dict
+
+from flask import Flask, jsonify, render_template
+
+# Text-based indicators (NO Unicode emojis)
+TEXT_INDICATORS = {
+    'start': '[START]',
+    'success': '[SUCCESS]',
+    'error': '[ERROR]',
+    'info': '[INFO]'
+}
+
+TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
+DB_PATH = Path(__file__).resolve().parents[3] / "analytics.db"
+
+app = Flask(__name__, template_folder=str(TEMPLATES_DIR))
+
+
+def get_metrics(limit: int = 10) -> List[Dict[str, str]]:
+    """Return recent metrics from ``analytics.db``."""
+    if not DB_PATH.exists():
+        return []
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+        cur = conn.execute(
+            """
+            SELECT id, metric_timestamp, continuous_uptime,
+                   violations_detected
+            FROM continuous_operation_metrics
+            ORDER BY id DESC
+            LIMIT ?
+            """,
+            (limit,),
+        )
+        return [dict(row) for row in cur.fetchall()]
+
+
+@app.route("/")
+def dashboard() -> str:
+    """Display dashboard metrics."""
+    metrics = get_metrics()
+    return render_template("dashboard.html", metrics=metrics)
+
+
+@app.route("/metrics")
+def metrics() -> "flask.Response":
+    """Return metrics as JSON."""
+    return jsonify(get_metrics())
+
+
+class EnterpriseUtility:
+    """Enterprise utility class"""
+
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+        self.workspace_path = Path(workspace_path)
+        self.logger = logging.getLogger(__name__)
+
+    def execute_utility(self) -> bool:
+        """Execute utility function"""
+        start_time = datetime.now()
+        self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+
+        try:
+            # Utility implementation
+            success = self.perform_utility_function()
+
+            if success:
+                duration = (datetime.now() - start_time).total_seconds()
+                self.logger.info(
+                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                return True
+            else:
+                self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
+                return False
+
+        except Exception as e:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
+            return False
+
+    def perform_utility_function(self) -> bool:
+        """Start the Flask dashboard server."""
+        try:
+            app.run(host="0.0.0.0", port=8080)
+            return True
+        except Exception as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Server start failed: {exc}"
+            )
+            return False
+
+
+def main():
+    """Main execution function"""
+    utility = EnterpriseUtility()
+    success = utility.execute_utility()
+
+    if success:
+        print(f"{TEXT_INDICATORS['success']} Utility completed")
+    else:
+        print(f"{TEXT_INDICATORS['error']} Utility failed")
+
+    return success
+
+
+if __name__ == "__main__":
+
+    success = main()
+    sys.exit(0 if success else 1)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

@@ -6,7 +6,7 @@ Generated: 2025-01-06T04:53:00Z
 
 ## 📚 Complete Documentation Suite
 
-This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit web GUI system, addressing critical enterprise compliance requirements.
+This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit web GUI system, addressing critical enterprise compliance requirements, quantum preparation steps, executive usage, and certification workflows.
 
 ### 🎯 Core Documentation Areas
 
@@ -16,6 +16,9 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
 4. **[User Guides](user_guides/README.md)** - End-user documentation and tutorials
 5. **[API Documentation](api_docs/README.md)** - REST API reference and integration guides
 6. **[Error Recovery](error_recovery/README.md)** - Troubleshooting and error handling
+7. **[Quantum Preparation](quantum_preparation/README.md)** - Preparing databases and services for simulated quantum features
+8. **[Executive Guides](executive_guides/README.md)** - High-level dashboard usage for leadership teams
+9. **[Certification Workflows](certification/README.md)** - Managing and validating web interface certificates
 
 ### 🌐 Web GUI Components
 
@@ -30,6 +33,20 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
 - **Backup/Restore**: Data protection tools
 - **Migration**: Environment migration tools
 - **Deployment**: Deployment pipeline management
+- **Components** (in `templates/components/`):
+  - `navigation.html` – renders navigation links from `links`
+  - `metrics_widgets.html` – displays metric widgets via `widgets`
+  - `security_indicators.html` – shows security statuses from `indicators`
+  - `quantum_indicators.html` – visualizes quantum metrics from `indicators`
+
+#### Quantum Enhanced Framework
+- **File**: `web_gui/scripts/flask_apps/quantum_enhanced_framework.py`
+- **Features**: Simulated quantum endpoints for future integration
+
+#### Configuration Modules
+- **Location**: `web_gui/scripts/config/`
+- **Environments**: development, staging, production
+- **Production Notes**: `FLASK_SECRET_KEY` must be set and `WEB_GUI_MAX_CONTENT_LENGTH` can limit upload size
 
 ### 🎯 Enterprise Compliance Features
 
@@ -63,6 +80,7 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
    - Backup: http://localhost:5000/backup
    - Migration: http://localhost:5000/migration
 
+<<<<<<< HEAD
 5. **Metrics & Compliance Endpoints**:
    - Metrics JSON: http://localhost:5000/metrics
    - Compliance data (metrics + rollback logs): http://localhost:5000/compliance
@@ -92,6 +110,11 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
 
 ![Dashboard View](deployment/screenshots/dashboard.png)
 ![Metrics Page](deployment/screenshots/metrics.png)
+=======
+5. **API Endpoints**:
+   - Health Check: http://localhost:5000/api/health
+   - Scripts Data: http://localhost:5000/api/scripts
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 ### 📊 Database Integration
 

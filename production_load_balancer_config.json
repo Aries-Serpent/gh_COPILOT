@@ -1,0 +1,17 @@
+{
+  "load_balancing_algorithms": {
+    "primary_algorithm": "weighted_round_robin",
+    "fallback_algorithm": "least_connections",
+    "health_check_algorithm": "tcp_http_hybrid"
+  },
+  "traffic_distribution": {
+    "read_traffic": "read_replicas",
+    "write_traffic": "primary_database",
+    "analytics_traffic": "analytics_nodes"
+  },
+  "health_monitoring": {
+    "health_check_interval": "5_seconds",
+    "failure_threshold": 3,
+    "recovery_threshold": 2
+  }
+}

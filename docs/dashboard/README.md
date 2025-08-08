@@ -5,14 +5,14 @@ This dashboard provides visibility into compliance metrics and rollback history.
 ## Setup
 
 1. Ensure the virtual environment is activated.
-2. Run the Flask app:
+2. Export `LOG_WEBSOCKET_ENABLED=1` to stream live metrics, and set `SYNC_ENGINE_WS_URL` if the sync engine broadcasts over WebSockets.
+3. Run the Flask app:
 
 ```bash
 python dashboard/integrated_dashboard.py
 ```
 
-The application will attempt to read `metrics.json` and `databases/analytics.db`. If the
-analytics database is missing, the dashboard will still load with empty metrics and logs.
+With `LOG_WEBSOCKET_ENABLED=1`, synchronization and monitoring panels refresh in real time. The application reads compliance, synchronization, and monitoring data from `databases/analytics.db`. If the analytics database is missing, the dashboard still loads but metrics panels will be empty.
 
 ## Screenshots
 Screenshots are stored as base64 text to avoid committing binary files. Recreate them

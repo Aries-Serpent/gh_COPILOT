@@ -1,6 +1,10 @@
 # 🚀 gh_COPILOT Enterprise Toolkit v4.0
 
+<<<<<<< HEAD
 **Notice:** Quantum optimization and other advanced capabilities operate through simulation-only placeholders. The toolkit currently consists of standard Python scripts for deployment, monitoring, and basic template automation; no quantum hardware integration is available.
+=======
+**Notice: ** Quantum optimization and other advanced capabilities mentioned in earlier drafts are ** not ** implemented in this repository. The toolkit currently consists of standard Python scripts for deployment, monitoring, and basic template automation.
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 # Current Status
 
@@ -10,7 +14,13 @@
 
 - **Algorithm Performance: ** modest improvements over baseline
 - **Template Completion: ** automation scripts demonstrate partial coverage
+<<<<<<< HEAD
 - **Quantum Optimization:** simulation stubs demonstrate rotation-angle search concepts. The `_deploy_quantum_algorithms()` method generates placeholder scripts for demonstration only.
+=======
+- **Quantum Optimization: ** implemented via a Qiskit-based optimizer
+  leveraging rotation-angle search. The `_deploy_quantum_algorithms()`
+  method now generates functional scripts providing this capability.
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 - **Enterprise Systems: ** monitoring and validation modules operational
 - **Security Compliance: ** Anti-recursion, zero-byte protection, DUAL COPILOT pattern
 - **Performance Monitoring: ** monitoring scripts available
@@ -42,8 +52,13 @@
 # 🌌 Quantum-Enhanced Features (Planned)
 
 - These items describe aspirational functionality and are gradually being implemented.
+<<<<<<< HEAD
 - **Quantum Algorithm Optimization**: simulation-only examples using Qiskit rotation search
 - **Quantum Optimizer Scripts:** `QuantumOptimizer` and related functions provide simulation-only examples
+=======
+- **Quantum Algorithm Optimization**: basic optimization implemented using Qiskit rotation search
+- **Quantum Optimizer Scripts: ** `QuantumOptimizer` and related functions provide a working example
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 - **Ultra-Aggressive Template Completion**: target completion rate subject to future development
 - **Real-time Performance Monitoring**: conceptual self-learning analytics
 - **Substantial Algorithm Boost**: planned quantum-inspired performance enhancements
@@ -199,6 +214,7 @@ print(f"Zero-byte Protection: {validation['zero_byte_protection']}")
 - **Zero-Byte Validation:** Real-time file integrity monitoring
 - **Enterprise Protocols:** Comprehensive compliance framework
 - **Emergency Prevention:** Automatic violation detection and correction
+- **Binary Asset Enforcement:** Verify new databases and other binary files are tracked with Git LFS using `git lfs ls-files`.
 
 ### Compliance Standards
 - **Data Integrity:** SHA-256 validation and backup protection
@@ -206,6 +222,7 @@ print(f"Zero-byte Protection: {validation['zero_byte_protection']}")
 - **Process Monitoring:** Real-time system health and performance tracking
 - **Error Prevention:** Graceful failure handling and recovery protocols
 - **Quality Assurance:** Enterprise-grade validation and testing frameworks
+- **Mandatory Checks:** Run `ruff` and `pytest` before committing to ensure lint and tests pass.
 
 ## 📚 Enterprise API Reference
 

@@ -1,0 +1,40 @@
+name: Daily Whitepaper
+on:
+  push:
+    paths:
+      - 'documentation/generated/daily_state_update/*.pdf'
+  pull_request:
+    paths:
+      - 'documentation/generated/daily_state_update/*.pdf'
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          lfs: true
+      - name: Fetch LFS objects
+        run: |
+          git lfs fetch --all
+          git lfs checkout
+      - name: Verify LFS objects
+        run: |
+          missing=$(git lfs ls-files -n | while read -r file; do
+            if grep -q "oid sha256" "$file"; then
+              echo "$file"
+            fi
+          done)
+          if [ -n "$missing" ]; then
+            echo "Missing LFS objects:\n$missing" >&2
+            exit 1
+          fi
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Convert PDFs to Markdown
+        run: make convert-daily-whitepaper

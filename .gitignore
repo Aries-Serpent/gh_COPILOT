@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /logs/human_logs
 databases/enterprise_assets.db
 /databases/*.db-shm
@@ -26,8 +27,24 @@ tmp/
 
 databases/analytics.db
 databases/*.db
+!databases/codex_log.db
+!databases/codex_session_logs.db
+!databases/codex_logs.db
 databases/*.zip
 analytics.db
 database_cleanup.log
 artifacts/logs/
 .coverage*
+=======
+# Log and runtime files
+logs/
+
+# Local environment configuration.env
+
+.venv/
+/backups
+*.log
+/disaster_recovery/backups
+__pycache__/
+/Archive
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

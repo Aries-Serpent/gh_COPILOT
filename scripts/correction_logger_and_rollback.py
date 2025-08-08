@@ -167,6 +167,18 @@ class CorrectionLoggerRollback:
                     timestamp TEXT NOT NULL
                 )"""
             )
+            conn.execute(
+                """CREATE TABLE IF NOT EXISTS correction_logs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    event TEXT,
+                    doc_id TEXT,
+                    path TEXT,
+                    asset_type TEXT,
+                    compliance_score REAL,
+                    status TEXT,
+                    timestamp TEXT
+                )"""
+            )
             existing = {row[1] for row in conn.execute("PRAGMA table_info(corrections)")}
             required = {
                 "correction_type": "TEXT",
@@ -177,6 +189,9 @@ class CorrectionLoggerRollback:
             for col, col_type in required.items():
                 if col not in existing:
                     conn.execute(f"ALTER TABLE corrections ADD COLUMN {col} {col_type}")
+            existing_logs = {row[1] for row in conn.execute("PRAGMA table_info(correction_logs)")}
+            if "status" not in existing_logs:
+                conn.execute("ALTER TABLE correction_logs ADD COLUMN status TEXT")
             conn.commit()
 
     def log_change(
@@ -234,6 +249,16 @@ class CorrectionLoggerRollback:
                         datetime.utcnow().isoformat(),
                     ),
                 )
+            conn.execute(
+                "INSERT INTO correction_logs (event, path, compliance_score, status, timestamp) VALUES (?, ?, ?, ?, ?)",
+                (
+                    "correction",
+                    str(file_path),
+                    compliance_score,
+                    "logged",
+                    datetime.utcnow().isoformat(),
+                ),
+            )
             conn.commit()
         logging.info(
             f"Correction logged for {file_path} | Rationale: {rationale} | Type: {correction_type} | Compliance: {compliance_score} | Delta: {compliance_delta}"
@@ -250,6 +275,16 @@ class CorrectionLoggerRollback:
                 "session_id": session_id,
             },
             table="corrections",
+            db_path=self.analytics_db,
+        )
+        _log_event(
+            {
+                "event": "correction",
+                "path": str(file_path),
+                "compliance_score": compliance_score,
+                "status": "logged",
+            },
+            table="correction_logs",
             db_path=self.analytics_db,
         )
         key = str(file_path)

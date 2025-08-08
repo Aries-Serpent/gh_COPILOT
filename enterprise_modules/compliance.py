@@ -68,14 +68,23 @@ def anti_recursion_guard(func: F) -> F:
             ancestor = ppid
             while ancestor:
                 if ancestor == pid:
+                    _log_violation(
+                        f"anti_recursion_guard:pid_loop:pid={pid}:ppid={ppid}"
+                    )
                     raise RuntimeError("PID loop detected")
                 ancestor = _PID_PARENTS.get(ancestor)
             threads = _PID_THREADS.setdefault(pid, set())
             if threads and tid not in threads:
+                _log_violation(
+                    f"anti_recursion_guard:duplicate_pid:pid={pid}:tid={tid}"
+                )
                 raise RuntimeError("Duplicate PID execution")
 
             depth = _PID_DEPTHS.get(pid, 0)
             if depth >= MAX_RECURSION_DEPTH:
+                _log_violation(
+                    f"anti_recursion_guard:depth_exceeded:pid={pid}:depth={depth}"
+                )
                 raise RuntimeError("Recursion depth exceeded")
             depth += 1
             _PID_DEPTHS[pid] = depth
@@ -96,6 +105,9 @@ def anti_recursion_guard(func: F) -> F:
                 if isinstance(candidate, (str, os.PathLike)):
                     target = Path(candidate)
             if target is not None and _detect_recursion(target):
+                _log_violation(
+                    f"anti_recursion_guard:path_recursion:path={target}"
+                )
                 raise RuntimeError("Path recursion detected")
             return func(*args, **kwargs)
         finally:
@@ -190,12 +202,25 @@ def _log_violation(details: str) -> None:
     analytics_db = workspace / "databases" / "analytics.db"
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     ensure_violation_logs(analytics_db, validate=False)
-    with sqlite3.connect(analytics_db) as conn:
-        conn.execute(
-            "INSERT INTO violation_logs (timestamp, details) VALUES (?, ?)",
-            (datetime.now().isoformat(), details),
-        )
-        conn.commit()
+    try:
+        with sqlite3.connect(analytics_db) as conn:
+            conn.execute(
+                "INSERT INTO violation_logs (timestamp, details) VALUES (?, ?)",
+                (datetime.now().isoformat(), details),
+            )
+            conn.commit()
+    except sqlite3.Error as exc:
+        try:
+            logging.error("Failed to log violation: %s", exc)
+            send_dashboard_alert(
+                {
+                    "event": "violation_log_error",
+                    "details": details,
+                    "error": str(exc),
+                }
+            )
+        except Exception:
+            pass
 
 
 def _log_rollback(target: str, backup: str | None = None) -> None:
@@ -204,12 +229,26 @@ def _log_rollback(target: str, backup: str | None = None) -> None:
     analytics_db = workspace / "databases" / "analytics.db"
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     ensure_rollback_logs(analytics_db, validate=False)
-    with sqlite3.connect(analytics_db) as conn:
-        conn.execute(
-            "INSERT INTO rollback_logs (target, backup, timestamp) VALUES (?, ?, ?)",
-            (target, backup, datetime.now().isoformat()),
-        )
-        conn.commit()
+    try:
+        with sqlite3.connect(analytics_db) as conn:
+            conn.execute(
+                "INSERT INTO rollback_logs (target, backup, timestamp) VALUES (?, ?, ?)",
+                (target, backup, datetime.now().isoformat()),
+            )
+            conn.commit()
+    except sqlite3.Error as exc:
+        try:
+            logging.error("Failed to log rollback: %s", exc)
+            send_dashboard_alert(
+                {
+                    "event": "rollback_log_error",
+                    "target": target,
+                    "backup": backup,
+                    "error": str(exc),
+                }
+            )
+        except Exception:
+            pass
 
 
 def _ensure_recursion_pid_log(db_path: Path) -> None:
@@ -417,21 +456,43 @@ def calculate_composite_score(
     placeholders_open: int,
     placeholders_resolved: int,
 ) -> tuple[float, dict]:
-    """Return composite score and weighted component breakdown on a 0–100 scale."""
+    """Return composite score and weighted component breakdown on a 0–100 scale.
+
+    All inputs are coerced to non-negative integers. ``lint_score`` is bounded to
+    ``0..100`` and the remaining scores gracefully handle ``0`` denominators.
+    """
+
+    ruff_issues = max(0, int(ruff_issues))
+    tests_passed = max(0, int(tests_passed))
+    tests_failed = max(0, int(tests_failed))
+    placeholders_open = max(0, int(placeholders_open))
+    placeholders_resolved = max(0, int(placeholders_resolved))
 
     total_tests = tests_passed + tests_failed
     total_placeholders = placeholders_open + placeholders_resolved
-    lint_score = max(0.0, 100 - ruff_issues)
-    test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
+
+    lint_score = max(0.0, 100.0 - float(ruff_issues))
+    test_score = (tests_passed / total_tests * 100.0) if total_tests else 0.0
     placeholder_score = (
-        placeholders_resolved / total_placeholders * 100
+        placeholders_resolved / total_placeholders * 100.0
         if total_placeholders
         else 100.0
     )
+
+    total_weight = LINT_WEIGHT + TEST_WEIGHT + PLACEHOLDER_WEIGHT
+    if total_weight != 1.0:
+        norm_lint = LINT_WEIGHT / total_weight
+        norm_test = TEST_WEIGHT / total_weight
+        norm_placeholder = PLACEHOLDER_WEIGHT / total_weight
+    else:
+        norm_lint = LINT_WEIGHT
+        norm_test = TEST_WEIGHT
+        norm_placeholder = PLACEHOLDER_WEIGHT
+
     score = (
-        LINT_WEIGHT * lint_score
-        + TEST_WEIGHT * test_score
-        + PLACEHOLDER_WEIGHT * placeholder_score
+        norm_lint * lint_score
+        + norm_test * test_score
+        + norm_placeholder * placeholder_score
     )
     breakdown = {
         "ruff_issues": ruff_issues,
@@ -442,9 +503,9 @@ def calculate_composite_score(
         "lint_score": round(lint_score, 2),
         "test_score": round(test_score, 2),
         "placeholder_score": round(placeholder_score, 2),
-        "lint_weighted": round(LINT_WEIGHT * lint_score, 2),
-        "test_weighted": round(TEST_WEIGHT * test_score, 2),
-        "placeholder_weighted": round(PLACEHOLDER_WEIGHT * placeholder_score, 2),
+        "lint_weighted": round(norm_lint * lint_score, 2),
+        "test_weighted": round(norm_test * test_score, 2),
+        "placeholder_weighted": round(norm_placeholder * placeholder_score, 2),
     }
     return round(score, 2), breakdown
 
@@ -493,18 +554,43 @@ def calculate_code_quality_score(
     }
 
 
-def persist_compliance_score(score: float, db_path: Path | None = None) -> None:
-    """Persist ``score`` to the ``compliance_scores`` table in analytics.db."""
+def persist_compliance_score(
+    score: float,
+    breakdown: dict | None = None,
+    db_path: Path | None = None,
+) -> None:
+    """Persist composite and component scores to ``analytics.db``."""
+
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
     db = db_path or (workspace / "databases" / "analytics.db")
     db.parent.mkdir(parents=True, exist_ok=True)
+    breakdown = breakdown or {}
     with sqlite3.connect(db) as conn:
         conn.execute(
-            "CREATE TABLE IF NOT EXISTS compliance_scores (timestamp TEXT, score REAL)"
+            """CREATE TABLE IF NOT EXISTS compliance_scores (
+                timestamp TEXT,
+                composite_score REAL,
+                lint_score REAL,
+                test_score REAL,
+                placeholder_score REAL
+            )"""
         )
+        for column in ("lint_score", "test_score", "placeholder_score"):
+            try:
+                conn.execute(f"ALTER TABLE compliance_scores ADD COLUMN {column} REAL")
+            except sqlite3.OperationalError:
+                pass
         conn.execute(
-            "INSERT INTO compliance_scores (timestamp, score) VALUES (?, ?)",
-            (datetime.now().isoformat(), float(score)),
+            """INSERT INTO compliance_scores (
+                timestamp, composite_score, lint_score, test_score, placeholder_score
+            ) VALUES (?, ?, ?, ?, ?)""",
+            (
+                datetime.now().isoformat(),
+                float(score),
+                float(breakdown.get("lint_score", 0.0)),
+                float(breakdown.get("test_score", 0.0)),
+                float(breakdown.get("placeholder_score", 0.0)),
+            ),
         )
         conn.commit()
 
@@ -572,14 +658,14 @@ def record_code_quality_metrics(
         conn.commit()
 
 def get_latest_compliance_score(db_path: Path | None = None) -> float:
-    """Return the most recent compliance score from analytics.db."""
+    """Return the most recent composite compliance score from analytics.db."""
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
     db = db_path or (workspace / "databases" / "analytics.db")
     if not db.exists():
         return 0.0
     with sqlite3.connect(db) as conn:
         cur = conn.execute(
-            "SELECT score FROM compliance_scores ORDER BY timestamp DESC LIMIT 1"
+            "SELECT composite_score FROM compliance_scores ORDER BY timestamp DESC LIMIT 1"
         )
         row = cur.fetchone()
         return float(row[0]) if row else 0.0
@@ -590,10 +676,10 @@ def calculate_and_persist_compliance_score() -> float:
     issues = _run_ruff()
     passed, failed = _run_pytest()
     placeholders_open = _count_placeholders()
-    score, _ = calculate_composite_score(
+    score, breakdown = calculate_composite_score(
         issues, passed, failed, placeholders_open, 0
     )
-    persist_compliance_score(score)
+    persist_compliance_score(score, breakdown)
     record_code_quality_metrics(
         issues,
         passed,
