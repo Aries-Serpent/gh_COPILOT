@@ -1,5 +1,10 @@
 # Changelog
 
+## [4.1.23] - 2025-08-13
+- Documented `collect_metrics` and `quantum_hook` APIs in monitoring utilities.
+- Updated AGENTS guide with auto Git LFS policy sync instructions.
+- Clarified unified monitoring and Git LFS workflow in top-level README.
+
 ## [4.1.22] - 2025-08-12
 - Documented session lifecycle APIs (`start_session`/`end_session`) and refreshed hybrid integration example.
 - Added disaster recovery usage snippet in backup guide.
