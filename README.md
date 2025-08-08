@@ -372,20 +372,22 @@ python scripts/utilities/unified_disaster_recovery_system.py --schedule
 python scripts/utilities/unified_disaster_recovery_system.py --restore /path/to/backup.bak
 ```
 
-### Session Management CLI
-Use ``COMPREHENSIVE_WORKSPACE_MANAGER.py`` to manage session start and end
-operations:
+### Session Management
+
+Codex sessions record start/end markers and actions in
+`databases/codex_log.db`. The `COMPREHENSIVE_WORKSPACE_MANAGER.py` CLI can
+launch and wrap up sessions:
 
 ```bash
 python scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py --SessionStart -AutoFix
 python scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py --SessionEnd
 ```
 
-Each session writes start/end markers and actions to `databases/codex_log.db`,
-a Git LFS-tracked SQLite database. Configure `GH_COPILOT_WORKSPACE` and
-`GH_COPILOT_BACKUP_ROOT` before running the CLI so logs resolve and backups
-persist outside the repository. See [docs/codex_logging.md](docs/codex_logging.md)
-for schema details and commit guidance.
+Set `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT` before running. Use
+`SESSION_ID_SOURCE` if you supply your own session identifier. The log database
+is Git LFS-tracked; ensure `ALLOW_AUTOLFS=1` and verify with `git lfs status`
+before committing. See [docs/codex_logging.md](docs/codex_logging.md) for the
+schema and commit workflow.
 
 ### Unified Deployment Orchestrator CLI
 Manage orchestration tasks with start/stop controls:
