@@ -18,3 +18,12 @@ def test_custom_weights_and_precision():
 def test_zero_total_weight():
     updater = MetricsUpdater(weights={"x": 0, "y": 0})
     assert updater.composite({"x": 1, "y": 1}) == 0.0
+
+
+def test_scores_clamped_and_negative_weights_ignored():
+    """Scores are constrained to ``[0, 1]`` and negative weights skipped."""
+    updater = MetricsUpdater(weights={"a": 1, "b": -1, "c": 1})
+    scores = {"a": 1.5, "b": 1.0, "c": -0.5}
+    # Weight 'b' is negative and ignored.  Scores for 'a' and 'c' are clamped
+    # to 1.0 and 0.0 respectively resulting in an average of 0.5.
+    assert updater.composite(scores) == 0.5

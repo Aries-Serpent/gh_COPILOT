@@ -29,13 +29,25 @@ class MetricsUpdater:
         returned when the total weight is ``0`` to avoid division errors.
         """
 
-        total_weight = sum(self.weights.values())
+        # Ignore non-positive weights so that callers can disable a metric by
+        # setting its weight to ``0`` or a negative number.  This mirrors the
+        # behaviour of the tests which expect a zero total weight to yield a
+        # ``0`` composite score rather than raising an exception.
+        total_weight = sum(w for w in self.weights.values() if w > 0)
         if total_weight <= 0:
             return 0.0
 
         total = Decimal("0")
         for key, weight in self.weights.items():
-            total += Decimal(str(scores.get(key, 0.0))) * Decimal(str(weight))
+            if weight <= 0:
+                continue
+            # Clamp incoming scores to the range [0.0, 1.0] so that accidental
+            # over/under flows do not skew the composite metric.  The clamping
+            # mirrors how other parts of the system treat compliance metrics
+            # and keeps the final value predictable.
+            score = scores.get(key, 0.0)
+            clamped = max(0.0, min(1.0, float(score)))
+            total += Decimal(str(clamped)) * Decimal(str(weight))
 
         result = total / Decimal(str(total_weight))
         quant = Decimal("1").scaleb(-self.precision)
