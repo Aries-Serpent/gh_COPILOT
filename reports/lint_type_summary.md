@@ -2,7 +2,7 @@
 
 | Tool    | Errors | Warnings |
 |---------|-------:|---------:|
-| ruff    | 35     | 0        |
-| pyright | 577    | 4        |
+| ruff    | 0      | 0        |
+| pyright | N/A    | N/A      |
 
-Generated on 2025-07-29T06:11:15Z.
+Generated on 2025-08-08T06:46:15Z.
