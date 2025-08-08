@@ -2,8 +2,8 @@
   <ul class="correction-log">
     <li v-for="log in logs" :key="log.timestamp">
       <span class="timestamp">{{ log.timestamp }}</span>
-      <span class="path">{{ log.path }}</span>
-      <span class="status">{{ log.status }}</span>
+      <span class="entity">{{ log.entity }}</span>
+      <span class="resolution">{{ log.resolution }}</span>
     </li>
   </ul>
 </template>
