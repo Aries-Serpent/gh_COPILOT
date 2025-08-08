@@ -18,3 +18,5 @@ channel. To enable WebSocket-based synchronization:
 Queued local changes are sent automatically, and remote changes are applied
 in real time, enabling bi-directional updates across clients.
 
+All applied changes are recorded in `databases/analytics.db`, which feeds the dashboard's synchronization metrics.
+

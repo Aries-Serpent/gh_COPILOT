@@ -22,4 +22,4 @@ This guide describes the anomaly detection pipeline provided by
   (`artifacts/anomaly_iforest.pkl`).
 
 Aggregated anomaly counts and average scores are available through
-`dashboard.enterprise_dashboard.anomaly_metrics`.
+`dashboard.enterprise_dashboard.anomaly_metrics` and appear on the dashboard's monitoring panels for real-time visibility.
