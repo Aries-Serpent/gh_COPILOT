@@ -6,10 +6,15 @@ remote updates with conflict detection and idempotency checks.
 
 from __future__ import annotations
 
+import asyncio
+import json
 from collections import deque
 from dataclasses import dataclass
 import logging
 from typing import Callable, Deque, List, Optional, Set
+
+import websockets
+from websockets.exceptions import ConnectionClosed
 
 
 @dataclass(frozen=True)
