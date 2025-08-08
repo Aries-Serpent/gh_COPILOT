@@ -12,8 +12,8 @@ from typing import Any, Callable, Dict, Iterable
 
 import sqlite3
 
-from monitoring import anomaly
-from session import validators
+from ..monitoring import anomaly
+from ..session import validators
 
 
 def reconnect_database(
@@ -64,6 +64,26 @@ def retry_sync(
     raise last_exc
 
 
+def restart_service(restart: Callable[[], Any]) -> bool:
+    """Attempt to restart a service using ``restart``."""
+
+    try:
+        restart()
+        return True
+    except Exception:
+        return False
+
+
+def revert_state(revert: Callable[[], Any]) -> bool:
+    """Attempt to revert application state using ``revert``."""
+
+    try:
+        revert()
+        return True
+    except Exception:
+        return False
+
+
 def handle_alerts(
     models: Dict[str, anomaly.Model],
     metrics: Dict[str, float],
@@ -95,4 +115,10 @@ def handle_alerts(
     return counts
 
 
-__all__ = ["reconnect_database", "retry_sync", "handle_alerts"]
+__all__ = [
+    "reconnect_database",
+    "retry_sync",
+    "restart_service",
+    "revert_state",
+    "handle_alerts",
+]

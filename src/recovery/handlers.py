@@ -2,7 +2,34 @@ from __future__ import annotations
 
 """Recovery handlers for common operational failures."""
 
-from typing import Callable
+import re
+from dataclasses import dataclass
+from typing import Callable, Iterable, Pattern
+
+from . import routines
+
+
+@dataclass
+class FailurePattern:
+    """Pattern that triggers a recovery routine."""
+
+    name: str
+    regex: Pattern[str]
+    routine: Callable[[Callable[[], bool]], bool]
+
+
+FAILURE_PATTERNS: Iterable[FailurePattern] = (
+    FailurePattern(
+        "service_crash",
+        re.compile(r"service\s+.*down", re.IGNORECASE),
+        routines.restart_service,
+    ),
+    FailurePattern(
+        "state_corruption",
+        re.compile(r"state\s+.*corrupt", re.IGNORECASE),
+        routines.revert_state,
+    ),
+)
 
 
 def handle_db_disconnect(reconnect: Callable[[], bool], *, retries: int = 3) -> bool:

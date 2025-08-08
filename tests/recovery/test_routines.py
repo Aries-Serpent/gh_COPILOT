@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sqlite3
 
-from recovery import routines
+from src.recovery import routines
 
 
 def test_reconnect_database_retry():
@@ -53,3 +53,20 @@ def test_handle_alerts_triggers_recovery():
     assert result == {"reconnects": 1, "sync_retries": 1}
     assert len(factory_calls) == 1
     assert len(sync_calls) == 1
+
+
+def test_restart_service_executes_callback():
+    calls: list[int] = []
+
+    def restart() -> None:
+        calls.append(1)
+
+    assert routines.restart_service(restart)
+    assert calls == [1]
+
+
+def test_revert_state_handles_error():
+    def revert() -> None:
+        raise RuntimeError("boom")
+
+    assert routines.revert_state(revert) is False
