@@ -3,12 +3,17 @@
 from __future__ import annotations
 
 import sqlite3
-import shutil
+from contextlib import contextmanager
+from datetime import UTC, datetime
 from pathlib import Path
+from typing import Iterator
+
+from utils.cross_platform_paths import CrossPlatformPathManager
 
 
 CODEX_LOG_DB = Path("databases/codex_log.db")
 CODEX_SESSION_LOG_DB = Path("databases/codex_session_logs.db")
+DB_NAME = "codex_log.db"
 
 
 def init_db() -> None:
@@ -33,7 +38,6 @@ def init_db() -> None:
 @contextmanager
 def codex_log_cursor(db_name: str = DB_NAME) -> Iterator[sqlite3.Cursor]:
     """Return a cursor for batch ``codex_log`` inserts."""
-
     workspace: Path = CrossPlatformPathManager.get_workspace_path()
     db_path = workspace / "databases" / db_name
     db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -59,7 +63,6 @@ def codex_log_cursor(db_name: str = DB_NAME) -> Iterator[sqlite3.Cursor]:
 @contextmanager
 def codex_actions_cursor(db_path: Path | None = None) -> Iterator[sqlite3.Cursor]:
     """Return a cursor for batch ``codex_actions`` inserts."""
-
     if db_path is None:
         workspace = CrossPlatformPathManager.get_workspace_path()
         db_path = workspace / "databases" / DB_NAME
@@ -92,7 +95,6 @@ def log_codex_action(
     metadata: str = "",
 ) -> None:
     """Log a single Codex action."""
-
     with codex_actions_cursor(CODEX_LOG_DB) as cursor:
         cursor.execute(
             """
@@ -103,41 +105,45 @@ def log_codex_action(
         )
 
 
-def finalize_codex_log_db(destination: Path | None = None) -> Path:
-    """Close the Codex log database and copy it to ``destination``.
+def log_codex_start(session_id: str) -> None:
+    """Record the start of a Codex session."""
+    with codex_log_cursor() as cursor:
+        cursor.execute(
+            "INSERT INTO codex_log (session_id, event, summary, ts) VALUES (?, ?, ?, ?)",
+            (session_id, "start", "", datetime.now(UTC).isoformat()),
+        )
 
-    Parameters
-    ----------
-    destination:
-        Optional path for the copied database. Defaults to
-        ``databases/codex_session_logs.db``.
 
-    Returns
-    -------
-    Path
-        The path to the copied database.
-    """
+def log_codex_end(session_id: str, summary: str) -> None:
+    """Record the end of a Codex session."""
+    with codex_log_cursor() as cursor:
+        cursor.execute(
+            "INSERT INTO codex_log (session_id, event, summary, ts) VALUES (?, ?, ?, ?)",
+            (session_id, "end", summary, datetime.now(UTC).isoformat()),
+        )
+
+
+def init_codex_log_db() -> None:
+    """Alias for :func:`init_db` to initialize the Codex log database."""
     init_db()
-    dest = destination or CODEX_SESSION_LOG_DB
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    if CODEX_LOG_DB.exists():
-        shutil.copy2(CODEX_LOG_DB, dest)
-    return dest
+
+
+def record_codex_action(
+    session_id: str, action: str, statement: str, metadata: str = "",
+) -> None:
+    """Alias for :func:`log_codex_action` for clarity."""
+    log_codex_action(session_id, action, statement, metadata)
 
 
 __all__ = [
     "CODEX_LOG_DB",
     "CODEX_SESSION_LOG_DB",
     "init_db",
-    "log_codex_action",
-    "finalize_codex_log_db",
-]
-
-__all__ = [
-    "init_db",
     "codex_log_cursor",
     "codex_actions_cursor",
     "log_codex_action",
     "log_codex_start",
     "log_codex_end",
+    "init_codex_log_db",
+    "record_codex_action",
 ]

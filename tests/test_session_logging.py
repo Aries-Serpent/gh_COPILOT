@@ -16,7 +16,7 @@ def test_log_action_includes_timestamp(monkeypatch):
             metadata=metadata,
         )
 
-    monkeypatch.setattr(usm, "log_codex_action", fake_log)
+    monkeypatch.setattr(usm, "record_codex_action", fake_log)
 
     usm.log_action("sess-1", "start", "message")
 
