@@ -20,12 +20,13 @@ def test_wrap_and_recover(tmp_path):
     assert meta_file.exists()
 
     recovered = subprocess.run(
-        ['bash', str(script), 'recover_session', session_id],
+        ['bash', str(script), 'recover', session_id],
         capture_output=True,
         text=True,
         check=True,
         env=env,
     )
-    meta = json.loads(recovered.stdout)
+    first_line = recovered.stdout.strip().splitlines()[0]
+    meta = json.loads(first_line)
     assert meta['command'] == 'echo hi'
 

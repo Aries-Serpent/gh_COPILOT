@@ -1,40 +1,20 @@
-#!/bin/bash
-# shell_buffer_manager.sh
-# Hard cutoff and overflow redirection for shell command output.
-
+#!/usr/bin/env bash
+# Redirect lines exceeding 4KB to overflow files under /tmp/gh_copilot_sessions.
 set -euo pipefail
 
-MAX_LINE_LENGTH=${MAX_LINE_LENGTH:-1550}
-TEMP_DIR=${TEMP_DIR:-/tmp/shell_buffer_overflow}
-SESSION_ID=${SESSION_ID:-$(date +%s)}
-mkdir -p "$TEMP_DIR"
+TARGET_DIR="/tmp/gh_copilot_sessions"
+mkdir -p "$TARGET_DIR"
 
-run_and_manage() {
-    local cmd="$1"
-    local overflow_file="$TEMP_DIR/overflow_${SESSION_ID}.log"
-    eval "$cmd" 2>&1 | while IFS= read -r line; do
-        local length=${#line}
-        if [ "$length" -gt "$MAX_LINE_LENGTH" ]; then
-            echo "${line:0:$MAX_LINE_LENGTH}"
-            echo "[OVERFLOW] Line truncated at $MAX_LINE_LENGTH chars. Full content: $overflow_file" >&2
-            echo "$line" >> "$overflow_file"
-        else
-            echo "$line"
-        fi
-    done
-}
-
-if [ "$#" -gt 0 ]; then
-    run_and_manage "$*"
-else
-    while IFS= read -r line; do
-        length=${#line}
-        if [ "$length" -gt "$MAX_LINE_LENGTH" ]; then
-            echo "${line:0:$MAX_LINE_LENGTH}"
-            echo "[OVERFLOW] Line truncated at $MAX_LINE_LENGTH chars." >&2
-        else
-            echo "$line"
-        fi
-    done
-fi
-
+while IFS= read -r line; do
+  bytes=$(printf '%s' "$line" | wc -c)
+  if [ "$bytes" -gt 4096 ]; then
+    head_part=$(printf '%s' "$line" | head -c 4096)
+    tail_part=$(printf '%s' "$line" | tail -c +4097)
+    outfile=$(mktemp "$TARGET_DIR/overflow_XXXXXX.log")
+    printf '%s' "$tail_part" > "$outfile"
+    printf '%s\n' "$head_part"
+    echo "OVERFLOW:$outfile" >&2
+  else
+    printf '%s\n' "$line"
+  fi
+done
