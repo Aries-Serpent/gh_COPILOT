@@ -45,7 +45,7 @@ from utils.lessons_learned_integrator import (
 )
 from unified_session_management_system import ensure_no_zero_byte_files
 from utils.logging_utils import ANALYTICS_DB
-from utils.codex_log_db import log_codex_action
+from utils.codex_log_db import finalize_codex_log_db, log_codex_action
 
 
 def log_action(session_id: str, action: str, statement: str) -> None:
@@ -317,7 +317,7 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         log_action(session_id, "env_orchestrator_start", "Running orchestrator via env flag")
         orchestrator.execute_unified_wrapup()
         log_action(session_id, "env_orchestrator_complete", "Env orchestrator finished")
-
+    finalize_codex_log_db()
     logging.info("WLC session completed")
 
 
