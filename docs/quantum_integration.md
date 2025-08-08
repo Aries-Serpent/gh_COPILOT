@@ -22,6 +22,7 @@ Each provider follows this general flow: the platform builds a circuit or proble
 - **Endpoints:** Regional endpoints (e.g., `https://us-east.quantum-computing.ibm.com`).
 - **Job Management:** Queue-based execution with job IDs returned on submission.
 - **Required SDK:** `qiskit` with `qiskit-ibm-provider` for authenticated access.
+- **Hardware Requirements:** Access to superconducting qubit devices (5+ qubits) with gate sets supported by the chosen backend.
 - **Simulation Stub:** `copilot_qiskit_stubs` package mirrors provider calls when hardware is unavailable.
 
 ### D-Wave
@@ -30,6 +31,7 @@ Each provider follows this general flow: the platform builds a circuit or proble
 - **Endpoints:** Region-specific (e.g., `https://cloud.dwavesys.com/sapi`).
 - **Job Management:** Problem submission returns an ID for polling results.
 - **Required SDK:** `dwave-ocean-sdk` for problem formulation and submission.
+- **Hardware Requirements:** Requires an Advantage or Leap QPU; problems must fit available qubits and couplers on the Pegasus topology.
 - **Simulation Stub:** `scripts/quantum_placeholders/quantum_annealing.py` emulates annealing workflows.
 
 ### IonQ
@@ -38,7 +40,32 @@ Each provider follows this general flow: the platform builds a circuit or proble
 - **Endpoints:** `https://api.ionq.co/v0` with versioned paths for future compatibility.
 - **Job Management:** Asynchronous execution; jobs are polled until completion.
 - **Required SDK:** IonQ Python client (`ionq` or `qiskit-ionq`).
+- **Hardware Requirements:** Trapped-ion systems offering all-to-all connectivity; job circuits must fit within the provider's current qubit count.
 - **Simulation Stub:** `scripts/quantum_placeholders/quantum_superposition_search.py` models IonQ pilots.
+
+## Sample API Interactions
+
+```python
+# IBM Quantum
+from qiskit_ibm_provider import IBMProvider
+provider = IBMProvider(token="YOUR_API_KEY")
+backend = provider.get_backend("ibmq_qasm_simulator")
+job = backend.run("H 0; CX 0 1")
+result = job.result()
+
+# D-Wave
+from dwave.system import DWaveSampler, EmbeddingComposite
+sampler = EmbeddingComposite(DWaveSampler(token="YOUR_API_KEY"))
+qubo = {('x', 'x'): 1}
+sample = sampler.sample_qubo(qubo)
+
+# IonQ
+import requests
+headers = {"Authorization": "Bearer YOUR_API_KEY"}
+payload = {"target": "qpu", "body": {"circuit": "H 0\nCNOT 0 1"}}
+response = requests.post("https://api.ionq.co/v0/jobs", json=payload, headers=headers)
+job_id = response.json()["id"]
+```
 
 ## Simulation Stubs and SDKs
 
