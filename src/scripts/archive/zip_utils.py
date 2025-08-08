@@ -95,8 +95,9 @@ def create_zip(zip_path: Path | str, sources: Iterable[Path | str]) -> Path:
     """Create a zip archive at ``zip_path`` from ``sources``.
 
     Non-existent source paths are ignored. Directories are added
-    recursively so their entire contents are included. The function
-    returns the path to the created archive.
+    recursively so their entire contents are included, and empty
+    directories are preserved. The function returns the path to the
+    created archive.
     """
 
     archive = Path(zip_path)
@@ -108,9 +109,20 @@ def create_zip(zip_path: Path | str, sources: Iterable[Path | str]) -> Path:
             if not path.exists():
                 continue
             if path.is_dir():
+                # Include the directory itself if it is empty so that
+                # empty folders are preserved when the archive is
+                # extracted later.
+                if not any(path.iterdir()):
+                    zf.writestr(path.name + "/", "")
                 for item in path.rglob("*"):
-                    if item.is_file():
-                        zf.write(item, arcname=item.relative_to(path))
+                    if item.is_dir():
+                        # ``ZipFile`` does not automatically create
+                        # entries for empty directories, so we add
+                        # them explicitly.
+                        if not any(item.iterdir()):
+                            zf.writestr(item.relative_to(path).as_posix() + "/", "")
+                        continue
+                    zf.write(item, arcname=item.relative_to(path))
                 continue
             zf.write(path, arcname=path.name)
 

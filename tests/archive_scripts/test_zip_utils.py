@@ -48,3 +48,28 @@ def test_create_zip_includes_directories(tmp_path):
     archive = create_zip(tmp_path / "out_dir.zip", [folder])
     with zipfile.ZipFile(archive) as zf:
         assert sorted(zf.namelist()) == ["file1.txt", "sub/file2.txt"]
+
+
+def test_extract_overwrite(tmp_path):
+    archive = _make_zip(tmp_path, {"hello.txt": "new"})
+    dest = tmp_path / "out"
+    dest.mkdir()
+    existing = dest / "hello.txt"
+    existing.write_text("old")
+
+    # Default behaviour skips existing files
+    assert extract_zip(archive, dest) == []
+    assert existing.read_text() == "old"
+
+    # When overwrite=True the file is replaced
+    extracted = extract_zip(archive, dest, overwrite=True)
+    assert extracted == [existing]
+    assert existing.read_text() == "new"
+
+
+def test_create_zip_includes_empty_directories(tmp_path):
+    folder = tmp_path / "src"
+    (folder / "empty").mkdir(parents=True)
+    archive = create_zip(tmp_path / "out_empty.zip", [folder])
+    with zipfile.ZipFile(archive) as zf:
+        assert "empty/" in zf.namelist()
