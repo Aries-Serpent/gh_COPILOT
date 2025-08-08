@@ -394,6 +394,11 @@ schema and commit workflow.
 Session tooling records actions in `databases/codex_log.db`. When
 `finalize_codex_log_db()` runs, the log is copied to
 `databases/codex_session_logs.db` and both files are staged for commit.
+For a simplified per-action audit trail, the `utils/codex_logger.py`
+helper stores timestamped `action` and `statement` entries in
+`databases/codex_logs.db`. Call `codex_logger.log_action()` during the
+session and `codex_logger.finalize_db()` to stage the database for
+commit.
 
 #### Environment variables
 
