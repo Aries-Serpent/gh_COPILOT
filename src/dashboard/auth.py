@@ -12,13 +12,31 @@ import secrets
 import time
 import uuid
 from functools import wraps
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional
 
-# Placeholder functions for security enhancements.
-# TODO: integrate proper rate limiting (e.g., Redis or similar)
-def _check_rate_limit() -> None:
-    """Placeholder for future rate limiting logic."""
-    pass
+# In-memory rate limit storage: {identifier: [timestamp, ...]}
+_RATE_LIMIT: Dict[str, List[float]] = {}
+
+
+def _check_rate_limit(identifier: str = "global", limit: int = 5, window: int = 60) -> None:
+    """Simple in-memory rate limiting.
+
+    Parameters
+    ----------
+    identifier:
+        Unique identifier for a client or session.
+    limit:
+        Maximum number of calls allowed within the window.
+    window:
+        Time window in seconds.
+    """
+    now = time.time()
+    events = _RATE_LIMIT.setdefault(identifier, [])
+    events = [ts for ts in events if now - ts < window]
+    if len(events) >= limit:
+        raise ValueError("Too many requests")
+    events.append(now)
+    _RATE_LIMIT[identifier] = events
 
 # TODO: integrate multi-factor authentication mechanisms
 
@@ -47,7 +65,7 @@ class SessionManager:
         token:
             Token provided by the client.
         """
-        _check_rate_limit()
+        _check_rate_limit("start_session")
         expected = os.environ.get("DASHBOARD_AUTH_TOKEN", "")
         if token != expected:
             self.failed_attempts += 1
@@ -117,6 +135,12 @@ def decode_jwt(token: str, secret: str) -> Dict[str, Any]:
         raise ValueError("Invalid token") from exc
 
 
+def verify_token_and_session(token: str, session_id: str, manager: SessionManager | None = None) -> bool:
+    """Return True if the provided token and session are valid."""
+    mgr = manager or SESSION_MANAGER
+    return mgr.validate(token, session_id)
+
+
 def require_session(manager: SessionManager | None = None) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator enforcing session and CSRF checks on Flask routes."""
 
@@ -130,6 +154,7 @@ def require_session(manager: SessionManager | None = None) -> Callable[[Callable
             if expected:
                 token = request.headers.get("X-Auth-Token", "")
                 session_id = request.headers.get("X-Session-Id", "")
+                _check_rate_limit(f"session:{session_id}")
                 if not mgr.validate(token, session_id):
                     abort(401)
                 if request.method not in {"GET", "HEAD", "OPTIONS"}:

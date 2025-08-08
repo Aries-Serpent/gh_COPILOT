@@ -50,5 +50,25 @@ def check_logs(log_dir: Path) -> list[Path]:
     return offending
 
 
-__all__ = ["check_open_connections", "check_temp_files", "check_logs"]
+def check_uncommitted_transactions(
+    connections: list[sqlite3.Connection],
+) -> list[sqlite3.Connection]:
+    """Return connections that have pending transactions."""
 
+    return [conn for conn in connections if conn.in_transaction]
+
+
+def check_orphaned_sessions(session_dir: Path) -> list[Path]:
+    """Return ``session-*.json`` files located in ``session_dir``."""
+
+    directory = Path(session_dir)
+    return [p for p in directory.glob("session-*.json") if p.is_file()]
+
+
+__all__ = [
+    "check_open_connections",
+    "check_temp_files",
+    "check_logs",
+    "check_uncommitted_transactions",
+    "check_orphaned_sessions",
+]
