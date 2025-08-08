@@ -1,0 +1,10 @@
+{% extends 'html/base_enterprise.html' %}
+{% from 'components/quantum_indicators.html' import quantum_indicators %}
+
+{% block title %}Quantum Dashboard{% endblock %}
+
+{% block content %}
+<h1>Quantum Dashboard</h1>
+{{ quantum_indicators(quantum) }}
+{% endblock %}
+

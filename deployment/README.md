@@ -3,6 +3,37 @@
 This directory contains configuration and helper scripts for launching a staging
 environment.
 
+## Container and Orchestration Configurations
+
+The `deployment` directory now includes baseline configuration for running the
+application with Nginx, Gunicorn, Docker Compose, and Kubernetes:
+
+- `nginx_config.conf` – reverse proxy configuration for Nginx.
+- `gunicorn_config.py` – basic Gunicorn settings.
+- `docker_compose.yml` – Compose file wiring the application and Nginx.
+- `k8s/deployment.yaml` – Kubernetes Deployment definition.
+- `k8s/service.yaml` – Kubernetes Service exposing the pod.
+- `k8s/ingress.yaml` – Kubernetes Ingress routing external traffic.
+
+### Key Configuration Parameters
+
+| File | Parameter | Description |
+| ---- | --------- | ----------- |
+| `nginx_config.conf` | `listen` | Port Nginx listens on for HTTP traffic |
+|  | `proxy_pass` | Upstream URL for forwarding requests |
+| `gunicorn_config.py` | `bind` | Socket and port Gunicorn exposes |
+|  | `workers` | Number of worker processes |
+|  | `timeout` | Seconds before a worker is restarted |
+| `docker_compose.yml` | `volumes` | Host paths mounted inside containers |
+|  | `ports` | Host:container port mappings |
+|  | `environment` | Container environment variables |
+| `k8s/deployment.yaml` | `replicas` | Number of pod instances |
+|  | `image` | Container image to deploy |
+|  | `env` | Environment variables for the pod |
+| `k8s/service.yaml` | `port/targetPort` | Map service port to container port |
+|  | `type` | Service exposure strategy |
+| `k8s/ingress.yaml` | `path` | URL prefix routed to the service |
+
 ## Prerequisites
 
 1. Activate the project virtual environment:

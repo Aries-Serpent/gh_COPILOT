@@ -17,11 +17,28 @@ This module provides three main classes:
 
 from __future__ import annotations
 
+import re
 import sqlite3
 import threading
 import time
 from pathlib import Path
 from typing import Any, Callable, Dict, List
+
+
+_TABLE_RE = re.compile(r"^[A-Za-z0-9_]+$")
+
+
+def sanitize_table_name(name: str) -> str:
+    """Return *name* if it is a valid table identifier.
+
+    Only alphanumeric characters and underscores are allowed.  Any other
+    character raises :class:`ValueError` to prevent SQL injection via table
+    names.
+    """
+
+    if not _TABLE_RE.fullmatch(name):
+        raise ValueError(f"Invalid table name: {name!r}")
+    return name
 
 
 class SchemaMapper:
@@ -121,13 +138,29 @@ class SyncManager:
                 self.mapper.map(conn_a, conn_b)
                 self.mapper.map(conn_b, conn_a)
 
-                tables_a = {r[0] for r in conn_a.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-                tables_b = {r[0] for r in conn_b.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+                tables_a = {
+                    sanitize_table_name(r[0])
+                    for r in conn_a.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                }
+                tables_b = {
+                    sanitize_table_name(r[0])
+                    for r in conn_b.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                }
                 tables = tables_a | tables_b
 
                 for table in tables:
-                    rows_a = {row["id"]: dict(row) for row in conn_a.execute(f"SELECT * FROM {table}")}
-                    rows_b = {row["id"]: dict(row) for row in conn_b.execute(f"SELECT * FROM {table}")}
+                    conn_ref = conn_a if table in tables_a else conn_b
+                    pk = self._get_primary_key(conn_ref, table)
+                    if pk != "id":
+                        continue
+                    rows_a = {
+                        row[pk]: dict(row)
+                        for row in conn_a.execute(f'SELECT * FROM "{table}"')
+                    }
+                    rows_b = {
+                        row[pk]: dict(row)
+                        for row in conn_b.execute(f'SELECT * FROM "{table}"')
+                    }
                     table_policy: ConflictPolicy = policy
                     if resolver_registry and table in resolver_registry:
                         custom = resolver_registry[table]
@@ -137,22 +170,22 @@ class SyncManager:
                             else ResolverPolicy(custom)
                         )
 
-                    for pk in rows_a.keys() | rows_b.keys():
-                        in_a = pk in rows_a
-                        in_b = pk in rows_b
+                    for pk_val in rows_a.keys() | rows_b.keys():
+                        in_a = pk_val in rows_a
+                        in_b = pk_val in rows_b
                         if in_a and in_b:
-                            row = rows_a[pk]
-                            other = rows_b[pk]
+                            row = rows_a[pk_val]
+                            other = rows_b[pk_val]
                             if row != other:
                                 merged = table_policy.resolve(table, row, other)
                                 decision = "a" if merged == row else "b"
-                                self._log_conflict(db_a, db_b, table, pk, decision)
+                                self._log_conflict(db_a, db_b, table, pk_val, decision)
                                 self._upsert(conn_a, table, merged)
                                 self._upsert(conn_b, table, merged)
                         elif in_a:
-                            self._upsert(conn_b, table, rows_a[pk])
+                            self._upsert(conn_b, table, rows_a[pk_val])
                         else:
-                            self._upsert(conn_a, table, rows_b[pk])
+                            self._upsert(conn_a, table, rows_b[pk_val])
 
                 conn_a.commit()
                 conn_b.commit()
@@ -204,11 +237,23 @@ class SyncManager:
             time.sleep(interval)
 
     @staticmethod
+    def _get_primary_key(conn: sqlite3.Connection, table: str) -> str | None:
+        """Return the name of the primary key column for ``table``."""
+
+        safe_table = sanitize_table_name(table)
+        info = conn.execute(f'PRAGMA table_info("{safe_table}")').fetchall()
+        for column in info:
+            if column[5]:
+                return column[1]
+        return None
+
+    @staticmethod
     def _upsert(conn: sqlite3.Connection, table: str, row: Dict[str, Any]) -> None:
-        cols = ", ".join(row.keys())
+        safe_table = sanitize_table_name(table)
+        cols = ", ".join(f'"{c}"' for c in row.keys())
         marks = ", ".join("?" for _ in row)
         conn.execute(
-            f"REPLACE INTO {table} ({cols}) VALUES ({marks})",
+            f'REPLACE INTO "{safe_table}" ({cols}) VALUES ({marks})',
             tuple(row.values()),
         )
 
@@ -265,6 +310,47 @@ class SyncManager:
             conn.commit()
 
 
+class SyncWatcher:
+    """Watch multiple database pairs and synchronize on changes."""
+
+    def __init__(self, manager: SyncManager | None = None) -> None:
+        self.manager = manager or SyncManager()
+
+    def watch_pairs(
+        self,
+        pairs: List[tuple[Path | str, Path | str]],
+        *,
+        interval: float = 1.0,
+        stop_event: threading.Event | None = None,
+        **kwargs: Any,
+    ) -> None:
+        """Watch each pair and trigger synchronization when modified.
+
+        A thread is spawned for each database pair using :meth:`SyncManager.watch`.
+        This method blocks until ``stop_event`` is set.
+        """
+
+        stop_event = stop_event or threading.Event()
+        threads: List[threading.Thread] = []
+        for db_a, db_b in pairs:
+            thread = threading.Thread(
+                target=self.manager.watch,
+                args=(db_a, db_b),
+                kwargs={"interval": interval, "stop_event": stop_event, **kwargs},
+                daemon=True,
+            )
+            thread.start()
+            threads.append(thread)
+
+        try:
+            while not stop_event.is_set():
+                time.sleep(interval)
+        finally:
+            stop_event.set()
+            for thread in threads:
+                thread.join()
+
+
 def watch_and_sync(
     db_a: Path | str,
     db_b: Path | str,
@@ -315,4 +401,4 @@ def list_events(analytics_db: Path | str, limit: int = 10) -> List[Dict[str, Any
     return events
 
 
-__all__ = ["SchemaMapper", "SyncManager", "list_events", "watch_and_sync"]
+__all__ = ["SchemaMapper", "SyncManager", "SyncWatcher", "list_events", "watch_and_sync"]

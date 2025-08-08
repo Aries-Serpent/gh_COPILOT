@@ -7,8 +7,11 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 from utils.cross_platform_paths import CrossPlatformPathManager
 from pathlib import Path
 import os
+import logging
 
 import numpy as np
+from tqdm import tqdm
+from quantum.algorithms.base import TEXT_INDICATORS
 
 try:  # pragma: no cover - import check
     from qiskit import Aer
@@ -27,6 +30,12 @@ except Exception:  # pragma: no cover - qiskit optional
     Aer = Estimator = SparsePauliOp = TwoLocal = QAOA = VQE = COBYLA = None  # type: ignore
 
 from quantum.utils.backend_provider import get_backend
+
+
+def _log_violation(path: str) -> None:
+    """Log a forbidden E:/temp path violation."""
+    logging.error("🚨 C:/temp/ VIOLATION: %s", path)
+
 
 # --- Anti-Recursion Validation ---
 
@@ -102,14 +111,36 @@ def validate_no_recursive_folders() -> None:
 
 
 def detect_c_temp_violations() -> Optional[str]:
-    forbidden = ["E:/temp/", "E:\\temp\\"]
-    workspace = str(CrossPlatformPathManager.get_workspace_path())
-    backup_root = str(CrossPlatformPathManager.get_backup_root())
+    """Detect forbidden Windows ``E:/temp`` paths.
+
+    The legacy ``E:/temp`` directory is disallowed for both the workspace
+    and the backup root. Paths are normalized to POSIX form and compared in a
+    case-insensitive manner. When either path begins with this location the
+    offending path is returned and the incident is recorded via
+    :func:`_log_violation`.
+
+    Returns ``None`` when no violation is present.
+    """
+
+    forbidden_raw = ["E:/temp", "E:\\temp"]
+
+    def normalize(path: str) -> str:
+        return Path(path).as_posix().lower().rstrip("/") + "/"
+
+    workspace_obj = CrossPlatformPathManager.get_workspace_path()
+    backup_obj = CrossPlatformPathManager.get_backup_root()
+    workspace = normalize(str(workspace_obj))
+    backup_root = normalize(str(backup_obj))
+    forbidden = [normalize(p) for p in forbidden_raw]
     for forbidden_path in forbidden:
         if workspace.startswith(forbidden_path):
-            return workspace
+            workspace_str = Path(workspace_obj).as_posix()
+            _log_violation(workspace_str)
+            return workspace_str
         if backup_root.startswith(forbidden_path):
-            return backup_root
+            backup_str = Path(backup_obj).as_posix()
+            _log_violation(backup_str)
+            return backup_str
     return None
 
 # --- Quantum Optimizer Class ---
@@ -303,7 +334,13 @@ class QuantumOptimizer:
         best_x = x.copy()
         best_val = self.objective_function(x)
         current_temp = temp
-        for i in range(max_iter):
+        for i in tqdm(
+            range(max_iter),
+            desc=f"{TEXT_INDICATORS['progress']} annealing",
+            unit="iter",
+            leave=False,
+            dynamic_ncols=True,
+        ):
             x_new = x + np.random.uniform(-0.1, 0.1, size=dim)
             for j, (a, b) in enumerate(self.variable_bounds):
                 x_new[j] = np.clip(x_new[j], a, b)
@@ -341,7 +378,13 @@ class QuantumOptimizer:
             # Fallback: random restarts
             best_x = None
             best_val = float("inf")
-            for i in range(niter):
+            for i in tqdm(
+                range(niter),
+                desc=f"{TEXT_INDICATORS['progress']} basin-hop",
+                unit="iter",
+                leave=False,
+                dynamic_ncols=True,
+            ):
                 x = np.array([np.random.uniform(a, b) for a, b in self.variable_bounds])
                 val = self.objective_function(x)
                 if val < best_val:

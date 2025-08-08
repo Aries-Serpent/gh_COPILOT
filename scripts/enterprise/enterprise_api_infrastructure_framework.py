@@ -22,22 +22,19 @@ import os
 import sys
 import json
 import time
-import sqlite3
-import asyncio
 import logging
 import hashlib
 import threading
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 from dataclasses import dataclass, field
-from concurrent.futures import ThreadPoolExecutor
 from collections import defaultdict
 import uuid
 
 # Essential imports for API framework
-import numpy as np
 from tqdm import tqdm
+from web_gui import middleware
 from utils.log_utils import log_message
 
 # Flask imports for web API
@@ -53,7 +50,7 @@ except ImportError:
 
 # Additional API framework imports
 try:
-    import jwt
+    import jwt  # noqa: F401
 
     JWT_AVAILABLE = True
 except ImportError:
@@ -367,6 +364,7 @@ class EnterpriseAPIServer:
         if FLASK_AVAILABLE:
             self.app = Flask(__name__)
             CORS(self.app, resources={r"/api/*": {"origins": self.allowed_origins}})
+            middleware.init_app(self.app)
             self._setup_flask_routes()
         else:
             self.app = None

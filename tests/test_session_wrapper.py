@@ -16,12 +16,7 @@ def test_wrap_and_recover(tmp_path):
         env=env,
     )
     session_id = result.stdout.strip().splitlines()[-1]
-<<<<<<< HEAD
-    session_dir = Path.home() / '.gh_copilot_sessions' / session_id
-    meta_file = session_dir / 'metadata.json'
-=======
-    meta_file = tmp_path / '.gh_copilot_sessions' / f'{session_id}.json'
->>>>>>> 18051112 (feat: add session wrapper workflow and safe-run alias)
+    meta_file = tmp_path / '.gh_copilot_sessions' / session_id / 'metadata.json'
     assert meta_file.exists()
 
     recovered = subprocess.run(

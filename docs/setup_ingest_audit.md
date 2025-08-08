@@ -1,7 +1,7 @@
 # setup_ingest_audit
 
 The `setup_ingest_audit` helper orchestrates initial database creation,
-asset ingestion, and a placeholder audit with dual‑copilot validation.
+asset ingestion, and a placeholder audit with dual-copilot validation.
 
 ## Usage
 
@@ -12,11 +12,11 @@ python scripts/automation/setup_ingest_audit.py
 ```
 
 Ensure `GH_COPILOT_WORKSPACE` points at the workspace root and
-`ALLOW_AUTOLFS=1` so any large artifacts remain Git LFS managed.
+`ALLOW_AUTOLFS=1` so any large artifacts remain Git LFS managed.
 
 ## Detecting LFS pointer mismatches
 
-A file tracked by Git LFS should contain only a small pointer file. To verify
+A file tracked by Git LFS should contain only a small pointer file. To verify
 that a file still contains the pointer rather than raw binary data, compare the
 pointer metadata with the file's SHA:
 

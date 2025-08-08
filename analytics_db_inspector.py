@@ -6,28 +6,31 @@ Provides a comprehensive overview of the analytics.db database
 
 import sqlite3
 from pathlib import Path
+from typing import Any, Dict, List, Sequence, Tuple
 
-def inspect_database():
-    """Inspect the analytics database and provide a comprehensive report"""
-    db_path = "databases/analytics.db"
-    
+
+def inspect_database(db_path: str | Path = "databases/analytics.db") -> None:
+    """Inspect the analytics database and provide a comprehensive report."""
+
     try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
+        conn: sqlite3.Connection = sqlite3.connect(str(db_path))
+        cursor: sqlite3.Cursor = conn.cursor()
         
         print("🔍 Analytics Database Inspection Report")
         print("=" * 50)
         
         # Get all tables
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")
-        tables = cursor.fetchall()
+        cursor.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
+        )
+        tables: List[Tuple[str]] = cursor.fetchall()
         
         print(f"\n📊 Database Overview:")
         print(f"   • Total Tables: {len(tables)}")
         print(f"   • Database Size: {Path(db_path).stat().st_size:,} bytes")
         
         # Analyze each table
-        table_stats = []
+        table_stats: List[Dict[str, Any]] = []
         for table_name in [t[0] for t in tables]:
             try:
                 cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
@@ -35,15 +38,17 @@ def inspect_database():
                 
                 # Get table schema
                 cursor.execute(f"PRAGMA table_info({table_name})")
-                columns = cursor.fetchall()
+                columns: Sequence[Tuple[Any, ...]] = cursor.fetchall()
                 
-                table_stats.append({
-                    'name': table_name,
-                    'records': count,
-                    'columns': len(columns),
-                    'schema': [{'name': col[1], 'type': col[2]} for col in columns]
-                })
-            except Exception as e:
+                table_stats.append(
+                    {
+                        "name": table_name,
+                        "records": count,
+                        "columns": len(columns),
+                        "schema": [{"name": col[1], "type": col[2]} for col in columns],
+                    }
+                )
+            except Exception as e:  # pragma: no cover - diagnostic output
                 print(f"   ⚠️  Error analyzing table {table_name}: {e}")
         
         # Sort by record count
@@ -63,11 +68,13 @@ def inspect_database():
         
         print(f"\n🔎 Key Tables Analysis:")
         for table_name in key_tables:
-            table_info = next((t for t in table_stats if t['name'] == table_name), None)
+            table_info = next((t for t in table_stats if t["name"] == table_name), None)
             if table_info:
                 print(f"\n   📁 {table_name.upper()}:")
                 print(f"      Records: {table_info['records']:,}")
-                print(f"      Columns: {', '.join([col['name'] for col in table_info['schema'][:5]])}")
+                print(
+                    f"      Columns: {', '.join([col['name'] for col in table_info['schema'][:5]])}"
+                )
                 
                 # Sample some data
                 try:
@@ -83,13 +90,17 @@ def inspect_database():
         activity_tables = ['audit_trails', 'performance_metrics', 'compliance_tracking']
         
         for table_name in activity_tables:
-            if any(t['name'] == table_name for t in table_stats):
+            if any(t["name"] == table_name for t in table_stats):
                 try:
                     # Look for timestamp columns
                     cursor.execute(f"PRAGMA table_info({table_name})")
                     columns = cursor.fetchall()
-                    timestamp_cols = [col[1] for col in columns if 'time' in col[1].lower() or 'date' in col[1].lower()]
-                    
+                    timestamp_cols: List[str] = [
+                        col[1]
+                        for col in columns
+                        if "time" in col[1].lower() or "date" in col[1].lower()
+                    ]
+
                     if timestamp_cols:
                         timestamp_col = timestamp_cols[0]
                         cursor.execute(f"SELECT MAX({timestamp_col}) FROM {table_name}")
@@ -101,7 +112,9 @@ def inspect_database():
         
         # Enterprise features
         print(f"\n🏢 Enterprise Features Detected:")
-        enterprise_tables = [t for t in table_stats if 'enterprise' in t['name']]
+        enterprise_tables: List[Dict[str, Any]] = [
+            t for t in table_stats if "enterprise" in t["name"]
+        ]
         if enterprise_tables:
             for table in enterprise_tables:
                 print(f"   • {table['name']}: {table['records']:,} records")
@@ -109,8 +122,14 @@ def inspect_database():
             print("   • No enterprise-specific tables found")
         
         # Compliance and security
-        compliance_tables = [t for t in table_stats if any(keyword in t['name'] 
-                           for keyword in ['compliance', 'security', 'audit', 'violation'])]
+        compliance_tables: List[Dict[str, Any]] = [
+            t
+            for t in table_stats
+            if any(
+                keyword in t["name"]
+                for keyword in ["compliance", "security", "audit", "violation"]
+            )
+        ]
         
         print(f"\n🔒 Compliance & Security Tables:")
         for table in compliance_tables:
@@ -118,8 +137,8 @@ def inspect_database():
         
         conn.close()
         print(f"\n✅ Database inspection completed successfully!")
-        
-    except Exception as e:
+
+    except Exception as e:  # pragma: no cover - diagnostic output
         print(f"❌ Error inspecting database: {e}")
 
 if __name__ == "__main__":

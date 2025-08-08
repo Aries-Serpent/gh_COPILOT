@@ -290,8 +290,6 @@ Set `CLW_MAX_LINE_LENGTH=1550` in your environment (e.g. in `.env`) before invok
 `clw` prevents session resets by ensuring no line exceeds this limit. When in doubt, redirect long
 output to a file and view it with `clw` in small chunks.
 
-<<<<<<< Updated upstream
-=======
 ### Additional Output Management Tools
 
 For cases where you need to execute a command and automatically truncate overly
@@ -317,20 +315,12 @@ customizable boundary detection while maintaining ANSI sequences. To wrap
 commands and automatically record session metadata, use the
 `safe-run` alias, which invokes `session_wrapper.sh wrap` and employs
 `tools/shell_buffer_manager.sh` to enforce hard cutoffs and redirect
-<<<<<<< HEAD
-overflow to temporary logs. See `docs/session_wrapper.md` for
-usage details.
-=======
 overflow to temporary logs. See `docs/SESSION_WRAPPER_USAGE.md` for
 examples:
 
 ```bash
 safe-run "echo hello"
 ```
->>>>>>> 18051112 (feat: add session wrapper workflow and safe-run alias)
-
->>>>>>> Stashed changes
-
 
 ### **Basic Usage**
 ```python

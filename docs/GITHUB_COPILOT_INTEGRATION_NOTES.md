@@ -12,14 +12,12 @@
 ### **1. DATABASE-FIRST INTERACTION PATTERN**
 When working with GitHub Copilot on this codebase, **ALWAYS** follow this pattern:
 
-```markdown
 **GitHub Copilot Request Pattern:**
 1. Query production.db for existing solutions first
 2. Apply DUAL COPILOT validation (Primary + Secondary)
 3. Include visual processing indicators in all responses
 4. Ensure enterprise compliance validation
 5. Implement autonomous correction capabilities
-```
 
 ### **2. MANDATORY VISUAL PROCESSING**
 Every GitHub Copilot response involving processing MUST include:
@@ -258,12 +256,11 @@ class CopilotLearningIntegration:
 ## 🎯 GITHUB COPILOT PROMPT PATTERNS
 
 ### **Optimal Request Structure**
-```markdown
 **Effective GitHub Copilot Prompt:**
 
 Context: Working with gh_COPILOT v4.0 Enterprise toolkit
 Requirement: [Specific objective with database-first approach]
-Constraints: 
+Constraints:
 - MUST query production.db first
 - MUST include visual processing indicators
 - MUST follow DUAL COPILOT pattern
@@ -276,10 +273,8 @@ Expected Output:
 - Enterprise validation
 
 Example: "Generate HAR file processor using database-first approach with DUAL COPILOT validation and visual processing indicators"
-```
 
 ### **Response Validation Checklist**
-```markdown
 **GitHub Copilot Response Validation:**
 - [ ] Queries production.db before implementation
 - [ ] Includes tqdm progress bars
@@ -289,7 +284,6 @@ Example: "Generate HAR file processor using database-first approach with DUAL CO
 - [ ] Includes enterprise compliance checks
 - [ ] Uses TEXT_INDICATORS for cross-platform compatibility
 - [ ] Integrates autonomous healing capabilities
-```
 
 ---
 
@@ -327,7 +321,6 @@ def copilot_generated_function(parameters):
 ```
 
 ### **Documentation Standards**
-```markdown
 **GitHub Copilot Documentation Template:**
 
 ## Function/Class Name
@@ -343,7 +336,6 @@ def copilot_generated_function(parameters):
 
 ### Usage Example
 [Provide example with visual processing indicators]
-```
 
 ---
 
