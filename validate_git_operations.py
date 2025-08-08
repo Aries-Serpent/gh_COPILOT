@@ -51,7 +51,9 @@ def validate_git_operations():
         test_file = Path("validation_test.tmp")
         test_file.write_text(f"Validation test - {datetime.now()}")
         
-        # Add file
+        # Add file and session logs database if present
+        if Path('databases/codex_session_logs.db').exists():
+            subprocess.run(['git', 'add', 'databases/codex_session_logs.db'], check=True)
         subprocess.run(['git', 'add', 'validation_test.tmp'], check=True)
         
         # Commit file

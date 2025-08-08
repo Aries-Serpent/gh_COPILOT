@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import sqlite3
+import shutil
 from pathlib import Path
 
 
 CODEX_LOG_DB = Path("databases/codex_log.db")
+CODEX_SESSION_LOG_DB = Path("databases/codex_session_logs.db")
 
 
 def init_db() -> None:
@@ -44,5 +46,33 @@ def log_codex_action(
         conn.commit()
 
 
-__all__ = ["CODEX_LOG_DB", "init_db", "log_codex_action"]
+def finalize_codex_log_db(destination: Path | None = None) -> Path:
+    """Close the Codex log database and copy it to ``destination``.
+
+    Parameters
+    ----------
+    destination:
+        Optional path for the copied database. Defaults to
+        ``databases/codex_session_logs.db``.
+
+    Returns
+    -------
+    Path
+        The path to the copied database.
+    """
+    init_db()
+    dest = destination or CODEX_SESSION_LOG_DB
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    if CODEX_LOG_DB.exists():
+        shutil.copy2(CODEX_LOG_DB, dest)
+    return dest
+
+
+__all__ = [
+    "CODEX_LOG_DB",
+    "CODEX_SESSION_LOG_DB",
+    "init_db",
+    "log_codex_action",
+    "finalize_codex_log_db",
+]
 
