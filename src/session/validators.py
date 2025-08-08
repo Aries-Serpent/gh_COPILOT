@@ -65,10 +65,51 @@ def check_orphaned_sessions(session_dir: Path) -> list[Path]:
     return [p for p in directory.glob("session-*.json") if p.is_file()]
 
 
+def validate_lifecycle(
+    connections: list[sqlite3.Connection],
+    *,
+    log_dir: Path,
+    temp_dir: Path,
+    session_dir: Path,
+) -> dict[str, list]:
+    """Run all validators and return a mapping of failures.
+
+    Each key in the returned dictionary corresponds to a specific
+    validator.  The value is the list of offending items produced by the
+    underlying check.  An empty dictionary indicates that the session has
+    completed cleanly.
+    """
+
+    issues: dict[str, list] = {}
+
+    open_conns = check_open_connections(connections)
+    if open_conns:
+        issues["open_connections"] = open_conns
+
+    uncommitted = check_uncommitted_transactions(connections)
+    if uncommitted:
+        issues["uncommitted_transactions"] = uncommitted
+
+    temp_files = check_temp_files(temp_dir)
+    if temp_files:
+        issues["temp_files"] = temp_files
+
+    empty_logs = check_logs(log_dir)
+    if empty_logs:
+        issues["empty_logs"] = empty_logs
+
+    orphaned = check_orphaned_sessions(session_dir)
+    if orphaned:
+        issues["orphaned_sessions"] = orphaned
+
+    return issues
+
+
 __all__ = [
     "check_open_connections",
     "check_temp_files",
     "check_logs",
     "check_uncommitted_transactions",
     "check_orphaned_sessions",
+    "validate_lifecycle",
 ]

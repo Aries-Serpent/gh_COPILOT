@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from src.session import SessionManager
+from src.session.validators import validate_lifecycle
 
 
 def _make_manager(tmp_path: Path) -> SessionManager:
@@ -70,3 +71,31 @@ def test_shutdown_passes_when_clean(tmp_path: Path) -> None:
     mgr = _make_manager(tmp_path)
     # No exception means success
     mgr.shutdown()
+
+
+def test_validate_lifecycle_reports_all(tmp_path: Path) -> None:
+    mgr = _make_manager(tmp_path)
+    conn = sqlite3.connect(":memory:")
+    conn.execute("CREATE TABLE t (x int)")
+    conn.execute("INSERT INTO t VALUES (1)")
+    (mgr.temp_dir / "left.tmp").write_text("bad")
+    (mgr.log_dir / "empty.log").touch()
+    (mgr.session_dir / "session-abc.json").write_text("{}")
+
+    issues = validate_lifecycle(
+        [conn],
+        log_dir=mgr.log_dir,
+        temp_dir=mgr.temp_dir,
+        session_dir=mgr.session_dir,
+    )
+
+    assert set(issues) == {
+        "open_connections",
+        "uncommitted_transactions",
+        "temp_files",
+        "empty_logs",
+        "orphaned_sessions",
+    }
+
+    conn.rollback()
+    conn.close()
