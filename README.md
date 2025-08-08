@@ -62,7 +62,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
 - **Anti-Recursion Guards:** backup and session modules now enforce external backup roots.
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, `add_code_audit_history.sql`, `add_violation_logs.sql`, and `add_rollback_logs.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
-- **Real-Time Sync Engine:** `SyncManager` and `SyncWatcher` log synchronization outcomes to `analytics.db` and feed live statistics to the dashboard.
+- **Real-Time Sync Engine:** `SyncEngine` broadcasts changes over WebSocket, logs outcomes to `analytics.db`, and feeds live statistics to the dashboard when `SYNC_ENGINE_WS_URL` is configured.
 - **Dashboard Metrics View:** compliance, synchronization, and monitoring metrics refresh live when `LOG_WEBSOCKET_ENABLED=1`.
 - **Monitoring Pipeline:** anomaly detection results stored in `analytics.db` appear on the dashboard's monitoring panels.
 
@@ -887,8 +887,15 @@ This script reads from `analytics.db` and writes `dashboard/compliance/metrics.j
 Real-time data synchronization is provided by `src.sync.engine.SyncEngine`.
 To enable WebSocket-based propagation, start a broadcast WebSocket server and
 set `SYNC_ENGINE_WS_URL` to its endpoint (for example, `ws://localhost:8765`).
-Instantiate `SyncEngine` and call `await engine.open_websocket(os.environ["SYNC_ENGINE_WS_URL"], apply_callback)`
-where `apply_callback` applies incoming changes locally. See `docs/realtime_sync.md` for details.
+
+```python
+from src.sync.engine import SyncEngine
+
+engine = SyncEngine()
+await engine.open_websocket(os.environ["SYNC_ENGINE_WS_URL"], apply_callback)
+```
+
+`apply_callback` should apply incoming changes locally. See `docs/realtime_sync.md` for more details.
 
 Synchronization outcomes are logged to `databases/analytics.db`, allowing the dashboard to surface live sync statistics.
 
