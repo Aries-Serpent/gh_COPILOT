@@ -110,7 +110,11 @@
 
 ### **Template Architecture**
 ```
+<<<<<<< HEAD
 web_gui/templates/
+=======
+web_gui/templates/html/
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ├── base_enterprise.html (✅ Bootstrap 5 framework)
 ├── dashboard.html (✅ Real-time metrics)
 ├── analytics.html (✅ Data visualization)

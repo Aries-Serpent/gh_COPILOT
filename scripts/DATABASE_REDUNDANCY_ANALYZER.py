@@ -8,6 +8,7 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Database-first architecture
 """
+<<<<<<< HEAD
 
 import sys
 
@@ -15,6 +16,10 @@ from scripts.validation.secondary_copilot_validator import (
     SecondaryCopilotValidator,
 )
 
+=======
+import sys
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 import sqlite3
 import logging
 from pathlib import Path
@@ -22,11 +27,19 @@ from datetime import datetime
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
+<<<<<<< HEAD
     "start": "[START]",
     "success": "[SUCCESS]",
     "error": "[ERROR]",
     "database": "[DATABASE]",
     "info": "[INFO]",
+=======
+    'start': '[START]',
+    'success': '[SUCCESS]',
+    'error': '[ERROR]',
+    'database': '[DATABASE]',
+    'info': '[INFO]'
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 }
 
 
@@ -81,11 +94,18 @@ def main():
     else:
         print(f"{TEXT_INDICATORS['error']} Database processing failed")
 
+<<<<<<< HEAD
     SecondaryCopilotValidator(logging.getLogger(__name__)).validate_corrections([__file__])
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     return success
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
+=======
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     success = main()
     sys.exit(0 if success else 1)

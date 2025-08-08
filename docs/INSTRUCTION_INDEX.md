@@ -20,7 +20,10 @@ This document lists all instruction modules available in the repository. Each en
 | VISUAL_PROCESSING_INDICATORS.instructions.md | [.github/instructions/VISUAL_PROCESSING_INDICATORS.instructions.md](../.github/instructions/VISUAL_PROCESSING_INDICATORS.instructions.md) |
 | WEB_GUI_INTEGRATION.instructions.md | [.github/instructions/WEB_GUI_INTEGRATION.instructions.md](../.github/instructions/WEB_GUI_INTEGRATION.instructions.md) |
 | ZERO_TOLERANCE_VISUAL_PROCESSING.instructions.md | [.github/instructions/ZERO_TOLERANCE_VISUAL_PROCESSING.instructions.md](../.github/instructions/ZERO_TOLERANCE_VISUAL_PROCESSING.instructions.md) |
+<<<<<<< HEAD
 
 ### Additional Utilities
 - **Complete Consolidation Orchestrator**: [scripts/database/complete_consolidation_orchestrator.py](../scripts/database/complete_consolidation_orchestrator.py) - compresses large tables before migrating them into `enterprise_assets.db`.
 - **ChatGPT Bot Integration Guide**: [docs/chatgpt_bot_integration_guide.md](chatgpt_bot_integration_guide.md) - configure webhook and license scripts.
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

@@ -9,11 +9,16 @@ Enterprise Standards Compliance:
 - Database-first architecture
 - Anti-recursion protection
 """
+<<<<<<< HEAD
 
 from datetime import datetime
 from pathlib import Path
 
 from utils.cross_platform_paths import CrossPlatformPathManager
+=======
+from datetime import datetime
+from pathlib import Path
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 from tqdm import tqdm
 import sys
 
@@ -21,20 +26,33 @@ import logging
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
+<<<<<<< HEAD
     "start": "[START]",
     "success": "[SUCCESS]",
     "error": "[ERROR]",
     "progress": "[PROGRESS]",
     "info": "[INFO]",
+=======
+    'start': '[START]',
+    'success': '[SUCCESS]',
+    'error': '[ERROR]',
+    'progress': '[PROGRESS]',
+    'info': '[INFO]'
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 }
 
 
 class EnterpriseFlake8Corrector:
     """Enterprise-grade Flake8 correction system"""
 
+<<<<<<< HEAD
     def __init__(self, workspace_path: str = None):
         default_workspace = CrossPlatformPathManager.get_workspace_path()
         self.workspace_path = Path(workspace_path) if workspace_path else default_workspace
+=======
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+        self.workspace_path = Path(workspace_path)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
         self.logger = logging.getLogger(__name__)
 
     def execute_correction(self) -> bool:
@@ -44,6 +62,10 @@ class EnterpriseFlake8Corrector:
 
         try:
             with tqdm(total=100, desc="[PROGRESS] Flake8 Correction", unit="%") as pbar:
+<<<<<<< HEAD
+=======
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
                 pbar.set_description("[PROGRESS] Scanning files")
                 files_to_correct = self.scan_python_files()
                 pbar.update(25)
@@ -57,7 +79,12 @@ class EnterpriseFlake8Corrector:
                 pbar.update(25)
 
             duration = (datetime.now() - start_time).total_seconds()
+<<<<<<< HEAD
             self.logger.info(f"{TEXT_INDICATORS['success']} Correction completed in {duration:.1f}s")
+=======
+            self.logger.info(
+                f"{TEXT_INDICATORS['success']} Correction completed in {duration:.1f}s")
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
             return validation_passed
 
         except Exception as e:
@@ -107,5 +134,9 @@ def main():
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
+=======
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     success = main()
     sys.exit(0 if success else 1)

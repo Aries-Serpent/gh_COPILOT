@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+<<<<<<< HEAD
 
 from scripts.utilities.quantum_algorithms_functional import (
     run_grover_search,
@@ -10,6 +11,12 @@ from scripts.utilities.quantum_algorithms_functional import (
     run_variational_circuit,
     run_quantum_teleportation,
 )
+=======
+from quantum_algorithms_functional import (run_grover_search,
+import logging
+                                           run_kmeans_clustering,
+                                           run_simple_qnn)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def test_run_grover_search_find_index():
@@ -23,6 +30,7 @@ def test_run_kmeans_clustering_returns_inertia():
     assert metrics["inertia"] >= 0
 
 
+<<<<<<< HEAD
 def test_run_kmeans_clustering_allows_custom_n_init():
     metrics = run_kmeans_clustering(samples=20, clusters=2, n_init=1)
     assert metrics["inertia"] >= 0
@@ -60,3 +68,8 @@ def test_variational_circuit_executes():
 def test_quantum_teleportation_preserves_state():
     dm = run_quantum_teleportation([1, 0])
     assert dm[0][0] == 1
+=======
+def test_run_simple_qnn_accuracy_range():
+    metrics = run_simple_qnn()
+    assert 0.0 <= metrics["accuracy"] <= 1.0
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

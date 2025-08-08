@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import shutil
+<<<<<<< HEAD
 import sqlite3
 import subprocess
 import sys
@@ -20,6 +21,13 @@ if str(REPO_ROOT) not in sys.path:
 from utils.validation_utils import anti_recursion_guard
 from scripts import run_migrations
 
+=======
+import subprocess
+import sys
+from pathlib import Path
+import logging
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 def ensure_env() -> None:
     """Create `.env` from `.env.example` when needed."""
@@ -33,6 +41,7 @@ def ensure_env() -> None:
         shutil.copy(example_file, env_file)
         print("Created .env from .env.example")
     else:
+<<<<<<< HEAD
         msg = ".env.example not found. Please create it from documentation."
         logging.warning(msg)
         raise FileNotFoundError(msg)
@@ -44,6 +53,9 @@ def _parse_requirements(path: Path) -> Iterable[str]:
         stripped = line.strip()
         if stripped and not stripped.startswith("#"):
             yield stripped
+=======
+        raise FileNotFoundError("Missing .env.example")
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def install_test_requirements() -> None:
@@ -55,6 +67,7 @@ def install_test_requirements() -> None:
         print("requirements-test.txt not found; skipping test dependency installation")
         return
 
+<<<<<<< HEAD
     packages = list(_parse_requirements(requirements))
 
     subprocess.check_call(
@@ -94,11 +107,22 @@ def verify_migrations() -> None:
 
 
 @anti_recursion_guard
+=======
+    subprocess.check_call(
+        [sys.executable, "-m", "pip", "install", "-r", str(requirements)]
+    )
+    print("Installed test dependencies")
+
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 def main() -> None:
     """Bootstrap environment and install test requirements."""
     ensure_env()
     install_test_requirements()
+<<<<<<< HEAD
     verify_migrations()
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 import importlib
+<<<<<<< HEAD
+=======
+import logging
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def test_qiskit_and_qml_import():

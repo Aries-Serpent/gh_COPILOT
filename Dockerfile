@@ -11,14 +11,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application source
 COPY . /app
-
-
 RUN chown -R appuser:appgroup /app
 
-# Configure environment file
-RUN cp .env.example .env
+# Configure environment file (if present)
+RUN if [ -f .env.example ]; then cp .env.example .env; fi
 
-# Set default workspace environment variable
+# Set default workspace and related environment variables
 ENV GH_COPILOT_WORKSPACE=/app
 ENV GH_COPILOT_BACKUP_ROOT=/backup
 ENV FLASK_SECRET_KEY=changeme
@@ -26,6 +24,7 @@ ENV LOG_WEBSOCKET_ENABLED=1
 
 # Switch to the non-root user
 USER appuser
+
 # Expose ports for various application functionalities
 # Port 5000: Main application API
 # Port 5001: Secondary service API
@@ -38,9 +37,12 @@ USER appuser
 # Port 8765: WebSocket metrics stream
 EXPOSE 5000 5001 5002 5003 5004 5005 5006 8080 8765
 
+# Healthcheck for the container (if the healthcheck script exists)
 HEALTHCHECK --interval=30s --timeout=5s CMD ["python", "scripts/docker_healthcheck.py"]
 
+# Entrypoint script setup (if present)
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
+
 ENTRYPOINT ["./entrypoint.sh"]
 CMD ["python", "scripts/docker_entrypoint.py"]

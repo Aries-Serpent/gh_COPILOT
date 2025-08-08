@@ -8,6 +8,7 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
+<<<<<<< HEAD
 
 import logging
 import os
@@ -19,16 +20,36 @@ from utils.log_utils import log_message
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
+=======
+import sys
+
+import logging
+from pathlib import Path
+from datetime import datetime
+
+# Text-based indicators (NO Unicode emojis)
+TEXT_INDICATORS = {
+    'start': '[START]',
+    'success': '[SUCCESS]',
+    'error': '[ERROR]',
+    'info': '[INFO]'
+}
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 class EnterpriseUtility:
     """Enterprise utility class"""
 
+<<<<<<< HEAD
     def __init__(self, workspace_path: Path = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))):
+=======
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 
     def execute_utility(self) -> bool:
+<<<<<<< HEAD
         """Run the orchestration workflow.
 
         Returns
@@ -38,6 +59,11 @@ class EnterpriseUtility:
         """
         start_time = datetime.now()
         log_message(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+=======
+        """Execute utility function"""
+        start_time = datetime.now()
+        self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
         try:
             # Utility implementation
@@ -45,6 +71,7 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
+<<<<<<< HEAD
                 log_message(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
@@ -80,6 +107,23 @@ class EnterpriseUtility:
             level=logging.WARNING,
         )
         return False
+=======
+                self.logger.info(
+                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                return True
+            else:
+                self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
+                return False
+
+        except Exception as e:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
+            return False
+
+    def perform_utility_function(self) -> bool:
+        """Perform the utility function"""
+        # Implementation placeholder
+        return True
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def main():
@@ -96,5 +140,9 @@ def main():
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
+=======
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     success = main()
     sys.exit(0 if success else 1)

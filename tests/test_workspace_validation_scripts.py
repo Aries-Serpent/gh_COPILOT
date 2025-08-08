@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 import importlib
 import pytest
+<<<<<<< HEAD
+=======
+import logging
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 MODULES = [
     "critical_flake8_error_corrector",

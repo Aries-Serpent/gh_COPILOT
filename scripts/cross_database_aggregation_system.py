@@ -8,6 +8,7 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Database-first architecture
 """
+<<<<<<< HEAD
 
 import sys
 
@@ -24,6 +25,22 @@ TEXT_INDICATORS = {
     "error": "[ERROR]",
     "database": "[DATABASE]",
     "info": "[INFO]",
+=======
+import sys
+
+import sqlite3
+import logging
+from pathlib import Path
+from datetime import datetime
+
+# Text-based indicators (NO Unicode emojis)
+TEXT_INDICATORS = {
+    'start': '[START]',
+    'success': '[SUCCESS]',
+    'error': '[ERROR]',
+    'database': '[DATABASE]',
+    'info': '[INFO]'
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 }
 
 
@@ -74,6 +91,7 @@ def main():
     success = processor.execute_processing()
 
     if success:
+<<<<<<< HEAD
         log_message(
             "cross_database_aggregation_system",
             "Database processing completed",
@@ -85,10 +103,19 @@ def main():
             "Database processing failed",
             level=logging.ERROR,
         )
+=======
+        print(f"{TEXT_INDICATORS['success']} Database processing completed")
+    else:
+        print(f"{TEXT_INDICATORS['error']} Database processing failed")
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
     return success
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
+=======
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     success = main()
     sys.exit(0 if success else 1)

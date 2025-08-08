@@ -3,12 +3,16 @@
 
 from __future__ import annotations
 
+<<<<<<< HEAD
 import argparse
 import logging
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 import re
 import sqlite3
 from datetime import datetime
 from pathlib import Path
+<<<<<<< HEAD
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,6 +37,12 @@ else:  # pragma: no cover
 # accidental creation of an empty database when ``production.db`` does not exist
 # at the repository root.
 DB_PATH = ROOT / "databases" / "production.db"
+=======
+import logging
+
+ROOT = Path(__file__).resolve().parents[1]
+DB_PATH = ROOT / "production.db"
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 README_PATHS = [
     ROOT / "README.md",
     ROOT / "documentation" / "generated" / "README.md",
@@ -41,9 +51,14 @@ README_PATHS = [
 DATABASE_LIST = ROOT / "documentation" / "DATABASE_LIST.md"
 
 
+<<<<<<< HEAD
 def get_metrics(db_path: Path = DB_PATH) -> dict[str, int]:
     """Return metrics gathered from the specified database."""
     conn = sqlite3.connect(db_path)
+=======
+def get_metrics() -> dict[str, int]:
+    conn = sqlite3.connect(DB_PATH)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     cur = conn.cursor()
     cur.execute("SELECT COUNT(*) FROM enterprise_script_tracking")
     scripts = cur.fetchone()[0]
@@ -51,7 +66,15 @@ def get_metrics(db_path: Path = DB_PATH) -> dict[str, int]:
     templates = cur.fetchone()[0]
     conn.close()
     with DATABASE_LIST.open() as f:
+<<<<<<< HEAD
         databases = sum(1 for line in f if line.strip().startswith("- ") and line.strip().endswith(".db"))
+=======
+        databases = sum(
+            1
+            for line in f
+            if line.strip().startswith("- ") and line.strip().endswith(".db")
+        )
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     return {"scripts": scripts, "templates": templates, "databases": databases}
 
 
@@ -85,6 +108,7 @@ def update_file(path: Path, metrics: dict[str, int]) -> None:
     path.write_text(content)
 
 
+<<<<<<< HEAD
 def main(argv: list[str] | None = None) -> None:
     """Entry point for command-line execution."""
     parser = argparse.ArgumentParser(description="Generate documentation metrics in README files.")
@@ -122,6 +146,13 @@ def main(argv: list[str] | None = None) -> None:
 
     run_dual_copilot_validation(_primary, _secondary)
     logger.info("documentation metrics generation complete")
+=======
+def main() -> None:
+    metrics = get_metrics()
+    for path in README_PATHS:
+        if path.exists():
+            update_file(path, metrics)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 if __name__ == "__main__":

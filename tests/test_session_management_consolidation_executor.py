@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+<<<<<<< HEAD
 
 from session_management_consolidation_executor import EnterpriseUtility
 import sqlite3
@@ -17,12 +18,21 @@ def test_consolidation_executor_pass(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     db_file = tmp_path / "databases" / "analytics.db"
     monkeypatch.setattr(usm, "ANALYTICS_DB", db_file)
+=======
+from session_management_consolidation_executor import EnterpriseUtility
+import logging
+
+
+def test_consolidation_executor_pass(tmp_path, monkeypatch):
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     util = EnterpriseUtility(str(tmp_path))
     assert util.perform_utility_function() is True
     assert util.execute_utility() is True
 
 
 def test_consolidation_executor_fails_on_zero_byte(tmp_path, monkeypatch):
+<<<<<<< HEAD
     monkeypatch.setattr(
         "utils.cross_platform_paths.CrossPlatformPathManager.get_workspace_path",
         lambda: tmp_path,
@@ -63,3 +73,9 @@ def test_consolidation_executor_fails_on_subdir_zero_byte(tmp_path, monkeypatch)
     (nested / "empty.txt").write_text("")
     util = EnterpriseUtility(str(tmp_path))
     assert util.perform_utility_function() is False
+=======
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    (tmp_path / "empty.txt").write_text("")
+    util = EnterpriseUtility(str(tmp_path))
+    assert util.perform_utility_function() is False
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

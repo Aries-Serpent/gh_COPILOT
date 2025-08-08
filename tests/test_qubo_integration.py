@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import logging
 
+<<<<<<< HEAD
 from scripts.automation.quantum_integration_orchestrator import integrate_qubo_problems
 
 
@@ -16,6 +17,9 @@ class DummyTqdm:
             self.updates += 1
             yield item
 
+=======
+from quantum_integration_orchestrator import integrate_qubo_problems
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 logging.getLogger().setLevel(logging.CRITICAL)
 
@@ -28,6 +32,7 @@ def test_integrate_qubo_problems():
     solution, energy = integrate_qubo_problems(qubos)
     assert solution == [1, 1]
     assert energy == -2.0
+<<<<<<< HEAD
 
 
 def test_progress_bar(monkeypatch):
@@ -46,3 +51,5 @@ def test_progress_bar(monkeypatch):
     monkeypatch.setattr("scripts.automation.quantum_integration_orchestrator.tqdm", dummy_tqdm)
     integrate_qubo_problems(qubos)
     assert bars and bars[0].updates == len(qubos)
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

@@ -8,7 +8,10 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Database-first architecture
 """
+<<<<<<< HEAD
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 import sys
 
 import sqlite3
@@ -18,11 +21,19 @@ from datetime import datetime
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
+<<<<<<< HEAD
     "start": "[START]",
     "success": "[SUCCESS]",
     "error": "[ERROR]",
     "database": "[DATABASE]",
     "info": "[INFO]",
+=======
+    'start': '[START]',
+    'success': '[SUCCESS]',
+    'error': '[ERROR]',
+    'database': '[DATABASE]',
+    'info': '[INFO]'
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 }
 
 
@@ -81,5 +92,9 @@ def main():
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
+=======
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     success = main()
     sys.exit(0 if success else 1)

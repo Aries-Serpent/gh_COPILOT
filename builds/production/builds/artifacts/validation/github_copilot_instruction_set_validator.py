@@ -10,7 +10,10 @@ Enterprise Standards Compliance:
 """
 
 import logging
+<<<<<<< HEAD
 import sys
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 from pathlib import Path
 from datetime import datetime
 
@@ -53,6 +56,7 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
+<<<<<<< HEAD
         """Validate presence of required Copilot instructions."""
         instructions = self.workspace_path / "copilot" / "copilot-instructions.md"
         if not instructions.exists():
@@ -73,6 +77,10 @@ class EnterpriseUtility:
         self.logger.info(
             f"{TEXT_INDICATORS['success']} Instruction set validated"
         )
+=======
+        """Perform the utility function"""
+        # Implementation placeholder
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
         return True
 
 

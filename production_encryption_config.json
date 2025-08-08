@@ -1,0 +1,24 @@
+{
+  "data_encryption": {
+    "at_rest": {
+      "algorithm": "AES-256",
+      "key_management": "enterprise_hsm",
+      "rotation_schedule": "quarterly"
+    },
+    "in_transit": {
+      "protocol": "TLS_1.3",
+      "certificate_validation": "strict",
+      "cipher_suites": "enterprise_approved"
+    },
+    "in_use": {
+      "memory_encryption": "enabled",
+      "process_isolation": "enforced",
+      "secure_enclaves": "utilized"
+    }
+  },
+  "key_management": {
+    "key_generation": "hardware_random",
+    "key_storage": "secure_vault",
+    "key_backup": "encrypted_offsite"
+  }
+}

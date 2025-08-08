@@ -8,7 +8,10 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
+<<<<<<< HEAD
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 import sys
 
 import logging
@@ -16,7 +19,16 @@ from pathlib import Path
 from datetime import datetime
 
 # Text-based indicators (NO Unicode emojis)
+<<<<<<< HEAD
 TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
+=======
+TEXT_INDICATORS = {
+    'start': '[START]',
+    'success': '[SUCCESS]',
+    'error': '[ERROR]',
+    'info': '[INFO]'
+}
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 class EnterpriseUtility:
@@ -37,7 +49,12 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
+<<<<<<< HEAD
                 self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+=======
+                self.logger.info(
+                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -48,6 +65,7 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
+<<<<<<< HEAD
         """Perform the utility function with basic file check"""
         try:
             required_path = self.workspace_path / "README.md"
@@ -61,6 +79,11 @@ class EnterpriseUtility:
         except Exception as exc:
             self.logger.error(f"{TEXT_INDICATORS['error']} Utility execution failed: {exc}")
             return False
+=======
+        """Perform the utility function"""
+        # Implementation placeholder
+        return True
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def main():
@@ -77,5 +100,9 @@ def main():
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
+=======
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     success = main()
     sys.exit(0 if success else 1)

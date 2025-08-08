@@ -11,9 +11,14 @@ Enterprise Standards Compliance:
 
 import sqlite3
 import logging
+<<<<<<< HEAD
 import sys
 from datetime import datetime
 from pathlib import Path
+=======
+from pathlib import Path
+from datetime import datetime
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -24,8 +29,11 @@ TEXT_INDICATORS = {
     'info': '[INFO]'
 }
 
+<<<<<<< HEAD
 RENDER_LOG_DIR = Path("artifacts/logs") / "template_rendering"
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 class EnterpriseDatabaseProcessor:
     """Enterprise database processing system"""
@@ -61,6 +69,7 @@ class EnterpriseDatabaseProcessor:
     def process_operations(self, cursor) -> bool:
         """Process database operations"""
         try:
+<<<<<<< HEAD
             cursor.execute(
                 "SELECT name FROM sqlite_master WHERE type='table' AND name='enterprise_documentation'"
             )
@@ -80,11 +89,15 @@ class EnterpriseDatabaseProcessor:
                 )
                 self.render_documentation(title, f"# {title}\nCount: {count}")
 
+=======
+            # Implementation for database operations
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
             return True
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Operation failed: {e}")
             return False
 
+<<<<<<< HEAD
     def render_documentation(self, title: str, content: str) -> None:
         """Render documentation in multiple formats and log."""
         RENDER_LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -94,6 +107,8 @@ class EnterpriseDatabaseProcessor:
                 fh.write(content)
         self.logger.info("%s Rendered %s", TEXT_INDICATORS['info'], title)
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 def main():
     """Main execution function"""

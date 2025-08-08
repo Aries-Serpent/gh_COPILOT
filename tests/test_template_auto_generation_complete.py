@@ -2,7 +2,12 @@
 import sqlite3
 from pathlib import Path
 
+<<<<<<< HEAD
 from scripts.automation.template_auto_generation_complete import TemplateSynthesisEngine
+=======
+from template_auto_generation_complete import TemplateSynthesisEngine
+import logging
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def create_dbs(tmp_path: Path):
@@ -18,8 +23,17 @@ def create_dbs(tmp_path: Path):
             [("print('x')",), ("print('y')",)],
         )
     with sqlite3.connect(completion) as conn:
+<<<<<<< HEAD
         conn.execute("CREATE TABLE templates (id INTEGER PRIMARY KEY, template_content TEXT)")
         conn.execute("INSERT INTO templates (template_content) VALUES ('def foo():\n    pass')")
+=======
+        conn.execute(
+            "CREATE TABLE templates (id INTEGER PRIMARY KEY, template_content TEXT)"
+        )
+        conn.execute(
+            "INSERT INTO templates (template_content) VALUES ('def foo():\n    pass')"
+        )
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     return analytics, completion
 
 
@@ -28,4 +42,7 @@ def test_synthesize_templates(tmp_path):
     engine = TemplateSynthesisEngine(analytics, completion)
     templates = engine.synthesize_templates()
     assert templates
+<<<<<<< HEAD
     assert templates == engine.generator.get_cluster_representatives()
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
