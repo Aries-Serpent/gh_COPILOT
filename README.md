@@ -100,8 +100,8 @@ Phase 5 scoring guidelines.
 ## 🏗️ CORE ARCHITECTURE
 
 ### **Enterprise Systems**
-- **Multiple SQLite Databases:** `databases/production.db`, `databases/analytics.db`, `databases/monitoring.db`
-- [ER Diagrams](docs/ER_DIAGRAMS.md) for key databases
+- **Multiple SQLite Databases:** `databases/production.db`, `databases/analytics.db`, `databases/monitoring.db`, `databases/codex_logs.db`
+  - [ER Diagrams](docs/ER_DIAGRAMS.md) for key databases
 - **Flask Enterprise Dashboard:** run `python web_gui_integration_system.py` to launch the metrics and compliance dashboard
 - **Template Intelligence Platform:** tracks generated scripts
 - **Enterprise HTML Templates:** reusable base layouts, components, mobile views, and email templates under `templates/`
@@ -208,6 +208,8 @@ python scripts/database/add_code_audit_log.py
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
 sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
+# Initialize codex log database
+python scripts/codex_log_db.py --init
 sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
