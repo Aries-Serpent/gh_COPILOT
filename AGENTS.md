@@ -24,7 +24,9 @@ Ensure the development environment is correctly configured **before** making any
 
   * **GH\_COPILOT\_WORKSPACE** – Absolute path to the repository’s root workspace. This should point to the project root (in the Codex container it defaults to `/app`, but set it explicitly). Many scripts use this to locate files and databases.
   * **GH\_COPILOT\_BACKUP\_ROOT** – Path to an **external** backup directory (must be outside the workspace). This enforces anti-recursion: backups **must not** be stored under the project root. If not set, the toolkit defaults to a temp directory (e.g. `/tmp/<user>/gh_COPILOT_Backups` on Linux). It’s recommended to set this to a dedicated folder.
+  * **SESSION_ID_SOURCE** – Optional override for the session identifier used by Codex logging. When unset, a UUID is generated.
   * **TEST_MODE** – Set to "1" in test environments to disable side effects (e.g., database writes) in scripts like `scripts/wlc_session_manager.py`.
+  * **ALLOW_AUTOLFS** – Set to "1" to enable automatic Git LFS tracking for binary or large files.
   * *Optional variables:* **WORKSPACE\_ROOT** (alias for `GH_COPILOT_WORKSPACE`), **FLASK\_SECRET\_KEY** (for the optional Flask web UI, default `'your_secret_key'` – replace in production), **FLASK\_RUN\_PORT** (Flask dev server port, default 5000), **CONFIG\_PATH** (path to a custom config file if not using the default `config/enterprise.json`), **WEB\_DASHBOARD\_ENABLED** (`"1"` or `"0"` to toggle logging of performance metrics with `[DASHBOARD]` tags). Configure these as needed if using those features.
 * After installing dependencies and setting variables, **run the test suite** (see [Testing and Validation](#testing-and-validation)) to verify the environment is correctly set up.
 * For procedures on restoring Git LFS-managed files, consult [docs/git_lfs_recovery.md](docs/git_lfs_recovery.md).
