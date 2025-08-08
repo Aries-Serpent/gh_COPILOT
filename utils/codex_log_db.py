@@ -5,6 +5,8 @@ from __future__ import annotations
 import sqlite3
 from contextlib import contextmanager
 from datetime import UTC, datetime
+import shutil
+import subprocess
 from pathlib import Path
 from typing import Iterator
 
@@ -123,6 +125,30 @@ def log_codex_end(session_id: str, summary: str) -> None:
         )
 
 
+def finalize_codex_log_db() -> Path:
+    """Copy the log database to ``codex_session_logs.db`` and stage for commit.
+
+    Returns the path to ``codex_log.db`` for convenience.
+    """
+    workspace = CrossPlatformPathManager.get_workspace_path()
+    src = workspace / CODEX_LOG_DB
+    dst = workspace / CODEX_SESSION_LOG_DB
+    if src.exists():
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dst)
+        subprocess.run(
+            [
+                "git",
+                "add",
+                str(src.relative_to(workspace)),
+                str(dst.relative_to(workspace)),
+            ],
+            cwd=workspace,
+            check=False,
+        )
+    return src
+
+
 def init_codex_log_db() -> None:
     """Alias for :func:`init_db` to initialize the Codex log database."""
     init_db()
@@ -146,4 +172,5 @@ __all__ = [
     "log_codex_end",
     "init_codex_log_db",
     "record_codex_action",
+    "finalize_codex_log_db",
 ]
