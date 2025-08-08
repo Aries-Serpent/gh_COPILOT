@@ -856,6 +856,12 @@ python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 # Features: Real-time metrics, database visualization, system monitoring
 ```
 
+### Staging Deployment
+```bash
+bash deploy/dashboard_deploy.sh staging
+```
+This script builds the dashboard, runs migrations, applies WebSocket settings, starts the service, and performs a smoke test.
+
 ### Enable Streaming
 
 Set the environment variable `LOG_WEBSOCKET_ENABLED=1` to allow real-time

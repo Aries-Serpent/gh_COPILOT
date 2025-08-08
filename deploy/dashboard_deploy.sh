@@ -1,53 +1,47 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Deployment script for the enterprise dashboard
+# Handles build, migration, service startup, and smoke testing.
+
 ENVIRONMENT=${1:-staging}
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="${SCRIPT_DIR%/deploy}"
-WEBSOCKET_ENV="${SCRIPT_DIR}/dashboard/websocket.env"
-source "${WEBSOCKET_ENV}"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SCRIPT_DIR="${ROOT_DIR}/deploy/dashboard"
 
-echo "=== Dashboard deployment (${ENVIRONMENT}) ==="
+# Load WebSocket configuration
+source "${SCRIPT_DIR}/websocket.env"
 
-echo "[1/4] Building dashboard image"
-if command -v docker >/dev/null 2>&1; then
-    docker compose -f "${SCRIPT_DIR}/dashboard.yaml" build
+echo "Deploying dashboard to ${ENVIRONMENT}"
+
+echo "Building dashboard module..."
+python -m compileall "${ROOT_DIR}/dashboard" >/dev/null
+
+echo "Applying database migrations..."
+sqlite3 "${ROOT_DIR}/databases/analytics.db" < "${ROOT_DIR}/migration_scripts/enterprise_auth_setup.sql"
+
+echo "Starting dashboard service on port ${WEBSOCKET_PORT}"
+FLASK_APP=dashboard.integrated_dashboard:create_app \
+    FLASK_ENV="${ENVIRONMENT}" \
+    flask run --port "${WEBSOCKET_PORT}" >/tmp/dashboard_server.log 2>&1 &
+SERVER_PID=$!
+# Allow server to start
+sleep 3
+
+echo "Running smoke test against http://localhost:${WEBSOCKET_PORT}/metrics"
+if curl -fsS "http://localhost:${WEBSOCKET_PORT}/metrics" >/tmp/dashboard_smoke.json; then
+    echo "Smoke test passed"
+    RESULT=0
 else
-    echo "docker not found, skipping build"
+    echo "Smoke test failed"
+    RESULT=1
 fi
 
-echo "[2/4] Running database migrations"
-python - <<'PY'
-print("Simulating database migration step")
-PY
+kill ${SERVER_PID} 2>/dev/null || true
+wait ${SERVER_PID} 2>/dev/null || true
 
-echo "[3/4] Starting dashboard service"
-if command -v docker >/dev/null 2>&1; then
-    docker compose -f "${SCRIPT_DIR}/dashboard.yaml" up -d
-else
-    if python -m flask --version >/dev/null 2>&1; then
-        FLASK_RUN_PORT=8080 python -m flask --app dashboard.enterprise_dashboard run >/tmp/dashboard.log 2>&1 &
-        DASHBOARD_PID=$!
-        sleep 1
-    else
-        echo "Flask not available; skipping service start"
-    fi
+# Cleanup temporary artifacts when running in staging
+if [[ "${ENVIRONMENT}" == "staging" ]]; then
+    rm -f "${ROOT_DIR}/databases/analytics.db"
 fi
 
-echo "[4/4] Running smoke tests for ${ENVIRONMENT}"
-if curl -fsS "http://localhost:8080/health" >/dev/null 2>&1; then
-    echo "HTTP health check passed"
-else
-    echo "HTTP health check failed"
-fi
-if timeout 5 bash -c "</dev/tcp/localhost/${WEBSOCKET_PORT}" >/dev/null 2>&1; then
-    echo "WebSocket port ${WEBSOCKET_PORT} reachable"
-else
-    echo "WebSocket port ${WEBSOCKET_PORT} unreachable"
-fi
-
-if [[ -n "${DASHBOARD_PID:-}" ]]; then
-    kill "${DASHBOARD_PID}" >/dev/null 2>&1 || true
-fi
-
-echo "Deployment to ${ENVIRONMENT} completed"
+exit ${RESULT}
