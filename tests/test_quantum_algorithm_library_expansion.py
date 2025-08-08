@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+<<<<<<< HEAD
 import pytest
 import quantum_algorithm_library_expansion as qalexp
 from quantum_algorithm_library_expansion import (
@@ -16,11 +17,16 @@ from quantum_algorithm_library_expansion import (
     quantum_pattern_match_stub,
     QISKIT_AVAILABLE,
 )
+=======
+from quantum_algorithm_library_expansion import EnterpriseUtility
+import logging
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def test_perform_utility_function_runs():
     util = EnterpriseUtility()
     assert util.perform_utility_function() is True
+<<<<<<< HEAD
 
 
 def test_demo_grover_search_returns_int():
@@ -115,3 +121,5 @@ def test_quantum_text_score_backend(monkeypatch):
 def test_quantum_pattern_match_stub():
     assert quantum_pattern_match_stub([1, 2], [0, 1, 2, 3]) is True
     assert quantum_pattern_match_stub([2, 1], [0, 1, 2, 3]) is False
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

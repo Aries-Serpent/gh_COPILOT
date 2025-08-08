@@ -1,9 +1,12 @@
 # QUANTUM ALGORITHMS SPECIFICATION
 ## Technical Implementation Details
 
+<<<<<<< HEAD
 > **Note**
 > All quantum algorithms run in simulation mode only. Installing `qiskit-ibm-provider` or configuring an IBM Quantum token has no effect because hardware execution is not supported.
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ### Algorithm Architecture
 
 #### 1. Quantum Annealing Optimization

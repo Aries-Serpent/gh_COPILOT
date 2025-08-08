@@ -1,0 +1,21 @@
+
+---
+title: "Finalize compliance metrics and close implementation gaps for gh_COPILOT"
+repository: "Aries-Serpent/gh_COPILOT"
+template: "task"
+assignees: ["marc-j"]
+labels:
+  - "documentation"
+  - "enhancement"
+  - "compliance"
+  - "priority-high"
+type: "project"
+projects: ["Enterprise Compliance"]
+milestone: "Phase 5/6 completion"
+tag: "whitepaper-action-plan"
+description: |
+  # [Issue]: Enterprise compliance metrics integration & gaps closure (Phase 5/6)
+  > Generated: 2025-08-08 | Author: System
+
+  ## Objective
+  Implement the composite compliance scoring system and close key implementation gaps (monitoring, session wrap-up validation, placeholder audit integration, failing tests, lint & type issues) to reach production-ready status for gh_COPILOT.

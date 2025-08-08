@@ -7,8 +7,13 @@
 
 ### Environment Migration
 **Supported Environments**:
+<<<<<<< HEAD
 - **Development**: `$GH_COPILOT_WORKSPACE`
 - **Staging**: `$GH_COPILOT_WORKSPACE`
+=======
+- **Development**: `e:/gh_COPILOT`
+- **Staging**: `e:/gh_COPILOT`
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 - **Production**: `e:/_copilot_production`
 
 **Migration Paths**:
@@ -34,8 +39,13 @@
 ```bash
 # Run migration assessment
 python migration_scripts/assess_migration.py \
+<<<<<<< HEAD
   --source $GH_COPILOT_WORKSPACE \
   --target $GH_COPILOT_WORKSPACE
+=======
+  --source e:/gh_COPILOT \
+  --target e:/gh_COPILOT
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ```
 
 ### Compatibility Check
@@ -85,8 +95,13 @@ def check_migration_compatibility(source_env, target_env):
 #### Step 1: Environment Preparation
 ```bash
 # Create staging environment
+<<<<<<< HEAD
 mkdir -p $GH_COPILOT_WORKSPACE
 cd $GH_COPILOT_WORKSPACE
+=======
+mkdir -p e:/gh_COPILOT
+cd e:/gh_COPILOT
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 # Setup Python environment
 python -m venv .venv
@@ -100,16 +115,25 @@ pip install -r ../requirements.txt  # install only if migrating the dashboard
 #### Step 2: Database Migration
 ```bash
 # Copy production database
+<<<<<<< HEAD
 cp $GH_COPILOT_WORKSPACE/production.db $GH_COPILOT_WORKSPACE/
 
 # Verify database integrity
 python migration_scripts/verify_database.py \
   --database $GH_COPILOT_WORKSPACE/production.db
+=======
+cp e:/gh_COPILOT/production.db e:/gh_COPILOT/
+
+# Verify database integrity
+python migration_scripts/verify_database.py \
+  --database e:/gh_COPILOT/production.db
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ```
 
 #### Step 3: Application Migration
 ```bash
 # Copy web GUI components
+<<<<<<< HEAD
 cp -r $GH_COPILOT_WORKSPACE/web_gui/scripts $GH_COPILOT_WORKSPACE/
 cp -r $GH_COPILOT_WORKSPACE/templates $GH_COPILOT_WORKSPACE/
 cp -r $GH_COPILOT_WORKSPACE/web_gui_documentation $GH_COPILOT_WORKSPACE/
@@ -117,12 +141,25 @@ cp -r $GH_COPILOT_WORKSPACE/web_gui_documentation $GH_COPILOT_WORKSPACE/
 # Update configuration paths
 python migration_scripts/update_config_paths.py \
   --target $GH_COPILOT_WORKSPACE
+=======
+cp -r e:/gh_COPILOT/web_gui/scripts e:/gh_COPILOT/
+cp -r e:/gh_COPILOT/templates e:/gh_COPILOT/
+cp -r e:/gh_COPILOT/web_gui_documentation e:/gh_COPILOT/
+
+# Update configuration paths
+python migration_scripts/update_config_paths.py \
+  --target e:/gh_COPILOT
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ```
 
 #### Step 4: Validation
 ```bash
 # Start staging application
+<<<<<<< HEAD
 cd $(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd())))/web_gui/scripts/flask_apps
+=======
+cd e:/gh_COPILOT/web_gui/scripts/flask_apps
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 python enterprise_dashboard.py &
 
 # Run validation tests
@@ -147,7 +184,11 @@ python backup_scripts/full_backup.py \
 ```bash
 # Deploy validated staging to production
 python migration_scripts/deploy_to_production.py \
+<<<<<<< HEAD
   --source $(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))) \
+=======
+  --source e:/gh_COPILOT \
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
   --target e:/_copilot_production \
   --validate
 ```

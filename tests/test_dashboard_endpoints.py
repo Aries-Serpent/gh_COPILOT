@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+<<<<<<< HEAD
 import sys
 import types
 import pytest
@@ -28,6 +29,10 @@ cmu.validate_no_recursive_folders = _stub_no_recursive_folders
 cmu.validate_environment_root = _stub_no_environment_root
 import web_gui.scripts.flask_apps.enterprise_dashboard as ed
 from web_gui.scripts.flask_apps.enterprise_dashboard import app
+=======
+from web_gui.scripts.flask_apps.enterprise_dashboard import app
+import logging
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 @pytest.fixture(autouse=True)
@@ -41,15 +46,22 @@ def _stub_fetch_metrics(monkeypatch):
 
 def test_index_endpoint():
     client = app.test_client()
+<<<<<<< HEAD
     resp = client.get("/")
     assert resp.status_code == 200
     data = resp.data.decode()
     assert "<h1>Compliance Dashboard</h1>" in data
     assert "metrics_stream" in data
+=======
+    resp = client.get('/')
+    assert resp.status_code == 200
+    assert b'Enterprise Dashboard' in resp.data
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def test_metrics_endpoint():
     client = app.test_client()
+<<<<<<< HEAD
     resp = client.get("/metrics")
     assert resp.status_code == 200
     data = resp.get_json()
@@ -146,3 +158,9 @@ def test_correction_history_endpoint():
     resp = client.get("/correction_history")
     assert resp.status_code == 200
     assert isinstance(resp.get_json(), list)
+=======
+    resp = client.get('/metrics')
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert isinstance(data, list)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

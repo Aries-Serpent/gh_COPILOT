@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
+<<<<<<< HEAD
 
 from copilot.common.workspace_utils import _within_workspace, get_workspace_path
+=======
+from copilot.common.workspace_utils import (_within_workspace,
+import logging
+                                            get_workspace_path)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def test_env_var_used(tmp_path, monkeypatch):

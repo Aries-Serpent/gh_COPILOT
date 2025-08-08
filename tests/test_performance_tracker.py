@@ -2,7 +2,13 @@
 import sqlite3
 from pathlib import Path
 
+<<<<<<< HEAD
 from monitoring.performance_tracker import benchmark_queries, ensure_table, record_error, track_query_time
+=======
+from monitoring.performance_tracker import (benchmark_queries, ensure_table,
+import logging
+                                            record_error, track_query_time)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def _prepare_db(tmp_path: Path) -> Path:
@@ -17,7 +23,10 @@ def test_track_query_time_records_and_computes(tmp_path, monkeypatch):
     metrics = track_query_time("q1", 40.0, db_path=db)
     assert metrics["avg_response_time_ms"] == 40.0
     assert metrics["error_rate"] == 0.0
+<<<<<<< HEAD
     assert not metrics["response_time_alert"]
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def test_record_error_updates_error_rate(tmp_path, monkeypatch):
@@ -33,4 +42,7 @@ def test_benchmark_queries(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     metrics = benchmark_queries(["SELECT COUNT(*) FROM query_performance"], db_path=db)
     assert metrics["within_time_target"]
+<<<<<<< HEAD
     assert not metrics["error_rate_alert"]
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

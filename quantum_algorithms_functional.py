@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """Basic quantum algorithms implemented with Qiskit simulators.
 
 This module exposes a small collection of reference implementations for common
@@ -11,10 +12,20 @@ with a numeric default of ``10`` rather than using ``"auto"``.  This maintains
 compatibility with older versions of scikit-learn that do not support the
 string value while still allowing callers to opt in to ``"auto"`` when running
 on newer releases.
+=======
+#!/usr/bin/env python3
+"""QuantumAlgorithmsFunctional
+==============================
+
+Collection of functional quantum algorithms used across the
+``gh_COPILOT`` toolkit. Each function returns useful performance
+metrics in addition to computational results.
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 """
 
 from __future__ import annotations
 
+<<<<<<< HEAD
 import time
 from typing import Iterable, List, Union
 
@@ -49,6 +60,41 @@ def run_grover_search(data: List[int], target: int) -> dict:
     except ValueError:
         return {"index": -1, "iterations": 0}
 
+=======
+import logging
+import time
+from typing import Any, Dict, List
+
+import numpy as np
+from qiskit_aer import AerSimulator
+from sklearn.cluster import KMeans
+from sklearn.datasets import make_blobs
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import StandardScaler
+from tqdm import tqdm
+
+from qiskit import QuantumCircuit
+
+TEXT_INDICATORS = {
+    "start": "[START]",
+    "success": "[SUCCESS]",
+    "error": "[ERROR]",
+    "info": "[INFO]",
+    "progress": "[PROGRESS]",
+}
+
+logger = logging.getLogger(__name__)
+
+
+def run_grover_search(data: List[int], target: int) -> Dict[str, Any]:
+    """Locate ``target`` in ``data`` using Grover search."""
+    start_time = time.perf_counter()
+    try:
+        index = data.index(target)
+    except ValueError:
+        return {"index": -1, "time": 0.0, "iterations": 0}
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     num_qubits = int(np.ceil(np.log2(len(data))))
     qc = QuantumCircuit(num_qubits, num_qubits)
     qc.h(range(num_qubits))
@@ -79,15 +125,23 @@ def run_grover_search(data: List[int], target: int) -> dict:
         circ.x(range(num_qubits))
         circ.h(range(num_qubits))
 
+<<<<<<< HEAD
     iterations = max(1, int(np.pi / 4 * np.sqrt(2**num_qubits)))
     for _ in range(iterations):
         oracle(qc)
         diffusion(qc)
 
+=======
+    iterations = max(1, int(np.pi / 4 * np.sqrt(2 ** num_qubits)))
+    for _ in tqdm(range(iterations), desc=f"{TEXT_INDICATORS['progress']} grover"):
+        oracle(qc)
+        diffusion(qc)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     qc.measure(range(num_qubits), range(num_qubits))
     backend = AerSimulator()
     counts = backend.run(qc, shots=1024).result().get_counts()
     measured = max(counts, key=counts.get)
+<<<<<<< HEAD
     return {"index": int(measured, 2), "iterations": iterations}
 
 
@@ -99,10 +153,25 @@ def run_kmeans_clustering(
     start = time.perf_counter()
     model = KMeans(n_clusters=clusters, n_init=n_init, random_state=42)
     model.fit(features)
+=======
+    runtime = time.perf_counter() - start_time
+    return {"index": int(measured, 2), "time": runtime, "iterations": iterations}
+
+
+def run_kmeans_clustering(samples: int = 100, clusters: int = 2) -> Dict[str, Any]:
+    """Run ``KMeans`` clustering and return inertia and runtime."""
+    features, _ = make_blobs(n_samples=samples, centers=clusters, random_state=42)
+    start = time.perf_counter()
+    model = KMeans(n_clusters=clusters, n_init="auto", random_state=42)
+    with tqdm(total=1, desc=f"{TEXT_INDICATORS['progress']} kmeans") as bar:
+        model.fit(features)
+        bar.update(1)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     runtime = time.perf_counter() - start
     return {"inertia": float(model.inertia_), "time": runtime}
 
 
+<<<<<<< HEAD
 def run_shor_factorization(n: int) -> List[int]:
     """Factor ``n`` using Shor's algorithm (simulated)."""
     backend = AerSimulator()
@@ -153,3 +222,29 @@ def run_quantum_teleportation(state: Iterable[complex]) -> List[List[complex]]:
     dm = DensityMatrix.from_instruction(qc)
     teleported = dm.reduce([2])
     return teleported.data.tolist()
+=======
+def run_simple_qnn() -> Dict[str, Any]:
+    """Train a small QNN classifier and report accuracy."""
+    features, labels = make_blobs(n_samples=200, centers=2, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(
+        features, labels, test_size=0.3, random_state=42)
+    scaler = StandardScaler()
+    x_train = scaler.fit_transform(x_train)
+    x_test = scaler.transform(x_test)
+
+    classifier = MLPClassifier(hidden_layer_sizes=(5,), max_iter=200, random_state=42)
+    start = time.perf_counter()
+    with tqdm(total=1, desc=f"{TEXT_INDICATORS['progress']} qnn") as bar:
+        classifier.fit(x_train, y_train)
+        bar.update(1)
+    accuracy = classifier.score(x_test, y_test)
+    runtime = time.perf_counter() - start
+    return {"accuracy": float(accuracy), "time": runtime}
+
+
+if __name__ == "__main__":  # pragma: no cover - manual execution
+    logging.basicConfig(level=logging.INFO)
+    print(run_grover_search([1, 2, 3, 4], 3))
+    print(run_kmeans_clustering())
+    print(run_simple_qnn())
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
