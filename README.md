@@ -381,6 +381,12 @@ python scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py --SessionStart -AutoFi
 python scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py --SessionEnd
 ```
 
+Each session writes start/end markers and actions to `databases/codex_log.db`,
+a Git LFS-tracked SQLite database. Configure `GH_COPILOT_WORKSPACE` and
+`GH_COPILOT_BACKUP_ROOT` before running the CLI so logs resolve and backups
+persist outside the repository. See [docs/codex_logging.md](docs/codex_logging.md)
+for schema details and commit guidance.
+
 ### Unified Deployment Orchestrator CLI
 Manage orchestration tasks with start/stop controls:
 
