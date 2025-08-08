@@ -332,6 +332,14 @@ lines intelligently, preserving ANSI color codes and JSON boundaries.
 some_command | python tools/output_chunker.py
 ```
 
+For pattern-aware splitting, `tools/output_pattern_chunker.py` provides
+customizable boundary detection while maintaining ANSI sequences. To wrap
+commands and automatically record session metadata, use
+`.github/scripts/session_wrapper.sh`, which employs
+`tools/shell_buffer_manager.sh` to enforce hard cutoffs and redirect
+overflow to temporary logs. See `docs/SESSION_WRAPPER_USAGE.md` for
+examples.
+
 
 
 ### **Basic Usage**
