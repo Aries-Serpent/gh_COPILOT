@@ -100,6 +100,52 @@ def apply_lessons(logger, lessons: List[Dict[str, str]]) -> None:
         logger.info("[INFO] Lesson applied: %s | tags=%s", lesson["description"], lesson["tags"])
 
 
+def extract_lessons_from_codex_logs(db_path: Path) -> List[Dict[str, str]]:
+    """Derive lessons from Codex log summaries.
+
+    Parameters
+    ----------
+    db_path:
+        Path to the Codex log SQLite database containing the ``codex_log``
+        table.
+
+    Returns
+    -------
+    list of dict
+        Lessons in the format expected by :func:`store_lesson` with fields
+        ``description``, ``source``, ``timestamp``, ``validation_status`` and
+        ``tags``.
+    """
+
+    lessons: List[Dict[str, str]] = []
+    if not db_path.exists():
+        return lessons
+    try:
+        with sqlite3.connect(db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+            cur.execute(
+                """
+                SELECT summary, ts
+                FROM codex_log
+                WHERE summary IS NOT NULL AND TRIM(summary) != ''
+                """
+            )
+            for row in cur.fetchall():
+                lessons.append(
+                    {
+                        "description": row["summary"],
+                        "source": "codex_log",
+                        "timestamp": row["ts"],
+                        "validation_status": "pending",
+                        "tags": "codex",
+                    }
+                )
+    except sqlite3.Error as exc:  # pragma: no cover - log unexpected DB errors
+        _log_event({"error": str(exc)}, table="lessons_learned_errors", db_path=db_path)
+    return lessons
+
+
 def store_lesson(
     description: str,
     source: str,

@@ -21,7 +21,8 @@ def ensure_codex_log_tracked() -> None:
         text=True,
         check=False,
     )
-    if "codex_log.db" not in result.stdout:
+    tracked = any(line.rstrip().endswith(" codex_log.db") for line in result.stdout.splitlines())
+    if result.returncode != 0 or not tracked:
         msg = "codex_log.db must be managed by Git LFS"
         raise RuntimeError(msg)
 
