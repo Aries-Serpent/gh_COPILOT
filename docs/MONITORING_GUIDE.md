@@ -7,7 +7,8 @@ This guide describes the anomaly detection pipeline provided by
 
 1. Ensure the project virtual environment is active and run `setup.sh`.
 2. Metrics are gathered via `collect_metrics` and stored in
-   `databases/analytics.db`.
+   `databases/analytics.db`. Set `LOG_WEBSOCKET_ENABLED=1` to stream updates to
+   the dashboard in real time.
 3. The `anomaly_detection_loop` periodically gathers metrics, evaluates them
    with an `IsolationForest` model, and triggers `auto_heal_session` when
    anomalies are detected.
