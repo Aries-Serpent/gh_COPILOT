@@ -16,7 +16,9 @@ def _make_manager(tmp_path: Path) -> SessionManager:
     (log_dir / "app.log").write_text("ok")
     temp_dir = tmp_path / "tmp"
     temp_dir.mkdir()
-    return SessionManager(log_dir, temp_dir)
+    session_dir = tmp_path / "sessions"
+    session_dir.mkdir()
+    return SessionManager(log_dir, temp_dir, session_dir)
 
 
 def test_shutdown_fails_with_open_connections(tmp_path: Path) -> None:
@@ -25,6 +27,18 @@ def test_shutdown_fails_with_open_connections(tmp_path: Path) -> None:
     mgr.register_connection(conn)
     with pytest.raises(RuntimeError):
         mgr.shutdown()
+    conn.close()
+
+
+def test_shutdown_fails_with_uncommitted_transactions(tmp_path: Path) -> None:
+    mgr = _make_manager(tmp_path)
+    conn = sqlite3.connect(":memory:")
+    conn.execute("CREATE TABLE t (x int)")
+    conn.execute("INSERT INTO t VALUES (1)")
+    mgr.register_connection(conn)
+    with pytest.raises(RuntimeError):
+        mgr.shutdown()
+    conn.rollback()
     conn.close()
 
 
@@ -44,8 +58,15 @@ def test_shutdown_fails_with_empty_logs(tmp_path: Path) -> None:
         mgr.shutdown()
 
 
+def test_shutdown_fails_with_orphaned_sessions(tmp_path: Path) -> None:
+    mgr = _make_manager(tmp_path)
+    session_file = mgr.session_dir / "session-abc.json"
+    session_file.write_text("{}")
+    with pytest.raises(RuntimeError):
+        mgr.shutdown()
+
+
 def test_shutdown_passes_when_clean(tmp_path: Path) -> None:
     mgr = _make_manager(tmp_path)
     # No exception means success
     mgr.shutdown()
-
