@@ -23,3 +23,9 @@ def test_rate_limit(monkeypatch, manager):
         manager.start_session("secret")
     with pytest.raises(ValueError):
         manager.start_session("secret")
+
+
+def test_refresh_invalid_session(monkeypatch, manager):
+    monkeypatch.setenv("DASHBOARD_AUTH_TOKEN", "secret")
+    with pytest.raises(ValueError):
+        manager.refresh_session("secret", "does-not-exist")
