@@ -334,10 +334,14 @@ def package_session(
 
     codex_log = repo_root / "databases" / "codex_log.db"
     if codex_log.exists():
+        target_dir = tmp_dir / "databases"
         try:
-            shutil.copy2(codex_log, tmp_dir / "codex_log.db")
+            target_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(codex_log, target_dir / "codex_log.db")
         except OSError as exc:  # pragma: no cover - log only
-            logger.error("Failed to copy %s into %s: %s", codex_log, tmp_dir, exc)
+            logger.error(
+                "Failed to copy %s into %s: %s", codex_log, target_dir, exc
+            )
 
     changed_files = detect_tmp_changes(tmp_dir, repo_root)
     if not changed_files:
