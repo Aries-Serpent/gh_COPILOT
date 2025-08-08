@@ -45,6 +45,11 @@ from unified_session_management_system import ensure_no_zero_byte_files
 from utils.logging_utils import ANALYTICS_DB
 from utils.codex_log_db import log_codex_action
 
+
+def log_action(session_id: str, action: str, statement: str) -> None:
+    """Log a codex action with a UTC timestamp."""
+    log_codex_action(session_id, action, statement, datetime.now(UTC).isoformat())
+
 try:
     from scripts.orchestrators.unified_wrapup_orchestrator import (
         UnifiedWrapUpOrchestrator,
@@ -228,7 +233,7 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         entry_id, session_id = start_session_entry(conn)
         if entry_id is None:
             raise RuntimeError("Failed to create session entry in the database.")
-        log_codex_action(session_id, "session_start", "WLC session starting")
+        log_action(session_id, "session_start", "WLC session starting")
         compliance_score = 1.0
         try:
             with ensure_no_zero_byte_files(
@@ -236,7 +241,7 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
             ):
                 for i in tqdm(range(steps), desc="WLC Session", unit="step"):
                     logging.info("Step %d/%d completed", i + 1, steps)
-                    log_codex_action(
+                    log_action(
                         session_id,
                         "step_complete",
                         f"Step {i + 1}/{steps} completed",
@@ -249,17 +254,17 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
                 orchestrator = UnifiedWrapUpOrchestrator(
                     workspace_path=str(CrossPlatformPathManager.get_workspace_path())
                 )
-                log_codex_action(session_id, "orchestrator_start", "Executing orchestrator")
+                log_action(session_id, "orchestrator_start", "Executing orchestrator")
                 result = orchestrator.execute_unified_wrapup()
                 compliance_score = result.compliance_score / 100.0
-                log_codex_action(
+                log_action(
                     session_id,
                     "orchestrator_complete",
                     f"Orchestrator finished with score {compliance_score:.2f}",
                 )
         except Exception as exc:  # noqa: BLE001
             logging.exception("WLC session failed")
-            log_codex_action(session_id, "session_failure", str(exc))
+            log_action(session_id, "session_failure", str(exc))
             zero_count = _zero_byte_count(session_id)
             finalize_session_entry(
                 conn, entry_id, 0.0, zero_byte_files=zero_count, error=str(exc)
@@ -270,7 +275,7 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         finalize_session_entry(
             conn, entry_id, compliance_score, zero_byte_files=zero_count
         )
-        log_codex_action(
+        log_action(
             session_id,
             "session_end",
             f"Session completed with score {compliance_score:.2f}",
@@ -293,9 +298,9 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
             orchestrator = orchestrator_cls(
                 workspace_path=str(CrossPlatformPathManager.get_workspace_path())
             )
-            log_codex_action(session_id, "post_session_orchestrator_start", "Running orchestrator post session")
+            log_action(session_id, "post_session_orchestrator_start", "Running orchestrator post session")
             orchestrator.execute_unified_wrapup()
-            log_codex_action(session_id, "post_session_orchestrator_complete", "Post session orchestrator finished")
+            log_action(session_id, "post_session_orchestrator_complete", "Post session orchestrator finished")
 
         validator = SecondaryCopilotValidator()
         validator.validate_corrections([__file__])
@@ -304,9 +309,9 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         orchestrator = UnifiedWrapUpOrchestrator(
             workspace_path=str(CrossPlatformPathManager.get_workspace_path())
         )
-        log_codex_action(session_id, "env_orchestrator_start", "Running orchestrator via env flag")
+        log_action(session_id, "env_orchestrator_start", "Running orchestrator via env flag")
         orchestrator.execute_unified_wrapup()
-        log_codex_action(session_id, "env_orchestrator_complete", "Env orchestrator finished")
+        log_action(session_id, "env_orchestrator_complete", "Env orchestrator finished")
 
     logging.info("WLC session completed")
 
