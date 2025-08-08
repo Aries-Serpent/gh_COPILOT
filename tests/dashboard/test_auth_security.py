@@ -14,11 +14,15 @@ def manager() -> auth.SessionManager:
 
 def test_bruteforce_protection(monkeypatch, manager) -> None:
     monkeypatch.setenv("DASHBOARD_AUTH_TOKEN", "secret")
-    for _ in range(2):
+    for _ in range(manager.max_attempts):
         with pytest.raises(ValueError):
             manager.start_session("bad")
     with pytest.raises(ValueError):
-        manager.start_session("bad")
+        manager.start_session("secret")
+    now = auth.time.time()
+    monkeypatch.setattr(auth.time, "time", lambda: now + 61)
+    session = manager.start_session("secret")
+    assert manager.validate("secret", session)
 
 
 def test_csrf_and_auth(monkeypatch, manager, tmp_path) -> None:
