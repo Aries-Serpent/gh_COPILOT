@@ -3,6 +3,6 @@
 | Tool    | Errors | Warnings |
 |---------|-------:|---------:|
 | ruff    | 0      | 0        |
-| pyright | N/A    | N/A      |
+| pyright | 0      | 0        |
 
-Generated on 2025-08-08T06:46:15Z.
+Generated on 2025-08-08T07:06:41Z.
