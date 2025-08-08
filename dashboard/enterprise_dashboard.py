@@ -13,10 +13,12 @@ from .integrated_dashboard import (
     _load_metrics,
     get_rollback_logs,
     _load_sync_events,
+    METRICS_FILE as _METRICS_FILE,
 )
 from unified_monitoring_optimization_system import get_anomaly_summary
 
 ANALYTICS_DB = Path("databases/analytics.db")
+METRICS_FILE = _METRICS_FILE
 
 
 def anomaly_metrics(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:

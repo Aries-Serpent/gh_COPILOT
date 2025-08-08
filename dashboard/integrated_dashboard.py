@@ -148,6 +148,23 @@ def _load_metrics() -> dict[str, Any]:
     return metrics
 
 
+def _load_placeholder_history(limit: int = 30) -> list[dict[str, Any]]:
+    """Return daily counts of placeholders from placeholder_audit."""
+    rows: list[dict[str, Any]] = []
+    if not ANALYTICS_DB.exists():
+        return rows
+    try:
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            cur = conn.execute(
+                "SELECT DATE(timestamp) as day, COUNT(*) FROM placeholder_audit GROUP BY day ORDER BY day DESC LIMIT ?",
+                (limit,),
+            )
+            rows = [{"date": r[0], "count": r[1]} for r in cur.fetchall()][::-1]
+    except sqlite3.Error:
+        pass
+    return rows
+
+
 def get_rollback_logs(limit: int = 10) -> list[dict[str, Any]]:
     """Return recent rollback log entries."""
     records: list[dict[str, Any]] = []
@@ -214,7 +231,12 @@ def index() -> str:
 
 @_dashboard.get("/metrics")
 def metrics() -> Any:
-    return jsonify(_load_metrics())
+    return jsonify(
+        {
+            "metrics": _load_metrics(),
+            "placeholder_history": _load_placeholder_history(),
+        }
+    )
 
 
 @_dashboard.get("/metrics_stream")
@@ -224,7 +246,9 @@ def metrics_stream() -> Response:
 
     def generate() -> Any:
         while True:
-            payload = json.dumps(_load_metrics())
+            metrics = _load_metrics()
+            metrics["placeholder_history"] = _load_placeholder_history()
+            payload = json.dumps(metrics)
             yield f"data: {payload}\n\n"
             if once:
                 break
