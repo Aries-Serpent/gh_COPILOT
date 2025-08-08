@@ -26,3 +26,17 @@ following events:
 These logs help maintain compliance records for all backup and restore
 operations.
 
+## Usage Example
+
+```python
+from unified_disaster_recovery_system import UnifiedDisasterRecoverySystem
+
+system = UnifiedDisasterRecoverySystem()
+backup_file = system.schedule_backups()
+system.restore_backup(backup_file)
+```
+
+The `UnifiedDisasterRecoverySystem` enforces external backup roots and records
+each operation through the compliance logger, ensuring recoveries are both
+auditable and repeatable.
+

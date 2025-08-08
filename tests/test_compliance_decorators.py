@@ -5,6 +5,7 @@ import pytest
 from enterprise_modules.compliance import ComplianceError
 from enterprise_modules.file_utils import write_file_safely
 from utils.logging_utils import log_session_event
+from utils.codex_logging import log_codex_action
 
 
 def test_write_file_safely_forbidden(monkeypatch, tmp_path):
@@ -35,6 +36,21 @@ def test_log_session_event_forbidden(monkeypatch, tmp_path):
 
     with pytest.raises(ComplianceError):
         log_session_event("s", "e", db_path=db_file)
+
+
+def test_log_codex_action_forbidden(monkeypatch, tmp_path):
+    """log_codex_action raises when validation fails."""
+
+    monkeypatch.setattr(
+        "utils.codex_logging.validate_enterprise_operation",
+        lambda *a, **k: False,
+    )
+
+    db_file = tmp_path / "db.sqlite"
+    db_file.touch()
+
+    with pytest.raises(ComplianceError):
+        log_codex_action("s", "a", "stmt", db_path=db_file)
 
 
 

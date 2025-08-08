@@ -6,16 +6,23 @@ from contextlib import contextmanager
 from hashlib import sha256
 from pathlib import Path
 from typing import Callable
+from functools import wraps
 import logging
 import sqlite3
-from datetime import datetime
+from datetime import UTC, datetime
 
 from utils.validation_utils import detect_zero_byte_files
 from scripts.session.anti_recursion_enforcer import anti_recursion_guard
 from enterprise_modules.compliance import validate_environment, ComplianceError
 from utils.logging_utils import ANALYTICS_DB
+from utils.codex_log_db import record_codex_action
 
 logger = logging.getLogger(__name__)
+
+
+def log_action(session_id: str, action: str, statement: str) -> None:
+    """Log a codex action with a UTC timestamp."""
+    record_codex_action(session_id, action, statement, datetime.now(UTC).isoformat())
 
 __all__ = [
     "ensure_no_zero_byte_files",
@@ -49,19 +56,25 @@ def _record_zero_byte_findings(paths: list[Path], phase: str, session_id: str) -
 def ensure_no_zero_byte_files(root: str | Path, session_id: str) -> None:
     """Verify the workspace is free of zero-byte files before and after the block."""
     root_path = Path(root)
+    record_codex_action(session_id, "zero_byte_scan_start", str(root_path))
     before = detect_zero_byte_files(root_path)
     _record_zero_byte_findings(before, "before", session_id)
+    record_codex_action(session_id, "zero_byte_scan_before", str(len(before)))
     if before:
+        record_codex_action(session_id, "zero_byte_found_before", str(before))
         for path in before:
             path.unlink(missing_ok=True)
         raise RuntimeError(f"Zero-byte files detected: {before}")
     yield
     after = detect_zero_byte_files(root_path)
     _record_zero_byte_findings(after, "after", session_id)
+    record_codex_action(session_id, "zero_byte_scan_after", str(len(after)))
     if after:
+        record_codex_action(session_id, "zero_byte_found_after", str(after))
         for path in after:
             path.unlink(missing_ok=True)
         raise RuntimeError(f"Zero-byte files detected: {after}")
+    record_codex_action(session_id, "zero_byte_scan_complete", str(root_path))
 
 
 def prevent_recursion(func: Callable) -> Callable:
@@ -73,7 +86,18 @@ def prevent_recursion(func: Callable) -> Callable:
     directly.
     """
 
-    return anti_recursion_guard(func)
+    guarded = anti_recursion_guard(func)
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        session_id = kwargs.get("session_id", "unknown")
+        try:
+            return guarded(*args, **kwargs)
+        except RuntimeError as exc:
+            record_codex_action(session_id, "anti_recursion_triggered", str(exc))
+            raise
+
+    return wrapper
 
 
 @prevent_recursion
@@ -149,16 +173,28 @@ def main() -> int:
 
     system = UnifiedSessionManagementSystem()
     logger.info("Lifecycle start")
+    log_action(system.session_id, "session_start", "Unified session lifecycle start")
     success = False
     with ensure_no_zero_byte_files(system.workspace_root, system.session_id):
+        log_action(system.session_id, "start_session_begin", "Starting session")
         success = system.start_session()
+        log_action(system.session_id, "start_session_complete", "Session started")
+        log_action(system.session_id, "end_session_begin", "Ending session")
         system.end_session()
-        finalize_session(
+        log_action(system.session_id, "end_session_complete", "Session ended")
+        log_action(system.session_id, "finalize_session_begin", "Finalizing session logs")
+        hash_value = finalize_session(
             Path(system.workspace_root) / "logs",
             system.workspace_root,
             system.session_id,
         )
+        log_action(
+            system.session_id,
+            "finalize_session_complete",
+            f"Session finalized with hash {hash_value}",
+        )
     logger.info("Lifecycle end")
+    log_action(system.session_id, "session_end", "Unified session lifecycle end")
     print("Valid" if success else "Invalid")
     return 0 if success else 1
 

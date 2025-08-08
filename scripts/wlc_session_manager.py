@@ -39,9 +39,18 @@ from tqdm import tqdm
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.validation_utils import anti_recursion_guard, validate_enterprise_environment
-from utils.lessons_learned_integrator import store_lesson
+from utils.lessons_learned_integrator import (
+    extract_lessons_from_codex_logs,
+    store_lesson,
+)
 from unified_session_management_system import ensure_no_zero_byte_files
 from utils.logging_utils import ANALYTICS_DB
+from utils.codex_log_db import init_codex_log_db, record_codex_action
+
+
+def log_action(session_id: str, action: str, statement: str) -> None:
+    """Log a codex action with a UTC timestamp."""
+    record_codex_action(session_id, action, statement, datetime.now(UTC).isoformat())
 
 try:
     from scripts.orchestrators.unified_wrapup_orchestrator import (
@@ -196,6 +205,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Run UnifiedWrapUpOrchestrator after session completion",
     )
+    parser.add_argument(
+        "--wrap-up",
+        action="store_true",
+        help="Package session artifacts and commit codex log",
+    )
     return parser.parse_args(argv)
 
 
@@ -221,6 +235,14 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         entry_id, session_id = start_session_entry(conn)
         if entry_id is None:
             raise RuntimeError("Failed to create session entry in the database.")
+        init_codex_log_db()
+        log_action(session_id, "session_start", "WLC session starting")
+        log_codex_action(
+            session_id,
+            "start",
+            "WLC session starting",
+            datetime.now(UTC).isoformat(),
+        )
         compliance_score = 1.0
         try:
             with ensure_no_zero_byte_files(
@@ -228,18 +250,35 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
             ):
                 for i in tqdm(range(steps), desc="WLC Session", unit="step"):
                     logging.info("Step %d/%d completed", i + 1, steps)
+                    log_action(
+                        session_id,
+                        "step_complete",
+                        f"Step {i + 1}/{steps} completed",
+                    )
                     sleep_time = 0.1
                     if os.getenv("TEST"):
                         sleep_time = 0.01
                     time.sleep(sleep_time)
-
+                log_codex_action(
+                    session_id,
+                    "generation",
+                    f"Generated {steps} steps",
+                    datetime.now(UTC).isoformat(),
+                )
                 orchestrator = UnifiedWrapUpOrchestrator(
                     workspace_path=str(CrossPlatformPathManager.get_workspace_path())
                 )
+                log_action(session_id, "orchestrator_start", "Executing orchestrator")
                 result = orchestrator.execute_unified_wrapup()
                 compliance_score = result.compliance_score / 100.0
+                log_action(
+                    session_id,
+                    "orchestrator_complete",
+                    f"Orchestrator finished with score {compliance_score:.2f}",
+                )
         except Exception as exc:  # noqa: BLE001
             logging.exception("WLC session failed")
+            log_action(session_id, "session_failure", str(exc))
             zero_count = _zero_byte_count(session_id)
             finalize_session_entry(
                 conn, entry_id, 0.0, zero_byte_files=zero_count, error=str(exc)
@@ -250,6 +289,11 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         finalize_session_entry(
             conn, entry_id, compliance_score, zero_byte_files=zero_count
         )
+        log_action(
+            session_id,
+            "session_end",
+            f"Session completed with score {compliance_score:.2f}",
+        )
         store_lesson(
             description=f"WLC session completed with score {compliance_score:.2f}",
             source="wlc_session_manager",
@@ -257,6 +301,10 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
             validation_status="validated",
             tags="wlc",
         )
+        codex_db = CrossPlatformPathManager.get_workspace_path() / "databases" / "codex_log.db"
+        # Derive actionable lessons from Codex log patterns
+        for lesson in extract_lessons_from_codex_logs(codex_db):
+            store_lesson(**lesson)
 
         if run_orchestrator:
             orchestrator_cls = UnifiedWrapUpOrchestrator
@@ -268,26 +316,56 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
             orchestrator = orchestrator_cls(
                 workspace_path=str(CrossPlatformPathManager.get_workspace_path())
             )
+            log_action(session_id, "post_session_orchestrator_start", "Running orchestrator post session")
             orchestrator.execute_unified_wrapup()
+            log_action(session_id, "post_session_orchestrator_complete", "Post session orchestrator finished")
 
         validator = SecondaryCopilotValidator()
         validator.validate_corrections([__file__])
+        log_codex_action(
+            session_id,
+            "validation",
+            "Secondary copilot validation complete",
+            datetime.now(UTC).isoformat(),
+        )
 
     if os.getenv("WLC_RUN_ORCHESTRATOR") == "1":
         orchestrator = UnifiedWrapUpOrchestrator(
             workspace_path=str(CrossPlatformPathManager.get_workspace_path())
         )
+        log_action(session_id, "env_orchestrator_start", "Running orchestrator via env flag")
         orchestrator.execute_unified_wrapup()
-
+        log_action(session_id, "env_orchestrator_complete", "Env orchestrator finished")
+    finalize_codex_log_db()
+    log_codex_action(
+        session_id,
+        "wrap_up",
+        "WLC session wrap-up finalized",
+        datetime.now(UTC).isoformat(),
+    )
     logging.info("WLC session completed")
 
 
 @anti_recursion_guard
 def main(argv: list[str] | None = None) -> None:
-    if os.getenv("TEST_MODE") == "1":
+    args = parse_args(argv)
+    if os.getenv("TEST_MODE") == "1" and not args.wrap_up:
         logging.debug("TEST_MODE=1; exiting early")
         return
-    args = parse_args(argv)
+    if args.wrap_up:
+        from artifact_manager import LfsPolicy, package_session
+
+        repo_root = Path(__file__).resolve().parents[1]
+        tmp_dir = repo_root / "tmp"
+        tmp_dir.mkdir(exist_ok=True)
+        package_session(
+            tmp_dir,
+            repo_root,
+            LfsPolicy(repo_root),
+            commit=os.getenv("TEST_MODE") != "1",
+            message="chore: add session wrap-up artifact",
+        )
+        return
     initialize_database(args.db_path)
     run_session(
         args.steps,
@@ -298,6 +376,4 @@ def main(argv: list[str] | None = None) -> None:
 
 
 if __name__ == "__main__":
-    if os.getenv("TEST_MODE") == "1":
-        sys.exit(0)
     main()

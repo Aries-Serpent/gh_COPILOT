@@ -18,6 +18,14 @@ from typing import Any, Callable, Dict, List, Optional
 _RATE_LIMIT: Dict[str, List[float]] = {}
 
 
+@dataclass
+class _Session:
+    """Internal representation of a session."""
+
+    csrf: str
+    expires_at: float
+
+
 def _check_rate_limit(identifier: str = "global", limit: int = 5, window: int = 60) -> None:
     """Simple in-memory rate limiting.
 
@@ -49,49 +57,82 @@ def _check_mfa() -> None:
 class SessionManager:
     """Manage in-memory sessions for the dashboard."""
 
-    active_sessions: Dict[str, str]
+    active_sessions: Dict[str, _Session]
     failed_attempts: int = 0
     max_attempts: int = 5
+    session_timeout: int = 3600
+    lock_until: float = 0.0
 
     @classmethod
-    def create(cls, max_attempts: int = 5) -> "SessionManager":
-        return cls(active_sessions={}, failed_attempts=0, max_attempts=max_attempts)
+    def create(cls, max_attempts: int = 5, session_timeout: int = 3600) -> "SessionManager":
+        return cls(
+            active_sessions={},
+            failed_attempts=0,
+            max_attempts=max_attempts,
+            session_timeout=session_timeout,
+        )
 
     def start_session(self, token: str) -> str:
-        """Start a session if the token matches the expected value.
+        """Start a session if the token matches the expected value."""
 
-        Parameters
-        ----------
-        token:
-            Token provided by the client.
-        """
         _check_rate_limit("start_session")
+        now = time.time()
+        if now < self.lock_until:
+            raise ValueError("Too many failed attempts")
         expected = os.environ.get("DASHBOARD_AUTH_TOKEN", "")
-        if token != expected:
+        if not hmac.compare_digest(token, expected):
             self.failed_attempts += 1
             if self.failed_attempts >= self.max_attempts:
+                self.lock_until = now + 60
                 raise ValueError("Too many failed attempts")
             raise ValueError("Invalid token")
         self.failed_attempts = 0
+        self.lock_until = 0
         _check_mfa()
         session_id = str(uuid.uuid4())
         csrf_token = secrets.token_hex(16)
-        self.active_sessions[session_id] = csrf_token
+        self.active_sessions[session_id] = _Session(
+            csrf=csrf_token, expires_at=now + self.session_timeout
+        )
         return session_id
+
+    def refresh_session(self, token: str, session_id: str) -> str:
+        """Refresh an existing session and return a new session id."""
+
+        if not self.validate(token, session_id):
+            raise ValueError("Invalid session")
+        new_id = str(uuid.uuid4())
+        csrf_token = secrets.token_hex(16)
+        now = time.time()
+        self.active_sessions[new_id] = _Session(
+            csrf=csrf_token, expires_at=now + self.session_timeout
+        )
+        self.end_session(session_id)
+        return new_id
 
     def get_csrf_token(self, session_id: str) -> Optional[str]:
         """Return the CSRF token for a given session."""
-        return self.active_sessions.get(session_id)
+
+        info = self.active_sessions.get(session_id)
+        return info.csrf if info else None
 
     def validate(self, token: str, session_id: str) -> bool:
         """Return True if token and session identifier are valid."""
+
         expected = os.environ.get("DASHBOARD_AUTH_TOKEN", "")
-        if token != expected:
+        if not hmac.compare_digest(token, expected):
             return False
-        return session_id in self.active_sessions
+        info = self.active_sessions.get(session_id)
+        if not info:
+            return False
+        if info.expires_at < time.time():
+            self.end_session(session_id)
+            return False
+        return True
 
     def end_session(self, session_id: str) -> None:
         """Remove a session identifier from the active set."""
+
         self.active_sessions.pop(session_id, None)
 
 

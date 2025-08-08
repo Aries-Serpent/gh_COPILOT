@@ -8,7 +8,7 @@
 ![Coverage](https://img.shields.io/badge/coverage-automated-blue)
 ![Ruff](https://img.shields.io/badge/ruff-linted-blue)
 
-**Status:** Active development with incremental improvements. Disaster recovery now enforces external backup roots and has verified restore tests, while session-management enhancements remain under construction.
+**Status:** Active development with incremental improvements. Disaster recovery now enforces external backup roots with verified restore tests, and session-management lifecycle APIs (`start_session` / `end_session`) are now available.
 
 > Combined checks: run `python scripts/run_checks.py` to execute `ruff` and `pytest` sequentially.
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
@@ -372,14 +372,22 @@ python scripts/utilities/unified_disaster_recovery_system.py --schedule
 python scripts/utilities/unified_disaster_recovery_system.py --restore /path/to/backup.bak
 ```
 
-### Session Management CLI
-Use ``COMPREHENSIVE_WORKSPACE_MANAGER.py`` to manage session start and end
-operations:
+### Session Management
+
+Codex sessions record start/end markers and actions in
+`databases/codex_log.db`. The `COMPREHENSIVE_WORKSPACE_MANAGER.py` CLI can
+launch and wrap up sessions:
 
 ```bash
 python scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py --SessionStart -AutoFix
 python scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py --SessionEnd
 ```
+
+Set `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT` before running. Use
+`SESSION_ID_SOURCE` if you supply your own session identifier. The log database
+is Git LFS-tracked; ensure `ALLOW_AUTOLFS=1` and verify with `git lfs status`
+before committing. See [docs/codex_logging.md](docs/codex_logging.md) for the
+schema and commit workflow.
 
 ### Unified Deployment Orchestrator CLI
 Manage orchestration tasks with start/stop controls:
