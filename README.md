@@ -940,7 +940,7 @@ gh_COPILOT/
 - **`dashboard/integrated_dashboard.py`** - Unified compliance dashboard
 - **`scripts/monitoring/continuous_operation_monitor.py`** - Continuous operation utility
 - **`scripts/monitoring/enterprise_compliance_monitor.py`** - Compliance monitoring utility
-- **`scripts/monitoring/unified_monitoring_optimization_system.py`** - Aggregates performance metrics
+- **`scripts/monitoring/unified_monitoring_optimization_system.py`** - Aggregates performance metrics and provides ``push_metrics`` with validated table names
 
 ---
 
