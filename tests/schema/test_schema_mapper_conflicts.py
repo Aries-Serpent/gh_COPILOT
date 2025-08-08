@@ -41,3 +41,14 @@ def test_manual_resolution_triggers_rollback(monkeypatch, caplog):
     assert mapper.schema == {"a": 1}
     assert called.get("done")
     assert "Manual resolution required" in caplog.text
+
+
+def test_mismatch_detection(caplog):
+    base = {"a": 1}
+    mapper = SchemaMapper(base)
+    updates = {"a": {"x": 1}}
+    with caplog.at_level("INFO"):
+        result = mapper.apply(updates, strategy="merge")
+    assert result == {"a": 1}
+    assert "Schema mismatch for 'a'" in caplog.text
+    assert "Merge skipped for 'a'" in caplog.text
