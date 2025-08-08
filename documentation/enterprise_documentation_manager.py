@@ -112,6 +112,8 @@ class EnterpriseDocumentationManager:
     def calculate_compliance(self, content: str) -> float:
         """Compute a simple compliance score."""
         score = len(content.strip()) / 100.0
+        if score > 1.0:
+            score = 1.0
         self.logger.info(f"{TEXT_INDICATORS['info']} Compliance score {score:.2f}")
         return score
 

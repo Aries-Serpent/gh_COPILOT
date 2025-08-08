@@ -1,0 +1,20 @@
+from src.compliance.metrics.updater import MetricsUpdater
+
+
+def test_default_weighting_and_rounding():
+    updater = MetricsUpdater()
+    scores = {"lint": 0.75, "tests": 0.5, "placeholders": 1.0}
+    # 0.4*0.75 + 0.4*0.5 + 0.2*1.0 = 0.7 -> rounded to 0.7
+    assert updater.composite(scores) == 0.7
+
+
+def test_custom_weights_and_precision():
+    updater = MetricsUpdater(weights={"a": 1, "b": 2}, precision=3)
+    scores = {"a": 0.3333, "b": 0.6666}
+    # Weighted average: (0.3333*1 + 0.6666*2) / 3 = 0.5555 -> rounded to 0.556
+    assert updater.composite(scores) == 0.556
+
+
+def test_zero_total_weight():
+    updater = MetricsUpdater(weights={"x": 0, "y": 0})
+    assert updater.composite({"x": 1, "y": 1}) == 0.0

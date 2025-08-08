@@ -38,3 +38,13 @@ def test_create_zip_ignores_missing(tmp_path):
     archive = create_zip(tmp_path / "out.zip", [existing, missing])
     with zipfile.ZipFile(archive) as zf:
         assert zf.namelist() == ["a.txt"]
+
+
+def test_create_zip_includes_directories(tmp_path):
+    folder = tmp_path / "src"
+    (folder / "sub").mkdir(parents=True)
+    (folder / "file1.txt").write_text("1")
+    (folder / "sub" / "file2.txt").write_text("2")
+    archive = create_zip(tmp_path / "out_dir.zip", [folder])
+    with zipfile.ZipFile(archive) as zf:
+        assert sorted(zf.namelist()) == ["file1.txt", "sub/file2.txt"]
