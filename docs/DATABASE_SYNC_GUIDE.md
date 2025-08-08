@@ -28,7 +28,7 @@ watcher = SyncWatcher(manager)
 watcher.watch_pairs([(db_a, db_b), (db_c, db_d)], policy="last-write-wins")
 ```
 
-Synchronization events and conflict statistics are stored in `databases/analytics.db`. The dashboard reads these records to display live synchronization metrics alongside other system health data.
+Synchronization events and conflict statistics are stored in `databases/analytics.db`. The dashboard reads these records to display live synchronization metrics alongside other system health data. When `SYNC_ENGINE_WS_URL` is configured, the engine also pushes updates over WebSocket so the dashboard's metrics stream reflects changes immediately.
 
 ## Conflict Policies
 The synchronization engine supports pluggable conflict resolution. Use the
