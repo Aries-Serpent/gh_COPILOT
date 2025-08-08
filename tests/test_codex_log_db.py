@@ -41,6 +41,11 @@ def test_finalize_codex_log_db_copies_db(tmp_path, monkeypatch):
     dest = tmp_path / "codex_session_logs.db"
     monkeypatch.setattr(codex_log_db, "CODEX_LOG_DB", src)
     monkeypatch.setattr(codex_log_db, "CODEX_SESSION_LOG_DB", dest)
+    monkeypatch.setattr(
+        codex_log_db.CrossPlatformPathManager,
+        "get_workspace_path",
+        lambda: tmp_path,
+    )
 
     codex_log_db.log_codex_action("s1", "act", "stmt")
     copied = codex_log_db.finalize_codex_log_db()

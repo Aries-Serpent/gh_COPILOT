@@ -27,3 +27,31 @@ def test_finalize_session_calls_end_and_finalize(monkeypatch):
     monkeypatch.setattr(tasks, "finalize_codex_log_db", lambda: calls.append("finalize"))
     tasks.finalize_session("s1", "summary")
     assert calls == [("end", "s1", "summary"), "finalize"]
+
+
+def test_codex_session_logger_context(monkeypatch):
+    import utils.codex_log_db as cldb
+
+    calls = []
+    monkeypatch.setattr(cldb, "init_codex_log_db", lambda: calls.append("init"))
+    monkeypatch.setattr(cldb, "log_codex_start", lambda sid: calls.append(("start", sid)))
+    monkeypatch.setattr(
+        cldb,
+        "record_codex_action",
+        lambda sid, act, stmt, meta: calls.append((sid, act, stmt, meta)),
+    )
+    monkeypatch.setattr(
+        cldb, "log_codex_end", lambda sid, summ: calls.append(("end", sid, summ))
+    )
+    monkeypatch.setattr(cldb, "finalize_codex_log_db", lambda: calls.append("finalize"))
+
+    with cldb.CodexSessionLogger("s1") as logger:
+        logger.log("act", "stmt")
+
+    assert calls == [
+        "init",
+        ("start", "s1"),
+        ("s1", "act", "stmt", ""),
+        ("end", "s1", "session complete"),
+        "finalize",
+    ]

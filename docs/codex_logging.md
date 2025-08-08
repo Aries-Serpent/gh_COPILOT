@@ -52,6 +52,18 @@ log_action(session_id, "generate", "created script")
 finalize_session(session_id, "session complete")
 ```
 
+### Context manager
+
+Use :class:`utils.codex_log_db.CodexSessionLogger` to automatically manage the
+start and end of a Codex session:
+
+```python
+from utils.codex_log_db import CodexSessionLogger
+
+with CodexSessionLogger(session_id) as logger:
+    logger.log("generate", "created script")
+```
+
 ### Environment variables
 
 `GH_COPILOT_WORKSPACE` must point to the repository root so the utility can
