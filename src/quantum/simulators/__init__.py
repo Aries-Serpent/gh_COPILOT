@@ -1,6 +1,10 @@
-"""Lightweight quantum simulator stubs."""
+"""Quantum simulator stubs for integration tests.
 
-from .base import QuantumSimulator
-from .simple import SimpleSimulator
+These helpers offer deterministic behavior and serve as placeholders for
+future quantum backends. For setup and usage instructions see
+``docs/quantum_integration.md``.
+"""
 
-__all__ = ["QuantumSimulator", "SimpleSimulator"]
+from .basic import BasicSimulator
+
+__all__ = ["BasicSimulator"]
