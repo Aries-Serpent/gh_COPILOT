@@ -113,3 +113,31 @@ def test_session_logs_auto_added(tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     assert "databases/codex_session_logs.db" in tracked
     gitattributes = (tmp_path / ".gitattributes").read_text(encoding="utf-8")
     assert "*.db" in gitattributes
+
+
+def test_session_logs_staged(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    init_repo(tmp_path)
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
+    session_db = db_dir / "codex_session_logs.db"
+    session_db.write_bytes(b"0")
+
+    hooks = tmp_path / ".git" / "hooks"
+    hook = hooks / "pre-commit"
+    hook.write_text("#!/bin/sh\nexit 1", encoding="utf-8")
+    hook.chmod(0o755)
+
+    env = os.environ.copy()
+    env["ALLOW_AUTOLFS"] = "1"
+    env["PYTHONPATH"] = str(Path.cwd())
+    result = subprocess.run(["python", str(SCRIPT), "msg"], cwd=tmp_path, env=env)
+    assert result.returncode != 0
+
+    staged = subprocess.run(
+        ["git", "diff", "--name-only", "--cached"],
+        cwd=tmp_path,
+        text=True,
+        capture_output=True,
+        check=True,
+    ).stdout.splitlines()
+    assert "databases/codex_session_logs.db" in staged
