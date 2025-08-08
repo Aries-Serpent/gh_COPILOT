@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import sqlite3
 import threading
 import time
@@ -29,6 +30,7 @@ class SyncEngine:
         self.table = table
         self.poll_interval = poll_interval
         self._stop = threading.Event()
+        self._log = logging.getLogger("sync")
 
         self.columns = [
             r[1] for r in self.source.execute(f"PRAGMA table_info({table})").fetchall()
@@ -107,19 +109,26 @@ class SyncEngine:
         src: sqlite3.Connection,
         dest: sqlite3.Connection,
     ) -> None:
-        rows = src.execute(
-            "SELECT id, table_name, operation, data FROM change_log "
-            "WHERE processed=0 ORDER BY id"
-        ).fetchall()
+        self._log.info("start")
+        try:
+            rows = src.execute(
+                "SELECT id, table_name, operation, data FROM change_log "
+                "WHERE processed=0 ORDER BY id"
+            ).fetchall()
 
-        for change_id, table_name, operation, data in rows:
-            self._apply_change(dest, table_name, operation, data)
-            src.execute(
-                "UPDATE change_log SET processed=1 WHERE id=?",
-                (change_id,),
-            )
-        src.commit()
-        dest.commit()
+            for change_id, table_name, operation, data in rows:
+                self._apply_change(dest, table_name, operation, data)
+                src.execute(
+                    "UPDATE change_log SET processed=1 WHERE id=?",
+                    (change_id,),
+                )
+            src.commit()
+            dest.commit()
+        except Exception:
+            self._log.exception("error")
+            raise
+        else:
+            self._log.info("end")
 
     def _apply_change(
         self,
