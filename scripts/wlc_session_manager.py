@@ -40,7 +40,10 @@ from tqdm import tqdm
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.validation_utils import anti_recursion_guard, validate_enterprise_environment
-from utils.lessons_learned_integrator import store_lesson
+from utils.lessons_learned_integrator import (
+    extract_lessons_from_codex_logs,
+    store_lesson,
+)
 from unified_session_management_system import ensure_no_zero_byte_files
 from utils.logging_utils import ANALYTICS_DB
 from utils.codex_log_db import log_codex_action
@@ -282,6 +285,9 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
             validation_status="validated",
             tags="wlc",
         )
+        codex_db = CrossPlatformPathManager.get_workspace_path() / "databases" / "codex_log.db"
+        for lesson in extract_lessons_from_codex_logs(codex_db):
+            store_lesson(**lesson)
 
         if run_orchestrator:
             orchestrator_cls = UnifiedWrapUpOrchestrator
