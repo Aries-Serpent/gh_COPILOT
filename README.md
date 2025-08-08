@@ -312,8 +312,8 @@ some_command | python tools/output_chunker.py
 
 For pattern-aware splitting, `tools/output_pattern_chunker.py` provides
 customizable boundary detection while maintaining ANSI sequences. To wrap
-commands and automatically record session metadata, use
-`.github/scripts/session_wrapper.sh`, which employs
+commands and automatically record session metadata, use the
+`safe-run` alias, which invokes `session_wrapper.sh wrap` and employs
 `tools/shell_buffer_manager.sh` to enforce hard cutoffs and redirect
 overflow to temporary logs. See `docs/session_wrapper.md` for
 usage details.
