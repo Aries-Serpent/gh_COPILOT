@@ -44,5 +44,23 @@ def log_codex_action(
         conn.commit()
 
 
-__all__ = ["CODEX_LOG_DB", "init_db", "log_codex_action"]
+def init_codex_log_db() -> None:
+    """Alias for :func:`init_db` to initialize the Codex log database."""
+    init_db()
+
+
+def record_codex_action(
+    session_id: str, action: str, statement: str, metadata: str = "",
+) -> None:
+    """Alias for :func:`log_codex_action` for clarity."""
+    log_codex_action(session_id, action, statement, metadata)
+
+
+__all__ = [
+    "CODEX_LOG_DB",
+    "init_db",
+    "log_codex_action",
+    "init_codex_log_db",
+    "record_codex_action",
+]
 

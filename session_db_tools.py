@@ -22,6 +22,7 @@ from utils.log_utils import _log_event, log_message
 from utils.lessons_learned_integrator import store_lesson
 from utils.validation_utils import anti_recursion_guard
 import logging
+from utils.codex_log_db import record_codex_action
 
 TEXT_INDICATORS = {
     "start": "[START]",
@@ -51,6 +52,7 @@ def discover_active_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
     Returns a list of session dictionaries.
     """
     db_file = Path(db_file)
+    record_codex_action("system", "discover_active_sessions_start", f"Scanning {db_file}")
     if db_file.suffix == ".db" or db_file.suffix == ".sqlite3":
         sessions = []
         try:
@@ -83,6 +85,13 @@ def discover_active_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
                 f"Failed to discover sessions: {e}",
                 level=logging.ERROR,
             )
+            record_codex_action("system", "discover_active_sessions_error", str(e))
+        else:
+            record_codex_action(
+                "system",
+                "discover_active_sessions_success",
+                f"Found {len(sessions)} sessions",
+            )
         return sessions
     elif db_file.suffix == ".json":
         try:
@@ -97,7 +106,14 @@ def discover_active_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
                 f"Failed to read JSON: {e}",
                 level=logging.ERROR,
             )
+            record_codex_action("system", "discover_active_sessions_error", str(e))
             return []
+        else:
+            record_codex_action(
+                "system",
+                "discover_active_sessions_success",
+                f"Found {len(records)} sessions",
+            )
     elif db_file.suffix == ".csv":
         try:
             sessions = []
@@ -119,7 +135,14 @@ def discover_active_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
                 f"Failed to read CSV: {e}",
                 level=logging.ERROR,
             )
+            record_codex_action("system", "discover_active_sessions_error", str(e))
             return []
+        else:
+            record_codex_action(
+                "system",
+                "discover_active_sessions_success",
+                f"Found {len(sessions)} sessions",
+            )
     else:
         log_message(
             "session_db_tools",
@@ -127,6 +150,9 @@ def discover_active_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
             level=logging.ERROR,
         )
         _log_event({"event": "session_discovery_failed", "error": "unsupported format"})
+        record_codex_action(
+            "system", "discover_active_sessions_error", "unsupported format"
+        )
         return []
 
 
@@ -144,6 +170,7 @@ def consolidate_sessions_atomic(
     - Ensures all records are written in a single transaction.
     """
     output_db = Path(output_db)
+    record_codex_action("system", "consolidate_sessions_start", f"Writing to {output_db}")
     if backup_dir:
         backup_dir = Path(backup_dir)
     if output_db.exists() and backup_dir:
@@ -156,6 +183,7 @@ def consolidate_sessions_atomic(
             f"Output session DB backed up to {backup_file}",
             level=logging.INFO,
         )
+        record_codex_action("system", "consolidate_sessions_backup", str(backup_file))
 
     if output_db.exists() and overwrite:
         output_db.unlink()
@@ -163,6 +191,9 @@ def consolidate_sessions_atomic(
             "session_db_tools",
             f"Overwrote existing {output_db}",
             level=logging.INFO,
+        )
+        record_codex_action(
+            "system", "consolidate_sessions_overwrite", str(output_db)
         )
 
     # Create new DB and table
@@ -209,6 +240,11 @@ def consolidate_sessions_atomic(
                     f"Failed to consolidate session {session.get('session_id')}: {e}",
                     level=logging.ERROR,
                 )
+                record_codex_action(
+                    session.get("session_id", "system"),
+                    "consolidate_sessions_error",
+                    str(e),
+                )
         conn.commit()
     _log_event(
         {
@@ -222,6 +258,9 @@ def consolidate_sessions_atomic(
         f"Atomically wrote {len(session_list)} consolidated sessions to {output_db}",
         level=logging.INFO,
     )
+    record_codex_action(
+        "system", "consolidate_sessions_success", f"Wrote {len(session_list)} sessions"
+    )
 
 
 def get_session_by_id(db_file: Union[str, Path], session_id: str) -> Optional[Dict[str, Any]]:
@@ -230,6 +269,7 @@ def get_session_by_id(db_file: Union[str, Path], session_id: str) -> Optional[Di
     Returns session dict or None if not found.
     """
     db_file = Path(db_file)
+    record_codex_action(session_id, "get_session_start", f"Searching {db_file}")
     if db_file.suffix in (".db", ".sqlite3"):
         try:
             with sqlite3.connect(str(db_file)) as conn:
@@ -261,6 +301,7 @@ def get_session_by_id(db_file: Union[str, Path], session_id: str) -> Optional[Di
                 f"Failed to retrieve session {session_id}: {e}",
                 level=logging.ERROR,
             )
+            record_codex_action(session_id, "get_session_error", str(e))
     elif db_file.suffix == ".json":
         try:
             with open(db_file, "r", encoding="utf-8") as f:
@@ -270,6 +311,7 @@ def get_session_by_id(db_file: Union[str, Path], session_id: str) -> Optional[Di
                     return rec
         except Exception as e:
             _log_event({"event": "get_session_by_id_failed", "error": str(e), "session_id": session_id})
+            record_codex_action(session_id, "get_session_error", str(e))
     elif db_file.suffix == ".csv":
         try:
             with open(db_file, "r", encoding="utf-8") as f:
@@ -283,12 +325,14 @@ def get_session_by_id(db_file: Union[str, Path], session_id: str) -> Optional[Di
                         return row
         except Exception as e:
             _log_event({"event": "get_session_by_id_failed", "error": str(e), "session_id": session_id})
+            record_codex_action(session_id, "get_session_error", str(e))
     else:
         log_message(
             "session_db_tools",
             f"Unsupported session storage format: {db_file}",
             level=logging.ERROR,
         )
+        record_codex_action(session_id, "get_session_error", "unsupported format")
     return None
 
 
@@ -298,6 +342,7 @@ def list_all_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
     """
     db_file = Path(db_file)
     sessions = []
+    record_codex_action("system", "list_sessions_start", f"Listing {db_file}")
     if db_file.suffix in (".db", ".sqlite3"):
         try:
             with sqlite3.connect(str(db_file)) as conn:
@@ -326,6 +371,7 @@ def list_all_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
                 f"Failed to list sessions: {e}",
                 level=logging.ERROR,
             )
+            record_codex_action("system", "list_sessions_error", str(e))
             return []
     elif db_file.suffix == ".json":
         try:
@@ -338,6 +384,7 @@ def list_all_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
                 f"Failed to read JSON: {e}",
                 level=logging.ERROR,
             )
+            record_codex_action("system", "list_sessions_error", str(e))
             return []
     elif db_file.suffix == ".csv":
         try:
@@ -356,6 +403,7 @@ def list_all_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
                 f"Failed to read CSV: {e}",
                 level=logging.ERROR,
             )
+            record_codex_action("system", "list_sessions_error", str(e))
             return []
     else:
         log_message(
@@ -364,7 +412,11 @@ def list_all_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
             level=logging.ERROR,
         )
         _log_event({"event": "list_all_sessions_failed", "error": "unsupported format"})
+        record_codex_action("system", "list_sessions_error", "unsupported format")
         return []
+    record_codex_action(
+        "system", "list_sessions_success", f"Found {len(sessions)} sessions"
+    )
     return sessions
 
 
@@ -395,6 +447,7 @@ def record_lesson(
             f"Recorded lesson: {description}",
             level=logging.INFO,
         )
+        record_codex_action("system", "record_lesson_success", description)
         return True
     except Exception as e:  # pragma: no cover - defensive logging
         log_message(
@@ -402,6 +455,7 @@ def record_lesson(
             f"Failed to record lesson: {e}",
             level=logging.ERROR,
         )
+        record_codex_action("system", "record_lesson_error", str(e))
         return False
 
 

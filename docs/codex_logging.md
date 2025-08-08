@@ -20,9 +20,10 @@ single table:
 Utilities in `utils/codex_log_db.py` manage the database:
 
 ```python
-from utils.codex_log_db import log_codex_action
+from utils.codex_log_db import init_codex_log_db, record_codex_action
 
-log_codex_action(session_id, "generate", "created script", metadata="...")
+init_codex_log_db()
+record_codex_action(session_id, "generate", "created script", metadata="...")
 ```
 
 The module automatically creates `codex_log.db` if it does not exist. Set
