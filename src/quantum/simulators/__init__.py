@@ -5,6 +5,8 @@ future quantum backends. For setup and usage instructions see
 ``docs/quantum_integration.md``.
 """
 
+from .base import QuantumSimulator
 from .basic import BasicSimulator
+from .simple import SimpleSimulator
 
-__all__ = ["BasicSimulator"]
+__all__ = ["QuantumSimulator", "BasicSimulator", "SimpleSimulator"]
