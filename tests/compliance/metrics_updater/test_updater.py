@@ -27,3 +27,10 @@ def test_scores_clamped_and_negative_weights_ignored():
     # Weight 'b' is negative and ignored.  Scores for 'a' and 'c' are clamped
     # to 1.0 and 0.0 respectively resulting in an average of 0.5.
     assert updater.composite(scores) == 0.5
+
+
+def test_non_numeric_scores_default_to_zero():
+    """NaN, infinite or ``None`` scores contribute ``0`` to the composite."""
+    updater = MetricsUpdater()
+    scores = {"lint": float("nan"), "tests": float("inf"), "placeholders": None}
+    assert updater.composite(scores) == 0.0

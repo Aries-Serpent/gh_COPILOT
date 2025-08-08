@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Mapping
+import math
 
 
 @dataclass
@@ -24,8 +25,10 @@ class MetricsUpdater:
     def composite(self, scores: Mapping[str, float]) -> float:
         """Return the normalised weighted score for ``scores``.
 
-        Missing metrics simply contribute ``0``.  The result is rounded to the
-        number of decimal places specified by ``precision``.  A ``0`` score is
+        Missing metrics simply contribute ``0``.  Non-numeric or non-finite
+        values (``NaN``/``inf``) are treated as ``0`` to prevent ``Decimal``
+        errors when computing the total.  The result is rounded to the number
+        of decimal places specified by ``precision``.  A ``0`` score is
         returned when the total weight is ``0`` to avoid division errors.
         """
 
@@ -46,7 +49,13 @@ class MetricsUpdater:
             # mirrors how other parts of the system treat compliance metrics
             # and keeps the final value predictable.
             score = scores.get(key, 0.0)
-            clamped = max(0.0, min(1.0, float(score)))
+            try:
+                value = float(score)
+            except (TypeError, ValueError):
+                value = 0.0
+            if not math.isfinite(value):
+                value = 0.0
+            clamped = max(0.0, min(1.0, value))
             total += Decimal(str(clamped)) * Decimal(str(weight))
 
         result = total / Decimal(str(total_weight))
