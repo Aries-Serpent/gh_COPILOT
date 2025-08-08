@@ -21,6 +21,8 @@
 > Documentation: quantum preparation, executive guides, and certification workflows live under `docs/` — see [docs/quantum_preparation/README.md](docs/quantum_preparation/README.md), [docs/executive_guides/README.md](docs/executive_guides/README.md), and [docs/certification/README.md](docs/certification/README.md) for details and related module links.
 > White-paper summary: [documentation/generated/daily_state_update/gh_COPILOT_Project_White-Paper_Blueprint_Summary_(2025-08-06).md](documentation/generated/daily_state_update/gh_COPILOT_Project_White-Paper_Blueprint_Summary_(2025-08-06).md)
 
+> **Validation:** Real-time streaming, correction logs, and the synchronization engine are active. Run `python scripts/generate_docs_metrics.py` followed by `python -m scripts.docs_metrics_validator` to verify documentation metrics.
+
 ---
 
 ## 📊 SYSTEM OVERVIEW
