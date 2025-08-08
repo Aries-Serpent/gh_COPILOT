@@ -12,7 +12,7 @@ import json
 from collections import deque
 from dataclasses import dataclass
 import logging
-from typing import Callable, Deque, List, Optional, Set
+from typing import Callable, Deque, Dict, List, Optional, Set
 
 import websockets
 from websockets.exceptions import ConnectionClosed
@@ -30,11 +30,20 @@ class Change:
 class SyncEngine:
     """Coordinate real-time synchronization with peers."""
 
-    def __init__(self) -> None:
+    def __init__(self, log_hook: Optional[Callable[[str, Dict[str, object]], None]] = None) -> None:
         self._listeners: List[Callable[[Change], None]] = []
         self.outgoing: Deque[Change] = deque()
         self._applied_ids: Set[str] = set()
         self._log = logging.getLogger("sync")
+        self._log_hook = log_hook
+
+    def _emit(self, event: str, **context: object) -> None:
+        if event.endswith(".error"):
+            self._log.error("%s %s", event, context)
+        else:
+            self._log.info("%s %s", event, context)
+        if self._log_hook:
+            self._log_hook(event, context)
 
     # change-listener
     def register_listener(self, callback: Callable[[Change], None]) -> None:
@@ -52,16 +61,18 @@ class SyncEngine:
     # outgoing queue propagation
     def propagate(self, send: Callable[[Change], None]) -> None:
         """Send queued changes to peers using ``send`` and clear the queue."""
-        self._log.info("start")
+        self._emit("propagate.start", queued=len(self.outgoing))
+        sent = 0
         try:
             while self.outgoing:
                 change = self.outgoing.popleft()
                 send(change)
-        except Exception:
-            self._log.exception("error")
+                sent += 1
+        except Exception as exc:
+            self._emit("propagate.error", exception=repr(exc))
             raise
         else:
-            self._log.info("end")
+            self._emit("propagate.end", sent=sent)
 
     async def open_websocket(
         self, uri: str, apply: Callable[[Change], None]
@@ -124,21 +135,21 @@ class SyncEngine:
         detected.
         """
 
-        self._log.info("start")
+        self._emit("apply.start", id=change.id)
         try:
             if change.id in self._applied_ids:
-                self._log.info("end")
+                self._emit("apply.end", id=change.id, status="duplicate")
                 return False
 
             if conflict and conflict(change):
                 self._applied_ids.add(change.id)
-                self._log.info("end")
+                self._emit("apply.end", id=change.id, status="conflict")
                 return False
 
             apply(change)
             self._applied_ids.add(change.id)
-            self._log.info("end")
+            self._emit("apply.end", id=change.id, status="applied")
             return True
-        except Exception:
-            self._log.exception("error")
+        except Exception as exc:
+            self._emit("apply.error", id=change.id, exception=repr(exc))
             raise
