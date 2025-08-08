@@ -1,3 +1,5 @@
+"""Integration test for dashboard metrics (charts) endpoint."""
+
 from dashboard import enterprise_dashboard as ed
 import dashboard.integrated_dashboard as idash
 
