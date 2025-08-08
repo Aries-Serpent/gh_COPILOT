@@ -6,20 +6,35 @@ respecting Codex terminal limits.
 
 ## Wrapping Commands
 
-```
-bash .github/scripts/session_wrapper.sh wrap_command "echo hello"
+```bash
+safe-run "echo hello"
 ```
 
-The wrapper executes the command through `shell_buffer_manager.sh`, writes
-session metadata to `.session_meta/<session_id>.json`, and prints the
-session identifier.
+The `safe-run` alias invokes `session_wrapper.sh wrap` through
+`shell_buffer_manager.sh`, writes session metadata to
+`$HOME/.gh_copilot_sessions/<session_id>.json`, and prints the session
+identifier.
 
 ## Recovering Sessions
 
-```
+```bash
 bash .github/scripts/session_wrapper.sh recover_session <session_id>
 ```
 
 This prints the stored metadata, enabling auditing or reruns. Overflow
 from long lines is stored under `/tmp/shell_buffer_overflow/`.
+
+## Using the Alias
+
+Add the alias to your shell profile (e.g., `.bashrc` or `.zshrc`):
+
+```bash
+alias safe-run='session_wrapper.sh wrap'
+```
+
+Once set, wrap any command:
+
+```bash
+safe-run "ls -al"
+```
 

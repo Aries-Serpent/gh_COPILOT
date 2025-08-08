@@ -1,0 +1,21 @@
+name: Session Protection
+
+on:
+  push:
+    paths:
+      - '.github/scripts/session_wrapper.sh'
+      - '.github/workflows/session-protection.yml'
+  pull_request:
+    paths:
+      - '.github/scripts/session_wrapper.sh'
+      - '.github/workflows/session-protection.yml'
+
+jobs:
+  install-wrapper:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install session wrapper
+        run: |
+          mkdir -p "$HOME/.local/bin"
+          install -m 0755 .github/scripts/session_wrapper.sh "$HOME/.local/bin/session_wrapper.sh"

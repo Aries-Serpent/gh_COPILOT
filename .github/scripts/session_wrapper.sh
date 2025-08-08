@@ -46,7 +46,7 @@ if [ "$#" -gt 0 ]; then
         setup_session_preservation)
             setup_session_preservation
             ;;
-        wrap_command)
+        wrap_command|wrap)
             wrap_command "$@"
             ;;
         recover_session)
