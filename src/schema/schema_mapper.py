@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from copy import deepcopy
-from typing import Any, Dict, Iterator
+from typing import Any, Dict, Iterator, List, Tuple
 
 from . import logger, store_state
 
@@ -12,6 +12,8 @@ class SchemaMapper:
 
     def __init__(self, base_schema: Dict[str, Any]) -> None:
         self.schema = base_schema
+        # Collect a trace of conflict resolution decisions for auditing
+        self.decisions: List[Tuple[str, str]] = []
 
     @contextmanager
     def transaction(self) -> Iterator[None]:
@@ -45,12 +47,15 @@ class SchemaMapper:
             logger.info("Schema mismatch for '%s'", path)
             if strategy == "merge":
                 logger.info("Merge skipped for '%s'; keeping original", path)
+                self.decisions.append((path, "merge"))
                 return current
             if strategy == "overwrite":
                 logger.info("Overwrote '%s'", path)
+                self.decisions.append((path, "overwrite"))
                 return incoming
             if strategy == "manual":
                 logger.info("Manual resolution required for '%s'", path)
+                self.decisions.append((path, "manual"))
                 raise ValueError(f"Manual resolution required for '{path}'")
             raise ValueError(f"Unknown strategy '{strategy}'")
 
@@ -58,23 +63,29 @@ class SchemaMapper:
             result: Dict[str, Any] = dict(current)
             for key, value in incoming.items():
                 sub_path = f"{path}.{key}" if path else key
-                result[key] = self._resolve(current.get(key), value, sub_path, strategy)
+                result[key] = self._resolve(
+                    current.get(key), value, sub_path, strategy
+                )
             return result
 
         if strategy == "merge":
             logger.info("Merge skipped for '%s'; keeping original", path)
+            self.decisions.append((path, "merge"))
             return current
         if strategy == "overwrite":
             logger.info("Overwrote '%s'", path)
+            self.decisions.append((path, "overwrite"))
             return incoming
         if strategy == "manual":
             logger.info("Manual resolution required for '%s'", path)
+            self.decisions.append((path, "manual"))
             raise ValueError(f"Manual resolution required for '{path}'")
         raise ValueError(f"Unknown strategy '{strategy}'")
 
     def apply(self, updates: Dict[str, Any], strategy: str = "merge") -> Dict[str, Any]:
         """Apply updates to the schema using the given conflict strategy."""
         strategy = strategy.lower()
+        self.decisions.clear()
         with self.transaction():
             for key, value in updates.items():
                 self.schema[key] = self._resolve(
