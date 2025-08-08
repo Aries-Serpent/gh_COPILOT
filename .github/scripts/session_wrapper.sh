@@ -1,15 +1,17 @@
 #!/bin/bash
 # session_wrapper.sh
-# Utilities for wrapping commands with buffering and recovering session metadata.
+# Utilities for preserving command sessions and recovering metadata.
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-BUFFER_MANAGER="$REPO_ROOT/tools/shell_buffer_manager.sh"
-META_DIR="$REPO_ROOT/.session_meta"
+SESSION_DIR="$HOME/.gh_copilot_sessions"
+
+setup_session_preservation() {
+    mkdir -p "$SESSION_DIR"
+}
 
 wrap_command() {
+    setup_session_preservation
     local cmd="$*"
     local session_id
     if command -v uuidgen >/dev/null 2>&1; then
@@ -17,11 +19,11 @@ wrap_command() {
     else
         session_id=$(date +%s)
     fi
-    mkdir -p "$META_DIR"
-    bash "$BUFFER_MANAGER" "$cmd"
+    local log_file="$SESSION_DIR/${session_id}.log"
+    bash -c "$cmd" &> "$log_file"
     local status=$?
-    cat >"$META_DIR/${session_id}.json" <<METAEOF
-{"session_id":"$session_id","command":"$cmd","status":$status}
+    cat >"$SESSION_DIR/${session_id}.json" <<METAEOF
+{"session_id":"$session_id","command":"$cmd","status":$status,"log":"$log_file"}
 METAEOF
     echo "$session_id"
     return $status
@@ -29,7 +31,7 @@ METAEOF
 
 recover_session() {
     local session_id="$1"
-    local file="$META_DIR/${session_id}.json"
+    local file="$SESSION_DIR/${session_id}.json"
     if [ -f "$file" ]; then
         cat "$file"
     else
@@ -41,6 +43,9 @@ recover_session() {
 if [ "$#" -gt 0 ]; then
     cmd="$1"; shift
     case "$cmd" in
+        setup_session_preservation)
+            setup_session_preservation
+            ;;
         wrap_command)
             wrap_command "$@"
             ;;
@@ -48,7 +53,7 @@ if [ "$#" -gt 0 ]; then
             recover_session "$@"
             ;;
         *)
-            echo "Unknown command: $cmd" >&2
+            echo "Usage: $0 {setup_session_preservation|wrap_command|recover_session}" >&2
             exit 1
             ;;
     esac
