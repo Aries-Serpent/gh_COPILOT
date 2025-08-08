@@ -205,7 +205,9 @@ def run_all_checks(
     if notifier or dashboard_router:
         pipeline_handlers = []
         if notifier is not None:
-            pipeline_handlers.append(lambda _level, msg: notifier(msg))
+            pipeline_handlers.append(
+                lambda lvl, msg: notifier(f"[{lvl.upper()}] {msg}")
+            )
         if dashboard_router is not None:
             pipeline_handlers.append(dashboard_router)
 

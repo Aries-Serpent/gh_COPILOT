@@ -64,6 +64,8 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
 - **Disaster Recovery Validation:** `UnifiedDisasterRecoverySystem` verifies external backup roots and restores files from `production_backup`
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
+- **Codex Session Logging:** `utils.codex_log_database` stores all Codex actions
+  and statements in `databases/codex_session_logs.db` for post-session review.
 - **Anti-Recursion Guards:** backup and session modules now enforce external backup roots.
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, `add_code_audit_history.sql`, `add_violation_logs.sql`, and `add_rollback_logs.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
 - **Real-Time Sync Engine:** `SyncManager` and `SyncWatcher` log synchronization outcomes to `analytics.db` and, when `SYNC_ENGINE_WS_URL` is set, broadcast updates over WebSocket for the dashboard.
@@ -107,8 +109,8 @@ Phase 5 scoring guidelines.
 ## 🏗️ CORE ARCHITECTURE
 
 ### **Enterprise Systems**
-- **Multiple SQLite Databases:** `databases/production.db`, `databases/analytics.db`, `databases/monitoring.db`
-- [ER Diagrams](docs/ER_DIAGRAMS.md) for key databases
+- **Multiple SQLite Databases:** `databases/production.db`, `databases/analytics.db`, `databases/monitoring.db`, `databases/codex_logs.db`
+  - [ER Diagrams](docs/ER_DIAGRAMS.md) for key databases
 - **Flask Enterprise Dashboard:** run `python web_gui_integration_system.py` to launch the metrics and compliance dashboard
 - **Template Intelligence Platform:** tracks generated scripts
 - **Enterprise HTML Templates:** reusable base layouts, components, mobile views, and email templates under `templates/`
@@ -215,6 +217,8 @@ python scripts/database/add_code_audit_log.py
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
 sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
+# Initialize codex log database
+python scripts/codex_log_db.py --init
 sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
@@ -307,6 +311,34 @@ Set `CLW_MAX_LINE_LENGTH=1550` in your environment (e.g. in `.env`) before invok
 > **Note**: The Codex terminal enforces a strict 1600-byte *per-line* limit. Wrapping output with
 `clw` prevents session resets by ensuring no line exceeds this limit. When in doubt, redirect long
 output to a file and view it with `clw` in small chunks.
+
+### Additional Output Management Tools
+
+For cases where you need to execute a command and automatically truncate overly
+long lines, use `tools/shell_output_manager.sh`. Wrap any command with
+`safe_execute` to ensure lines longer than 4000 characters are redirected to a
+temporary log while a truncated preview is printed.
+
+```bash
+source tools/shell_output_manager.sh
+safe_execute "some_command producing huge output"
+```
+
+When streaming data from other processes or needing structured chunking, the
+Python utility `tools/output_chunker.py` can be used as a filter to split long
+lines intelligently, preserving ANSI color codes and JSON boundaries.
+
+```bash
+some_command | python tools/output_chunker.py
+```
+
+For pattern-aware splitting, `tools/output_pattern_chunker.py` provides
+customizable boundary detection while maintaining ANSI sequences. To wrap
+commands and automatically record session metadata, use
+`.github/scripts/session_wrapper.sh`, which employs
+`tools/shell_buffer_manager.sh` to enforce hard cutoffs and redirect
+overflow to temporary logs. See `docs/SESSION_WRAPPER_USAGE.md` for
+examples.
 
 
 
