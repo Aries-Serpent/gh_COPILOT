@@ -1,8 +1,20 @@
-# Quantum Integration Overview
+# Quantum Integration Guide
 
-This document outlines connection specifications and API considerations for integrating with leading quantum hardware providers. It also highlights security and compliance guidance for quantum-enabled workflows.
+This guide outlines how to connect the gh_COPILOT platform with leading quantum service providers. It focuses on IBM Quantum, D-Wave, and IonQ and covers APIs, data formats, security, and hardware specifics.
 
-## Provider Connection Specifications
+## Integration Workflow Overview
+
+```mermaid
+flowchart LR
+    A[gh_COPILOT] --> B[Provider SDK/API]
+    B --> C[Quantum Service]
+    C --> B
+    B --> A
+```
+
+Each provider follows this general flow: the platform builds a circuit or problem, submits it through the provider SDK or REST API, waits for job completion, and then retrieves results for analysis.
+
+## Provider Details
 
 ### IBM Quantum
 - **Access Method:** IBM Quantum Services over REST and WebSocket APIs.
