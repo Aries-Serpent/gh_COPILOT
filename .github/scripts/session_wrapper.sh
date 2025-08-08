@@ -52,21 +52,38 @@ recover() {
     done
 }
 
-if [ "$#" -lt 1 ]; then
-    echo "Usage: $0 {wrap|recover}" >&2
-    exit 1
+if [ "$#" -gt 0 ]; then
+    cmd="$1"; shift
+    case "$cmd" in
+        setup_session_preservation)
+            setup_session_preservation
+            ;;
+        wrap_command|wrap)
+            wrap_command "$@"
+            ;;
+        recover_session)
+            recover_session "$@"
+            ;;
+        *)
+            echo "Usage: $0 {setup_session_preservation|wrap_command|recover_session}" >&2
+            exit 1
+            ;;
+    esac
 fi
 
 subcmd="$1"; shift
 case "$subcmd" in
-    wrap)
+    setup_session_preservation)
+        setup_session_preservation
+        ;;
+    wrap_command|wrap)
         wrap "$@"
         ;;
-    recover)
+    recover_session|recover)
         recover "$@"
         ;;
     *)
-        echo "Usage: $0 {wrap|recover}" >&2
+        echo "Usage: $0 {setup_session_preservation|wrap_command|wrap|recover_session|recover}" >&2
         exit 1
         ;;
 esac
