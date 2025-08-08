@@ -105,8 +105,14 @@ class FileRenamer:
             self.errors.append(f"Rename error for {file_path.name}: {e}")
             return False
     
-    def rename_all_files(self) -> dict:
-        """🚀 Rename all files with spaces in the directory"""
+    def rename_all_files(self, run_conversion: bool = True) -> dict:
+        """🚀 Rename all files with spaces in the directory.
+
+        Args:
+            run_conversion: Whether to convert PDFs and update the daily index
+                after renaming. Defaults to ``True`` for backwards
+                compatibility.
+        """
         logger.info("="*60)
         logger.info("🚀 STARTING FILE RENAMING OPERATION")
         logger.info(f"📁 Target Directory: {self.target_directory}")
@@ -133,22 +139,25 @@ class FileRenamer:
         summary = self.generate_summary()
         self.log_summary(summary)
 
-        try:
-            from tools.convert_daily_whitepaper import (
-                convert_pdfs,
-                fetch_lfs_objects,
-            )
-            from scripts.documentation.update_daily_state_index import update_index
+        if run_conversion:
+            try:
+                from tools.convert_daily_whitepaper import (
+                    convert_pdfs,
+                    fetch_lfs_objects,
+                )
+                from scripts.documentation.update_daily_state_index import (
+                    update_index,
+                )
 
-            # Ensure Git LFS objects are available before conversion
-            fetch_lfs_objects()
-            for message in convert_pdfs(self.target_directory):
-                logger.info(message)
-            index_path = self.target_directory.parent / "daily_state_index.md"
-            update_index(source_dir=self.target_directory, index_path=index_path)
-        except Exception as e:  # noqa: BLE001
-            logger.error(f"❌ Conversion step failed: {e}")
-            self.errors.append(f"Conversion error: {e}")
+                # Ensure Git LFS objects are available before conversion
+                fetch_lfs_objects()
+                for message in convert_pdfs(self.target_directory):
+                    logger.info(message)
+                index_path = self.target_directory.parent / "daily_state_index.md"
+                update_index(source_dir=self.target_directory, index_path=index_path)
+            except Exception as e:  # noqa: BLE001
+                logger.error(f"❌ Conversion step failed: {e}")
+                self.errors.append(f"Conversion error: {e}")
 
         return summary
     
@@ -194,14 +203,18 @@ class FileRenamer:
         
         logger.info("="*60)
 
-def main() -> dict:
-    """🎯 Main execution function"""
+def main(run_conversion: bool = True) -> dict:
+    """🎯 Main execution function
+
+    Args:
+        run_conversion: Passed to :meth:`FileRenamer.rename_all_files`.
+    """
     # Target directory relative to this script
-    target_directory = Path(__file__).resolve().parent / 'documentation/generated/daily_state_update'
-    
+    target_directory = Path(__file__).resolve().parent / "documentation/generated/daily_state_update"
+
     # Create renamer and execute
     renamer = FileRenamer(target_directory)
-    summary = renamer.rename_all_files()
+    summary = renamer.rename_all_files(run_conversion=run_conversion)
 
     # Return summary for potential further processing
     return summary
