@@ -38,4 +38,6 @@ def test_vue_component_includes_fields():
     content = vue_path.read_text()
     assert "log.entity" in content
     assert "log.resolution" in content
+    assert 'class="timestamp"' in content
+    assert 'v-model="filter"' in content
 
