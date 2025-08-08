@@ -274,6 +274,13 @@ Both ``session_protocol_validator.py`` and ``session_management_consolidation_ex
 are stable CLI wrappers. They delegate to the core implementations under
 ``validation.protocols.session`` and ``session_management_consolidation_executor`` and can
 be used directly in automation scripts.
+
+The lightweight `src/session/validators.py` module exposes a
+`validate_lifecycle` helper that checks for open database connections,
+pending transactions, stray temporary files, empty log files, and
+orphaned session metadata.  `SessionManager.shutdown()` invokes this
+helper to ensure each session concludes cleanly and raises a
+`RuntimeError` when any resources remain.
 - ``unified_session_management_system.py`` starts new sessions via enterprise compliance checks.
 - ``continuous_operation_monitor.py`` records uptime and resource usage to ``analytics.db``.
 Import these modules directly in your own scripts for easier maintenance.

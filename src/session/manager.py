@@ -10,13 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 import sqlite3
 
-from .validators import (
-    check_logs,
-    check_open_connections,
-    check_temp_files,
-    check_uncommitted_transactions,
-    check_orphaned_sessions,
-)
+from .validators import validate_lifecycle
 
 
 class SessionManager:
@@ -47,25 +41,15 @@ class SessionManager:
         failure.
         """
 
-        open_conns = check_open_connections(self._connections)
-        if open_conns:
-            raise RuntimeError("open connections detected")
-
-        uncommitted = check_uncommitted_transactions(self._connections)
-        if uncommitted:
-            raise RuntimeError("uncommitted transactions detected")
-
-        temp_files = check_temp_files(self.temp_dir)
-        if temp_files:
-            raise RuntimeError(f"temporary files remaining: {temp_files}")
-
-        empty_logs = check_logs(self.log_dir)
-        if empty_logs:
-            raise RuntimeError(f"empty log files detected: {empty_logs}")
-
-        orphaned = check_orphaned_sessions(self.session_dir)
-        if orphaned:
-            raise RuntimeError(f"orphaned sessions detected: {orphaned}")
+        issues = validate_lifecycle(
+            self._connections,
+            log_dir=self.log_dir,
+            temp_dir=self.temp_dir,
+            session_dir=self.session_dir,
+        )
+        if issues:
+            joined = "; ".join(f"{k} detected: {v}" for k, v in issues.items())
+            raise RuntimeError(joined)
 
 
 __all__ = ["SessionManager"]
