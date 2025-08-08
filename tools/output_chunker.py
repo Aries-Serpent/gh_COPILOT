@@ -44,6 +44,10 @@ class OutputChunker:
             yield from self._chunk_ansi_line(line)
         elif patterns["json_like"]:
             yield from self._chunk_json_line(line)
+        elif patterns["log_entry"]:
+            yield from self._chunk_log_line(line)
+        elif patterns["csv_like"]:
+            yield from self._chunk_csv_line(line)
         else:
             yield from self._chunk_simple(line)
 
@@ -103,6 +107,34 @@ class OutputChunker:
                 current_chunk = ""
         if current_chunk:
             yield current_chunk, len(line) > self.max_length
+
+    def _chunk_log_line(self, line: str) -> Iterator[Tuple[str, bool]]:
+        """Chunk log lines at whitespace boundaries."""
+        parts = line.split()
+        current = ""
+        for part in parts:
+            token = part if not current else f" {part}"
+            if len(current) + len(token) <= self.max_length:
+                current += token
+            else:
+                yield current, True
+                current = part
+        if current:
+            yield current, len(line) > self.max_length
+
+    def _chunk_csv_line(self, line: str) -> Iterator[Tuple[str, bool]]:
+        """Chunk CSV-like lines at comma boundaries."""
+        parts = line.split(",")
+        current = ""
+        for part in parts:
+            token = part if not current else f",{part}"
+            if len(current) + len(token) <= self.max_length:
+                current += token
+            else:
+                yield current, True
+                current = part
+        if current:
+            yield current, len(line) > self.max_length
 
     def _chunk_simple(self, line: str) -> Iterator[Tuple[str, bool]]:
         """Simple character-based chunking."""
