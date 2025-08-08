@@ -313,6 +313,34 @@ some_command | python tools/output_chunker.py
 
 For pattern-aware splitting, `tools/output_pattern_chunker.py` provides
 customizable boundary detection while maintaining ANSI sequences. To wrap
+commands and automatically record session metadata, use
+`.github/scripts/session_wrapper.sh`, which employs
+`tools/shell_buffer_manager.sh` to enforce hard cutoffs and redirect
+overflow to temporary logs. See `docs/session_wrapper.md` for
+usage details.
+
+### Additional Output Management Tools
+
+For cases where you need to execute a command and automatically truncate overly
+long lines, use `tools/shell_output_manager.sh`. Wrap any command with
+`safe_execute` to ensure lines longer than 4000 characters are redirected to a
+temporary log while a truncated preview is printed.
+
+```bash
+source tools/shell_output_manager.sh
+safe_execute "some_command producing huge output"
+```
+
+When streaming data from other processes or needing structured chunking, the
+Python utility `tools/output_chunker.py` can be used as a filter to split long
+lines intelligently, preserving ANSI color codes and JSON boundaries.
+
+```bash
+some_command | python tools/output_chunker.py
+```
+
+For pattern-aware splitting, `tools/output_pattern_chunker.py` provides
+customizable boundary detection while maintaining ANSI sequences. To wrap
 commands and automatically record session metadata, use the
 `safe-run` alias, which invokes `session_wrapper.sh wrap` and employs
 `tools/shell_buffer_manager.sh` to enforce hard cutoffs and redirect
