@@ -7,6 +7,8 @@ import threading
 import time
 from pathlib import Path
 
+import pytest
+
 from database_first_synchronization_engine import (
     SchemaMapper,
     SyncManager,
@@ -158,3 +160,46 @@ def test_watch_pairs_syncs_multiple_pairs(tmp_path: Path) -> None:
     assert _read_rows(db1_b) == [(1, "new1", 3)]
     assert _read_rows(db2_a) == [(1, "new2", 3)]
     assert _read_rows(db2_b) == [(1, "new2", 3)]
+
+
+def test_tables_without_id_are_skipped(tmp_path: Path) -> None:
+    db_a = tmp_path / "a.db"
+    db_b = tmp_path / "b.db"
+
+    _create_db(db_a, [(1, "a", 1)])
+    _create_db(db_b, [(1, "b", 2)])
+    with sqlite3.connect(db_a) as conn:
+        conn.execute("CREATE TABLE noid (data TEXT)")
+        conn.execute("INSERT INTO noid (data) VALUES ('A')")
+    with sqlite3.connect(db_b) as conn:
+        conn.execute("CREATE TABLE noid (data TEXT)")
+        conn.execute("INSERT INTO noid (data) VALUES ('B')")
+
+    manager = SyncManager(SchemaMapper())
+    manager.sync(db_a, db_b, policy="last-write-wins")
+
+    # items table synchronized
+    assert _read_rows(db_a) == [(1, "b", 2)]
+    assert _read_rows(db_b) == [(1, "b", 2)]
+
+    # noid tables remain untouched
+    with sqlite3.connect(db_a) as conn:
+        a_noid = conn.execute("SELECT data FROM noid").fetchall()
+    with sqlite3.connect(db_b) as conn:
+        b_noid = conn.execute("SELECT data FROM noid").fetchall()
+    assert a_noid == [("A",)]
+    assert b_noid == [("B",)]
+
+
+def test_malicious_table_name_rejected(tmp_path: Path) -> None:
+    db_a = tmp_path / "a.db"
+    db_b = tmp_path / "b.db"
+
+    with sqlite3.connect(db_a) as conn:
+        conn.execute('CREATE TABLE "bad-name" (id INTEGER PRIMARY KEY)')
+    with sqlite3.connect(db_b) as conn:
+        conn.execute('CREATE TABLE "bad-name" (id INTEGER PRIMARY KEY)')
+
+    manager = SyncManager(SchemaMapper())
+    with pytest.raises(ValueError):
+        manager.sync(db_a, db_b)
