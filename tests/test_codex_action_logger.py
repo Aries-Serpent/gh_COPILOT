@@ -57,7 +57,7 @@ def test_record_and_finalize(tmp_path, monkeypatch):
 
     calls: list[list[str]] = []
 
-    def fake_run(cmd, cwd=None, check=False):
+    def fake_run(cmd, cwd=None, check=True):
         calls.append(cmd)
         class Result:
             returncode = 0
@@ -67,9 +67,9 @@ def test_record_and_finalize(tmp_path, monkeypatch):
 
     codex_log_db.init_codex_log_db()
     codex_log_db.record_codex_action("s1", "action", "statement", "meta")
-    src = codex_log_db.finalize_codex_log_db()
+    copied = codex_log_db.finalize_codex_log_db()
 
-    assert src == db_file
+    assert copied == session_file
     assert session_file.exists()
 
     with sqlite3.connect(db_file) as conn:

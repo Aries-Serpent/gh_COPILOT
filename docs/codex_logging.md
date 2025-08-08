@@ -4,16 +4,21 @@ This document describes how Codex sessions record activity in the repository.
 
 ## Database schema
 
-Codex events are stored in `databases/codex_log.db`, an SQLite database with a
-single table:
+Codex events are stored in `databases/codex_log.db`, an SQLite database with two
+tables:
 
 - `codex_actions`
   - `id` – integer primary key
   - `session_id` – identifier for the Codex session
-  - `ts` – timestamp when the action was recorded
+  - `ts` – ISO 8601 UTC timestamp when the action was recorded
   - `action` – name of the action
   - `statement` – free‑form details about the action
-  - `metadata` – optional JSON or text metadata
+  - `metadata` – optional metadata stored as JSON text
+- `codex_log`
+  - `session_id` – identifier for the Codex session
+  - `event` – `start` or `end`
+  - `summary` – optional session summary text
+  - `ts` – ISO 8601 UTC timestamp when the event was recorded
 
 ## Usage
 
@@ -27,7 +32,7 @@ from utils.codex_log_db import (
 )
 
 init_codex_log_db()
-record_codex_action(session_id, "generate", "created script", metadata="...")
+record_codex_action(session_id, "generate", "created script", metadata={"foo": 1})
 finalize_codex_log_db()
 ```
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sqlite3
 from contextlib import contextmanager
 from datetime import UTC, datetime
@@ -19,7 +20,7 @@ DB_NAME = "codex_log.db"
 
 
 def init_db() -> None:
-    """Create the ``codex_actions`` table if it doesn't exist."""
+    """Create required Codex logging tables if they don't exist."""
     CODEX_LOG_DB.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(CODEX_LOG_DB) as conn:
         conn.execute(
@@ -31,6 +32,16 @@ def init_db() -> None:
                 action TEXT,
                 statement TEXT,
                 metadata TEXT
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS codex_log(
+                session_id TEXT,
+                event TEXT,
+                summary TEXT,
+                ts TEXT
             )
             """
         )
@@ -94,16 +105,24 @@ def log_codex_action(
     session_id: str,
     action: str,
     statement: str,
-    metadata: str = "",
+    metadata: str | dict | list | None = "",
 ) -> None:
-    """Log a single Codex action."""
+    """Log a single Codex action with UTC timestamp.
+
+    ``metadata`` may be a string or JSON-serialisable object.
+    """
+    if isinstance(metadata, (dict, list)):
+        metadata_str = json.dumps(metadata)
+    else:
+        metadata_str = metadata or ""
+    ts = datetime.now(UTC).isoformat()
     with codex_actions_cursor(CODEX_LOG_DB) as cursor:
         cursor.execute(
             """
             INSERT INTO codex_actions (session_id, ts, action, statement, metadata)
-            VALUES (?, datetime('now'), ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?)
             """,
-            (session_id, action, statement, metadata),
+            (session_id, ts, action, statement, metadata_str),
         )
 
 
@@ -144,7 +163,7 @@ def finalize_codex_log_db() -> Path:
                 str(dst.relative_to(workspace)),
             ],
             cwd=workspace,
-            check=False,
+            check=True,
         )
     return dst
 
@@ -155,7 +174,10 @@ def init_codex_log_db() -> None:
 
 
 def record_codex_action(
-    session_id: str, action: str, statement: str, metadata: str = "",
+    session_id: str,
+    action: str,
+    statement: str,
+    metadata: str | dict | list | None = "",
 ) -> None:
     """Alias for :func:`log_codex_action` for clarity."""
     log_codex_action(session_id, action, statement, metadata)
