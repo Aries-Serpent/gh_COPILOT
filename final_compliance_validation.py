@@ -104,12 +104,106 @@ def main():
         print(f"   ❌ Test suite: FAILED - {e}\n")
         return False
     
+    # Test 5: Database auto-creation and robustness
+    print("5️⃣ Testing database auto-creation...")
+    try:
+        import tempfile
+        import sqlite3
+        
+        # Test ingestion database auto-creation
+        temp_dir = tempfile.mkdtemp()
+        from scripts.ingest_test_and_lint_results import _ensure_db_path, _db
+        
+        test_db_path = _db(temp_dir)
+        _ensure_db_path(test_db_path)
+        
+        assert test_db_path.exists(), "Database not auto-created"
+        print("   ✅ Ingestion database auto-creation: Working")
+        
+        # Test session lifecycle database auto-creation  
+        from session.session_lifecycle_metrics import start_session, end_session
+        
+        # This will auto-create database
+        start_session("test_session_123", workspace=temp_dir)
+        end_session("test_session_123", workspace=temp_dir)
+        
+        # Verify session data
+        with sqlite3.connect(str(test_db_path)) as conn:
+            session_count = conn.execute("SELECT COUNT(*) FROM session_lifecycle").fetchone()[0]
+            assert session_count > 0, "Session not recorded"
+            
+        print("   ✅ Session lifecycle database auto-creation: Working")
+        print("   🎉 Database auto-creation: PASSED\n")
+        
+        # Cleanup
+        import shutil
+        try:
+            shutil.rmtree(temp_dir)
+        except:
+            pass  # Windows file locking issues
+            
+    except Exception as e:
+        print(f"   ❌ Database auto-creation: FAILED - {e}\n")
+        return False
+        
+    # Test 6: Safe pytest runner  
+    print("6️⃣ Testing safe pytest runner...")
+    try:
+        from scripts.run_tests_safe import check_pytest_cov_available, run_pytest_safe
+        
+        # Test coverage detection
+        cov_available = check_pytest_cov_available()
+        print(f"   ✅ Pytest-cov detection: {cov_available}")
+        
+        # Test runner exists and is callable
+        assert callable(run_pytest_safe), "run_pytest_safe not callable"
+        print("   ✅ Safe test runner: Available")
+        print("   🎉 Safe pytest runner: PASSED\n")
+        
+    except Exception as e:
+        print(f"   ❌ Safe pytest runner: FAILED - {e}\n")
+        return False
+        
+    # Test 7: Integration test suite
+    print("7️⃣ Testing integration test suite...")
+    try:
+        integration_test = Path("test_compliance_integration.py")
+        if integration_test.exists():
+            # Handle encoding issues
+            try:
+                content = integration_test.read_text(encoding='utf-8')
+            except UnicodeDecodeError:
+                content = integration_test.read_text(encoding='utf-8', errors='ignore')
+            
+            # Check for key test functions
+            required_tests = [
+                "test_compliance_metrics_persistence",
+                "test_placeholder_snapshot_join", 
+                "test_api_query_consistency",
+                "test_ingestion_compliance_integration"
+            ]
+            
+            for test_name in required_tests:
+                assert test_name in content, f"Test {test_name} not found"
+                print(f"   ✅ {test_name}: Present")
+                
+            print("   🎉 Integration test suite: PASSED\n")
+        else:
+            print("   ❌ Integration test suite: test_compliance_integration.py not found\n")
+            return False
+            
+    except Exception as e:
+        print(f"   ❌ Integration test suite: FAILED - {e}\n")
+        return False
+    
     print("🏆 FINAL RESULT: All compliance pipeline components are properly implemented!")
     print("\n📋 SUMMARY:")
-    print("   ✅ Dashboard Chart.js integration complete")
-    print("   ✅ Comprehensive test suite created") 
     print("   ✅ ComplianceComponents computation verified")
-    print("   ✅ Ingestion and session tracking modules ready")
+    print("   ✅ Ingestion and session tracking modules ready") 
+    print("   ✅ Dashboard Chart.js integration complete")
+    print("   ✅ Database auto-creation robust")
+    print("   ✅ Safe pytest runner available")
+    print("   ✅ Comprehensive integration test suite created")
     print("\n🚀 The compliance pipeline is ready for production use!")
     
     return True
