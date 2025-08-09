@@ -23,7 +23,7 @@ from datetime import datetime
 import getpass
 import argparse
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from tqdm import tqdm
 import shutil
@@ -43,6 +43,11 @@ from utils.log_utils import log_message
 from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
 from unified_script_generation_system import EnterpriseUtility
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
+
+__all__ = [
+    "snapshot_placeholder_counts",
+    "get_latest_placeholder_snapshot",
+]
 
 # Visual processing indicator constants
 TEXT = {
@@ -301,6 +306,81 @@ def verify_task_completion(analytics_db: Path, workspace: Path) -> int:
         conn.commit()
     return resolved
 
+
+# ---------------------------------------------------------------------------
+# Placeholder snapshot utilities
+# ---------------------------------------------------------------------------
+
+
+def _ensure_placeholder_snapshot_table(conn: sqlite3.Connection) -> None:
+    """Create ``placeholder_snapshot`` table if it does not exist."""
+
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS placeholder_snapshot (
+            ts INTEGER PRIMARY KEY,
+            open INTEGER NOT NULL,
+            resolved INTEGER NOT NULL
+        )
+        """
+    )
+
+
+def snapshot_placeholder_counts(db: Path) -> Tuple[int, int]:
+    """Aggregate open and resolved placeholder counts and record a snapshot.
+
+    Parameters
+    ----------
+    db:
+        Path to ``analytics.db``.
+
+    Returns
+    -------
+    Tuple[int, int]
+        The open and resolved counts respectively.
+    """
+
+    with sqlite3.connect(db) as conn:
+        _ensure_placeholder_snapshot_table(conn)
+        cur = conn.execute(
+            "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'"
+        )
+        open_count = int(cur.fetchone()[0])
+        cur = conn.execute(
+            "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
+        )
+        resolved_count = int(cur.fetchone()[0])
+        conn.execute(
+            "INSERT OR REPLACE INTO placeholder_snapshot(ts, open, resolved) VALUES (?,?,?)",
+            (int(time.time()), open_count, resolved_count),
+        )
+        conn.commit()
+        return open_count, resolved_count
+
+
+def get_latest_placeholder_snapshot(
+    conn: sqlite3.Connection,
+) -> Tuple[int, int]:
+    """Return the most recent open/resolved counts.
+
+    Parameters
+    ----------
+    conn:
+        SQLite connection to ``analytics.db``.
+
+    Returns
+    -------
+    Tuple[int, int]
+        ``(open, resolved)`` counts. Returns ``(0, 0)`` when no snapshot
+        exists.
+    """
+
+    _ensure_placeholder_snapshot_table(conn)
+    cur = conn.execute(
+        "SELECT open, resolved FROM placeholder_snapshot ORDER BY ts DESC LIMIT 1"
+    )
+    row = cur.fetchone()
+    return (int(row[0]), int(row[1])) if row else (0, 0)
 
 # Insert findings into analytics.db.code_audit_log
 def log_findings(
@@ -1116,14 +1196,7 @@ def main(
         export_resolved_placeholders(analytics, dashboard)
         # Snapshot placeholder counts for compliance scoring
         try:
-            with sqlite3.connect(analytics) as conn:
-                conn.execute("""CREATE TABLE IF NOT EXISTS placeholder_audit_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, open_count INTEGER, resolved_count INTEGER)""")
-                cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'")
-                open_count = int(cur.fetchone()[0])
-                cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'")
-                resolved_count = int(cur.fetchone()[0])
-                conn.execute("INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES(?,?,?)", (int(time.time()), open_count, resolved_count))
-                conn.commit()
+            snapshot_placeholder_counts(analytics)
         except Exception:
             pass
     else:
