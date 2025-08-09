@@ -46,7 +46,6 @@ def aggregate_metrics(
         tests_failed,
         placeholders_open,
         placeholders_resolved,
-        composite,
         db_path,
         test_mode=test_mode,
     )

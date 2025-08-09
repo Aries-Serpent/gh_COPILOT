@@ -17,6 +17,13 @@
 <p><strong>Resolved Placeholders:</strong> {{ metrics.resolved_placeholders | default(0) }}</p>
 <p><strong>Remediation Progress:</strong> {{ ((metrics.progress or 0) * 100) | round(1) }}%</p>
 
+<h2>Placeholder Trend</h2>
+<ul>
+{% for entry in metrics.placeholder_trend or [] %}
+    <li>{{ entry.timestamp }} - open: {{ entry.open }}, resolved: {{ entry.resolved }}</li>
+{% endfor %}
+</ul>
+
 <h2>Correction Logs</h2>
 <ul>
 {% for entry in metrics.correction_logs or [] %}
