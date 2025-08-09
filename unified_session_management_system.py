@@ -11,6 +11,11 @@ import logging
 import sqlite3
 from datetime import UTC, datetime
 
+try:  # pragma: no cover - optional dependency
+    import psutil
+except Exception:  # pragma: no cover - best effort
+    psutil = None  # type: ignore[assignment]
+
 from utils.validation_utils import detect_zero_byte_files
 from scripts.session.anti_recursion_enforcer import anti_recursion_guard
 from enterprise_modules.compliance import validate_environment, ComplianceError
@@ -49,6 +54,42 @@ def _record_zero_byte_findings(paths: list[Path], phase: str, session_id: str) -
         conn.executemany(
             "INSERT INTO zero_byte_files (path, phase, session_id, ts) VALUES (?, ?, ?, ?)",
             [(str(p), phase, session_id, timestamp) for p in paths] or [],
+        )
+
+
+def _record_wrap_up_metrics(
+    session_id: str, open_handles: int, zero_byte_count: int
+) -> None:
+    """Store wrap-up metrics in ``analytics.db``.
+
+    Parameters
+    ----------
+    session_id:
+        Identifier for the session being finalized.
+    open_handles:
+        Number of file descriptors currently open.
+    zero_byte_count:
+        Count of zero-byte files present at wrap-up.
+    """
+
+    ts = datetime.utcnow().isoformat()
+    with sqlite3.connect(ANALYTICS_DB) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS wrap_up_metrics (
+                session_id TEXT NOT NULL,
+                open_handles INTEGER NOT NULL,
+                zero_byte_files INTEGER NOT NULL,
+                ts TEXT NOT NULL
+            )
+            """
+        )
+        conn.execute(
+            """
+            INSERT INTO wrap_up_metrics (session_id, open_handles, zero_byte_files, ts)
+            VALUES (?, ?, ?, ?)
+            """,
+            (session_id, int(open_handles), int(zero_byte_count), ts),
         )
 
 
@@ -155,6 +196,10 @@ def finalize_session(
                 "INSERT OR IGNORE INTO session_hashes (hash, ts) VALUES (?, ?)",
                 (hash_value, datetime.utcnow().isoformat()),
             )
+
+    zero_byte_count = len(detect_zero_byte_files(root_path))
+    open_handles = len(psutil.Process().open_files()) if psutil else 0
+    _record_wrap_up_metrics(session_id, open_handles, zero_byte_count)
 
     return hash_value
 
