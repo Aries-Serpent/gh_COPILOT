@@ -24,7 +24,18 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 from tqdm import tqdm
-from quantum_algorithm_library_expansion import quantum_text_score
+
+# ``quantum_text_score`` is optional. If the quantum library is missing or
+# shadowed by a stub module, fall back to a no-op implementation so imports do
+# not fail during testing.
+try:  # pragma: no cover - exercised in regression tests
+    from quantum_algorithm_library_expansion import quantum_text_score
+except Exception:  # pragma: no cover - executed when import fails
+    def quantum_text_score(_text: str) -> float:
+        """Return a neutral score when quantum support is unavailable."""
+
+        return 0.0
+
 from utils.lessons_learned_integrator import load_lessons, apply_lessons
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")

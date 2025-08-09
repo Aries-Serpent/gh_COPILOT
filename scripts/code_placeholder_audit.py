@@ -306,6 +306,46 @@ def log_placeholder_tasks(
                     ),
                 )
         conn.commit()
+
+        # Persist aggregate counts for dashboard consumers.
+        cur = conn.execute(
+            "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'"
+        )
+        open_count = int(cur.fetchone()[0])
+        cur = conn.execute(
+            "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
+        )
+        resolved_count = int(cur.fetchone()[0])
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS placeholder_metrics (
+                timestamp TEXT,
+                open_placeholders INTEGER,
+                resolved_placeholders INTEGER,
+                compliance_score REAL,
+                progress REAL,
+                auto_removal_count INTEGER
+            )
+            """
+        )
+        denom = open_count + resolved_count
+        compliance_score = resolved_count / denom if denom else 1.0
+        conn.execute(
+            "INSERT INTO placeholder_metrics VALUES (?,?,?,?,?,?)",
+            (
+                datetime.now().isoformat(),
+                open_count,
+                resolved_count,
+                compliance_score,
+                compliance_score,
+                0,
+            ),
+        )
+        conn.execute(
+            "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (?,?,?)",
+            (int(time.time()), open_count, resolved_count),
+        )
+        conn.commit()
     return inserted
 
 
@@ -635,6 +675,46 @@ def log_findings(
                         values[:-1],
                     )
                     inserted += 1
+        conn.commit()
+
+        # Persist aggregate counts for dashboard consumers.
+        cur = conn.execute(
+            "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'"
+        )
+        open_count = int(cur.fetchone()[0])
+        cur = conn.execute(
+            "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
+        )
+        resolved_count = int(cur.fetchone()[0])
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS placeholder_metrics (
+                timestamp TEXT,
+                open_placeholders INTEGER,
+                resolved_placeholders INTEGER,
+                compliance_score REAL,
+                progress REAL,
+                auto_removal_count INTEGER
+            )
+            """
+        )
+        denom = open_count + resolved_count
+        compliance_score = resolved_count / denom if denom else 1.0
+        conn.execute(
+            "INSERT INTO placeholder_metrics VALUES (?,?,?,?,?,?)",
+            (
+                datetime.now().isoformat(),
+                open_count,
+                resolved_count,
+                compliance_score,
+                compliance_score,
+                0,
+            ),
+        )
+        conn.execute(
+            "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (?,?,?)",
+            (int(time.time()), open_count, resolved_count),
+        )
         conn.commit()
     return inserted
 

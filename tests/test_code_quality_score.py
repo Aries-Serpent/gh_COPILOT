@@ -7,6 +7,7 @@ def test_score_returns_ratios_and_score():
     assert breakdown["lint_score"] == 100.0
     assert breakdown["test_pass_ratio"] == 1.0
     assert breakdown["placeholder_resolution_ratio"] == 1.0
+    assert breakdown["placeholder_score"] == 100.0
 
 
 def test_score_handles_mixed_inputs():
@@ -14,6 +15,7 @@ def test_score_handles_mixed_inputs():
     assert score == 81.0
     assert breakdown["test_pass_ratio"] == 0.8
     assert breakdown["placeholder_resolution_ratio"] == 0.7
+    assert breakdown["placeholder_score"] == 70.0
 
 
 def test_score_handles_zero_tests():
