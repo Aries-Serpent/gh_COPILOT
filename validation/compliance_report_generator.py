@@ -151,6 +151,7 @@ def generate_compliance_report(
             pytest_metrics["passed"],
             pytest_metrics["failed"],
             placeholder_count,
+            0,
         )
         summary = {
             "timestamp": timestamp,
