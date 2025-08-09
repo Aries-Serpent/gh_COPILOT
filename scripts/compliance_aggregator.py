@@ -11,7 +11,7 @@ import argparse
 from typing import Any, Dict
 
 from enterprise_modules.compliance import (
-    calculate_compliance_score,
+    calculate_composite_score,
     record_code_quality_metrics,
 )
 
@@ -27,27 +27,17 @@ def aggregate_metrics(
     test_mode: bool = False,
 ) -> Dict[str, Any]:
     """Return composite compliance metrics and optionally persist them."""
-    composite = calculate_compliance_score(
+    composite, breakdown = calculate_composite_score(
         ruff_issues,
         tests_passed,
         tests_failed,
         placeholders_open,
         placeholders_resolved,
     )
-
-    total_tests = tests_passed + tests_failed
-    test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
-    lint_score = max(0.0, 100 - ruff_issues)
-    total_placeholders = placeholders_open + placeholders_resolved
-    placeholder_score = (
-        placeholders_resolved / total_placeholders * 100
-        if total_placeholders
-        else 100.0
-    )
     breakdown = {
-        "lint_score": round(lint_score, 2),
-        "test_score": round(test_score, 2),
-        "placeholder_score": round(placeholder_score, 2),
+        "lint_score": breakdown["lint_score"],
+        "test_score": breakdown["test_score"],
+        "placeholder_score": breakdown["placeholder_score"],
     }
 
     record_code_quality_metrics(
