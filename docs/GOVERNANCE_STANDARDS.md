@@ -22,3 +22,23 @@ collaborative codebase.
 
 ## Compliance Enforcement Patterns
 Automated compliance metrics now gate changes by evaluating lint results, test outcomes, and placeholder audits. These patterns integrate with dual-copilot validation and anti-recursion safeguards to uphold governance standards. A failing composite score blocks deployments and pull requests until issues are resolved, providing transparent and auditable enforcement.
+
+## Compliance Scoring Rules
+Compliance scores combine three weighted components:
+
+- **Lint Score (40%)** – percentage of files passing `ruff` checks.
+- **Test Score (40%)** – percentage of automated tests passing.
+- **Placeholder Score (20%)** – proportion of resolved TODO/FIXME placeholders.
+
+The composite compliance score is calculated as:
+
+```
+composite = 0.4 * lint_score + 0.4 * test_score + 0.2 * placeholder_score
+```
+
+A composite score below **85** blocks merges until issues are corrected.
+
+## Placeholder Targets
+- Maintain fewer than **5** open TODO/FIXME placeholders per **1,000** lines of code.
+- Resolve at least **10** placeholders per week across active modules.
+- Release branches must have **zero** unresolved placeholders before merge.

@@ -16,3 +16,5 @@ score = calculate_compliance_score(
 ```
 
 This helper computes the lint, test, and placeholder ratios and persists the final score to `analytics.db` for dashboard visualization and governance checks.
+Dashboard tooltips describe how lint, test, and placeholder scores are derived, and session wrap-ups capture these metrics alongside the composite score for each run.
+

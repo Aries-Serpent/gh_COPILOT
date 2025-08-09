@@ -1,4 +1,5 @@
 import json
+import sqlite3
 import pytest
 
 import dashboard.enterprise_dashboard as ed
@@ -20,6 +21,13 @@ def test_composite_score_persisted_and_served(tmp_path, monkeypatch):
 
     score, breakdown = calculate_composite_score(5, 8, 2, 1, 4)
     persist_compliance_score(score, breakdown, db_path=db)
+    # ensure persist_compliance_score wrote placeholder_score to history
+    with sqlite3.connect(db) as conn:
+        row = conn.execute(
+            "SELECT placeholder_score, composite_score FROM compliance_metrics_history ORDER BY id DESC LIMIT 1"
+        ).fetchone()
+        assert row == (pytest.approx(breakdown["placeholder_score"], rel=1e-3), pytest.approx(score, rel=1e-3))
+
     record_code_quality_metrics(5, 8, 2, 1, 4, score, db_path=db)
 
     client = ed.app.test_client()

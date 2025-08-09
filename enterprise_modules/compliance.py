@@ -607,6 +607,7 @@ def persist_compliance_score(
     db.parent.mkdir(parents=True, exist_ok=True)
     breakdown = breakdown or {}
     with sqlite3.connect(db) as conn:
+        _ensure_metrics_table(conn)
         conn.execute(
             """CREATE TABLE IF NOT EXISTS compliance_scores (
                 timestamp TEXT,
@@ -631,6 +632,24 @@ def persist_compliance_score(
                 float(breakdown.get("lint_score", 0.0)),
                 float(breakdown.get("test_score", 0.0)),
                 float(breakdown.get("placeholder_score", 0.0)),
+            ),
+        )
+        ts = int(datetime.now().timestamp())
+        conn.execute(
+            """INSERT INTO compliance_metrics_history (
+                timestamp, ruff_issues, tests_passed, tests_failed,
+                placeholders_open, placeholders_resolved,
+                placeholder_score, composite_score
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                ts,
+                int(breakdown.get("ruff_issues", 0)),
+                int(breakdown.get("tests_passed", 0)),
+                int(breakdown.get("tests_failed", 0)),
+                int(breakdown.get("placeholders_open", 0)),
+                int(breakdown.get("placeholders_resolved", 0)),
+                float(breakdown.get("placeholder_score", 0.0)),
+                float(score),
             ),
         )
         conn.commit()
