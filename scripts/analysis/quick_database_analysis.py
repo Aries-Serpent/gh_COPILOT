@@ -56,9 +56,10 @@ def main():
                             if count > 0:
                                 scripts_in_databases += count
                                 sample_db_scripts[f"{db_file.name}.{table}"] = count
-                    except Exception:
+                    except (sqlite3.Error, OSError) as exc:
+                        print(f"{TEXT['error']} Query failed for {table}: {exc}")
                         continue
-        except Exception as e:
+        except (sqlite3.Error, OSError) as e:
             print(f"{TEXT['error']} Failed to analyze {db_file.name}: {e}")
 
     print(f"{TEXT['info']} Found approximately {scripts_in_databases} script entries in sampled databases")
@@ -81,7 +82,7 @@ def main():
             syntax_valid += 1
         except SyntaxError as e:
             syntax_errors.append(f"{script.name}: {e}")
-        except Exception as e:
+        except OSError as e:
             syntax_errors.append(f"{script.name}: {e}")
 
     print(f"{TEXT['info']} Sample syntax validation: {syntax_valid}/{len(sample_scripts)} scripts valid")
