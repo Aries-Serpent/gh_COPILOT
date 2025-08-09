@@ -157,7 +157,12 @@ class ComplianceMetricsUpdater:
             loop.create_task(_send())
 
     def _fetch_compliance_metrics(self, *, test_mode: bool = False) -> Dict[str, Any]:
-        """Fetch compliance metrics from analytics.db."""
+        """Fetch compliance metrics from analytics.db.
+
+        The returned dictionary always includes counts for both open and
+        resolved placeholders so downstream calculations can incorporate
+        placeholder progress accurately.
+        """
         metrics = {
             "placeholder_removal": 0,
             "open_placeholders": 0,
@@ -352,9 +357,14 @@ class ComplianceMetricsUpdater:
         else:
             metrics["correction_logs"] = []
 
-        total_ph = metrics["resolved_placeholders"] + metrics["open_placeholders"]
+        # Ensure placeholder counts are present for downstream consumers
+        open_ph = metrics.get("open_placeholders", 0)
+        resolved_ph = metrics.get("resolved_placeholders", 0)
+        metrics["open_placeholders"] = open_ph
+        metrics["resolved_placeholders"] = resolved_ph
+        total_ph = resolved_ph + open_ph
         if total_ph:
-            metrics["progress"] = metrics["resolved_placeholders"] / float(total_ph)
+            metrics["progress"] = resolved_ph / float(total_ph)
         else:
             metrics["progress"] = 1.0
 
@@ -364,12 +374,14 @@ class ComplianceMetricsUpdater:
         else:
             ruff_issues = _run_ruff()
             tests_passed, tests_failed = _run_pytest()
+        open_ph = metrics.get("open_placeholders", 0)
+        resolved_ph = metrics.get("resolved_placeholders", 0)
         scores = calculate_composite_compliance_score(
             ruff_issues,
             tests_passed,
             tests_failed,
-            metrics.get("open_placeholders", 0),
-            metrics.get("resolved_placeholders", 0),
+            open_ph,
+            resolved_ph,
         )
         # ``calculate_composite_compliance_score`` returns individual scores
         # along with a combined ``composite`` value. Apply additional penalties
@@ -390,8 +402,8 @@ class ComplianceMetricsUpdater:
             ruff_issues,
             tests_passed,
             tests_failed,
-            metrics.get("open_placeholders", 0),
-            metrics.get("resolved_placeholders", 0),
+            open_ph,
+            resolved_ph,
             scores["composite"],
             db_path=ANALYTICS_DB,
             test_mode=test_mode,
