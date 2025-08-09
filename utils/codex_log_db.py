@@ -154,6 +154,15 @@ def finalize_codex_log_db() -> Path:
     dst = workspace / CODEX_SESSION_LOG_DB
     if src.exists():
         dst.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            with sqlite3.connect(src) as conn:
+                result = conn.execute("PRAGMA integrity_check;").fetchone()
+        except sqlite3.DatabaseError as exc:  # pragma: no cover - defensive
+            raise RuntimeError(f"Database integrity check failed: {exc}") from exc
+        if not result or result[0] != "ok":
+            raise RuntimeError(
+                f"Database integrity check failed: {result[0] if result else 'no result'}"
+            )
         shutil.copy2(src, dst)
         subprocess.run(
             [
