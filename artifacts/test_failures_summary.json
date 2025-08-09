@@ -1,3 +1,8 @@
 {
-  "returncode": 0
+  "command": "python -m pytest test_compliance_integration.py -v --tb=short -o addopts= --json-report --json-report-file=artifacts/test_failures_summary.pytest.json",
+  "exit_code": 4,
+  "stdout_lines": 0,
+  "stderr_lines": 5,
+  "coverage_enabled": false,
+  "success": false
 }

@@ -9,7 +9,7 @@ Composite score formula:
 Data sources (optional tables – treated as 0/100 defaults if absent):
     ruff_issue_log(issues)
     test_run_stats(passed, total)
-    placeholder_audit_snapshots(open_count, resolved_count)
+    placeholder_snapshot(ts, open, resolved)
 
 Writes to analytics.db: compliance_metrics_history (and legacy compliance_scores)
 """
@@ -21,6 +21,8 @@ from typing import Dict, List, Optional, Tuple
 import os
 import sqlite3
 import time
+
+from scripts.code_placeholder_audit import get_latest_placeholder_snapshot
 
 __all__ = [
     "update_compliance_metrics",
@@ -107,13 +109,8 @@ def _fetch_components(conn: sqlite3.Connection) -> ComplianceComponents:
         ).fetchone()
     else:
         tests_passed, tests_total = 0, 0
-    if _table_exists(conn, "placeholder_audit_snapshots"):
-        placeholders_open, placeholders_resolved = conn.execute(
-            "SELECT COALESCE(open_count,0), COALESCE(resolved_count,0) "
-            "FROM placeholder_audit_snapshots ORDER BY id DESC LIMIT 1"
-        ).fetchone()
-    else:
-        placeholders_open, placeholders_resolved = 0, 0
+    # Use the most robust, compatible approach for placeholder snapshot
+    placeholders_open, placeholders_resolved = get_latest_placeholder_snapshot(conn)
     return ComplianceComponents(
         int(ruff_issues or 0),
         int(tests_passed or 0),
@@ -145,7 +142,7 @@ def update_compliance_metrics(workspace: Optional[str] = None, db_path: Optional
         comp = _fetch_components(conn)
         L, T, P, composite = _compute(comp)
         ts = int(time.time())
-        # new unified table
+        # Write to unified history table
         conn.execute(
             """
             INSERT INTO compliance_metrics_history (
@@ -170,7 +167,7 @@ def update_compliance_metrics(workspace: Optional[str] = None, db_path: Optional
                 None,
             ),
         )
-        # legacy table for backward compatibility
+        # Write to legacy table for backward compatibility
         conn.execute(
             """
             INSERT INTO compliance_scores (

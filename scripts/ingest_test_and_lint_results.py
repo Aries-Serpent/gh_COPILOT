@@ -27,14 +27,22 @@ def ingest(
     ruff_json: Optional[Path] = None,
     pytest_json: Optional[Path] = None,
 ) -> None:
+    """
+    Ingest ruff and pytest JSON outputs into analytics.db,
+    populating ruff_issue_log, test_run_stats, compliance_metrics_history, and compliance_scores.
+    """
     ws = Path(workspace or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
     db_path = _db(workspace)
     db_path.parent.mkdir(parents=True, exist_ok=True)
     ruff_path = ruff_json or ws / RUFF_JSON
     pytest_path = pytest_json or ws / PYTEST_JSON
+
     with sqlite3.connect(db_path) as conn:
+        # Ensure necessary tables for both legacy and current metrics
         _ensure_table(conn)
         _ensure_metrics_table(conn)
+
+        # --- Ruff issues log ---
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS ruff_issue_log (
@@ -50,7 +58,9 @@ def ingest(
                 issues = len(data) if isinstance(data, list) else int(data.get("issue_count", 0))
             except Exception:
                 issues = 0
-            conn.execute("INSERT INTO ruff_issue_log(issues) VALUES(?)", (issues,))
+        conn.execute("INSERT INTO ruff_issue_log(issues) VALUES(?)", (issues,))
+
+        # --- Pytest stats ---
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS test_run_stats (
@@ -69,11 +79,16 @@ def ingest(
                 passed = int(summary.get("passed", 0))
             except Exception:
                 total = passed = 0
-            conn.execute("INSERT INTO test_run_stats(passed,total) VALUES(?,?)", (passed, total))
+        conn.execute("INSERT INTO test_run_stats(passed,total) VALUES(?,?)", (passed, total))
+
+        # --- Compliance metrics ---
+        # L: Lint (ruff) score, T: Test score, P: Placeholder score (set to 0 here)
         L = max(0.0, 100.0 - float(issues))
         T = (float(passed) / total * 100.0) if total else 0.0
-        composite = 0.3 * L + 0.5 * T  # placeholder score assumed 0 for now
+        P = 0.0  # Placeholder score not available at ingest
+        composite = 0.3 * L + 0.5 * T + 0.2 * P
         ts = int(time.time())
+        # Insert into metrics history (newer normalized table)
         conn.execute(
             """
             INSERT INTO compliance_metrics_history (
@@ -83,8 +98,9 @@ def ingest(
                 composite_score, source, meta_json
             ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
             """,
-            (ts, issues, passed, total, None, None, L, T, None, composite, "ingest_pipeline", None),
+            (ts, issues, passed, total, None, None, L, T, P, composite, "ingest_pipeline", None),
         )
+        # Insert into legacy compliance_scores table
         conn.execute(
             """
             INSERT INTO compliance_scores (
@@ -93,10 +109,16 @@ def ingest(
                 placeholders_open, placeholders_resolved
             ) VALUES (?,?,?,?,?,?,?,?,?,?)
             """,
-            (ts, L, T, 0.0, composite, issues, passed, total, 0, 0),
+            (ts, L, T, P, composite, issues, passed, total, 0, 0),
         )
         conn.commit()
 
 
 if __name__ == "__main__":  # pragma: no cover
     ingest()
+
+
+__all__ = [
+    "_db",
+    "ingest",
+]

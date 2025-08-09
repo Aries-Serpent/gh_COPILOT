@@ -19,6 +19,23 @@ from typing import Any, Callable, TypeVar, cast
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.log_utils import send_dashboard_alert
 
+
+def _ensure_metrics_table(conn: sqlite3.Connection) -> None:
+    """Ensure ``compliance_metrics_history`` table exists."""
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS compliance_metrics_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp INTEGER NOT NULL,
+            ruff_issues INTEGER NOT NULL,
+            tests_passed INTEGER NOT NULL,
+            tests_failed INTEGER NOT NULL,
+            placeholders_open INTEGER,
+            placeholders_resolved INTEGER
+        )
+        """
+    )
+
 from scripts.database.add_violation_logs import ensure_violation_logs
 from scripts.database.add_rollback_logs import ensure_rollback_logs
 
@@ -867,6 +884,7 @@ def run_final_validation(primary_callable, targets) -> tuple[bool, bool, dict]:
 __all__ = [
     "validate_enterprise_operation",
     "_log_rollback",
+    "_ensure_metrics_table",
     "run_final_validation",
     "validate_environment",
     "enforce_anti_recursion",
