@@ -1114,6 +1114,18 @@ def main(
     if not simulate:
         update_dashboard(len(results), dashboard, analytics, summary_path)
         export_resolved_placeholders(analytics, dashboard)
+        # Snapshot placeholder counts for compliance scoring
+        try:
+            with sqlite3.connect(analytics) as conn:
+                conn.execute("""CREATE TABLE IF NOT EXISTS placeholder_audit_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, open_count INTEGER, resolved_count INTEGER)""")
+                cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'")
+                open_count = int(cur.fetchone()[0])
+                cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'")
+                resolved_count = int(cur.fetchone()[0])
+                conn.execute("INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES(?,?,?)", (int(time.time()), open_count, resolved_count))
+                conn.commit()
+        except Exception:
+            pass
     else:
         log_message(__name__, "[TEST MODE] Dashboard update skipped")
     # Combine with Compliance Metrics Updater for real-time metrics

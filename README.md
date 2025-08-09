@@ -61,7 +61,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
   `analytics.db` and alerts on anomalous activity.
 - **Point-in-Time Snapshots:** `point_in_time_backup.py` provides timestamped
   SQLite backups with restore support.
-- **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
+- **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log` and snapshots open/resolved counts (`placeholder_audit_snapshots`) used in composite compliance metric `P`.
 - **Disaster Recovery Validation:** `UnifiedDisasterRecoverySystem` verifies external backup roots and restores files from `production_backup`
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
 - **Codex Session Logging:** `utils.codex_log_database` stores all Codex actions
@@ -89,11 +89,17 @@ P = (placeholders_resolved / (placeholders_open + placeholders_resolved)) * 100
 score = 0.3 * L + 0.5 * T + 0.2 * P
 ```
 
-This value is persisted to `analytics.db` and surfaced via
-`dashboard/enterprise_dashboard.py`. Anti-recursion guards such as
-`validate_enterprise_operation` and `anti_recursion_guard` run alongside these
-calculations; runs that trigger recursion violations are excluded from
-scoring.
+This value is persisted to `analytics.db` (table `compliance_scores`) via `scripts/compliance/update_compliance_metrics.py` which aggregates:
+
+* `ruff_issue_log` – populated by `scripts/ingest_test_and_lint_results.py` after running `ruff` with JSON output
+* `test_run_stats` – same ingestion script parses `pytest --json-report` results
+* `placeholder_audit_snapshots` – appended after each `scripts/code_placeholder_audit.py` run
+
+Endpoints:
+* `POST /api/refresh_compliance` – compute & persist a new composite score
+* `GET /api/compliance_scores` – last 50 scores for trend visualization
+
+Anti-recursion guards (`validate_enterprise_operation`, `anti_recursion_guard`) execute alongside scoring; violating runs are excluded.
 
 Compliance enforcement also blocks destructive commands (`rm -rf`, `mkfs`,
 `shutdown`, `reboot`, `dd if=`) and flags unresolved `TODO` or `FIXME`
@@ -264,6 +270,11 @@ python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 
 # 5. Start enterprise dashboard
 python dashboard/enterprise_dashboard.py  # imports app from web_gui package
+\n+# 6. (Optional) Ingest lint/test results & update composite compliance score
+ruff check . --output-format json > ruff_report.json
+pytest --json-report --maxfail=1 || true
+python scripts/ingest_test_and_lint_results.py
+python -m scripts.compliance.update_compliance_metrics
 ```
 
 ### **Documentation Update Workflow**
