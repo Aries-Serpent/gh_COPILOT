@@ -16,9 +16,5 @@ score = calculate_compliance_score(
 ```
 
 This helper computes the lint, test, and placeholder ratios and persists the final score to `analytics.db` for dashboard visualization and governance checks.
+Dashboard tooltips describe how lint, test, and placeholder scores are derived, and session wrap-ups capture these metrics alongside the composite score for each run.
 
-## Automated Compliance Routines
-Nightly jobs recalculate composite scores and archive historical results in `analytics.db`, enabling trend analysis and long-term oversight.
-
-## Enhanced Monitoring Capabilities
-The Unified Monitoring Optimization System streams runtime metrics and compliance signals to the dashboard, providing real-time visibility and proactive alerting.

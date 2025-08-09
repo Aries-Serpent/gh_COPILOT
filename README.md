@@ -8,7 +8,7 @@
 ![Coverage](https://img.shields.io/badge/coverage-automated-blue)
 ![Ruff](https://img.shields.io/badge/ruff-linted-blue)
 
-**Status:** Active development with incremental improvements. Disaster recovery now enforces external backup roots with verified restore tests, and session-management lifecycle APIs (`start_session` / `end_session`) are now available. Monitoring modules expose a unified metrics API via `UnifiedMonitoringOptimizationSystem.collect_metrics` with optional quantum scoring hooks, and Git LFS rules are auto-synced from `.codex_lfs_policy.yaml` to ensure binary assets are tracked. The compliance metrics feature is fully implemented, combining lint, test, and placeholder audits into a composite score persisted to `analytics.db` and exposed through `/api/refresh_compliance` (recalculate) and `/api/compliance_scores` (fetch recent scores).
+**Status:** Active development with incremental improvements. Disaster recovery now enforces external backup roots with verified restore tests, and session-management lifecycle APIs (`start_session` / `end_session`) are now available. Monitoring modules expose a unified metrics API via `UnifiedMonitoringOptimizationSystem.collect_metrics` with optional quantum scoring hooks, and Git LFS rules are auto-synced from `.codex_lfs_policy.yaml` to ensure binary assets are tracked. The compliance metrics feature is fully implemented, combining lint, test, and placeholder audits into a composite score persisted to `analytics.db` and exposed through `/api/refresh_compliance` (recalculate) and `/api/compliance_scores` (fetch recent scores). Dashboard gauges now include tooltips explaining lint, test, and placeholder scores, and session wrap-ups log these metrics for every run.
 
 > Combined checks: run `python scripts/run_checks.py` to execute `ruff` and `pytest` sequentially.
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
@@ -67,11 +67,13 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
 - **Codex Session Logging:** `utils.codex_log_database` stores all Codex actions
   and statements in `databases/codex_session_logs.db` for post-session review.
+- **Session Metrics Logging:** wrap-ups automatically capture lint, test, and placeholder scores for each session.
 - **Anti-Recursion Guards:** backup and session modules now enforce external backup roots.
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, `add_code_audit_history.sql`, `add_violation_logs.sql`, and `add_rollback_logs.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
 - **Real-Time Sync Engine:** `SyncManager` and `SyncWatcher` log synchronization outcomes to `analytics.db` and, when `SYNC_ENGINE_WS_URL` is set, broadcast updates over WebSocket for the dashboard.
 - **Dashboard Metrics View:** compliance, synchronization, and monitoring metrics refresh live when `WEB_DASHBOARD_ENABLED=1`.
 - **Monitoring Pipeline:** anomaly detection results stored in `analytics.db` appear on the dashboard's monitoring panels and stream through `/metrics_stream` when the dashboard is enabled.
+- **Dashboard Tooltips:** lint, test, and placeholder gauges now provide explanatory titles for quick reference.
 
 - **Quantum Placeholder Utilities:** see [quantum/README.md](quantum/README.md) for simulated optimizer and search helpers. `quantum_optimizer.run_quantum_routine` includes placeholder hooks for annealing and search routines; entanglement correction is not implemented. These stubs run on Qiskit simulators and ignore `use_hardware=True` until real hardware integration lands. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) for current status.
 - **Phase 6 Quantum Demo:** `quantum_integration_orchestrator.py` demonstrates a simulated quantum

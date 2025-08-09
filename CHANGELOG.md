@@ -31,3 +31,4 @@
 - T022: Provide performance validation framework.
 - T023: Integrate monitoring and compliance metrics.
 - T024: Finalize phase 5 compliance scoring.
+- T025: Document compliance scoring rules, refresh monitoring and session docs, and add dashboard tooltips for lint, test, and placeholder metrics.
