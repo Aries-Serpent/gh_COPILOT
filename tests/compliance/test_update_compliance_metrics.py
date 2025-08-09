@@ -394,4 +394,5 @@ class TestEdgeCases:
         )
         L, T, P, composite = _compute(comp)
         
-        assert L == 100.0  # Negative issues capped at 100
+        # Negative ruff issue counts are clamped to 100%
+        assert L == 100.0
