@@ -369,6 +369,7 @@ class ComplianceMetricsUpdater:
             tests_passed,
             tests_failed,
             metrics.get("open_placeholders", 0),
+            metrics.get("resolved_placeholders", 0),
         )
         # ``calculate_composite_compliance_score`` returns individual scores
         # along with a combined ``composite`` value. Apply additional penalties

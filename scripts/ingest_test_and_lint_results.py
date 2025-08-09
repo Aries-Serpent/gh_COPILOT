@@ -34,7 +34,7 @@ def ingest(
     workspace: Optional[str] = None,
     ruff_json: Optional[Path] = None,
     pytest_json: Optional[Path] = None,
-    ) -> int:
+) -> int:
     """
     Ingest ruff and pytest JSON outputs into analytics.db,
     populating ruff_issue_log, test_run_stats, compliance_metrics_history, and compliance_scores.

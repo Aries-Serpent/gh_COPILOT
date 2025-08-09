@@ -9,10 +9,10 @@ sys.path.insert(0, str(Path.cwd() / 'scripts'))
 
 def main():
     """Final validation of compliance pipeline components"""
-    print("🎯 Final Compliance Pipeline Validation\n")
+    print("Final Compliance Pipeline Validation\n")
     
     # Test 1: ComplianceComponents and computation
-    print("1️⃣ Testing ComplianceComponents computation...")
+    print("1. Testing ComplianceComponents computation...")
     try:
         from scripts.compliance.update_compliance_metrics import ComplianceComponents, _compute
         
@@ -20,10 +20,10 @@ def main():
                                    placeholders_open=8, placeholders_resolved=22)
         L, T, P, composite = _compute(comp)
         
-        print(f"   ✅ L (Lint): {L}")
-        print(f"   ✅ T (Test): {T}")  
-        print(f"   ✅ P (Placeholder): {P:.2f}")
-        print(f"   ✅ Composite: {composite:.2f}")
+        print(f"   L (Lint): {L}")
+        print(f"   T (Test): {T}")  
+        print(f"   P (Placeholder): {P:.2f}")
+        print(f"   Composite: {composite:.2f}")
         
         # Verify expected calculations
         assert L == 97.0
@@ -31,29 +31,29 @@ def main():
         assert abs(P - 73.33) < 0.1
         assert abs(composite - 88.77) < 0.1
         
-        print("   🎉 ComplianceComponents: PASSED\n")
+        print("   ComplianceComponents: PASSED\n")
         
     except Exception as e:
-        print(f"   ❌ ComplianceComponents: FAILED - {e}\n")
+        print(f"   ComplianceComponents: FAILED - {e}\n")
         return False
     
     # Test 2: Ingestion module exists and imports
-    print("2️⃣ Testing ingestion modules...")
+    print("2. Testing ingestion modules...")
     try:
         from scripts.ingest_test_and_lint_results import ingest, _db, _ensure_db_path
-        print("   ✅ ingest_test_and_lint_results: Import successful")
+        print("   ingest_test_and_lint_results: Import successful")
         
         from session.session_lifecycle_metrics import start_session, end_session
-        print("   ✅ session_lifecycle_metrics: Import successful")
+        print("   session_lifecycle_metrics: Import successful")
         
-        print("   🎉 Ingestion modules: PASSED\n")
+        print("   Ingestion modules: PASSED\n")
         
     except Exception as e:
-        print(f"   ❌ Ingestion modules: FAILED - {e}\n")
+        print(f"   Ingestion modules: FAILED - {e}\n")
         return False
     
     # Test 3: Dashboard template enhancement  
-    print("3️⃣ Testing dashboard template...")
+    print("3. Testing dashboard template...")
     try:
         dashboard_file = Path("dashboard/templates/dashboard.html")
         if dashboard_file.exists():
@@ -65,20 +65,20 @@ def main():
             assert "updateComplianceChart" in content, "updateComplianceChart function not found"
             assert "/api/compliance_scores" in content, "API endpoint not found"
             
-            print("   ✅ Chart.js integration: Present")
-            print("   ✅ API endpoint consumption: /api/compliance_scores")
-            print("   ✅ Chart update functions: Present")
-            print("   🎉 Dashboard template: PASSED\n")
+            print("   Chart.js integration: Present")
+            print("   API endpoint consumption: /api/compliance_scores")
+            print("   Chart update functions: Present")
+            print("   Dashboard template: PASSED\n")
             
         else:
-            print("   ⚠️ Dashboard template: File not found (expected for this test)\n")
+            print("   Dashboard template: File not found (expected for this test)\n")
             
     except Exception as e:
-        print(f"   ❌ Dashboard template: FAILED - {e}\n")
+        print(f"   Dashboard template: FAILED - {e}\n")
         return False
     
     # Test 4: Test suite creation
-    print("4️⃣ Testing test suite...")
+    print("4. Testing test suite...")
     try:
         test_files = [
             "tests/compliance/test_update_compliance_metrics.py",
@@ -93,19 +93,19 @@ def main():
             if path.exists():
                 content = path.read_text()
                 assert len(content) > 100, f"{test_file} appears empty"
-                print(f"   ✅ {test_file}: Created and populated")
+                print(f"   {test_file}: Created and populated")
             else:
-                print(f"   ❌ {test_file}: Missing")
+                print(f"   {test_file}: Missing")
                 return False
                 
-        print("   🎉 Test suite: PASSED\n")
+        print("   Test suite: PASSED\n")
         
     except Exception as e:
-        print(f"   ❌ Test suite: FAILED - {e}\n")
+        print(f"   Test suite: FAILED - {e}\n")
         return False
     
     # Test 5: Database auto-creation and robustness
-    print("5️⃣ Testing database auto-creation...")
+    print("5. Testing database auto-creation...")
     try:
         import tempfile
         import sqlite3
@@ -120,8 +120,8 @@ def main():
 
         assert test_db_path.exists(), "Database not auto-created"
         assert isinstance(row_id, int) and row_id > 0
-        print(f"   ✅ Ingestion database auto-creation: row id {row_id}")
-        
+        print(f"   Ingestion database auto-creation: row id {row_id}")
+
         # Test session lifecycle database auto-creation  
         from session.session_lifecycle_metrics import start_session, end_session
         
@@ -134,8 +134,8 @@ def main():
             session_count = conn.execute("SELECT COUNT(*) FROM session_lifecycle").fetchone()[0]
             assert session_count > 0, "Session not recorded"
             
-        print("   ✅ Session lifecycle database auto-creation: Working")
-        print("   🎉 Database auto-creation: PASSED\n")
+        print("   Session lifecycle database auto-creation: Working")
+        print("   Database auto-creation: PASSED\n")
         
         # Cleanup
         import shutil
@@ -145,29 +145,29 @@ def main():
             pass  # Windows file locking issues
             
     except Exception as e:
-        print(f"   ❌ Database auto-creation: FAILED - {e}\n")
+        print(f"   Database auto-creation: FAILED - {e}\n")
         return False
         
     # Test 6: Safe pytest runner  
-    print("6️⃣ Testing safe pytest runner...")
+    print("6. Testing safe pytest runner...")
     try:
         from scripts.run_tests_safe import check_pytest_cov_available, run_pytest_safe
         
         # Test coverage detection
         cov_available = check_pytest_cov_available()
-        print(f"   ✅ Pytest-cov detection: {cov_available}")
+        print(f"   Pytest-cov detection: {cov_available}")
         
         # Test runner exists and is callable
         assert callable(run_pytest_safe), "run_pytest_safe not callable"
-        print("   ✅ Safe test runner: Available")
-        print("   🎉 Safe pytest runner: PASSED\n")
+        print("   Safe test runner: Available")
+        print("   Safe pytest runner: PASSED\n")
         
     except Exception as e:
-        print(f"   ❌ Safe pytest runner: FAILED - {e}\n")
+        print(f"   Safe pytest runner: FAILED - {e}\n")
         return False
         
     # Test 7: Integration test suite
-    print("7️⃣ Testing integration test suite...")
+    print("7. Testing integration test suite...")
     try:
         integration_test = Path("test_compliance_integration.py")
         if integration_test.exists():
@@ -187,26 +187,26 @@ def main():
             
             for test_name in required_tests:
                 assert test_name in content, f"Test {test_name} not found"
-                print(f"   ✅ {test_name}: Present")
+                print(f"   {test_name}: Present")
                 
-            print("   🎉 Integration test suite: PASSED\n")
+            print("   Integration test suite: PASSED\n")
         else:
-            print("   ❌ Integration test suite: test_compliance_integration.py not found\n")
+            print("   Integration test suite: test_compliance_integration.py not found\n")
             return False
             
     except Exception as e:
-        print(f"   ❌ Integration test suite: FAILED - {e}\n")
+        print(f"   Integration test suite: FAILED - {e}\n")
         return False
     
-    print("🏆 FINAL RESULT: All compliance pipeline components are properly implemented!")
-    print("\n📋 SUMMARY:")
-    print("   ✅ ComplianceComponents computation verified")
-    print("   ✅ Ingestion and session tracking modules ready") 
-    print("   ✅ Dashboard Chart.js integration complete")
-    print("   ✅ Database auto-creation robust")
-    print("   ✅ Safe pytest runner available")
-    print("   ✅ Comprehensive integration test suite created")
-    print("\n🚀 The compliance pipeline is ready for production use!")
+    print("FINAL RESULT: All compliance pipeline components are properly implemented!")
+    print("\nSUMMARY:")
+    print("   ComplianceComponents computation verified")
+    print("   Ingestion and session tracking modules ready") 
+    print("   Dashboard Chart.js integration complete")
+    print("   Database auto-creation robust")
+    print("   Safe pytest runner available")
+    print("   Comprehensive integration test suite created")
+    print("\nThe compliance pipeline is ready for production use!")
     
     return True
 
