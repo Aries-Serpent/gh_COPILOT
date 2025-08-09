@@ -17,4 +17,4 @@ def test_detect_patterns():
 
 
 def test_predict_next():
-    assert predict_next([1.0, 2.0, 3.0]) == 2.0
+    assert predict_next([1.0, 2.0, 3.0]) == 4.0
