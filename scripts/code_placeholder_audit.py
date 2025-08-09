@@ -675,13 +675,14 @@ def update_dashboard(
 
     denominator = open_count + resolved
     compliance = resolved / denominator if denominator else 1.0
+    compliance_pct = compliance * 100
     status = "complete" if open_count == 0 else "issues_pending"
     compliance_status = "compliant" if open_count == 0 else "non_compliant"
     data = {
         "timestamp": datetime.now().isoformat(),
         "findings": open_count,
         "resolved_count": resolved,
-        "compliance_score": compliance,
+        "compliance_score": compliance_pct,
         "progress": resolved / denominator if denominator else 1.0,
         "progress_status": status,
         "compliance_status": compliance_status,
@@ -695,7 +696,7 @@ def update_dashboard(
     dashboard_metrics = {
         "open_placeholders": open_count,
         "resolved_placeholders": resolved,
-        "compliance_score": compliance,
+        "compliance_score": compliance_pct,
         "progress": data["progress"],
         "auto_removal_count": auto_removal_count,
     }
@@ -720,7 +721,7 @@ def update_dashboard(
                     data["timestamp"],
                     open_count,
                     resolved,
-                    compliance,
+                    compliance_pct,
                     data["progress"],
                     auto_removal_count,
                 ),

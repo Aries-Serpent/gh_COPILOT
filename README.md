@@ -1271,7 +1271,7 @@ The audit results are used by the `/dashboard/compliance` endpoint to
 report ongoing placeholder removal progress and overall compliance
 metrics. A machine-readable summary is also written to
 `dashboard/compliance/placeholder_summary.json`. This file tracks total
-findings, resolved counts, and the current compliance score. Refer to
+findings, resolved counts, and the current compliance score (0–100%). Refer to
 the JSON schema in [dashboard/README.md](dashboard/README.md#placeholder_summaryjson-schema).
 ```
 
