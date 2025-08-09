@@ -2,7 +2,7 @@
 
 ## Compliance Formula Implementation
 
-The compliance formula is now **100% implemented** and drives enforcement across the toolkit. The composite score blends lint results, test outcomes, and placeholder resolution metrics to provide a single indicator of repository health.
+The compliance formula is now **100% implemented** and drives enforcement across the toolkit. The composite score blends lint results, test outcomes, and placeholder resolution metrics to provide a single indicator of repository health and feeds the `/api/refresh_compliance` and `/api/compliance_scores` endpoints.
 
 ```python
 from enterprise_modules.compliance import calculate_compliance_score
