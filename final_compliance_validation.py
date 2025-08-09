@@ -3,6 +3,7 @@
 
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 # Add scripts to path
 sys.path.insert(0, str(Path.cwd() / 'scripts'))
@@ -14,24 +15,26 @@ def main():
     # Test 1: ComplianceComponents and computation
     print("1️⃣ Testing ComplianceComponents computation...")
     try:
-        from scripts.compliance.update_compliance_metrics import ComplianceComponents, _compute
-        
-        comp = ComplianceComponents(ruff_issues=3, tests_passed=45, tests_total=50, 
-                                   placeholders_open=8, placeholders_resolved=22)
-        L, T, P, composite = _compute(comp)
-        
-        print(f"   ✅ L (Lint): {L}")
-        print(f"   ✅ T (Test): {T}")  
-        print(f"   ✅ P (Placeholder): {P:.2f}")
-        print(f"   ✅ Composite: {composite:.2f}")
-        
-        # Verify expected calculations
-        assert L == 97.0
-        assert T == 90.0
-        assert abs(P - 73.33) < 0.1
-        assert abs(composite - 88.77) < 0.1
-        
-        print("   🎉 ComplianceComponents: PASSED\n")
+        # Mock sklearn to avoid dependency issues
+        with patch.dict('sys.modules', {'sklearn': None, 'sklearn.ensemble': None}):
+            from scripts.compliance.update_compliance_metrics import ComplianceComponents, _compute
+            
+            comp = ComplianceComponents(ruff_issues=3, tests_passed=45, tests_total=50, 
+                                       placeholders_open=8, placeholders_resolved=22)
+            L, T, P, composite = _compute(comp)
+            
+            print(f"   ✅ L (Lint): {L}")
+            print(f"   ✅ T (Test): {T}")  
+            print(f"   ✅ P (Placeholder): {P:.2f}")
+            print(f"   ✅ Composite: {composite:.2f}")
+            
+            # Verify expected calculations
+            assert L == 97.0
+            assert T == 90.0
+            assert abs(P - 73.33) < 0.1
+            assert abs(composite - 88.77) < 0.1
+            
+            print("   🎉 ComplianceComponents: PASSED\n")
         
     except Exception as e:
         print(f"   ❌ ComplianceComponents: FAILED - {e}\n")
