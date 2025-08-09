@@ -15,6 +15,7 @@ import sqlite3
 import logging
 from pathlib import Path
 from datetime import datetime
+from typing import Optional
 
 from secondary_copilot_validator import (
     SecondaryCopilotValidator,
@@ -73,19 +74,38 @@ class EnterpriseDatabaseProcessor:
             return False
 
 
-def log_metrics(status: str) -> None:
-    """Record execution metrics in ``analytics.db``."""
+def log_metrics(status: str, db_path: Optional[Path] = None) -> None:
+    """Record execution metrics in ``analytics.db``.
 
-    analytics = Path(__file__).resolve().parents[1] / "databases" / "analytics.db"
+    Parameters
+    ----------
+    status:
+        Result of the execution to record.
+    db_path:
+        Optional path to the analytics database. When ``None`` the default
+        ``databases/analytics.db`` relative to the repository root is used.
+    """
+
+    analytics = db_path or Path(__file__).resolve().parents[1] / "databases" / "analytics.db"
     analytics.parent.mkdir(parents=True, exist_ok=True)
 
     with sqlite3.connect(analytics) as conn:
         conn.execute(
-            "CREATE TABLE IF NOT EXISTS script_metrics (script TEXT, status TEXT, ts TEXT)"
+            """
+            CREATE TABLE IF NOT EXISTS script_metrics (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                script TEXT,
+                status TEXT,
+                ts INTEGER
+            )
+            """
         )
         conn.execute(
-            "INSERT INTO script_metrics VALUES (?, ?, ?)",
-            ("quick_database_query", status, datetime.utcnow().isoformat()),
+            "CREATE INDEX IF NOT EXISTS idx_script_metrics_ts ON script_metrics(ts)"
+        )
+        conn.execute(
+            "INSERT INTO script_metrics(script, status, ts) VALUES (?, ?, ?)",
+            ("quick_database_query", status, int(datetime.utcnow().timestamp())),
         )
 
 
