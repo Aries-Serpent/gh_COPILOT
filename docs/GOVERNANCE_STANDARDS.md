@@ -22,3 +22,10 @@ collaborative codebase.
 
 ## Compliance Enforcement Patterns
 Automated compliance metrics now gate changes by evaluating lint results, test outcomes, and placeholder audits. These patterns integrate with dual-copilot validation and anti-recursion safeguards to uphold governance standards. A failing composite score blocks deployments and pull requests until issues are resolved, providing transparent and auditable enforcement.
+
+## Automated Compliance Routines and Monitoring
+- Nightly routines recompute lint, test, and placeholder scores and log results to `analytics.db`.
+- The Unified Monitoring Optimization System streams real-time metrics to the dashboard for continuous oversight.
+- Threshold-based alerts notify maintainers when compliance scores drop, enforcing timely corrective action.
+
+These routines reinforce dual-copilot and database-first principles while delivering continuous visibility into repository health.
