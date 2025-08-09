@@ -50,11 +50,12 @@ def analytics_db_schema():
                 "status": "TEXT DEFAULT 'running'"
             }
         },
-        "placeholder_snapshot": {
+        "placeholder_audit_snapshots": {
             "columns": {
-                "ts": "INTEGER",
-                "open": "INTEGER",
-                "resolved": "INTEGER"
+                "id": "INTEGER PRIMARY KEY AUTOINCREMENT",
+                "timestamp": "INTEGER",
+                "open_count": "INTEGER",
+                "resolved_count": "INTEGER"
             }
         }
     }

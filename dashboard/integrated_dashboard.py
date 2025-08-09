@@ -144,20 +144,30 @@ def _load_metrics() -> dict[str, Any]:
                 metrics["violation_count"] = cur.fetchone()[0]
                 cur.execute("SELECT COUNT(*) FROM rollback_logs")
                 metrics["rollback_count"] = cur.fetchone()[0]
+                try:
+                    cur = conn.execute(
+                        "SELECT open_count, resolved_count FROM placeholder_audit_snapshots ORDER BY id DESC LIMIT 1"
+                    )
+                    row = cur.fetchone()
+                    if row:
+                        metrics["open_placeholders"] = row[0]
+                        metrics["resolved_placeholders"] = row[1]
+                except sqlite3.Error:
+                    pass
         except sqlite3.Error:
             pass
     return metrics
 
 
 def _load_placeholder_history(limit: int = 30) -> list[dict[str, Any]]:
-    """Return daily counts of placeholders from placeholder_audit."""
+    """Return historical open placeholder counts."""
     rows: list[dict[str, Any]] = []
     if not ANALYTICS_DB.exists():
         return rows
     try:
         with sqlite3.connect(ANALYTICS_DB) as conn:
             cur = conn.execute(
-                "SELECT DATE(timestamp) as day, COUNT(*) FROM placeholder_audit GROUP BY day ORDER BY day DESC LIMIT ?",
+                "SELECT DATE(timestamp, 'unixepoch') as day, open_count FROM placeholder_audit_snapshots ORDER BY timestamp DESC LIMIT ?",
                 (limit,),
             )
             rows = [{"date": r[0], "count": r[1]} for r in cur.fetchall()][::-1]
