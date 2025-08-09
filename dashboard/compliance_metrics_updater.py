@@ -421,10 +421,12 @@ class ComplianceMetricsUpdater:
             if total_placeholders
             else 100.0
         )
+        weighted_score = 0.3 * lint_score + 0.5 * test_score + 0.2 * placeholder_score
         scores = {
             "lint_score": round(lint_score, 2),
             "test_score": round(test_score, 2),
             "placeholder_score": round(placeholder_score, 2),
+            "weighted_score": round(weighted_score, 2),
             "composite": round(composite, 2),
         }
         violation_penalty = metrics["violation_count"] * 10
@@ -434,6 +436,7 @@ class ComplianceMetricsUpdater:
         scores["rollback_penalty"] = rollback_penalty
         metrics["composite_score"] = composite_adj
         metrics["composite_compliance_score"] = composite_adj
+        metrics["weighted_score"] = scores["weighted_score"]
         metrics["score_breakdown"] = scores
         metrics["lint_score"] = scores["lint_score"]
         metrics["test_score"] = scores["test_score"]
