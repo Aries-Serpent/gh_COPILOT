@@ -27,6 +27,7 @@ This module is designed to meet enterprise auditability and compliance standards
 | Session Management           | Track, control, and validate current and historical sessions                                |
 | Database Operations          | Manage, browse, and synchronize all enterprise databases (production, analytics, monitoring) |
 | Compliance Reporting         | Visualizes DUAL COPILOT validation, compliance status, audit/rollback history               |
+| Compliance Score Visualization | Real-time Chart.js graphs with L/T/P gauges and CSV/JSON export options |
 | Backup and Recovery          | Initiate enterprise backup jobs, view logs, run restores, manage backup retention           |
 | Visual Processing Indicators | Progress bars, phase indicators, detailed execution status                                   |
 | Quantum Monitoring           | Extensible hooks for quantum and advanced analytics                                         |
