@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.1.0
+
+- T025: Document automated compliance routines and monitoring capabilities.
+- T026: Cross-reference updated governance guidelines in README.
+
 ## v1.0.0
 
 - T001: Initialize project workspace and configuration.
