@@ -106,7 +106,9 @@ def ingest(
                 composite_score, source, meta_json
             ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
             """,
-            (ts, issues, passed, total, None, None, L, T, P, composite, "ingest_pipeline", None),
+            # Placeholder snapshot data is not yet available at ingest time, so
+            # store zeros rather than NULL to keep the schema consistent.
+            (ts, issues, passed, total, 0, 0, L, T, P, composite, "ingest_pipeline", None),
         )
         row_id = cur.lastrowid
         # Insert into legacy compliance_scores table
