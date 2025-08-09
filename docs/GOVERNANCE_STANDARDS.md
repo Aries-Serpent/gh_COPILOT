@@ -19,3 +19,6 @@ collaborative codebase.
 - Run `bash setup.sh`, activate the virtual environment, and execute `ruff` and `pytest` before committing.
 - Reference these standards and the [Repository Guidelines](REPOSITORY_GUIDELINES.md) in proposals and pull requests.
 - Respect the dual-copilot validation and database-first principles.
+
+## Compliance Enforcement Patterns
+Automated compliance metrics now gate changes by evaluating lint results, test outcomes, and placeholder audits. These patterns integrate with dual-copilot validation and anti-recursion safeguards to uphold governance standards. A failing composite score blocks deployments and pull requests until issues are resolved, providing transparent and auditable enforcement.
