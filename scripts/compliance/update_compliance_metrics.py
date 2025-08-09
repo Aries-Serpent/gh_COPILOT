@@ -105,10 +105,15 @@ def update_compliance_metrics(workspace: Optional[str] = None, db_path: Optional
         conn.execute(
             """
             INSERT INTO compliance_scores
-            (timestamp, L, T, P, composite, ruff_issues, tests_passed, tests_total, placeholders_open, placeholders_resolved)
+            (timestamp, L, T, P, composite, ruff_issues, tests_passed, 
+             tests_total, placeholders_open, placeholders_resolved)
             VALUES (?,?,?,?,?,?,?,?,?,?)
             """,
-            (int(time.time()), L, T, P, composite, comp.ruff_issues, comp.tests_passed, comp.tests_total, comp.placeholders_open, comp.placeholders_resolved),
+            (
+                int(time.time()), L, T, P, composite, comp.ruff_issues, 
+                comp.tests_passed, comp.tests_total, comp.placeholders_open, 
+                comp.placeholders_resolved
+            ),
         )
         conn.commit()
         return composite
