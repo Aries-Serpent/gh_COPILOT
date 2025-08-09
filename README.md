@@ -61,7 +61,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
   `analytics.db` and alerts on anomalous activity.
 - **Point-in-Time Snapshots:** `point_in_time_backup.py` provides timestamped
   SQLite backups with restore support.
-- **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log` and snapshots open/resolved counts (`placeholder_audit_snapshots`) used in composite compliance metric `P`.
+- **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log` and snapshots open/resolved counts (`placeholder_snapshot`) used in composite compliance metric `P`.
 - **Disaster Recovery Validation:** `UnifiedDisasterRecoverySystem` verifies external backup roots and restores files from `production_backup`
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
 - **Codex Session Logging:** `utils.codex_log_database` stores all Codex actions
@@ -93,7 +93,7 @@ This value is persisted to `analytics.db` (table `compliance_scores`) via `scrip
 
 * `ruff_issue_log` – populated by `scripts/ingest_test_and_lint_results.py` after running `ruff` with JSON output
 * `test_run_stats` – same ingestion script parses `pytest --json-report` results
-* `placeholder_audit_snapshots` – appended after each `scripts/code_placeholder_audit.py` run
+* `placeholder_snapshot` – appended after each `scripts/code_placeholder_audit.py` run
 
 Endpoints:
 * `POST /api/refresh_compliance` – compute & persist a new composite score
