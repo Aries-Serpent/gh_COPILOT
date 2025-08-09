@@ -135,7 +135,7 @@ compliance issues immediately.
 
 The `/dashboard/compliance` endpoint returns compliance information as JSON, combining live metrics from `analytics.db` and correction/rollback summaries from `dashboard/compliance/correction_summary.json`.
 
-`metrics.json` uses the following schema (applies to both `dashboard/metrics.json` and `dashboard/compliance/metrics.json`):
+`metrics.json` uses the following schema (applies to both `dashboard/metrics.json` and `dashboard/compliance/metrics.json`). `compliance_score` values are percentages from 0 to 100:
 
 ```json
 {
@@ -179,7 +179,7 @@ The endpoint is used by the dashboard UI and can be queried by external tools fo
 
 ### `placeholder_summary.json` Schema
 
-`dashboard/compliance/placeholder_summary.json` contains the latest placeholder audit status:
+`dashboard/compliance/placeholder_summary.json` contains the latest placeholder audit status. The `compliance_score` is expressed as a percentage from 0 to 100:
 
 ```json
 {

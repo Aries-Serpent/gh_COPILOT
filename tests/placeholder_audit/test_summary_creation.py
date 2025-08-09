@@ -31,7 +31,7 @@ def test_summary_file_created_after_runs(tmp_path):
     expected1 = (
         data1["resolved_count"] / denominator1 if denominator1 else 1.0
     )
-    assert data1["compliance_score"] == expected1
+    assert data1["compliance_score"] == expected1 * 100
     assert "progress_status" in data1
     assert "compliance_status" in data1
     assert isinstance(data1.get("placeholder_counts"), dict)
@@ -53,7 +53,7 @@ def test_summary_file_created_after_runs(tmp_path):
     expected2 = (
         data2["resolved_count"] / denominator2 if denominator2 else 1.0
     )
-    assert data2["compliance_score"] == expected2
+    assert data2["compliance_score"] == expected2 * 100
     assert "placeholder_counts" in data2
 
 
@@ -77,4 +77,4 @@ def test_compliance_score_zero_denominator(tmp_path):
     data = json.loads(summary.read_text())
     assert data["findings"] == 0
     assert data["resolved_count"] == 0
-    assert data["compliance_score"] == 1.0
+    assert data["compliance_score"] == 100.0
