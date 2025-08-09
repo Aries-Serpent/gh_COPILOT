@@ -40,7 +40,7 @@ def main():
     # Test 2: Ingestion module exists and imports
     print("2️⃣ Testing ingestion modules...")
     try:
-        from scripts.ingest_test_and_lint_results import ingest, _db
+        from scripts.ingest_test_and_lint_results import ingest, _db, _ensure_db_path
         print("   ✅ ingest_test_and_lint_results: Import successful")
         
         from session.session_lifecycle_metrics import start_session, end_session
@@ -109,11 +109,10 @@ def main():
     try:
         import tempfile
         import sqlite3
-        
+
         # Test ingestion database auto-creation
         temp_dir = tempfile.mkdtemp()
-        from scripts.ingest_test_and_lint_results import _ensure_db_path, _db
-        
+
         test_db_path = _db(temp_dir)
         _ensure_db_path(test_db_path)
         
