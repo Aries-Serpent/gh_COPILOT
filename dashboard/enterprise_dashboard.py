@@ -16,7 +16,10 @@ from .integrated_dashboard import (
     METRICS_FILE as _METRICS_FILE,
 )
 from unified_monitoring_optimization_system import get_anomaly_summary
-from scripts.compliance.update_compliance_metrics import update_compliance_metrics
+from scripts.compliance.update_compliance_metrics import (
+    update_compliance_metrics,
+    fetch_recent_compliance,
+)
 
 ANALYTICS_DB = Path("databases/analytics.db")
 METRICS_FILE = _METRICS_FILE
@@ -119,14 +122,7 @@ def refresh_compliance() -> Any:  # pragma: no cover
 
 @app.route("/api/compliance_scores")
 def compliance_scores() -> Any:  # pragma: no cover
-    rows = []
-    if ANALYTICS_DB.exists():
-        with sqlite3.connect(ANALYTICS_DB) as conn:
-            try:
-                cur = conn.execute("SELECT timestamp, composite FROM compliance_scores ORDER BY id DESC LIMIT 50")
-                rows = [{"timestamp": r[0], "composite": r[1]} for r in cur.fetchall()]
-            except sqlite3.Error:
-                rows = []
+    rows = fetch_recent_compliance(limit=20)
     return jsonify({"scores": rows})
 
 
