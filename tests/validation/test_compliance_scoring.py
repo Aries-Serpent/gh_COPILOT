@@ -60,3 +60,11 @@ def test_calculate_composite_score_perfect_results() -> None:
     assert breakdown["test_weighted"] == 50.0
     assert breakdown["placeholder_weighted"] == 20.0
 
+
+def test_resolved_placeholders_affect_composite_score() -> None:
+    """Resolved placeholders should improve the overall composite score."""
+
+    score_unresolved, _ = calculate_composite_score(0, 10, 0, 5, 0)
+    score_resolved, _ = calculate_composite_score(0, 10, 0, 5, 5)
+    assert score_resolved > score_unresolved
+
