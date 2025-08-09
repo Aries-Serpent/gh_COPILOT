@@ -599,8 +599,13 @@ class ComplianceMetricsUpdater:
             json.dumps(metrics.get("recent_rollbacks", []), indent=2),
             encoding="utf-8",
         )
+        placeholder_payload = {
+            "open": metrics.get("open_placeholders", 0),
+            "resolved": metrics.get("resolved_placeholders", 0),
+            "breakdown": metrics.get("placeholder_breakdown", {}),
+        }
         placeholder_file.write_text(
-            json.dumps(metrics.get("placeholder_breakdown", {}), indent=2),
+            json.dumps(placeholder_payload, indent=2),
             encoding="utf-8",
         )
         logging.info(f"Dashboard metrics updated: {dashboard_file}")
@@ -651,6 +656,8 @@ class ComplianceMetricsUpdater:
             "compliance_score": float(metrics.get("compliance_score", 0.0)),
             "violation_count": float(metrics.get("violation_count", 0.0)),
             "rollback_count": float(metrics.get("rollback_count", 0.0)),
+            "open_placeholders": float(metrics.get("open_placeholders", 0.0)),
+            "resolved_placeholders": float(metrics.get("resolved_placeholders", 0.0)),
         }
         push_metrics(monitoring_metrics, table="enterprise_metrics", db_path=ANALYTICS_DB)
         score_breakdown = metrics.get("score_breakdown", {})
