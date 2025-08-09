@@ -178,6 +178,12 @@ class ComplianceMetricsUpdater:
             "auto_resolved_placeholders": 0,
             "ticketed_placeholders": 0,
             "compliance_score": 1.0,
+            "ruff_issues": 0,
+            "tests_passed": 0,
+            "tests_failed": 0,
+            "lint_score": 0.0,
+            "test_score": 0.0,
+            "placeholder_score": 0.0,
             "violation_count": 0,
             "rollback_count": 0,
             "recent_rollbacks": [],
@@ -426,6 +432,12 @@ class ComplianceMetricsUpdater:
         metrics["composite_score"] = composite_adj
         metrics["composite_compliance_score"] = composite_adj
         metrics["score_breakdown"] = scores
+        metrics["lint_score"] = scores["lint_score"]
+        metrics["test_score"] = scores["test_score"]
+        metrics["placeholder_score"] = scores["placeholder_score"]
+        metrics["ruff_issues"] = ruff_issues
+        metrics["tests_passed"] = tests_passed
+        metrics["tests_failed"] = tests_failed
 
         record_code_quality_metrics(
             ruff_issues,

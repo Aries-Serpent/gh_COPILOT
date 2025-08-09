@@ -3,10 +3,18 @@
     "compliance_score": 0.0,
     "code_quality_score": 0.0,
     "composite_score": 0.0,
+    "ruff_issues": 0,
+    "tests_passed": 0,
+    "tests_failed": 0,
+    "open_placeholders": 0,
+    "resolved_placeholders": 0,
+    "lint_score": 0.0,
+    "test_score": 0.0,
+    "placeholder_score": 0.0,
     "score_breakdown": {
       "lint_score": 0.0,
-      "test_pass_ratio": 0.0,
-      "placeholder_resolution_ratio": 0.0
+      "test_score": 0.0,
+      "placeholder_score": 0.0
     }
   },
   "status": "initialized",

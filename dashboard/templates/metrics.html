@@ -7,6 +7,12 @@
 <h1>Compliance Metrics</h1>
 <p><strong>Compliance Score:</strong> {{ metrics.compliance_score | default(0) }}</p>
 <p><strong>Composite Score:</strong> {{ metrics.composite_score | default(0) }}</p>
+<p><strong>Lint Issues:</strong> {{ metrics.ruff_issues | default(0) }}</p>
+<p><strong>Tests Passed:</strong> {{ metrics.tests_passed | default(0) }}</p>
+<p><strong>Tests Failed:</strong> {{ metrics.tests_failed | default(0) }}</p>
+<p><strong>Lint Score:</strong> {{ metrics.lint_score | default(0) }}</p>
+<p><strong>Test Score:</strong> {{ metrics.test_score | default(0) }}</p>
+<p><strong>Placeholder Score:</strong> {{ metrics.placeholder_score | default(0) }}</p>
 <p><strong>Open Placeholders:</strong> {{ metrics.open_placeholders | default(0) }}</p>
 <p><strong>Resolved Placeholders:</strong> {{ metrics.resolved_placeholders | default(0) }}</p>
 <p><strong>Remediation Progress:</strong> {{ ((metrics.progress or 0) * 100) | round(1) }}%</p>
