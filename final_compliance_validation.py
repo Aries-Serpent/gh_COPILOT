@@ -40,7 +40,7 @@ def main():
     # Test 2: Ingestion module exists and imports
     print("2️⃣ Testing ingestion modules...")
     try:
-        from scripts.ingest_test_and_lint_results import ingest, _db
+        from scripts.ingest_test_and_lint_results import ingest, _db, _ensure_db_path
         print("   ✅ ingest_test_and_lint_results: Import successful")
         
         from session.session_lifecycle_metrics import start_session, end_session
@@ -112,13 +112,15 @@ def main():
         
         # Test ingestion database auto-creation
         temp_dir = tempfile.mkdtemp()
-        from scripts.ingest_test_and_lint_results import _ensure_db_path, _db
-        
+        from scripts.ingest_test_and_lint_results import ingest, _ensure_db_path, _db
+
         test_db_path = _db(temp_dir)
         _ensure_db_path(test_db_path)
-        
+        row_id = ingest(temp_dir)
+
         assert test_db_path.exists(), "Database not auto-created"
-        print("   ✅ Ingestion database auto-creation: Working")
+        assert isinstance(row_id, int) and row_id > 0
+        print(f"   ✅ Ingestion database auto-creation: row id {row_id}")
         
         # Test session lifecycle database auto-creation  
         from session.session_lifecycle_metrics import start_session, end_session
@@ -139,7 +141,7 @@ def main():
         import shutil
         try:
             shutil.rmtree(temp_dir)
-        except:
+        except Exception:
             pass  # Windows file locking issues
             
     except Exception as e:

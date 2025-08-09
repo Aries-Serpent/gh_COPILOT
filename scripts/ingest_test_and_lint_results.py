@@ -22,18 +22,26 @@ def _db(workspace: Optional[str] = None) -> Path:
     return ws / "databases" / "analytics.db"
 
 
+def _ensure_db_path(db_path: Path) -> None:
+    """Ensure the database path and parent directories exist."""
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    if not db_path.exists():
+        with sqlite3.connect(str(db_path)) as conn:
+            conn.execute("SELECT 1")
+
+
 def ingest(
     workspace: Optional[str] = None,
     ruff_json: Optional[Path] = None,
     pytest_json: Optional[Path] = None,
-) -> None:
+    ) -> int:
     """
     Ingest ruff and pytest JSON outputs into analytics.db,
     populating ruff_issue_log, test_run_stats, compliance_metrics_history, and compliance_scores.
     """
     ws = Path(workspace or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
     db_path = _db(workspace)
-    db_path.parent.mkdir(parents=True, exist_ok=True)
+    _ensure_db_path(db_path)
     ruff_path = ruff_json or ws / RUFF_JSON
     pytest_path = pytest_json or ws / PYTEST_JSON
 
@@ -89,7 +97,7 @@ def ingest(
         composite = 0.3 * L + 0.5 * T + 0.2 * P
         ts = int(time.time())
         # Insert into metrics history (newer normalized table)
-        conn.execute(
+        cur = conn.execute(
             """
             INSERT INTO compliance_metrics_history (
                 ts, ruff_issues, tests_passed, tests_total,
@@ -100,6 +108,7 @@ def ingest(
             """,
             (ts, issues, passed, total, None, None, L, T, P, composite, "ingest_pipeline", None),
         )
+        row_id = cur.lastrowid
         # Insert into legacy compliance_scores table
         conn.execute(
             """
@@ -113,6 +122,8 @@ def ingest(
         )
         conn.commit()
 
+    return row_id
+
 
 if __name__ == "__main__":  # pragma: no cover
     ingest()
@@ -120,5 +131,6 @@ if __name__ == "__main__":  # pragma: no cover
 
 __all__ = [
     "_db",
+    "_ensure_db_path",
     "ingest",
 ]
