@@ -26,7 +26,11 @@ def aggregate_metrics(
 ) -> Dict[str, Any]:
     """Return composite compliance metrics and optionally persist them."""
     scores = calculate_composite_compliance_score(
-        ruff_issues, tests_passed, tests_failed, placeholders_open
+        ruff_issues,
+        tests_passed,
+        tests_failed,
+        placeholders_open,
+        placeholders_resolved,
     )
     record_code_quality_metrics(
         ruff_issues,

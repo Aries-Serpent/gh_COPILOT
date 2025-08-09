@@ -111,6 +111,7 @@ def _load_metrics() -> dict[str, Any]:
                                 row["tests_passed"],
                                 row["tests_failed"],
                                 row["placeholders"],
+                                0,
                             )
                             metrics["compliance_score"] = scores["composite"]
                             metrics["composite_score"] = row["composite_score"]
