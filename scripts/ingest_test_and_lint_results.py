@@ -22,6 +22,14 @@ def _db(workspace: Optional[str] = None) -> Path:
     return ws / "databases" / "analytics.db"
 
 
+def _ensure_db_path(db_path: Path) -> None:
+    """Ensure the database file and its parent directories exist."""
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    if not db_path.exists():
+        with sqlite3.connect(db_path) as conn:
+            conn.execute("SELECT 1")
+
+
 def ingest(
     workspace: Optional[str] = None,
     ruff_json: Optional[Path] = None,
@@ -33,7 +41,7 @@ def ingest(
     """
     ws = Path(workspace or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
     db_path = _db(workspace)
-    db_path.parent.mkdir(parents=True, exist_ok=True)
+    _ensure_db_path(db_path)
     ruff_path = ruff_json or ws / RUFF_JSON
     pytest_path = pytest_json or ws / PYTEST_JSON
 
@@ -120,5 +128,6 @@ if __name__ == "__main__":  # pragma: no cover
 
 __all__ = [
     "_db",
+    "_ensure_db_path",
     "ingest",
 ]
