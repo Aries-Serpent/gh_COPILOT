@@ -8,7 +8,7 @@
 ![Coverage](https://img.shields.io/badge/coverage-automated-blue)
 ![Ruff](https://img.shields.io/badge/ruff-linted-blue)
 
-**Status:** Active development with incremental improvements. Disaster recovery now enforces external backup roots with verified restore tests, and session-management lifecycle APIs (`start_session` / `end_session`) are now available. Monitoring modules expose a unified metrics API via `UnifiedMonitoringOptimizationSystem.collect_metrics` with optional quantum scoring hooks, and Git LFS rules are auto-synced from `.codex_lfs_policy.yaml` to ensure binary assets are tracked.
+**Status:** Active development with incremental improvements. Disaster recovery now enforces external backup roots with verified restore tests, and session-management lifecycle APIs (`start_session` / `end_session`) are now available. Monitoring modules expose a unified metrics API via `UnifiedMonitoringOptimizationSystem.collect_metrics` with optional quantum scoring hooks, and Git LFS rules are auto-synced from `.codex_lfs_policy.yaml` to ensure binary assets are tracked. The compliance metrics feature is fully implemented, combining lint, test, and placeholder audits into a composite score persisted to `analytics.db`.
 
 > Combined checks: run `python scripts/run_checks.py` to execute `ruff` and `pytest` sequentially.
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
@@ -62,6 +62,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Point-in-Time Snapshots:** `point_in_time_backup.py` provides timestamped
   SQLite backups with restore support.
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log` and snapshots open/resolved counts (`placeholder_snapshot`) used in composite compliance metric `P`.
+- **Compliance Metrics:** composite score integrating lint results, test outcomes, and placeholder resolutions now runs automatically and stores results in `analytics.db`.
 - **Disaster Recovery Validation:** `UnifiedDisasterRecoverySystem` verifies external backup roots and restores files from `production_backup`
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
 - **Codex Session Logging:** `utils.codex_log_database` stores all Codex actions
@@ -79,8 +80,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 
 ### Compliance Scoring
 
-The enterprise dashboard reports an overall code quality score derived from
-lint, test and placeholder metrics:
+The fully implemented compliance metrics engine computes an overall code quality score by combining lint issues, test results, and placeholder resolution rates:
 
 ```
 L = max(0, 100 - ruff_issues)
