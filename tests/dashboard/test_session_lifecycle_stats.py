@@ -22,3 +22,4 @@ def test_session_lifecycle_stats(tmp_path: Path) -> None:
     stats = session_lifecycle_stats(db)
     assert stats["count"] == 2
     assert stats["avg_duration"] == 2.0
+    assert stats["success_rate"] == 1.0

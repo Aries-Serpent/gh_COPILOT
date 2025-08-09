@@ -1,5 +1,6 @@
 import logging
 from types import SimpleNamespace
+from datetime import datetime, UTC, timedelta
 
 import pytest
 
@@ -213,3 +214,22 @@ def test_finalize_session_empty_log(tmp_path, monkeypatch):
     monkeypatch.setattr(codex_log_db, "CODEX_LOG_DB", tmp_path / "codex_log.db")
     with pytest.raises(RuntimeError):
         finalize_session(log_dir)
+
+
+def test_finalize_session_records_lifecycle(tmp_path, monkeypatch):
+    log_dir = tmp_path / "logs"
+    log_dir.mkdir()
+    (log_dir / "session.log").write_text("hello")
+    db_file = tmp_path / "analytics.db"
+    monkeypatch.setattr(usm, "ANALYTICS_DB", db_file)
+    monkeypatch.setattr(codex_log_db, "CODEX_LOG_DB", tmp_path / "codex_log.db")
+    start = datetime.now(UTC) - timedelta(seconds=5)
+    finalize_session(log_dir, session_id="s1", start_time=start, status="success")
+    import sqlite3
+    with sqlite3.connect(db_file) as conn:
+        row = conn.execute(
+            "SELECT duration_seconds, status FROM session_lifecycle WHERE session_id=?",
+            ("s1",),
+        ).fetchone()
+    assert row[1] == "success"
+    assert row[0] >= 5.0
