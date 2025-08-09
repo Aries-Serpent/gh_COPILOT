@@ -100,13 +100,31 @@ def _ensure_metrics_table(conn: sqlite3.Connection) -> None:
 
 def _fetch_components(conn: sqlite3.Connection) -> ComplianceComponents:
     if _table_exists(conn, "ruff_issue_log"):
-        ruff_issues = conn.execute("SELECT COALESCE(SUM(issues),0) FROM ruff_issue_log").fetchone()[0]
+        try:
+            ruff_issues = conn.execute(
+                "SELECT COALESCE(issues,0) FROM ruff_issue_log ORDER BY run_timestamp DESC LIMIT 1"
+            ).fetchone()[0]
+        except sqlite3.OperationalError:
+            ruff_issues = conn.execute(
+                "SELECT COALESCE(issues,0) FROM ruff_issue_log ORDER BY rowid DESC LIMIT 1"
+            ).fetchone()[0]
     else:
         ruff_issues = 0
     if _table_exists(conn, "test_run_stats"):
-        tests_passed, tests_total = conn.execute(
-            "SELECT COALESCE(SUM(passed),0), COALESCE(SUM(total),0) FROM test_run_stats"
-        ).fetchone()
+        try:
+            tests_passed, tests_total = conn.execute(
+                """
+                SELECT COALESCE(passed,0), COALESCE(total,0)
+                FROM test_run_stats ORDER BY run_timestamp DESC LIMIT 1
+                """
+            ).fetchone()
+        except sqlite3.OperationalError:
+            tests_passed, tests_total = conn.execute(
+                """
+                SELECT COALESCE(passed,0), COALESCE(total,0)
+                FROM test_run_stats ORDER BY rowid DESC LIMIT 1
+                """
+            ).fetchone()
     else:
         tests_passed, tests_total = 0, 0
     # Use the most robust, compatible approach for placeholder audit snapshots
