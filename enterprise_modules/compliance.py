@@ -38,8 +38,15 @@ def _ensure_metrics_table(conn: sqlite3.Connection) -> None:
         """
     )
 
-from scripts.database.add_violation_logs import ensure_violation_logs
-from scripts.database.add_rollback_logs import ensure_rollback_logs
+try:  # pragma: no cover - optional database helpers
+    from scripts.database.add_violation_logs import ensure_violation_logs
+    from scripts.database.add_rollback_logs import ensure_rollback_logs
+except Exception:  # pragma: no cover - fallback stubs
+    def ensure_violation_logs(*args: Any, **kwargs: Any) -> None:
+        return None
+
+    def ensure_rollback_logs(*args: Any, **kwargs: Any) -> None:
+        return None
 
 
 class ComplianceError(Exception):
@@ -535,10 +542,12 @@ def calculate_code_quality_score(
     tests_failed: int,
     placeholders_open: int,
     placeholders_resolved: int,
+    sessions_successful: int,
+    sessions_failed: int,
 ) -> tuple[float, dict[str, float]]:
     """Return a composite code quality score and ratios.
 
-    The helper combines three sources of information:
+    The helper combines four sources of information:
 
     ``ruff_issues``
         Total lint findings from ``ruff``. Fewer issues yield higher scores.
@@ -549,9 +558,12 @@ def calculate_code_quality_score(
     ``placeholders_open``/``placeholders_resolved``
         Used to determine how many TODO/FIXME markers have been resolved.
 
-    The final score is a weighted sum of the lint score (30%), test pass ratio
-    (50%), and placeholder resolution ratio (20%), expressed on a ``0..100``
-    scale.
+    ``sessions_successful``/``sessions_failed``
+        Ratio of successful session lifecycle executions.
+
+    The final score is a weighted sum of lint (30%), test pass ratio (40%),
+    placeholder resolution (20%), and session lifecycle success (10%),
+    expressed on a ``0..100`` scale.
     """
 
     total_tests = tests_passed + tests_failed
@@ -560,16 +572,26 @@ def calculate_code_quality_score(
     resolution_ratio = (
         placeholders_resolved / total_placeholders if total_placeholders else 1.0
     )
+    total_sessions = sessions_successful + sessions_failed
+    session_ratio = (
+        sessions_successful / total_sessions if total_sessions else 1.0
+    )
     lint_score = max(0.0, 100 - ruff_issues)
     test_score = pass_ratio * 100
     placeholder_score = resolution_ratio * 100
-    composite = round(0.3 * lint_score + 0.5 * test_score + 0.2 * placeholder_score, 2)
+    session_score = session_ratio * 100
+    composite = round(
+        0.3 * lint_score + 0.4 * test_score + 0.2 * placeholder_score + 0.1 * session_score,
+        2,
+    )
     return composite, {
         "lint_score": round(lint_score, 2),
         "test_pass_ratio": round(pass_ratio, 2),
         "placeholder_resolution_ratio": round(resolution_ratio, 2),
+        "session_success_ratio": round(session_ratio, 2),
         "test_score": round(test_score, 2),
         "placeholder_score": round(placeholder_score, 2),
+        "session_score": round(session_score, 2),
     }
 
 

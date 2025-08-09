@@ -71,6 +71,8 @@ score, breakdown = calculate_code_quality_score(
     tests_failed,
     placeholders_open,
     placeholders_resolved,
+    sessions_successful,
+    sessions_failed,
 )
 ```
 
@@ -80,6 +82,7 @@ it:
 - ``lint_score`` – ``max(0, 100 - ruff_issues)``
 - ``test_pass_ratio`` – ``tests_passed / (tests_passed + tests_failed)``
 - ``placeholder_resolution_ratio`` – ``placeholders_resolved / total_placeholders``
+- ``session_success_ratio`` – ``sessions_successful / (sessions_successful + sessions_failed)``
 
-The final ``score`` is the mean of ``lint_score``, ``test_pass_ratio * 100`` and
-``placeholder_resolution_ratio * 100``.
+The final ``score`` weights ``lint_score`` (30%), ``test_pass_ratio * 100`` (40%),
+``placeholder_resolution_ratio * 100`` (20%), and ``session_success_ratio * 100`` (10%).
