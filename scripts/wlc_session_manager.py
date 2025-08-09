@@ -45,7 +45,13 @@ from utils.lessons_learned_integrator import (
 )
 from unified_session_management_system import ensure_no_zero_byte_files
 from utils.logging_utils import ANALYTICS_DB
-from utils.codex_log_db import init_codex_log_db, record_codex_action, log_codex_end
+from utils.codex_log_db import (
+    init_codex_log_db,
+    record_codex_action,
+    log_codex_end,
+    finalize_codex_log_db,
+)
+from utils.codex_logger import init_db as init_codex_logs_db, log_action as log_codex_logger_action
 
 
 def log_action(session_id: str, action: str, statement: str) -> None:
@@ -345,6 +351,7 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         datetime.now(UTC).isoformat(),
     )
     log_codex_end(session_id, "WLC session wrap-up finalized")
+    finalize_codex_log_db()
     logging.info("WLC session completed")
 
 
