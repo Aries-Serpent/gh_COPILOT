@@ -312,15 +312,28 @@ def verify_task_completion(analytics_db: Path, workspace: Path) -> int:
 # ---------------------------------------------------------------------------
 
 
-def _ensure_placeholder_snapshot_table(conn: sqlite3.Connection) -> None:
-    """Create ``placeholder_snapshot`` table if it does not exist."""
+def _ensure_placeholder_tables(conn: sqlite3.Connection) -> None:
+    """Create placeholder audit tables if they do not exist."""
 
     conn.execute(
         """
-        CREATE TABLE IF NOT EXISTS placeholder_snapshot (
-            ts INTEGER PRIMARY KEY,
-            open INTEGER NOT NULL,
-            resolved INTEGER NOT NULL
+        CREATE TABLE IF NOT EXISTS placeholder_audit (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            file_path TEXT NOT NULL,
+            line_number INTEGER,
+            placeholder_type TEXT,
+            context TEXT,
+            timestamp TEXT NOT NULL
+        )
+        """
+    )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS placeholder_audit_snapshots (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp INTEGER NOT NULL,
+            open_count INTEGER NOT NULL,
+            resolved_count INTEGER NOT NULL
         )
         """
     )
@@ -341,7 +354,7 @@ def snapshot_placeholder_counts(db: Path) -> Tuple[int, int]:
     """
 
     with sqlite3.connect(db) as conn:
-        _ensure_placeholder_snapshot_table(conn)
+        _ensure_placeholder_tables(conn)
         cur = conn.execute(
             "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'"
         )
@@ -351,7 +364,7 @@ def snapshot_placeholder_counts(db: Path) -> Tuple[int, int]:
         )
         resolved_count = int(cur.fetchone()[0])
         conn.execute(
-            "INSERT OR REPLACE INTO placeholder_snapshot(ts, open, resolved) VALUES (?,?,?)",
+            "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (?,?,?)",
             (int(time.time()), open_count, resolved_count),
         )
         conn.commit()
@@ -375,9 +388,9 @@ def get_latest_placeholder_snapshot(
         exists.
     """
 
-    _ensure_placeholder_snapshot_table(conn)
+    _ensure_placeholder_tables(conn)
     cur = conn.execute(
-        "SELECT open, resolved FROM placeholder_snapshot ORDER BY ts DESC LIMIT 1"
+        "SELECT open_count, resolved_count FROM placeholder_audit_snapshots ORDER BY id DESC LIMIT 1"
     )
     row = cur.fetchone()
     return (int(row[0]), int(row[1])) if row else (0, 0)
@@ -442,6 +455,7 @@ def log_findings(
         return 0
     inserted = 0
     with sqlite3.connect(analytics_db) as conn:
+        _ensure_placeholder_tables(conn)
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS code_audit_log (
@@ -521,6 +535,11 @@ def log_findings(
                     )
                     conn.execute(
                         "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp)"
+                        " VALUES (?, ?, ?, ?, ?)",
+                        values[:-1],
+                    )
+                    conn.execute(
+                        "INSERT INTO placeholder_audit (file_path, line_number, placeholder_type, context, timestamp)"
                         " VALUES (?, ?, ?, ?, ?)",
                         values[:-1],
                     )

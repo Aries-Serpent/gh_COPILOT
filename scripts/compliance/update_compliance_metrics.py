@@ -9,7 +9,7 @@ Composite score formula:
 Data sources (optional tables – treated as 0/100 defaults if absent):
     ruff_issue_log(issues)
     test_run_stats(passed, total)
-    placeholder_snapshot(ts, open, resolved)
+    placeholder_audit_snapshots(timestamp, open_count, resolved_count)
 
 Writes to analytics.db: compliance_metrics_history (and legacy compliance_scores)
 """
@@ -109,7 +109,7 @@ def _fetch_components(conn: sqlite3.Connection) -> ComplianceComponents:
         ).fetchone()
     else:
         tests_passed, tests_total = 0, 0
-    # Use the most robust, compatible approach for placeholder snapshot
+    # Use the most robust, compatible approach for placeholder audit snapshots
     placeholders_open, placeholders_resolved = get_latest_placeholder_snapshot(conn)
     return ComplianceComponents(
         int(ruff_issues or 0),

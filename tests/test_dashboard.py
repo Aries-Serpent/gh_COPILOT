@@ -1,5 +1,6 @@
 import asyncio
 import json
+import sqlite3
 import threading
 from pathlib import Path
 import time
@@ -94,3 +95,18 @@ def test_new_routes_and_dashboard_page(monkeypatch):
     page = client.get("/").get_data(as_text=True)
     assert '<ul id="sync_events">' in page
     assert '<ul id="audit_results">' in page
+
+
+def test_placeholder_history_reads_snapshots(tmp_path, monkeypatch):
+    db = tmp_path / "analytics.db"
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            "CREATE TABLE placeholder_audit_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, open_count INTEGER, resolved_count INTEGER)"
+        )
+        conn.execute(
+            "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (?,?,?)",
+            (int(time.time()), 5, 0),
+        )
+    monkeypatch.setattr(idash, "ANALYTICS_DB", db)
+    history = idash._load_placeholder_history()
+    assert history and history[0]["count"] == 5

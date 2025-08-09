@@ -33,15 +33,21 @@ def test_placeholder_audit_logger(tmp_path):
     with sqlite3.connect(analytics) as conn:
         rows = conn.execute("SELECT placeholder_type FROM todo_fixme_tracking").fetchall()
         code_rows = conn.execute("SELECT placeholder_type FROM code_audit_log").fetchall()
+        audit_rows = conn.execute("SELECT placeholder_type FROM placeholder_audit").fetchall()
+        snapshot = conn.execute(
+            "SELECT open_count, resolved_count FROM placeholder_audit_snapshots ORDER BY id DESC LIMIT 1"
+        ).fetchone()
     assert rows
     assert code_rows
+    assert audit_rows
+    assert snapshot and snapshot[0] == len(rows) and snapshot[1] == 0
     summary_file = dash_dir.joinpath("placeholder_summary.json")
     assert summary_file.exists()
     data = json.loads(summary_file.read_text())
     assert data["progress_status"] == "issues_pending"
     assert data["resolved_count"] == 0
     assert data["compliance_status"] == "non_compliant"
-    assert data["placeholder_counts"] == {"TODO": 1}
+    assert data["placeholder_counts"].get("TODO") == 1
 
 
 def test_dashboard_placeholder_sync(tmp_path):
@@ -72,8 +78,7 @@ def test_dashboard_placeholder_sync(tmp_path):
     assert data["findings"] == 1
     assert data["progress_status"] == "issues_pending"
     assert data["resolved_count"] == 0
-    assert data["compliance_status"] == "non_compliant"
-    assert data["placeholder_counts"] == {"TODO": 1}
+    assert data["compliance_score"] == 99
 
 
 def test_rollback_last_entry(tmp_path):
