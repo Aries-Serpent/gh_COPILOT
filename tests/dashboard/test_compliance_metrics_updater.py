@@ -6,6 +6,7 @@ import pytest
 
 from dashboard import compliance_metrics_updater as cmu
 from utils.log_utils import ensure_tables
+from enterprise_modules.compliance import calculate_compliance_score
 
 
 def _prepare_db(path: str) -> None:
@@ -57,7 +58,10 @@ def test_violation_and_rollback_counts_affect_composite(tmp_path, monkeypatch):
     assert metrics["rollback_count"] == 1
     assert metrics["score_breakdown"]["violation_penalty"] == 10
     assert metrics["score_breakdown"]["rollback_penalty"] == 5
-    assert metrics["composite_score"] == pytest.approx(83.0, rel=1e-3)
+    expected_base = calculate_compliance_score(0, 1, 0, 1, 1)
+    assert metrics["composite_score"] == pytest.approx(
+        expected_base - 15, rel=1e-3
+    )
 
 
 def test_warn_when_tables_empty(tmp_path, monkeypatch, caplog):

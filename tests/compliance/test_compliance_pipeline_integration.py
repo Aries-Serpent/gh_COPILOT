@@ -67,9 +67,11 @@ class TestCompleteCompliancePipeline:
 
         # Step 3: Simulate placeholder audit results
         with sqlite3.connect(analytics_db) as conn:
-            conn.execute("CREATE TABLE placeholder_snapshot (ts INTEGER, open INTEGER, resolved INTEGER)")
             conn.execute(
-                "INSERT INTO placeholder_snapshot VALUES (1, ?, ?)",
+                "CREATE TABLE placeholder_audit_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, open_count INTEGER, resolved_count INTEGER)"
+            )
+            conn.execute(
+                "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (1, ?, ?)",
                 (
                     sample_compliance_data["placeholder_data"]["open_count"],
                     sample_compliance_data["placeholder_data"]["resolved_count"],
@@ -148,9 +150,11 @@ class TestCompleteCompliancePipeline:
 
         # Add placeholder data
         with sqlite3.connect(analytics_db) as conn:
-            conn.execute("CREATE TABLE placeholder_snapshot (ts INTEGER, open INTEGER, resolved INTEGER)")
             conn.execute(
-                "INSERT INTO placeholder_snapshot VALUES (1, ?, ?)",
+                "CREATE TABLE placeholder_audit_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, open_count INTEGER, resolved_count INTEGER)"
+            )
+            conn.execute(
+                "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (1, ?, ?)",
                 (
                     sample_compliance_data["placeholder_data"]["open_count"],
                     sample_compliance_data["placeholder_data"]["resolved_count"],
@@ -189,9 +193,11 @@ class TestCompleteCompliancePipeline:
 
         # Add placeholder data once
         with sqlite3.connect(analytics_db) as conn:
-            conn.execute("CREATE TABLE placeholder_snapshot (ts INTEGER, open INTEGER, resolved INTEGER)")
             conn.execute(
-                "INSERT INTO placeholder_snapshot VALUES (1, ?, ?)",
+                "CREATE TABLE placeholder_audit_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, open_count INTEGER, resolved_count INTEGER)"
+            )
+            conn.execute(
+                "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (1, ?, ?)",
                 (
                     sample_compliance_data["placeholder_data"]["open_count"],
                     sample_compliance_data["placeholder_data"]["resolved_count"],
@@ -312,9 +318,11 @@ class TestAPIEndpointIntegration:
 
         # Add placeholder data
         with sqlite3.connect(analytics_db) as conn:
-            conn.execute("CREATE TABLE placeholder_snapshot (ts INTEGER, open INTEGER, resolved INTEGER)")
             conn.execute(
-                "INSERT INTO placeholder_snapshot VALUES (1, ?, ?)",
+                "CREATE TABLE placeholder_audit_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, open_count INTEGER, resolved_count INTEGER)"
+            )
+            conn.execute(
+                "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (1, ?, ?)",
                 (
                     sample_compliance_data["placeholder_data"]["open_count"],
                     sample_compliance_data["placeholder_data"]["resolved_count"],
@@ -358,9 +366,11 @@ class TestAPIEndpointIntegration:
 
         # Add placeholder data
         with sqlite3.connect(analytics_db) as conn:
-            conn.execute("CREATE TABLE placeholder_snapshot (ts INTEGER, open INTEGER, resolved INTEGER)")
             conn.execute(
-                "INSERT INTO placeholder_snapshot VALUES (1, ?, ?)",
+                "CREATE TABLE placeholder_audit_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, open_count INTEGER, resolved_count INTEGER)"
+            )
+            conn.execute(
+                "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (1, ?, ?)",
                 (
                     sample_compliance_data["placeholder_data"]["open_count"],
                     sample_compliance_data["placeholder_data"]["resolved_count"],
@@ -435,8 +445,12 @@ class TestPerformanceAndScale:
 
         # Add placeholder data
         with sqlite3.connect(analytics_db) as conn:
-            conn.execute("CREATE TABLE placeholder_snapshot (ts INTEGER, open INTEGER, resolved INTEGER)")
-            conn.execute("INSERT INTO placeholder_snapshot VALUES (1, 50, 500)")
+            conn.execute(
+                "CREATE TABLE placeholder_audit_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, open_count INTEGER, resolved_count INTEGER)"
+            )
+            conn.execute(
+                "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (1, 50, 500)"
+            )
             conn.commit()
 
         # Measure execution time

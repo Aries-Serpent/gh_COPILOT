@@ -13,6 +13,12 @@
             if(data.composite_score !== undefined){
                 document.getElementById('composite_score').textContent = data.composite_score.toFixed(2);
             }
+            document.getElementById('ruff_issues').textContent = data.ruff_issues || 0;
+            document.getElementById('tests_passed').textContent = data.tests_passed || 0;
+            document.getElementById('tests_failed').textContent = data.tests_failed || 0;
+            document.getElementById('lint_score').textContent = (data.lint_score ?? 0).toFixed(2);
+            document.getElementById('test_score').textContent = (data.test_score ?? 0).toFixed(2);
+            document.getElementById('placeholder_score').textContent = (data.placeholder_score ?? 0).toFixed(2);
             document.getElementById('open_placeholders').textContent = data.open_placeholders || 0;
             document.getElementById('resolved_placeholders').textContent = data.resolved_placeholders || 0;
             const prog = data.progress !== undefined ? (data.progress * 100).toFixed(1) + '%' : '0%';
@@ -185,6 +191,12 @@
     <strong>Placeholder Removals:</strong> <span id="placeholder_removal">{{ metrics.placeholder_removal | default(0) }}</span><br>
     <strong>Compliance Score:</strong> <span id="compliance_score">{{ metrics.compliance_score | default(0) }}</span><br>
     <strong>Composite Score:</strong> <span id="composite_score">{{ metrics.composite_score | default(0) }}</span><br>
+    <strong>Lint Issues:</strong> <span id="ruff_issues">{{ metrics.ruff_issues | default(0) }}</span><br>
+    <strong>Tests Passed:</strong> <span id="tests_passed">{{ metrics.tests_passed | default(0) }}</span><br>
+    <strong>Tests Failed:</strong> <span id="tests_failed">{{ metrics.tests_failed | default(0) }}</span><br>
+    <strong>Lint Score:</strong> <span id="lint_score">{{ metrics.lint_score | default(0) }}</span><br>
+    <strong>Test Score:</strong> <span id="test_score">{{ metrics.test_score | default(0) }}</span><br>
+    <strong>Placeholder Score:</strong> <span id="placeholder_score">{{ metrics.placeholder_score | default(0) }}</span><br>
     <strong>Open Placeholders:</strong> <span id="open_placeholders">{{ metrics.open_placeholders | default(0) }}</span><br>
     <strong>Resolved Placeholders:</strong> <span id="resolved_placeholders">{{ metrics.resolved_placeholders | default(0) }}</span><br>
     <strong>Remediation Progress:</strong> <span id="remediation_progress">{{ ((metrics.progress or 0) * 100) | round(1) }}%</span><br>
@@ -198,7 +210,7 @@
     <ul id="placeholder_breakdown"></ul>
     <h3>Compliance Trend</h3>
     <ul id="compliance_trend"></ul>
-    <h3>Placeholder History</h3>
+    <h3>Unresolved Placeholder Trend</h3>
     <canvas id="placeholderChart"></canvas>
     
     <h3>Compliance Score Trend</h3>
@@ -224,6 +236,14 @@
     <li>{{ event.timestamp }} - {{ event.source_db }} -> {{ event.target_db }} ({{ event.action }})</li>
 {% endfor %}
 </ul>
+
+<h2>Anomaly Metrics</h2>
+<div>Threshold: <span id="anomaly_threshold">{{ anomaly.threshold }}</span></div>
+<div>Detected: <span id="anomaly_count">{{ anomaly.count }}</span></div>
+
+<h2>Session Lifecycle</h2>
+<div>Total Sessions: <span id="session_count">{{ lifecycle.count }}</span></div>
+<div>Average Duration: <span id="avg_duration">{{ lifecycle.avg_duration }}</span></div>
 
 <h2>Audit Results</h2>
 <ul id="audit_results">

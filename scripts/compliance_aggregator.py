@@ -10,8 +10,10 @@ from pathlib import Path
 import argparse
 from typing import Any, Dict
 
-from utils.validation_utils import calculate_composite_compliance_score
-from enterprise_modules.compliance import record_code_quality_metrics
+from enterprise_modules.compliance import (
+    calculate_composite_score,
+    record_code_quality_metrics,
+)
 
 
 def aggregate_metrics(
@@ -25,16 +27,26 @@ def aggregate_metrics(
     test_mode: bool = False,
 ) -> Dict[str, Any]:
     """Return composite compliance metrics and optionally persist them."""
-    scores = calculate_composite_compliance_score(
-        ruff_issues, tests_passed, tests_failed, placeholders_open
+    composite, breakdown = calculate_composite_score(
+        ruff_issues,
+        tests_passed,
+        tests_failed,
+        placeholders_open,
+        placeholders_resolved,
     )
+    breakdown = {
+        "lint_score": breakdown["lint_score"],
+        "test_score": breakdown["test_score"],
+        "placeholder_score": breakdown["placeholder_score"],
+    }
+
     record_code_quality_metrics(
         ruff_issues,
         tests_passed,
         tests_failed,
         placeholders_open,
         placeholders_resolved,
-        scores["composite"],
+        composite,
         db_path,
         test_mode=test_mode,
     )
@@ -44,8 +56,8 @@ def aggregate_metrics(
         "tests_failed": tests_failed,
         "placeholders_open": placeholders_open,
         "placeholders_resolved": placeholders_resolved,
-        "composite_score": scores["composite"],
-        "breakdown": scores,
+        "composite_score": composite,
+        "breakdown": breakdown,
     }
     return result
 

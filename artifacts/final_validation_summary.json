@@ -1,9 +1,10 @@
 {
-  "command": "pytest -q tests/compliance/test_ingestion_edge_cases.py",
+  "command": "pytest -q tests/compliance/test_composite_bounds.py",
   "returncode": 0,
   "coverage_enabled": false,
-  "stdout_lines": 888,
+  "stdout_lines": 881,
   "stderr_lines": 4,
   "success": true,
+  "has_passes": true,
   "has_errors": true
 }

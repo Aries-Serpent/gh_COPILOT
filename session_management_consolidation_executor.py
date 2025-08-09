@@ -15,7 +15,8 @@ from utils.validation_utils import (
     anti_recursion_guard,
     validate_enterprise_environment,
 )
-from unified_session_management_system import ensure_no_zero_byte_files
+from unified_session_management_system import ensure_no_zero_byte_files, finalize_session
+from session.session_lifecycle_metrics import start_session, end_session
 
 
 class EnterpriseUtility:
@@ -88,6 +89,10 @@ class EnterpriseUtility:
     def execute_utility(self) -> bool:
         """Execute consolidation routine with logging and validation."""
         self._register_pid()
+        session_id = "consolidation"
+        start_session(session_id, workspace=str(self.workspace_path))
+        success = False
+        zero_byte_violations = 0
         try:
             self.logger.info("[START] Utility started: %s", datetime.now().isoformat())
             _log_event({"event": "utility_start"}, db_path=self.workspace_path / "analytics.db")
@@ -102,8 +107,19 @@ class EnterpriseUtility:
             else:
                 self.logger.error("[ERROR] Utility failed")
                 _log_event({"event": "utility_failed"}, db_path=self.workspace_path / "analytics.db")
+                zero_byte_violations = 1
             return success
         finally:
+            try:
+                finalize_session(self.workspace_path / "logs", self.workspace_path, session_id)
+            except Exception as exc:  # pragma: no cover - logging
+                self.logger.error("[ERROR] finalize_session failed: %s", exc)
+            end_session(
+                session_id,
+                zero_byte_violations=zero_byte_violations,
+                workspace=str(self.workspace_path),
+                status="success" if success else "failed",
+            )
             self._clear_pid()
 
     def _register_pid(self) -> None:

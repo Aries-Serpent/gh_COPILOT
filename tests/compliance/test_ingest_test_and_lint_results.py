@@ -4,10 +4,44 @@ import sqlite3
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
+import sys
+import types
+
+# Provide minimal stubs for heavy optional dependencies before importing target module
+sys.modules.setdefault("sklearn", types.ModuleType("sklearn"))
+sys.modules.setdefault("sklearn.ensemble", types.ModuleType("sklearn.ensemble"))
+setattr(sys.modules["sklearn.ensemble"], "IsolationForest", object)
+sys.modules.setdefault("sklearn.cluster", types.ModuleType("sklearn.cluster"))
+setattr(sys.modules["sklearn.cluster"], "KMeans", object)
+sys.modules.setdefault("sklearn.datasets", types.ModuleType("sklearn.datasets"))
+setattr(sys.modules["sklearn.datasets"], "make_classification", object)
+setattr(sys.modules["sklearn.datasets"], "make_blobs", object)
+sys.modules.setdefault("sklearn.model_selection", types.ModuleType("sklearn.model_selection"))
+setattr(sys.modules["sklearn.model_selection"], "train_test_split", object)
+sys.modules.setdefault("sklearn.preprocessing", types.ModuleType("sklearn.preprocessing"))
+setattr(sys.modules["sklearn.preprocessing"], "StandardScaler", object)
+setattr(sys.modules["sklearn.preprocessing"], "LabelEncoder", object)
+sys.modules.setdefault("sklearn.metrics", types.ModuleType("sklearn.metrics"))
+setattr(sys.modules["sklearn.metrics"], "accuracy_score", object)
+setattr(sys.modules["sklearn.metrics"], "silhouette_score", object)
+sys.modules.setdefault("sklearn.metrics.pairwise", types.ModuleType("sklearn.metrics.pairwise"))
+setattr(sys.modules["sklearn.metrics.pairwise"], "cosine_similarity", object)
+setattr(sys.modules["sklearn.metrics.pairwise"], "pairwise_distances", object)
+sys.modules.setdefault("sklearn.neural_network", types.ModuleType("sklearn.neural_network"))
+setattr(sys.modules["sklearn.neural_network"], "MLPClassifier", object)
+sys.modules.setdefault("sklearn.linear_model", types.ModuleType("sklearn.linear_model"))
+setattr(sys.modules["sklearn.linear_model"], "LogisticRegression", object)
+sys.modules.setdefault("sklearn.feature_extraction", types.ModuleType("sklearn.feature_extraction"))
+sys.modules.setdefault(
+    "sklearn.feature_extraction.text", types.ModuleType("sklearn.feature_extraction.text")
+)
+setattr(
+    sys.modules["sklearn.feature_extraction.text"], "TfidfVectorizer", object
+)
 
 import pytest
 
-from scripts.ingest_test_and_lint_results import _db, ingest
+from scripts.ingest_test_and_lint_results import _db, _ensure_db_path, ingest
 
 
 @pytest.fixture
@@ -39,6 +73,12 @@ class TestDatabaseFunction:
         monkeypatch.setattr(Path, "cwd", lambda: Path("/current/dir"))
         assert str(_db()) == "/current/dir/databases/analytics.db"
 
+    def test_ensure_db_path_creates_file(self, temp_workspace):
+        db_path = _db(str(temp_workspace))
+        assert not db_path.exists()
+        _ensure_db_path(db_path)
+        assert db_path.exists()
+
 
 class TestIngest:
     def test_ingest_creates_db_and_inserts_metrics(
@@ -50,22 +90,24 @@ class TestIngest:
         pytest_json.write_text(json.dumps(sample_pytest_data), encoding="utf-8")
 
         row_id = ingest(str(temp_workspace))
+        assert row_id > 0
 
         analytics_db = temp_workspace / "databases" / "analytics.db"
         with sqlite3.connect(analytics_db) as conn:
             row = conn.execute(
-                "SELECT ruff_issues, tests_passed, tests_failed, placeholders_open, placeholders_resolved "
+                "SELECT ruff_issues, tests_passed, tests_total, placeholders_open, placeholders_resolved "
                 "FROM compliance_metrics_history WHERE id=?",
                 (row_id,),
             ).fetchone()
-        assert row == (2, 20, 3, None, None)
+        assert row == (2, 20, 25, None, None)
 
     def test_ingest_handles_missing_files(self, temp_workspace):
         row_id = ingest(str(temp_workspace))
+        assert row_id > 0
         analytics_db = temp_workspace / "databases" / "analytics.db"
         with sqlite3.connect(analytics_db) as conn:
             row = conn.execute(
-                "SELECT ruff_issues, tests_passed, tests_failed FROM compliance_metrics_history WHERE id=?",
+                "SELECT ruff_issues, tests_passed, tests_total FROM compliance_metrics_history WHERE id=?",
                 (row_id,),
             ).fetchone()
         assert row == (0, 0, 0)
@@ -74,10 +116,11 @@ class TestIngest:
         (temp_workspace / "ruff_report.json").write_text("{bad json", encoding="utf-8")
         (temp_workspace / ".report.json").write_text("{bad json", encoding="utf-8")
         row_id = ingest(str(temp_workspace))
+        assert row_id > 0
         analytics_db = temp_workspace / "databases" / "analytics.db"
         with sqlite3.connect(analytics_db) as conn:
             row = conn.execute(
-                "SELECT ruff_issues, tests_passed, tests_failed FROM compliance_metrics_history WHERE id=?",
+                "SELECT ruff_issues, tests_passed, tests_total FROM compliance_metrics_history WHERE id=?",
                 (row_id,),
             ).fetchone()
         assert row == (0, 0, 0)
@@ -92,11 +135,12 @@ class TestIngest:
         row_id = ingest(
             str(temp_workspace), ruff_json=custom_ruff, pytest_json=custom_pytest
         )
+        assert row_id > 0
         analytics_db = temp_workspace / "databases" / "analytics.db"
         with sqlite3.connect(analytics_db) as conn:
             row = conn.execute(
-                "SELECT ruff_issues, tests_passed, tests_failed FROM compliance_metrics_history WHERE id=?",
+                "SELECT ruff_issues, tests_passed, tests_total FROM compliance_metrics_history WHERE id=?",
                 (row_id,),
             ).fetchone()
-        assert row == (2, 20, 3)
+        assert row == (2, 20, 25)
 

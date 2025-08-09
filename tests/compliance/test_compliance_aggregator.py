@@ -4,7 +4,7 @@ import sqlite3
 import pytest
 
 from scripts.compliance_aggregator import aggregate_metrics
-from utils.validation_utils import calculate_composite_compliance_score
+from enterprise_modules.compliance import calculate_composite_score
 
 
 def test_aggregate_metrics_persist(tmp_path: Path) -> None:
@@ -14,21 +14,23 @@ def test_aggregate_metrics_persist(tmp_path: Path) -> None:
         tests_passed=8,
         tests_failed=2,
         placeholders_open=1,
+        placeholders_resolved=4,
         db_path=db,
     )
-    expected = calculate_composite_compliance_score(5, 8, 2, 1)["composite"]
+    expected, breakdown = calculate_composite_score(5, 8, 2, 1, 4)
     assert result["composite_score"] == expected
+    assert result["breakdown"]["placeholder_score"] == breakdown["placeholder_score"]
     with sqlite3.connect(db) as conn:
         row = conn.execute(
-            "SELECT ruff_issues, tests_passed, tests_failed, placeholders_open, composite_score FROM code_quality_metrics"
+            "SELECT ruff_issues, tests_passed, tests_failed, placeholders_open, placeholders_resolved, composite_score FROM code_quality_metrics"
         ).fetchone()
-        assert row == (5, 8, 2, 1, expected)
+        assert row == (5, 8, 2, 1, 4, expected)
 
 
 def test_composite_score_in_dashboard(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     db = tmp_path / "databases" / "analytics.db"
     db.parent.mkdir(parents=True)
-    aggregate_metrics(1, 3, 1, 2, db_path=db)
+    aggregate_metrics(1, 3, 1, 2, placeholders_resolved=1, db_path=db)
     with sqlite3.connect(db) as conn:
         conn.execute(
             "CREATE TABLE IF NOT EXISTS todo_fixme_tracking (placeholder_type TEXT, status TEXT)"
@@ -45,5 +47,5 @@ def test_composite_score_in_dashboard(tmp_path: Path, monkeypatch: pytest.Monkey
     ed.metrics_updater._fetch_compliance_metrics = lambda **_: {}
     client = ed.app.test_client()
     data = client.get("/metrics").get_json()
-    expected = calculate_composite_compliance_score(1, 3, 1, 2)["composite"]
+    expected, _ = calculate_composite_score(1, 3, 1, 2, 1)
     assert data["composite_score"] == expected

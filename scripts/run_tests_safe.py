@@ -6,6 +6,7 @@ import json
 import os
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -24,6 +25,23 @@ def _has_json_report() -> bool:
         return importlib.util.find_spec("pytest_jsonreport") is not None
     except ImportError:
         return False
+
+
+def _write_coverage_absence_log() -> None:
+    """Write a log entry when coverage plugin is not available."""
+    artifacts_dir = Path("artifacts")
+    artifacts_dir.mkdir(exist_ok=True)
+    
+    log_path = artifacts_dir / "coverage_disabled.log"
+    timestamp = datetime.now(timezone.utc).isoformat()
+    msg = f"[{timestamp}] WARNING: pytest-cov plugin not available; running tests without coverage tracking\n"
+    
+    # Append to log file
+    with open(log_path, "a", encoding="utf-8") as f:
+        f.write(msg)
+    
+    # Also print to console
+    print(f"[SAFE-TEST-RUNNER] {msg.strip()}", file=sys.stderr)
 
 
 def run_pytest_safe(
@@ -47,6 +65,8 @@ def run_pytest_safe(
     if _has_pytest_cov():
         cmd.extend(["--cov=.", "--cov-report=term"])
     else:
+        # Log explicit coverage absence
+        _write_coverage_absence_log()
         # Remove any --cov flags from PYTEST_ADDOPTS if present
         addopts = os.environ.get("PYTEST_ADDOPTS", "").split()
         addopts = [opt for opt in addopts if not opt.startswith("--cov")]

@@ -31,7 +31,8 @@ reported alongside compliance metrics.
 ## Code Quality Composite Score
 
 Lint, test and placeholder results are combined into a single score using
-``enterprise_modules.compliance.calculate_compliance_score``:
+``enterprise_modules.compliance.calculate_compliance_score`` with
+weights of 30%, 50% and 20% respectively:
 
 ```
 from enterprise_modules.compliance import calculate_compliance_score
@@ -47,11 +48,15 @@ score = calculate_compliance_score(
 The helper computes three component scores:
 
 - ``lint_score = max(0, 100 - ruff_issues)``
-- ``test_score = (tests_passed / total_tests) * 100``
+- ``test_score = (tests_passed / total_tests) * 100`` where
+  ``total_tests`` is the sum of passed and failed tests
 - ``placeholder_score = (placeholders_resolved / total_placeholders) * 100``
+  where ``total_placeholders`` is the sum of open and resolved placeholders
 
-The final compliance score is the arithmetic mean of these components and is
-persisted to ``analytics.db`` for dashboard visualization.
+The final compliance score is the weighted sum of these components and is
+persisted to ``analytics.db`` for dashboard visualization:
+
+``0.3 * lint_score + 0.5 * test_score + 0.2 * placeholder_score``
 
 ## Code Quality Score Helper
 

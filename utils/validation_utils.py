@@ -20,7 +20,8 @@ def calculate_composite_compliance_score(
     ruff_issues: int,
     tests_passed: int,
     tests_failed: int,
-    placeholders: int,
+    placeholders_open: int,
+    placeholders_resolved: int,
 ) -> Dict[str, float]:
     """Return detailed compliance scores for dashboard display.
 
@@ -32,29 +33,43 @@ def calculate_composite_compliance_score(
         Number of tests that passed.
     tests_failed: int
         Number of tests that failed.
-    placeholders: int
-        Remaining placeholder markers in the repository.
+    placeholders_open: int
+        Count of unresolved placeholder markers in the repository.
+    placeholders_resolved: int
+        Count of resolved placeholders.
 
     Returns
     -------
     Dict[str, float]
         Dictionary containing ``lint_score``, ``test_score``,
-        ``placeholder_score`` and ``composite``. The composite score is
-        weighted at 40% lint, 40% tests, and 20% placeholders.
+        ``placeholder_score``, ``test_pass_ratio``,
+        ``placeholder_resolution_ratio`` and ``composite``. The
+        composite score weighs lint, tests, and placeholder progress at
+        30%, 50%, and 20% respectively. Placeholder progress ``P`` is
+        computed as ``resolved / (open + resolved)`` and exposed both as
+        a ratio and as a percentage.
     """
 
     total_tests = tests_passed + tests_failed
-    test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
+    pass_ratio = tests_passed / total_tests if total_tests else 0.0
     lint_score = max(0.0, 100 - ruff_issues)
-    placeholder_score = max(0.0, 100 - (10 * placeholders))
+    test_score = pass_ratio * 100
+    placeholder_total = placeholders_open + placeholders_resolved
+    if placeholder_total:
+        resolution_ratio = placeholders_resolved / placeholder_total
+    else:
+        resolution_ratio = 1.0
+    placeholder_score = resolution_ratio * 100
     composite = round(
-        0.4 * lint_score + 0.4 * test_score + 0.2 * placeholder_score,
+        0.3 * lint_score + 0.5 * test_score + 0.2 * placeholder_score,
         2,
     )
     return {
         "lint_score": round(lint_score, 2),
         "test_score": round(test_score, 2),
         "placeholder_score": round(placeholder_score, 2),
+        "test_pass_ratio": round(pass_ratio, 2),
+        "placeholder_resolution_ratio": round(resolution_ratio, 2),
         "composite": composite,
     }
 

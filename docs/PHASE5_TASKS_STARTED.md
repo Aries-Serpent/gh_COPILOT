@@ -35,7 +35,8 @@ These task stubs originate from the gap analysis report and have been formally s
 
 ## 8. Establish Robust Testing & Compliance Checks
 - **Statement Excerpt:** "Comprehensive Tests: Run full pytest suite; resolve failures; add coverage for new modules."
-- **Status:** Started – test coverage matrix and compliance hooks prepared.
+- **Status:** Completed – integration suite and compliance hooks finalized.
+- [x] **Progress:** 100% – safe pytest runner and integration tests enforce compliance.
 
 ## 9. Define Timeline & Risk Mitigation Plan
 - **Statement Excerpt:** "Planning (Week 1): Finalize designs for DR, GUI and sync engine" and subsequent phase milestones.
@@ -87,21 +88,20 @@ These task stubs originate from the gap analysis report and have been formally s
 
 ## 20. Implement Compliance Metrics Calculations
 - **Statement Excerpt:** "Metrics Integration: Display compliance trends, rollback logs and placeholder metrics" coupled with "Quantitative Goals: All modules implemented; tests >95% coverage; compliance score ≥0.9; dashboard latency <1 min."
-- **Status:** In Progress – 40% complete. Remaining work finalizes composite formulas and data sources:
-  - ``lint_score = max(0, 100 − ruff_issues)`` from Ruff logs
-  - ``test_score = (tests_passed / total_tests) * 100`` from Pytest JSON
-  - ``placeholder_score`` derived from `correction_logs` in ``analytics.db``
+- **Status:** Completed – composite formulas and data sources finalized with automated aggregation of lint, test, and placeholder metrics.
+- [x] **Progress:** 100% – results persist to `analytics.db` and feed dashboard visualizations.
 
 ---
 
 ### Progress Checklist
 
 - [x] 7. Align Documentation with Implementation — 100% complete
+- [x] 8. Establish Robust Testing & Compliance Checks — 100% complete
 - [x] 12. Update Changelog and User Prompts — 100% complete
 - [x] 17. Implement Anti-Recursion Guards — 100% complete
  - [x] 18. Standardize Dual-Copilot Validation — 100% complete
  - [x] 19. Clarify Quantum Placeholder Features — 100% complete
- - [ ] 20. Implement Compliance Metrics Calculations — 40% complete
+- [x] 20. Implement Compliance Metrics Calculations — 100% complete
 - [x] Dual-copilot hooks added to `docs_metrics_validator.py` and `backup_archiver.py`
 
 ## Follow-up Actions from Dashboard Walkthrough

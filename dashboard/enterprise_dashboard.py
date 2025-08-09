@@ -4,6 +4,8 @@ from pathlib import Path
 import sqlite3
 from typing import Any, Dict, List
 
+from monitoring import BaselineAnomalyDetector
+
 from flask import jsonify, render_template
 
 from .integrated_dashboard import (
@@ -22,22 +24,37 @@ from scripts.compliance.update_compliance_metrics import (
 )
 
 ANALYTICS_DB = Path("databases/analytics.db")
+MONITORING_DB = Path("databases/monitoring.db")
 METRICS_FILE = _METRICS_FILE
 
 
-def anomaly_metrics(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
-    """Return aggregate anomaly metrics for dashboard display."""
+def anomaly_metrics(monitoring_db: Path = MONITORING_DB) -> Dict[str, float]:
+    """Return anomaly count and threshold from ``monitoring.db``."""
 
-    metrics = {"count": 0, "avg_anomaly_score": 0.0}
+    detector = BaselineAnomalyDetector(db_path=monitoring_db)
+    zscores = detector.zscores()
+    anomalies = detector.detect()
+    avg_score = float(sum(abs(z) for z in zscores) / len(zscores)) if zscores else 0.0
+    return {
+        "count": int(sum(anomalies)),
+        "avg_anomaly_score": avg_score,
+        "threshold": detector.threshold,
+    }
+
+
+def session_lifecycle_stats(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
+    """Aggregate session lifecycle statistics for dashboard display."""
+
+    stats = {"count": 0, "avg_duration": 0.0}
     if db_path.exists():
         with sqlite3.connect(db_path) as conn:
             cur = conn.execute(
-                "SELECT COUNT(*), AVG(anomaly_score) FROM anomaly_results",
+                "SELECT COUNT(*), AVG(duration_seconds) FROM session_lifecycle"
             )
             count, avg = cur.fetchone()
-            metrics["count"] = int(count or 0)
-            metrics["avg_anomaly_score"] = float(avg or 0.0)
-    return metrics
+            stats["count"] = int(count or 0)
+            stats["avg_duration"] = float(avg or 0.0)
+    return stats
 
 
 @app.route("/anomalies")
@@ -111,6 +128,8 @@ def index() -> str:
         sync_events=_load_sync_events(),
         audit_results=_load_audit_results(),
         corrections=_load_corrections(),
+        anomaly=anomaly_metrics(),
+        lifecycle=session_lifecycle_stats(),
     )
 
 
@@ -127,4 +146,11 @@ def compliance_scores() -> Any:  # pragma: no cover
 
 
 app.view_functions["dashboard.index"] = index
-__all__ = ["app", "dashboard_bp", "create_app", "anomaly_metrics", "_load_corrections"]
+__all__ = [
+    "app",
+    "dashboard_bp",
+    "create_app",
+    "anomaly_metrics",
+    "session_lifecycle_stats",
+    "_load_corrections",
+]
