@@ -30,8 +30,8 @@ from enterprise_modules.compliance import (
     _run_ruff,
     _run_pytest,
     pid_recursion_guard,
+    calculate_compliance_score,
 )
-from utils.validation_utils import calculate_composite_compliance_score
 from disaster_recovery_orchestrator import DisasterRecoveryOrchestrator
 from unified_monitoring_optimization_system import (
     EnterpriseUtility,
@@ -364,23 +364,33 @@ class ComplianceMetricsUpdater:
         else:
             ruff_issues = _run_ruff()
             tests_passed, tests_failed = _run_pytest()
-        scores = calculate_composite_compliance_score(
+        composite = calculate_compliance_score(
             ruff_issues,
             tests_passed,
             tests_failed,
             metrics.get("open_placeholders", 0),
             metrics.get("resolved_placeholders", 0),
         )
-        # ``calculate_composite_compliance_score`` returns individual scores
-        # along with a combined ``composite`` value. Apply additional penalties
-        # based on violation and rollback counts to surface these issues in the
-        # final composite score.
+        total_tests = tests_passed + tests_failed
+        test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
+        lint_score = max(0.0, 100 - ruff_issues)
+        total_placeholders = (
+            metrics.get("open_placeholders", 0)
+            + metrics.get("resolved_placeholders", 0)
+        )
+        placeholder_score = (
+            metrics.get("resolved_placeholders", 0) / total_placeholders * 100
+            if total_placeholders
+            else 100.0
+        )
+        scores = {
+            "lint_score": round(lint_score, 2),
+            "test_score": round(test_score, 2),
+            "placeholder_score": round(placeholder_score, 2),
+        }
         violation_penalty = metrics["violation_count"] * 10
         rollback_penalty = metrics["rollback_count"] * 5
-        composite = max(
-            0.0,
-            scores["composite"] - violation_penalty - rollback_penalty,
-        )
+        composite = max(0.0, composite - violation_penalty - rollback_penalty)
         scores["violation_penalty"] = violation_penalty
         scores["rollback_penalty"] = rollback_penalty
         metrics["composite_score"] = composite
@@ -392,7 +402,7 @@ class ComplianceMetricsUpdater:
             tests_failed,
             metrics.get("open_placeholders", 0),
             metrics.get("resolved_placeholders", 0),
-            scores["composite"],
+            composite,
             db_path=ANALYTICS_DB,
             test_mode=test_mode,
         )
