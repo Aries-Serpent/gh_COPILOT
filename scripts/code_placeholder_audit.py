@@ -342,6 +342,16 @@ def log_placeholder_tasks(
             ),
         )
         conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS placeholder_audit_snapshots (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp INTEGER,
+                open_count INTEGER,
+                resolved_count INTEGER
+            )
+            """
+        )
+        conn.execute(
             "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (?,?,?)",
             (int(time.time()), open_count, resolved_count),
         )
@@ -1357,7 +1367,7 @@ def main(
     if apply_suggestions and not simulate:
         tasks = apply_suggestions_to_files(tasks, analytics)
     if not simulate:
-        log_placeholder_tasks(tasks, analytics)
+        inserted = log_placeholder_tasks(tasks, analytics)
         record_unresolved_placeholders(tasks, analytics)
     for task in tasks:
         log_message(__name__, f"[TASK] {task['task']}")
@@ -1382,7 +1392,7 @@ def main(
     else:
         log_message(__name__, "[TEST MODE] Dashboard update skipped")
     # Combine with Compliance Metrics Updater for real-time metrics
-    if ComplianceMetricsUpdater:
+    if (not simulate) and ComplianceMetricsUpdater and inserted:
         try:
             updater = ComplianceMetricsUpdater(dashboard, test_mode=simulate)
             updater.update(simulate=simulate)
@@ -1423,7 +1433,12 @@ def parse_args(argv: Optional[List[str]] | None = None) -> argparse.Namespace:
         epilog="For cleanup only, run scripts/placeholder_cleanup.py",
     )
     parser.add_argument("--workspace-path", type=str, help="Workspace to scan")
-    parser.add_argument("--analytics-db", type=str, help="analytics.db location")
+    parser.add_argument(
+        "--analytics-db",
+        type=str,
+        default="databases/analytics.db",
+        help="analytics.db location",
+    )
     parser.add_argument("--production-db", type=str, help="production.db location")
     parser.add_argument("--dashboard-dir", type=str, help="dashboard/compliance directory")
     parser.add_argument("--dataset-path", type=str, help="Optional JSON dataset with additional patterns")

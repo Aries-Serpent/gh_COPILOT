@@ -28,7 +28,7 @@ def test_composite_score_persisted_and_served(tmp_path, monkeypatch):
         ).fetchone()
         assert row == (pytest.approx(breakdown["placeholder_score"], rel=1e-3), pytest.approx(score, rel=1e-3))
 
-    record_code_quality_metrics(5, 8, 2, 1, 4, score, db_path=db)
+    record_code_quality_metrics(5, 8, 2, 1, 4, db_path=db)
 
     client = ed.app.test_client()
     resp = client.get("/dashboard/compliance")

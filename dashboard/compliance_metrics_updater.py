@@ -31,8 +31,6 @@ from enterprise_modules.compliance import (
     _run_pytest,
     pid_recursion_guard,
     calculate_compliance_score,
-    # The following import is for one branch; ensure both are available for composite scoring:
-    # If calculate_composite_compliance_score exists, prefer that for composite scoring, else fallback.
 )
 from disaster_recovery_orchestrator import DisasterRecoveryOrchestrator
 from unified_monitoring_optimization_system import (
@@ -41,12 +39,6 @@ from unified_monitoring_optimization_system import (
 )
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
-
-try:
-    from enterprise_modules.compliance import calculate_composite_compliance_score
-    _HAS_COMPOSITE = True
-except ImportError:
-    _HAS_COMPOSITE = False
 
 # Enterprise logging setup
 LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "/workspace/gh_COPILOT")) / "logs" / "dashboard"
@@ -191,6 +183,7 @@ class ComplianceMetricsUpdater:
             "last_update": datetime.now().isoformat(),
             "placeholder_breakdown": {},
             "compliance_trend": [],
+            "placeholder_trend": [],
             "composite_score": 0.0,
             "score_breakdown": {},
         }
@@ -289,6 +282,19 @@ class ComplianceMetricsUpdater:
                     metrics["compliance_trend"] = list(reversed(scores))
                 except sqlite3.Error:
                     metrics["compliance_trend"] = []
+
+                # Placeholder resolution trend
+                try:
+                    cur.execute(
+                        "SELECT timestamp, open_count, resolved_count FROM placeholder_audit_snapshots ORDER BY timestamp DESC LIMIT 5"
+                    )
+                    rows = cur.fetchall()
+                    metrics["placeholder_trend"] = [
+                        {"timestamp": r[0], "open": r[1], "resolved": r[2]}
+                        for r in reversed(rows)
+                    ]
+                except sqlite3.Error:
+                    metrics["placeholder_trend"] = []
 
                 cur.execute("SELECT COUNT(*) FROM correction_logs")
                 metrics["correction_count"] = cur.fetchone()[0]
@@ -392,23 +398,13 @@ class ComplianceMetricsUpdater:
             ruff_issues = _run_ruff()
             tests_passed, tests_failed = _run_pytest()
 
-        # Composite score calculation - resolve merge logic to prefer composite function, fallback to original
-        if _HAS_COMPOSITE:
-            composite = calculate_composite_compliance_score(
-                ruff_issues,
-                tests_passed,
-                tests_failed,
-                open_ph,
-                resolved_ph,
-            )
-        else:
-            composite = calculate_compliance_score(
-                ruff_issues,
-                tests_passed,
-                tests_failed,
-                open_ph,
-                resolved_ph,
-            )
+        composite = calculate_compliance_score(
+            ruff_issues,
+            tests_passed,
+            tests_failed,
+            open_ph,
+            resolved_ph,
+        )
         total_tests = tests_passed + tests_failed
         test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
         lint_score = max(0.0, 100 - ruff_issues)
@@ -421,12 +417,10 @@ class ComplianceMetricsUpdater:
             if total_placeholders
             else 100.0
         )
-        weighted_score = 0.3 * lint_score + 0.5 * test_score + 0.2 * placeholder_score
         scores = {
             "lint_score": round(lint_score, 2),
             "test_score": round(test_score, 2),
             "placeholder_score": round(placeholder_score, 2),
-            "weighted_score": round(weighted_score, 2),
             "composite": round(composite, 2),
         }
         violation_penalty = metrics["violation_count"] * 10
@@ -436,7 +430,6 @@ class ComplianceMetricsUpdater:
         scores["rollback_penalty"] = rollback_penalty
         metrics["composite_score"] = composite_adj
         metrics["composite_compliance_score"] = composite_adj
-        metrics["weighted_score"] = scores["weighted_score"]
         metrics["score_breakdown"] = scores
         metrics["lint_score"] = scores["lint_score"]
         metrics["test_score"] = scores["test_score"]
@@ -451,7 +444,6 @@ class ComplianceMetricsUpdater:
             tests_failed,
             open_ph,
             resolved_ph,
-            composite_adj,
             db_path=ANALYTICS_DB,
             test_mode=test_mode,
         )

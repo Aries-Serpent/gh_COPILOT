@@ -661,23 +661,26 @@ def record_code_quality_metrics(
     tests_failed: int,
     placeholders_open: int,
     placeholders_resolved: int,
-    composite_score: float,
     db_path: Path | None = None,
     *,
     test_mode: bool = False,
-) -> None:
-    """Store code quality metrics and component scores in ``analytics.db``."""
+) -> float:
+    """Compute weighted metrics and persist them to ``analytics.db``.
+
+    Returns the composite score on a ``0..100`` scale. When ``test_mode`` is
+    ``True`` the calculation is performed but no database writes occur.
+    """
+
+    composite_score, breakdown = calculate_composite_score(
+        ruff_issues,
+        tests_passed,
+        tests_failed,
+        placeholders_open,
+        placeholders_resolved,
+    )
 
     if test_mode:
-        return
-
-    lint_score = max(0.0, 100 - int(ruff_issues))
-    total_tests = tests_passed + tests_failed
-    test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
-    total_placeholders = placeholders_open + placeholders_resolved
-    placeholder_score = (
-        placeholders_resolved / total_placeholders * 100 if total_placeholders else 100.0
-    )
+        return composite_score
 
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
     db = db_path or (workspace / "databases" / "analytics.db")
@@ -731,9 +734,9 @@ def record_code_quality_metrics(
                 int(tests_failed),
                 int(placeholders_open),
                 int(placeholders_resolved),
-                float(lint_score),
-                float(test_score),
-                float(placeholder_score),
+                float(breakdown["lint_score"]),
+                float(breakdown["test_score"]),
+                float(breakdown["placeholder_score"]),
                 float(composite_score),
                 datetime.now().isoformat(),
             ),
@@ -752,11 +755,12 @@ def record_code_quality_metrics(
                 int(tests_failed),
                 int(placeholders_open),
                 int(placeholders_resolved),
-                float(placeholder_score),
+                float(breakdown["placeholder_score"]),
                 float(composite_score),
             ),
         )
         conn.commit()
+    return composite_score
 
 def get_latest_compliance_score(db_path: Path | None = None) -> float:
     """Return the most recent composite compliance score from analytics.db."""
@@ -787,7 +791,6 @@ def calculate_and_persist_compliance_score() -> float:
         failed,
         placeholders_open,
         0,
-        score,
     )
     send_dashboard_alert({"event": "compliance_score", "score": score})
     return score
