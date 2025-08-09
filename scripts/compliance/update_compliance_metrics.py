@@ -18,7 +18,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Tuple
-import os, sqlite3, time
+import os
+import sqlite3
+import time
 
 __all__ = ["update_compliance_metrics", "ComplianceComponents"]
 
@@ -76,11 +78,16 @@ def _fetch_components(conn: sqlite3.Connection) -> ComplianceComponents:
         tests_passed, tests_total = 0, 0
     if _table_exists(conn, "placeholder_audit_snapshots"):
         placeholders_open, placeholders_resolved = conn.execute(
-            "SELECT COALESCE(open_count,0), COALESCE(resolved_count,0) FROM placeholder_audit_snapshots ORDER BY id DESC LIMIT 1"
+            """SELECT COALESCE(open_count,0), COALESCE(resolved_count,0) 
+            FROM placeholder_audit_snapshots ORDER BY id DESC LIMIT 1"""
         ).fetchone()
     else:
         placeholders_open, placeholders_resolved = 0, 0
-    return ComplianceComponents(int(ruff_issues or 0), int(tests_passed or 0), int(tests_total or 0), int(placeholders_open or 0), int(placeholders_resolved or 0))
+    return ComplianceComponents(
+        int(ruff_issues or 0), int(tests_passed or 0), 
+        int(tests_total or 0), int(placeholders_open or 0), 
+        int(placeholders_resolved or 0)
+    )
 
 
 def _compute(c: ComplianceComponents) -> Tuple[float, float, float, float]:
@@ -106,10 +113,15 @@ def update_compliance_metrics(workspace: Optional[str] = None, db_path: Optional
         conn.execute(
             """
             INSERT INTO compliance_scores
-            (timestamp, L, T, P, composite, ruff_issues, tests_passed, tests_total, placeholders_open, placeholders_resolved)
+            (timestamp, L, T, P, composite, ruff_issues, tests_passed, 
+             tests_total, placeholders_open, placeholders_resolved)
             VALUES (?,?,?,?,?,?,?,?,?,?)
             """,
-            (int(time.time()), L, T, P, composite, comp.ruff_issues, comp.tests_passed, comp.tests_total, comp.placeholders_open, comp.placeholders_resolved),
+            (
+                int(time.time()), L, T, P, composite, comp.ruff_issues, 
+                comp.tests_passed, comp.tests_total, comp.placeholders_open, 
+                comp.placeholders_resolved
+            ),
         )
         conn.commit()
         return composite
