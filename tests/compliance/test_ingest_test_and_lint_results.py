@@ -4,10 +4,17 @@ import sqlite3
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
+import sys
+import types
+
+# Provide minimal stubs for heavy optional dependencies before importing target module
+sys.modules.setdefault("sklearn", types.ModuleType("sklearn"))
+sys.modules.setdefault("sklearn.ensemble", types.ModuleType("sklearn.ensemble"))
+setattr(sys.modules["sklearn.ensemble"], "IsolationForest", object)
 
 import pytest
 
-from scripts.ingest_test_and_lint_results import _db, ingest
+from scripts.ingest_test_and_lint_results import _db, _ensure_db_path, ingest
 
 
 @pytest.fixture
@@ -38,6 +45,12 @@ class TestDatabaseFunction:
         monkeypatch.delenv("GH_COPILOT_WORKSPACE", raising=False)
         monkeypatch.setattr(Path, "cwd", lambda: Path("/current/dir"))
         assert str(_db()) == "/current/dir/databases/analytics.db"
+
+    def test_ensure_db_path_creates_file(self, temp_workspace):
+        db_path = _db(str(temp_workspace))
+        assert not db_path.exists()
+        _ensure_db_path(db_path)
+        assert db_path.exists()
 
 
 class TestIngest:
