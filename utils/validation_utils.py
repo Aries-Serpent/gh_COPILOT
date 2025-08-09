@@ -42,20 +42,24 @@ def calculate_composite_compliance_score(
     -------
     Dict[str, float]
         Dictionary containing ``lint_score``, ``test_score``,
-        ``placeholder_score`` and ``composite``. The composite score
-        weighs lint, tests, and placeholder progress at 30%, 50%, and
-        20% respectively. Placeholder progress ``P`` is computed as
-        ``resolved / (open + resolved) * 100``.
+        ``placeholder_score``, ``test_pass_ratio``,
+        ``placeholder_resolution_ratio`` and ``composite``. The
+        composite score weighs lint, tests, and placeholder progress at
+        30%, 50%, and 20% respectively. Placeholder progress ``P`` is
+        computed as ``resolved / (open + resolved)`` and exposed both as
+        a ratio and as a percentage.
     """
 
     total_tests = tests_passed + tests_failed
-    test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
+    pass_ratio = tests_passed / total_tests if total_tests else 0.0
     lint_score = max(0.0, 100 - ruff_issues)
+    test_score = pass_ratio * 100
     placeholder_total = placeholders_open + placeholders_resolved
     if placeholder_total:
-        placeholder_score = placeholders_resolved / placeholder_total * 100
+        resolution_ratio = placeholders_resolved / placeholder_total
     else:
-        placeholder_score = 100.0
+        resolution_ratio = 1.0
+    placeholder_score = resolution_ratio * 100
     composite = round(
         0.3 * lint_score + 0.5 * test_score + 0.2 * placeholder_score,
         2,
@@ -64,6 +68,8 @@ def calculate_composite_compliance_score(
         "lint_score": round(lint_score, 2),
         "test_score": round(test_score, 2),
         "placeholder_score": round(placeholder_score, 2),
+        "test_pass_ratio": round(pass_ratio, 2),
+        "placeholder_resolution_ratio": round(resolution_ratio, 2),
         "composite": composite,
     }
 

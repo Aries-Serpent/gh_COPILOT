@@ -10,8 +10,10 @@ from pathlib import Path
 import argparse
 from typing import Any, Dict
 
-from utils.validation_utils import calculate_composite_compliance_score
-from enterprise_modules.compliance import record_code_quality_metrics
+from enterprise_modules.compliance import (
+    calculate_compliance_score,
+    record_code_quality_metrics,
+)
 
 
 def aggregate_metrics(
@@ -25,20 +27,36 @@ def aggregate_metrics(
     test_mode: bool = False,
 ) -> Dict[str, Any]:
     """Return composite compliance metrics and optionally persist them."""
-    scores = calculate_composite_compliance_score(
+    composite = calculate_compliance_score(
         ruff_issues,
         tests_passed,
         tests_failed,
         placeholders_open,
         placeholders_resolved,
     )
+
+    total_tests = tests_passed + tests_failed
+    test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
+    lint_score = max(0.0, 100 - ruff_issues)
+    total_placeholders = placeholders_open + placeholders_resolved
+    placeholder_score = (
+        placeholders_resolved / total_placeholders * 100
+        if total_placeholders
+        else 100.0
+    )
+    breakdown = {
+        "lint_score": round(lint_score, 2),
+        "test_score": round(test_score, 2),
+        "placeholder_score": round(placeholder_score, 2),
+    }
+
     record_code_quality_metrics(
         ruff_issues,
         tests_passed,
         tests_failed,
         placeholders_open,
         placeholders_resolved,
-        scores["composite"],
+        composite,
         db_path,
         test_mode=test_mode,
     )
@@ -48,8 +66,8 @@ def aggregate_metrics(
         "tests_failed": tests_failed,
         "placeholders_open": placeholders_open,
         "placeholders_resolved": placeholders_resolved,
-        "composite_score": scores["composite"],
-        "breakdown": scores,
+        "composite_score": composite,
+        "breakdown": breakdown,
     }
     return result
 
