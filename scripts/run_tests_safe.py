@@ -19,6 +19,11 @@ def _has_pytest_cov() -> bool:
         return False
 
 
+def check_pytest_cov_available() -> bool:
+    """Return whether the pytest-cov plugin can be used."""
+    return _has_pytest_cov()
+
+
 def _has_json_report() -> bool:
     """Check if pytest-json-report plugin is available."""
     try:
@@ -151,6 +156,7 @@ if __name__ == "__main__":  # pragma: no cover
 __all__ = [
     "_has_pytest_cov",
     "_has_json_report",
+    "check_pytest_cov_available",
     "run_pytest_safe",
     "main",
 ]
