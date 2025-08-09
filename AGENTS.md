@@ -102,6 +102,12 @@ Maintain code quality and consistency with the project’s established style:
 
 * **Follow Existing Style**: Adhere to PEP 8 for Python and the project’s conventions. Match the coding style of the surrounding code (naming, structure, patterns). If the project uses specific idioms or design patterns, try to follow those.
 * **Automated Linting**: Use `ruff` for linting and formatting (as this project does). Before committing, run `ruff check .` and address any warnings or errors. Then run `ruff format .` (or ensure your changes are formatted) so that the code meets the style guidelines. The code must pass lint checks with **no** warnings.
+* **Composite Compliance Refresh**: After running lint/tests generate and persist updated metrics:
+  1. `ruff check . --output-format json > ruff_report.json`
+  2. `pytest --json-report --maxfail=1 || true`
+  3. `python scripts/ingest_test_and_lint_results.py`
+  4. `python -m scripts.compliance.update_compliance_metrics`
+  Dashboard endpoints `/api/refresh_compliance` (POST) and `/api/compliance_scores` (GET) surface these scores.
 * **Type Checking**: Run `pyright` (or `mypy` if specified) to perform static type checking. The project should remain type-clean. If your changes introduce type errors, fix them or adjust type annotations as needed. Do not ignore type checker output.
 * **Clean and Commented Code**: Remove any debugging prints or leftover test code before committing. Comments and docstrings should be added for complex logic or important sections, following the project’s commenting style. Keep comments clear and helpful, but avoid redundant comments for self-explanatory code.
 

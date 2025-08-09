@@ -85,6 +85,60 @@
                 updateRollbacks(payload.rollbacks);
             }
         }
+        function loadComplianceChart(){
+            fetch('/api/compliance_scores').then(r=>r.json()).then(data => {
+                updateComplianceChart(data.scores || []);
+            }).catch(err => console.log('Failed to load compliance scores:', err));
+        }
+        function updateComplianceChart(scores){
+            const ctx = document.getElementById('complianceChart').getContext('2d');
+            const labels = scores.map(s => new Date(s.timestamp * 1000).toLocaleDateString()).slice(-20);
+            const data = scores.map(s => s.composite).slice(-20);
+            
+            if(window.complianceChart) {
+                window.complianceChart.destroy();
+            }
+            
+            window.complianceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Composite Compliance Score',
+                        data: data,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderWidth: 2,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Score (%)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Compliance Score Trend (Last 20 Data Points)'
+                        }
+                    }
+                }
+            });
+        }
         function pollCompliance(){
             fetch('/dashboard/compliance').then(r=>r.json()).then(updateCompliance);
         }
@@ -115,8 +169,10 @@
             }
             pollCompliance();
             pollExtras();
+            loadComplianceChart();
             setInterval(pollCompliance,5000);
             setInterval(pollExtras,5000);
+            setInterval(loadComplianceChart,30000); // Update chart every 30 seconds
         };
     </script>
 </head>
@@ -144,6 +200,9 @@
     <ul id="compliance_trend"></ul>
     <h3>Placeholder History</h3>
     <canvas id="placeholderChart"></canvas>
+    
+    <h3>Compliance Score Trend</h3>
+    <canvas id="complianceChart" width="800" height="300"></canvas>
 </div>
 <h2>Recent Corrections</h2>
 <ul id="corrections">
