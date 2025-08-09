@@ -135,6 +135,7 @@ def prevent_recursion(func: Callable) -> Callable:
         try:
             return guarded(*args, **kwargs)
         except RuntimeError as exc:
+            logger.warning("Recursion detected in %s: %s", func.__name__, exc)
             record_codex_action(session_id, "anti_recursion_triggered", str(exc))
             raise
 
@@ -146,6 +147,8 @@ def finalize_session(
     log_dir: str | Path,
     root: str | Path | None = None,
     session_id: str = "unknown",
+    start_time: datetime | None = None,
+    status: str = "success",
 ) -> str:
     """Verify logs are complete and record a session integrity hash.
 
@@ -200,6 +203,38 @@ def finalize_session(
     zero_byte_count = len(detect_zero_byte_files(root_path))
     open_handles = len(psutil.Process().open_files()) if psutil else 0
     _record_wrap_up_metrics(session_id, open_handles, zero_byte_count)
+
+    end_ts = datetime.now(UTC)
+    start_ts = int((start_time or end_ts).timestamp())
+    duration = (end_ts - (start_time or end_ts)).total_seconds()
+    with sqlite3.connect(ANALYTICS_DB) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS session_lifecycle (
+                session_id TEXT PRIMARY KEY,
+                start_ts INTEGER NOT NULL,
+                end_ts INTEGER,
+                duration_seconds REAL,
+                zero_byte_violations INTEGER DEFAULT 0,
+                recursion_flags INTEGER DEFAULT 0,
+                status TEXT DEFAULT 'running'
+            )
+            """
+        )
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO session_lifecycle (
+                session_id, start_ts, end_ts, duration_seconds, status
+            ) VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                session_id,
+                start_ts,
+                int(end_ts.timestamp()),
+                float(duration),
+                status,
+            ),
+        )
 
     return hash_value
 

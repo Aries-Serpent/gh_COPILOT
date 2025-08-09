@@ -45,15 +45,18 @@ def anomaly_metrics(monitoring_db: Path = MONITORING_DB) -> Dict[str, float]:
 def session_lifecycle_stats(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
     """Aggregate session lifecycle statistics for dashboard display."""
 
-    stats = {"count": 0, "avg_duration": 0.0}
+    stats = {"count": 0, "avg_duration": 0.0, "success_rate": 0.0}
     if db_path.exists():
         with sqlite3.connect(db_path) as conn:
             cur = conn.execute(
-                "SELECT COUNT(*), AVG(duration_seconds) FROM session_lifecycle"
+                "SELECT COUNT(*), AVG(duration_seconds), SUM(CASE WHEN status='success' THEN 1 ELSE 0 END) FROM session_lifecycle",
             )
-            count, avg = cur.fetchone()
+            count, avg, success = cur.fetchone()
             stats["count"] = int(count or 0)
             stats["avg_duration"] = float(avg or 0.0)
+            stats["success_rate"] = (
+                float(success or 0) / stats["count"] if stats["count"] else 0.0
+            )
     return stats
 
 
@@ -154,3 +157,4 @@ __all__ = [
     "session_lifecycle_stats",
     "_load_corrections",
 ]
+
