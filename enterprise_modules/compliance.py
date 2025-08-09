@@ -31,7 +31,9 @@ def _ensure_metrics_table(conn: sqlite3.Connection) -> None:
             tests_passed INTEGER NOT NULL,
             tests_failed INTEGER NOT NULL,
             placeholders_open INTEGER,
-            placeholders_resolved INTEGER
+            placeholders_resolved INTEGER,
+            placeholder_score REAL,
+            composite_score REAL
         )
         """
     )
@@ -623,15 +625,24 @@ def record_code_quality_metrics(
     *,
     test_mode: bool = False,
 ) -> None:
-    """Store code quality metrics in ``code_quality_metrics`` table."""
+    """Store code quality metrics and component scores in ``analytics.db``."""
 
     if test_mode:
         return
+
+    lint_score = max(0.0, 100 - int(ruff_issues))
+    total_tests = tests_passed + tests_failed
+    test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
+    total_placeholders = placeholders_open + placeholders_resolved
+    placeholder_score = (
+        placeholders_resolved / total_placeholders * 100 if total_placeholders else 100.0
+    )
 
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
     db = db_path or (workspace / "databases" / "analytics.db")
     db.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(db) as conn:
+        _ensure_metrics_table(conn)
         conn.execute(
             """CREATE TABLE IF NOT EXISTS code_quality_metrics (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -640,36 +651,68 @@ def record_code_quality_metrics(
                 tests_failed INTEGER,
                 placeholders_open INTEGER,
                 placeholders_resolved INTEGER,
+                lint_score REAL,
+                test_score REAL,
+                placeholder_score REAL,
                 composite_score REAL,
                 ts TEXT
-            )"""
+            )""",
         )
-        try:
-            conn.execute(
-                "ALTER TABLE code_quality_metrics ADD COLUMN placeholders_open INTEGER"
-            )
-        except sqlite3.OperationalError:
-            pass
-        try:
-            conn.execute(
-                "ALTER TABLE code_quality_metrics ADD COLUMN placeholders_resolved INTEGER"
-            )
-        except sqlite3.OperationalError:
-            pass
+        for column in (
+            "lint_score",
+            "test_score",
+            "placeholder_score",
+            "composite_score",
+        ):
+            try:
+                conn.execute(
+                    f"ALTER TABLE code_quality_metrics ADD COLUMN {column} REAL"
+                )
+            except sqlite3.OperationalError:
+                pass
+        for column in ("placeholders_open", "placeholders_resolved"):
+            try:
+                conn.execute(
+                    f"ALTER TABLE code_quality_metrics ADD COLUMN {column} INTEGER"
+                )
+            except sqlite3.OperationalError:
+                pass
         conn.execute(
             """INSERT INTO code_quality_metrics (
                 ruff_issues, tests_passed, tests_failed,
                 placeholders_open, placeholders_resolved,
+                lint_score, test_score, placeholder_score,
                 composite_score, ts
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 int(ruff_issues),
                 int(tests_passed),
                 int(tests_failed),
                 int(placeholders_open),
                 int(placeholders_resolved),
+                float(lint_score),
+                float(test_score),
+                float(placeholder_score),
                 float(composite_score),
                 datetime.now().isoformat(),
+            ),
+        )
+        ts = int(datetime.now().timestamp())
+        conn.execute(
+            """INSERT INTO compliance_metrics_history (
+                timestamp, ruff_issues, tests_passed, tests_failed,
+                placeholders_open, placeholders_resolved,
+                placeholder_score, composite_score
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                ts,
+                int(ruff_issues),
+                int(tests_passed),
+                int(tests_failed),
+                int(placeholders_open),
+                int(placeholders_resolved),
+                float(placeholder_score),
+                float(composite_score),
             ),
         )
         conn.commit()
