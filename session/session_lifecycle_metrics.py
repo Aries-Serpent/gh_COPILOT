@@ -39,7 +39,15 @@ def start_session(session_id: str, *, workspace: Optional[str] = None) -> None:
     with sqlite3.connect(db_path) as conn:
         _ensure(conn)
         conn.execute(
-            "INSERT INTO session_lifecycle (session_id, start_ts, status) VALUES(?,?,'running')", 
+            """
+            INSERT INTO session_lifecycle (session_id, start_ts, status)
+            VALUES(?, ?, 'running')
+            ON CONFLICT(session_id) DO UPDATE SET
+                start_ts=excluded.start_ts,
+                status='running',
+                end_ts=NULL,
+                duration_seconds=NULL
+            """,
             (session_id, int(time.time()))
         )
         conn.commit()
