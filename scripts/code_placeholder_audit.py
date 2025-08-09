@@ -4,7 +4,7 @@ Enterprise Database-First Code Audit Script
 MANDATORY REQUIREMENTS:
 1. Query production.db for tracked file patterns and audit templates.
 2. Traverse all files, extract line number, context, and type.
-3. Log each finding to analytics.db.todo_fixme_tracking with file path, line number, context, timestamp.
+3. Log each finding to analytics.db.placeholder_tasks with file path, line number, context, timestamp.
 4. Update /dashboard/compliance with removal status and compliance metrics.
 5. Include tqdm progress bar, start time logging, timeout, ETC calculation, anti-recursion validation.
 6. DUAL COPILOT: Secondary validator checks audit completeness and compliance.
@@ -40,8 +40,14 @@ except ModuleNotFoundError:
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 import secondary_copilot_validator
 from utils.log_utils import log_message
-from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
-from unified_script_generation_system import EnterpriseUtility
+try:  # pragma: no cover - optional dependency for dashboard integration
+    from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
+except Exception:  # pragma: no cover - allow absence during unit tests
+    ComplianceMetricsUpdater = None  # type: ignore[assignment]
+try:  # pragma: no cover - optional dependency for template generation
+    from unified_script_generation_system import EnterpriseUtility
+except Exception:  # pragma: no cover - allow absence during unit tests
+    EnterpriseUtility = None  # type: ignore[assignment]
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
 __all__ = [
@@ -181,11 +187,12 @@ def write_tasks_report(tasks: List[Dict[str, str]], report_path: Path) -> None:
 def log_placeholder_tasks(
     tasks: List[Dict[str, str]], analytics_db: Path, simulate: bool = False
 ) -> int:
-    """Persist placeholder removal tasks to ``todo_fixme_tracking``.
+    """Persist placeholder removal tasks to tracking tables.
 
-    The function enriches existing tracking entries with human readable
-    suggestions. When an entry does not yet exist, it is inserted so the
-    dashboard can surface the recommendation.
+    Findings are written to both the legacy ``todo_fixme_tracking`` table
+    and the newer ``placeholder_tasks`` table. Each entry tracks whether the
+    placeholder is ``open`` or ``resolved`` so downstream tooling can derive
+    resolution ratios.
     """
 
     if simulate:
@@ -211,6 +218,23 @@ def log_placeholder_tasks(
             )
             """
         )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS placeholder_tasks (
+                file_path TEXT,
+                line_number INTEGER,
+                pattern TEXT,
+                context TEXT,
+                suggestion TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                author TEXT,
+                resolved BOOLEAN DEFAULT 0,
+                resolved_timestamp DATETIME,
+                resolved_by TEXT,
+                status TEXT DEFAULT 'open'
+            )
+            """
+        )
         # Ensure the suggestion column exists for pre-existing databases.
         cur = conn.execute("PRAGMA table_info(todo_fixme_tracking)")
         cols = {row[1] for row in cur.fetchall()}
@@ -220,6 +244,39 @@ def log_placeholder_tasks(
         inserted = 0
         for task in tasks:
             key = (task["file"], int(task["line"]), task["pattern"], task["context"])
+
+            # Insert/update placeholder_tasks table
+            cur = conn.execute(
+                "SELECT rowid FROM placeholder_tasks WHERE file_path=? AND line_number=? AND pattern=? AND context=?",
+                key,
+            )
+            row = cur.fetchone()
+            if row:
+                conn.execute(
+                    "UPDATE placeholder_tasks SET suggestion=?, status='open', resolved=0 WHERE rowid=?",
+                    (task["suggestion"], row[0]),
+                )
+            else:
+                conn.execute(
+                    """
+                    INSERT INTO placeholder_tasks (
+                        file_path, line_number, pattern, context,
+                        suggestion, timestamp, author, status
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, 'open')
+                    """,
+                    (
+                        task["file"],
+                        int(task["line"]),
+                        task["pattern"],
+                        task["context"],
+                        task["suggestion"],
+                        datetime.now().isoformat(),
+                        author,
+                    ),
+                )
+                inserted += 1
+
+            # Mirror entry in legacy todo_fixme_tracking table
             cur = conn.execute(
                 "SELECT rowid FROM todo_fixme_tracking WHERE file_path=? AND line_number=? AND placeholder_type=? AND context=?",
                 key,
@@ -227,7 +284,7 @@ def log_placeholder_tasks(
             row = cur.fetchone()
             if row:
                 conn.execute(
-                    "UPDATE todo_fixme_tracking SET suggestion=?, status='open' WHERE rowid=?",
+                    "UPDATE todo_fixme_tracking SET suggestion=?, status='open', resolved=0 WHERE rowid=?",
                     (task["suggestion"], row[0]),
                 )
             else:
@@ -248,7 +305,6 @@ def log_placeholder_tasks(
                         author,
                     ),
                 )
-                inserted += 1
         conn.commit()
     return inserted
 
@@ -274,35 +330,45 @@ def verify_task_completion(analytics_db: Path, workspace: Path) -> int:
 
     resolved = 0
     with sqlite3.connect(analytics_db) as conn:
-        cur = conn.execute(
-            "SELECT rowid, file_path, line_number, placeholder_type FROM todo_fixme_tracking WHERE status='open'",
-        )
-        rows = cur.fetchall()
-        for rowid, fpath, line, pattern in rows:
-            path = Path(fpath)
-            try:
-                if not path.resolve().is_relative_to(workspace.resolve()):
-                    continue
-            except Exception:
-                # Python <3.9 compatibility: fallback to manual check
+        tables = []
+        if conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='placeholder_tasks'"
+        ).fetchone():
+            tables.append(("placeholder_tasks", "pattern"))
+        if conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='todo_fixme_tracking'"
+        ).fetchone():
+            tables.append(("todo_fixme_tracking", "placeholder_type"))
+
+        for table, col in tables:
+            cur = conn.execute(
+                f"SELECT rowid, file_path, line_number, {col} FROM {table} WHERE status='open'"
+            )
+            rows = cur.fetchall()
+            for rowid, fpath, line, pattern in rows:
+                path = Path(fpath)
                 try:
-                    if not str(path.resolve()).startswith(str(workspace.resolve())):
+                    if not path.resolve().is_relative_to(workspace.resolve()):
                         continue
                 except Exception:
+                    try:
+                        if not str(path.resolve()).startswith(str(workspace.resolve())):
+                            continue
+                    except Exception:
+                        continue
+                if not path.exists():
                     continue
-            if not path.exists():
-                continue
-            try:
-                content = path.read_text(encoding="utf-8").splitlines()
-            except Exception:
-                continue
-            if 1 <= int(line) <= len(content):
-                if not re.search(pattern, content[int(line) - 1]):
-                    conn.execute(
-                        "UPDATE todo_fixme_tracking SET resolved=1, status='resolved', resolved_timestamp=? WHERE rowid=?",
-                        (datetime.now().isoformat(), rowid),
-                    )
-                    resolved += 1
+                try:
+                    content = path.read_text(encoding="utf-8").splitlines()
+                except Exception:
+                    continue
+                if 1 <= int(line) <= len(content):
+                    if not re.search(pattern, content[int(line) - 1]):
+                        conn.execute(
+                            f"UPDATE {table} SET resolved=1, status='resolved', resolved_timestamp=? WHERE rowid=?",
+                            (datetime.now().isoformat(), rowid),
+                        )
+                        resolved += 1
         conn.commit()
     return resolved
 
@@ -355,14 +421,26 @@ def snapshot_placeholder_counts(db: Path) -> Tuple[int, int]:
 
     with sqlite3.connect(db) as conn:
         _ensure_placeholder_tables(conn)
-        cur = conn.execute(
-            "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'"
-        )
-        open_count = int(cur.fetchone()[0])
-        cur = conn.execute(
-            "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
-        )
-        resolved_count = int(cur.fetchone()[0])
+        if conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='placeholder_tasks'"
+        ).fetchone():
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM placeholder_tasks WHERE status='open'"
+            )
+            open_count = int(cur.fetchone()[0])
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM placeholder_tasks WHERE status='resolved'"
+            )
+            resolved_count = int(cur.fetchone()[0])
+        else:
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'"
+            )
+            open_count = int(cur.fetchone()[0])
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
+            )
+            resolved_count = int(cur.fetchone()[0])
         conn.execute(
             "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (?,?,?)",
             (int(time.time()), open_count, resolved_count),
@@ -922,6 +1000,8 @@ def _auto_fill_with_templates(
         Path to backup for potential rollback.
     """
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
+    if not EnterpriseUtility:
+        return
     utility = EnterpriseUtility(str(workspace))
     if utility.perform_utility_function():
         gen_dir = workspace / "generated_templates"
@@ -1222,12 +1302,17 @@ def main(
     else:
         log_message(__name__, "[TEST MODE] Dashboard update skipped")
     # Combine with Compliance Metrics Updater for real-time metrics
-    try:
-        updater = ComplianceMetricsUpdater(dashboard, test_mode=simulate)
-        updater.update(simulate=simulate)
-        updater.validate_update()
-    except Exception as exc:  # pragma: no cover - updater errors
-        log_message(__name__, f"{TEXT['error']} compliance update failed: {exc}", level=logging.ERROR)
+    if ComplianceMetricsUpdater:
+        try:
+            updater = ComplianceMetricsUpdater(dashboard, test_mode=simulate)
+            updater.update(simulate=simulate)
+            updater.validate_update()
+        except Exception as exc:  # pragma: no cover - updater errors
+            log_message(
+                __name__,
+                f"{TEXT['error']} compliance update failed: {exc}",
+                level=logging.ERROR,
+            )
     elapsed = time.time() - start_time
     log_message(__name__, f"{TEXT['info']} audit completed in {elapsed:.2f}s")
 
