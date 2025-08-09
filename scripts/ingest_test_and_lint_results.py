@@ -1,3 +1,4 @@
+"""Ingest ruff + pytest JSON outputs into analytics.db."""
 from __future__ import annotations
 
 import json
@@ -7,7 +8,10 @@ import time
 from pathlib import Path
 from typing import Optional
 
-from enterprise_modules.compliance import _ensure_metrics_table
+from scripts.compliance.update_compliance_metrics import (
+    _ensure_metrics_table,
+    _ensure_table,
+)
 
 RUFF_JSON = Path("ruff_report.json")
 PYTEST_JSON = Path(".report.json")  # default name from pytest --json-report
@@ -22,48 +26,99 @@ def ingest(
     workspace: Optional[str] = None,
     ruff_json: Optional[Path] = None,
     pytest_json: Optional[Path] = None,
-) -> int:
+) -> None:
+    """
+    Ingest ruff and pytest JSON outputs into analytics.db,
+    populating ruff_issue_log, test_run_stats, compliance_metrics_history, and compliance_scores.
+    """
+    ws = Path(workspace or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
     db_path = _db(workspace)
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    workspace_path = db_path.parent.parent
-    ruff_path = ruff_json or workspace_path / RUFF_JSON
-    pytest_path = pytest_json or workspace_path / PYTEST_JSON
-
-    ruff_issues = 0
-    if ruff_path.exists():
-        try:
-            data = json.loads(ruff_path.read_text(encoding="utf-8"))
-            ruff_issues = len(data) if isinstance(data, list) else int(data.get("issue_count", 0))
-        except Exception:
-            ruff_issues = 0
-
-    tests_passed = tests_failed = 0
-    if pytest_path.exists():
-        try:
-            data = json.loads(pytest_path.read_text(encoding="utf-8"))
-            summary = data.get("summary", {})
-            tests_passed = int(summary.get("passed", 0))
-            if "failed" in summary:
-                tests_failed = int(summary.get("failed", 0))
-            else:
-                total = int(summary.get("total", 0))
-                tests_failed = max(0, total - tests_passed)
-        except Exception:
-            tests_passed = tests_failed = 0
+    ruff_path = ruff_json or ws / RUFF_JSON
+    pytest_path = pytest_json or ws / PYTEST_JSON
 
     with sqlite3.connect(db_path) as conn:
+        # Ensure necessary tables for both legacy and current metrics
+        _ensure_table(conn)
         _ensure_metrics_table(conn)
-        cur = conn.execute(
+
+        # --- Ruff issues log ---
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS ruff_issue_log (
+                run_timestamp INTEGER DEFAULT (STRFTIME('%s','now')),
+                issues INTEGER
+            )
+            """
+        )
+        issues = 0
+        if ruff_path.exists():
+            try:
+                data = json.loads(ruff_path.read_text(encoding="utf-8"))
+                issues = len(data) if isinstance(data, list) else int(data.get("issue_count", 0))
+            except Exception:
+                issues = 0
+        conn.execute("INSERT INTO ruff_issue_log(issues) VALUES(?)", (issues,))
+
+        # --- Pytest stats ---
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS test_run_stats (
+                run_timestamp INTEGER DEFAULT (STRFTIME('%s','now')),
+                passed INTEGER,
+                total INTEGER
+            )
+            """
+        )
+        passed = total = 0
+        if pytest_path.exists():
+            try:
+                data = json.loads(pytest_path.read_text(encoding="utf-8"))
+                summary = data.get("summary", {})
+                total = int(summary.get("total", 0))
+                passed = int(summary.get("passed", 0))
+            except Exception:
+                total = passed = 0
+        conn.execute("INSERT INTO test_run_stats(passed,total) VALUES(?,?)", (passed, total))
+
+        # --- Compliance metrics ---
+        # L: Lint (ruff) score, T: Test score, P: Placeholder score (set to 0 here)
+        L = max(0.0, 100.0 - float(issues))
+        T = (float(passed) / total * 100.0) if total else 0.0
+        P = 0.0  # Placeholder score not available at ingest
+        composite = 0.3 * L + 0.5 * T + 0.2 * P
+        ts = int(time.time())
+        # Insert into metrics history (newer normalized table)
+        conn.execute(
             """
             INSERT INTO compliance_metrics_history (
-                timestamp, ruff_issues, tests_passed, tests_failed, placeholders_open, placeholders_resolved
-            ) VALUES (?, ?, ?, ?, ?, ?)
+                ts, ruff_issues, tests_passed, tests_total,
+                placeholders_open, placeholders_resolved,
+                lint_score, test_score, placeholder_score,
+                composite_score, source, meta_json
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
             """,
-            (int(time.time()), ruff_issues, tests_passed, tests_failed, None, None),
+            (ts, issues, passed, total, None, None, L, T, P, composite, "ingest_pipeline", None),
+        )
+        # Insert into legacy compliance_scores table
+        conn.execute(
+            """
+            INSERT INTO compliance_scores (
+                timestamp, L, T, P, composite,
+                ruff_issues, tests_passed, tests_total,
+                placeholders_open, placeholders_resolved
+            ) VALUES (?,?,?,?,?,?,?,?,?,?)
+            """,
+            (ts, L, T, P, composite, issues, passed, total, 0, 0),
         )
         conn.commit()
-        return int(cur.lastrowid)
 
 
 if __name__ == "__main__":  # pragma: no cover
     ingest()
+
+
+__all__ = [
+    "_db",
+    "ingest",
+]
