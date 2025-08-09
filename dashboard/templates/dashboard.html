@@ -237,6 +237,14 @@
 {% endfor %}
 </ul>
 
+<h2>Anomaly Metrics</h2>
+<div>Threshold: <span id="anomaly_threshold">{{ anomaly.threshold }}</span></div>
+<div>Detected: <span id="anomaly_count">{{ anomaly.count }}</span></div>
+
+<h2>Session Lifecycle</h2>
+<div>Total Sessions: <span id="session_count">{{ lifecycle.count }}</span></div>
+<div>Average Duration: <span id="avg_duration">{{ lifecycle.avg_duration }}</span></div>
+
 <h2>Audit Results</h2>
 <ul id="audit_results">
 {% for row in audit_results %}
