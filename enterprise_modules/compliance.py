@@ -434,6 +434,35 @@ def _count_placeholders() -> int:
     return count
 
 
+def _fetch_session_lifecycle_stats(db_path: Path | None = None) -> tuple[int, int]:
+    """Return counts of successful and failed sessions from ``analytics.db``."""
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    db = db_path or (workspace / "databases" / "analytics.db")
+    if not db.exists():
+        return 0, 0
+    success = failed = 0
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS session_lifecycle (
+                session_id TEXT PRIMARY KEY,
+                start_ts INTEGER NOT NULL,
+                end_ts INTEGER,
+                duration_seconds REAL,
+                zero_byte_violations INTEGER DEFAULT 0,
+                recursion_flags INTEGER DEFAULT 0,
+                status TEXT DEFAULT 'running'
+            )"""
+        )
+        for status, count in conn.execute(
+            "SELECT status, COUNT(*) FROM session_lifecycle GROUP BY status"
+        ):
+            if status == "success":
+                success = count
+            elif status == "failed":
+                failed = count
+    return int(success), int(failed)
+
+
 def calculate_compliance_score(
     ruff_issues: int,
     tests_passed: int,
@@ -862,17 +891,18 @@ def calculate_and_persist_compliance_score() -> float:
     issues = _run_ruff()
     passed, failed = _run_pytest()
     placeholders_open = _count_placeholders()
-    score, breakdown = calculate_composite_score(
-        issues, passed, failed, placeholders_open, 0
-    )
-    persist_compliance_score(score, breakdown)
-    record_code_quality_metrics(
+    success, failed_sessions = _fetch_session_lifecycle_stats()
+    score, breakdown = calculate_code_quality_score(
         issues,
         passed,
         failed,
         placeholders_open,
         0,
+        success,
+        failed_sessions,
+        persist=True,
     )
+    persist_compliance_score(score, breakdown)
     send_dashboard_alert({"event": "compliance_score", "score": score})
     return score
 
