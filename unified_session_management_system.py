@@ -9,6 +9,8 @@ from typing import Callable
 from functools import wraps
 import logging
 import sqlite3
+import gc
+import io
 from datetime import UTC, datetime
 
 try:  # pragma: no cover - optional dependency
@@ -111,6 +113,30 @@ def _record_wrap_up_metrics(
                 ts,
             ),
         )
+
+
+def _detect_open_files() -> list[str]:
+    """Return a list of non-stdio file handles still open."""
+    paths: list[str] = []
+    for obj in gc.get_objects():
+        if isinstance(obj, io.IOBase) and not obj.closed:
+            name = getattr(obj, "name", "")
+            if name not in {"<stdin>", "<stdout>", "<stderr>"}:
+                paths.append(str(name))
+    return paths
+
+
+def _detect_open_transactions() -> int:
+    """Return the number of SQLite connections with uncommitted work."""
+    count = 0
+    for obj in gc.get_objects():
+        if isinstance(obj, sqlite3.Connection):
+            try:
+                if obj.in_transaction:
+                    count += 1
+            except Exception:
+                continue
+    return count
 
 
 @contextmanager
@@ -261,6 +287,18 @@ def finalize_session(
                 status,
             ),
         )
+    lingering_files = _detect_open_files()
+    pending_tx = _detect_open_transactions()
+    if lingering_files or pending_tx:
+        if lingering_files:
+            record_codex_action(
+                session_id, "open_handles_detected", str(lingering_files)
+            )
+        if pending_tx:
+            record_codex_action(
+                session_id, "transactions_open", str(pending_tx)
+            )
+        raise RuntimeError("Resource cleanup validation failed")
 
     return hash_value
 
