@@ -49,6 +49,7 @@ try:  # pragma: no cover - optional dependency for template generation
 except Exception:  # pragma: no cover - allow absence during unit tests
     EnterpriseUtility = None  # type: ignore[assignment]
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
+from unified_monitoring_optimization_system import collect_metrics, push_metrics
 
 __all__ = [
     "snapshot_placeholder_counts",
@@ -1386,9 +1387,20 @@ def main(
         export_resolved_placeholders(analytics, dashboard)
         # Snapshot placeholder counts for compliance scoring
         try:
-            snapshot_placeholder_counts(analytics)
+            open_count, resolved_count = snapshot_placeholder_counts(analytics)
         except Exception:
-            pass
+            open_count = resolved_count = 0
+        try:
+            metrics = collect_metrics(db_path=Path(":memory:"))
+            metrics["placeholder_open"] = float(open_count)
+            metrics["placeholder_resolved"] = float(resolved_count)
+            push_metrics(metrics, db_path=analytics)
+        except Exception as exc:
+            log_message(
+                __name__,
+                f"{TEXT['error']} metrics collection failed: {exc}",
+                level=logging.ERROR,
+            )
     else:
         log_message(__name__, "[TEST MODE] Dashboard update skipped")
     # Combine with Compliance Metrics Updater for real-time metrics
