@@ -68,4 +68,3 @@ jobs:
         run: |
           echo "SSOT drift detected. See artifact ssot-drift-context." >&2
           exit 1
-
