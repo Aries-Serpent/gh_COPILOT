@@ -16,6 +16,17 @@ source file. The CI workflow uses this script to detect drift.
 
 from __future__ import annotations
 
+=======
+"""Reconcile Phase 5 task progress with task stubs.
+
+This script parses ``docs/PHASE5_TASKS_STARTED.md`` and
+``docs/task_stubs.md`` to ensure their progress values match.
+It writes a JSON index of task progress and can be run in
+``--check`` mode to fail when drift is detected.
+"""
+from __future__ import annotations
+
+import argparse
 import json
 import re
 from pathlib import Path
@@ -91,4 +102,3 @@ def main() -> None:
 
 if __name__ == "__main__":  # pragma: no cover - CLI entry point
     main()
-
