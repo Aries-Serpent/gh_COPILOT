@@ -26,11 +26,10 @@ from tqdm import tqdm
 from utils.log_utils import ensure_tables, insert_event
 from enterprise_modules.compliance import (
     validate_enterprise_operation,
-    record_code_quality_metrics,
     _run_ruff,
     _run_pytest,
     pid_recursion_guard,
-    calculate_compliance_score,
+    calculate_code_quality_score,
 )
 from disaster_recovery_orchestrator import DisasterRecoveryOrchestrator
 from unified_monitoring_optimization_system import (
@@ -398,55 +397,33 @@ class ComplianceMetricsUpdater:
             ruff_issues = _run_ruff()
             tests_passed, tests_failed = _run_pytest()
 
-        composite = calculate_compliance_score(
+        score, breakdown = calculate_code_quality_score(
             ruff_issues,
             tests_passed,
             tests_failed,
             open_ph,
             resolved_ph,
+            0,
+            0,
+            db_path=ANALYTICS_DB,
+            persist=not test_mode,
+            test_mode=test_mode,
         )
-        total_tests = tests_passed + tests_failed
-        test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
-        lint_score = max(0.0, 100 - ruff_issues)
-        total_placeholders = (
-            metrics.get("open_placeholders", 0)
-            + metrics.get("resolved_placeholders", 0)
-        )
-        placeholder_score = (
-            metrics.get("resolved_placeholders", 0) / total_placeholders * 100
-            if total_placeholders
-            else 100.0
-        )
-        scores = {
-            "lint_score": round(lint_score, 2),
-            "test_score": round(test_score, 2),
-            "placeholder_score": round(placeholder_score, 2),
-            "composite": round(composite, 2),
-        }
-        violation_penalty = metrics["violation_count"] * 10
-        rollback_penalty = metrics["rollback_count"] * 5
-        composite_adj = max(0.0, composite - violation_penalty - rollback_penalty)
-        scores["violation_penalty"] = violation_penalty
-        scores["rollback_penalty"] = rollback_penalty
-        metrics["composite_score"] = composite_adj
-        metrics["composite_compliance_score"] = composite_adj
-        metrics["score_breakdown"] = scores
-        metrics["lint_score"] = scores["lint_score"]
-        metrics["test_score"] = scores["test_score"]
-        metrics["placeholder_score"] = scores["placeholder_score"]
+        metrics["composite_score"] = score
+        metrics["composite_compliance_score"] = score
+        metrics["score_breakdown"] = breakdown
+        metrics["lint_score"] = breakdown["lint_score"]
+        metrics["test_score"] = breakdown["test_score"]
+        metrics["placeholder_score"] = breakdown["placeholder_score"]
         metrics["ruff_issues"] = ruff_issues
         metrics["tests_passed"] = tests_passed
         metrics["tests_failed"] = tests_failed
 
-        record_code_quality_metrics(
-            ruff_issues,
-            tests_passed,
-            tests_failed,
-            open_ph,
-            resolved_ph,
-            db_path=ANALYTICS_DB,
-            test_mode=test_mode,
-        )
+        total_ph = open_ph + resolved_ph
+        base = resolved_ph / total_ph if total_ph else 1.0
+        penalty = 0.10 * metrics["violation_count"] + 0.05 * metrics["rollback_count"]
+        metrics["compliance_score"] = max(0.0, min(1.0, base - penalty))
+
         if metrics["violation_count"] or metrics["rollback_count"] or metrics["open_placeholders"]:
             metrics["progress_status"] = "issues_pending"
         else:

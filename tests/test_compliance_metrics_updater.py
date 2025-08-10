@@ -139,8 +139,9 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     assert data["metrics"]["placeholder_trend"]
     lint_val = 100 if test_mode else 95
     test_val = 100 if test_mode else 80
-    expected_score = 0.3 * lint_val + 0.5 * test_val + 0.2 * 50
-    assert data["metrics"]["composite_score"] == expected_score - 15
+    expected_score = 0.3 * lint_val + 0.4 * test_val + 0.2 * 50 + 0.1 * 100
+    assert data["metrics"]["composite_score"] == expected_score
+    assert data["metrics"]["compliance_score"] == pytest.approx(0.35)
     assert data["metrics"]["violation_count"] == 1
     assert data["metrics"]["rollback_count"] == 1
     assert data["metrics"]["progress_status"] == "issues_pending"
@@ -156,9 +157,9 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     if not test_mode:
         with sqlite3.connect(analytics_db) as conn:
             row = conn.execute(
-                "SELECT lint_score, test_score, placeholder_score, composite_score FROM code_quality_metrics ORDER BY id DESC LIMIT 1"
+                "SELECT ruff_issues, tests_passed, tests_failed, placeholders_open, placeholders_resolved, lint_score, test_score, placeholder_score, composite_score FROM code_quality_metrics ORDER BY id DESC LIMIT 1"
             ).fetchone()
-        assert row == pytest.approx((float(lint_val), float(test_val), 50.0, expected_score), rel=1e-3)
+        assert row == pytest.approx((5.0, 8.0, 2.0, 1.0, 1.0, float(lint_val), float(test_val), 50.0, expected_score), rel=1e-3)
     assert executed
     logger_instance = DummyCorrectionLoggerRollback.instances[0]
     assert logger_instance.logged["violation"] == 1

@@ -544,6 +544,10 @@ def calculate_code_quality_score(
     placeholders_resolved: int,
     sessions_successful: int,
     sessions_failed: int,
+    db_path: Path | None = None,
+    *,
+    persist: bool = False,
+    test_mode: bool = False,
 ) -> tuple[float, dict[str, float]]:
     """Return a composite code quality score and ratios.
 
@@ -581,10 +585,13 @@ def calculate_code_quality_score(
     placeholder_score = resolution_ratio * 100
     session_score = session_ratio * 100
     composite = round(
-        0.3 * lint_score + 0.4 * test_score + 0.2 * placeholder_score + 0.1 * session_score,
+        0.3 * lint_score
+        + 0.4 * test_score
+        + 0.2 * placeholder_score
+        + 0.1 * session_score,
         2,
     )
-    return composite, {
+    breakdown = {
         "lint_score": round(lint_score, 2),
         "test_pass_ratio": round(pass_ratio, 2),
         "placeholder_resolution_ratio": round(resolution_ratio, 2),
@@ -592,7 +599,81 @@ def calculate_code_quality_score(
         "test_score": round(test_score, 2),
         "placeholder_score": round(placeholder_score, 2),
         "session_score": round(session_score, 2),
+        "ruff_issues": int(ruff_issues),
+        "tests_passed": int(tests_passed),
+        "tests_failed": int(tests_failed),
+        "placeholders_open": int(placeholders_open),
+        "placeholders_resolved": int(placeholders_resolved),
     }
+
+    if persist and not test_mode:
+        workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+        db = db_path or (workspace / "databases" / "analytics.db")
+        db.parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(db) as conn:
+            _ensure_metrics_table(conn)
+            conn.execute(
+                """CREATE TABLE IF NOT EXISTS code_quality_metrics (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ruff_issues INTEGER,
+                    tests_passed INTEGER,
+                    tests_failed INTEGER,
+                    placeholders_open INTEGER,
+                    placeholders_resolved INTEGER,
+                    sessions_successful INTEGER,
+                    sessions_failed INTEGER,
+                    lint_score REAL,
+                    test_score REAL,
+                    placeholder_score REAL,
+                    session_score REAL,
+                    composite_score REAL,
+                    ts TEXT
+                )""",
+            )
+            conn.execute(
+                """INSERT INTO code_quality_metrics (
+                    ruff_issues, tests_passed, tests_failed,
+                    placeholders_open, placeholders_resolved,
+                    sessions_successful, sessions_failed,
+                    lint_score, test_score, placeholder_score,
+                    session_score, composite_score, ts
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    int(ruff_issues),
+                    int(tests_passed),
+                    int(tests_failed),
+                    int(placeholders_open),
+                    int(placeholders_resolved),
+                    int(sessions_successful),
+                    int(sessions_failed),
+                    float(breakdown["lint_score"]),
+                    float(breakdown["test_score"]),
+                    float(breakdown["placeholder_score"]),
+                    float(breakdown["session_score"]),
+                    float(composite),
+                    datetime.now().isoformat(),
+                ),
+            )
+            ts = int(datetime.now().timestamp())
+            conn.execute(
+                """INSERT INTO compliance_metrics_history (
+                    timestamp, ruff_issues, tests_passed, tests_failed,
+                    placeholders_open, placeholders_resolved,
+                    placeholder_score, composite_score
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    ts,
+                    int(ruff_issues),
+                    int(tests_passed),
+                    int(tests_failed),
+                    int(placeholders_open),
+                    int(placeholders_resolved),
+                    float(breakdown["placeholder_score"]),
+                    float(composite),
+                ),
+            )
+            conn.commit()
+    return composite, breakdown
 
 
 def persist_compliance_score(

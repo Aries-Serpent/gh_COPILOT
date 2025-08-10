@@ -60,6 +60,29 @@ def session_lifecycle_stats(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
     return stats
 
 
+def load_code_quality_metrics(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
+    """Return latest code quality metrics from analytics.db."""
+
+    metrics = {
+        "lint_score": 0.0,
+        "test_score": 0.0,
+        "placeholder_score": 0.0,
+        "composite_score": 0.0,
+    }
+    if db_path.exists():
+        with sqlite3.connect(db_path) as conn:
+            row = conn.execute(
+                "SELECT lint_score, test_score, placeholder_score, composite_score "
+                "FROM code_quality_metrics ORDER BY id DESC LIMIT 1"
+            ).fetchone()
+            if row:
+                metrics["lint_score"] = float(row[0])
+                metrics["test_score"] = float(row[1])
+                metrics["placeholder_score"] = float(row[2])
+                metrics["composite_score"] = float(row[3])
+    return metrics
+
+
 @app.route("/anomalies")
 def anomalies() -> Dict[str, list]:
     """Expose recent anomaly summaries."""
@@ -133,6 +156,7 @@ def index() -> str:
         corrections=_load_corrections(),
         anomaly=anomaly_metrics(),
         lifecycle=session_lifecycle_stats(),
+        code_quality=load_code_quality_metrics(),
     )
 
 
@@ -148,6 +172,12 @@ def compliance_scores() -> Any:  # pragma: no cover
     return jsonify({"scores": rows})
 
 
+@app.route("/api/code_quality_metrics")
+def code_quality_metrics() -> Any:
+    """Expose latest code quality metrics."""
+    return jsonify(load_code_quality_metrics())
+
+
 app.view_functions["dashboard.index"] = index
 __all__ = [
     "app",
@@ -156,5 +186,6 @@ __all__ = [
     "anomaly_metrics",
     "session_lifecycle_stats",
     "_load_corrections",
+    "load_code_quality_metrics",
 ]
 
