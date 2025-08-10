@@ -1,3 +1,8 @@
+---
+title: Phase 5 Task Stubs – Started
+ssot: true
+---
+
 # Phase 5 Task Stubs – Started
 
 These task stubs originate from the gap analysis report and have been formally started. Each task includes an excerpt from the consolidated "Task Stub – gh_COPILOT Gap Task Stubs" statement for traceability.
