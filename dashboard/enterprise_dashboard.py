@@ -205,26 +205,38 @@ def audit_results_alias() -> Any:
 app.view_functions["dashboard.audit_results"] = audit_results_alias
 
 
+def _load_placeholder_history(limit: int = 50) -> List[Dict[str, Any]]:
+    """Return placeholder snapshot history."""
+
+    rows: List[Dict[str, Any]] = []
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            try:
+                cur = conn.execute(
+                    "SELECT timestamp, open_count, resolved_count "
+                    "FROM placeholder_audit_snapshots ORDER BY timestamp LIMIT ?",
+                    (limit,),
+                )
+                rows = [
+                    {
+                        "timestamp": int(r[0]),
+                        "open": int(r[1]),
+                        "resolved": int(r[2]),
+                    }
+                    for r in cur.fetchall()
+                ]
+            except sqlite3.Error:
+                pass
+    return rows
+
+
 def _load_placeholder_details(limit: int = 50) -> Dict[str, List[Dict[str, Any]]]:
     """Return placeholder snapshot history and unresolved placeholders."""
 
-    history: List[Dict[str, Any]] = []
+    history: List[Dict[str, Any]] = _load_placeholder_history(limit)
     unresolved: List[Dict[str, Any]] = []
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
-            cur = conn.execute(
-                "SELECT timestamp, open_count, resolved_count "
-                "FROM placeholder_audit_snapshots ORDER BY timestamp LIMIT ?",
-                (limit,),
-            )
-            history = [
-                {
-                    "timestamp": int(r[0]),
-                    "open": int(r[1]),
-                    "resolved": int(r[2]),
-                }
-                for r in cur.fetchall()
-            ]
             cur = conn.execute(
                 "SELECT file_path, line_number FROM placeholder_tasks WHERE status='open' ORDER BY file_path LIMIT ?",
                 (limit,),
@@ -240,6 +252,13 @@ def placeholder_details() -> Any:
     """Expose placeholder history and unresolved entries."""
 
     return jsonify(_load_placeholder_details())
+
+
+@app.route("/api/placeholder_history")
+def placeholder_history() -> Any:
+    """Expose placeholder snapshot history."""
+
+    return jsonify({"history": _load_placeholder_history()})
 
 
 def index() -> str:
