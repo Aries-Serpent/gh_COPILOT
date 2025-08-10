@@ -6,11 +6,11 @@ from pathlib import Path
 
 import pytest
 
-from scripts import docs_status_reconciler as reconciler
+from scripts import reconcile_task_status as reconciler
 
 
 def _write(path: Path, content: str) -> Path:
-    path.write_text(content)
+    path.write_text(content, encoding="utf-8")
     return path
 
 
@@ -32,7 +32,10 @@ def test_reconcile_success(tmp_path: Path) -> None:
     )
     schema = _write(
         tmp_path / "schema.json",
-        json.dumps({"type": "object", "additionalProperties": {"type": "integer"}}),
+        json.dumps({
+            "type": "object",
+            "additionalProperties": {"type": "integer", "minimum": 0, "maximum": 100}
+        }),
     )
     index = tmp_path / "status_index.json"
 
@@ -44,7 +47,7 @@ def test_reconcile_success(tmp_path: Path) -> None:
         check=False,
     )
     assert drift == {}
-    assert json.loads(index.read_text()) == {"TaskA": 100}
+    assert json.loads(index.read_text(encoding="utf-8")) == {"TaskA": 100}
 
 
 def test_reconcile_drift(tmp_path: Path) -> None:
@@ -65,7 +68,10 @@ def test_reconcile_drift(tmp_path: Path) -> None:
     )
     schema = _write(
         tmp_path / "schema.json",
-        json.dumps({"type": "object", "additionalProperties": {"type": "integer"}}),
+        json.dumps({
+            "type": "object",
+            "additionalProperties": {"type": "integer", "minimum": 0, "maximum": 100}
+        }),
     )
     index = tmp_path / "status_index.json"
 
