@@ -1278,7 +1278,7 @@ def main(
             bar.update(1)
 
     # Log findings to analytics.db
-    inserted = log_findings(
+    findings_inserted = log_findings(
         results,
         analytics,
         simulate=simulate,
@@ -1288,11 +1288,11 @@ def main(
     if not simulate:
         log_message(
             __name__,
-            f"{TEXT['info']} logged {inserted} findings to {analytics}",
+            f"{TEXT['info']} logged {findings_inserted} findings to {analytics}",
         )
         try:
             metrics = collect_metrics(db_path=Path(":memory:"))
-            metrics["placeholder_findings"] = float(inserted)
+            metrics["placeholder_findings"] = float(findings_inserted)
             push_metrics(metrics, db_path=analytics)
         except Exception as exc:
             log_message(
@@ -1306,7 +1306,11 @@ def main(
     if apply_suggestions and not simulate:
         tasks = apply_suggestions_to_files(tasks, analytics)
     if not simulate:
-        inserted = log_placeholder_tasks(tasks, analytics)
+        tasks_inserted = log_placeholder_tasks(tasks, analytics)
+        log_message(
+            __name__,
+            f"{TEXT['info']} logged {tasks_inserted} tasks to {analytics}",
+        )
     for task in tasks:
         log_message(__name__, f"[TASK] {task['task']}")
     if task_report:
@@ -1341,7 +1345,7 @@ def main(
     else:
         log_message(__name__, "[TEST MODE] Dashboard update skipped")
     # Combine with Compliance Metrics Updater for real-time metrics
-    if (not simulate) and ComplianceMetricsUpdater and inserted:
+    if (not simulate) and ComplianceMetricsUpdater and findings_inserted:
         try:
             updater = ComplianceMetricsUpdater(dashboard, test_mode=simulate)
             updater.update(simulate=simulate)

@@ -1,4 +1,76 @@
-Test run: 2025-08-07 23:58:13 UTC
+===================================================== test session starts ======================================================
+platform linux -- Python 3.12.10, pytest-8.4.1, pluggy-1.6.0
+rootdir: /workspace/gh_COPILOT
+configfile: pytest.ini
+plugins: cov-6.2.1, anyio-4.10.0, timeout-2.4.0
+timeout: 120.0s
+timeout method: signal
+timeout func_only: False
+collected 217 items / 1 error / 2 skipped
+
 ============================================================ ERRORS ============================================================
-_______________________________________ ERROR collecting tests/test_analytics_modules.py _______________________________________
-ERROR tests/test_analytics_modules.py
+___________________________________ ERROR collecting tests/monitoring/anomaly/test_model.py ____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/monitoring/anomaly/test_model.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/monitoring/anomaly/test_model.py:1: in <module>
+    from monitoring.anomaly import StatisticalAnomalyDetector
+E   ModuleNotFoundError: No module named 'monitoring.anomaly'; 'monitoring' is not a package
+======================================================= warnings summary =======================================================
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/api/session.py:19
+  /workspace/gh_COPILOT/.venv/lib/python3.12/site-packages/qiskit_ibm_provider/api/session.py:19: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+    import pkg_resources
+
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/ibm_backend.py:24: 12 warnings
+  /workspace/gh_COPILOT/.venv/lib/python3.12/site-packages/qiskit_ibm_provider/ibm_backend.py:24: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import (
+
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/job/ibm_job.py:22
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/job/ibm_job.py:22
+  /workspace/gh_COPILOT/.venv/lib/python3.12/site-packages/qiskit_ibm_provider/job/ibm_job.py:22: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import BackendProperties
+
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/utils/json_decoder.py:23: 10 warnings
+  /workspace/gh_COPILOT/.venv/lib/python3.12/site-packages/qiskit_ibm_provider/utils/json_decoder.py:23: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import (
+
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/job/ibm_composite_job.py:32
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/job/ibm_composite_job.py:32
+  /workspace/gh_COPILOT/.venv/lib/python3.12/site-packages/qiskit_ibm_provider/job/ibm_composite_job.py:32: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import BackendProperties
+
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/ibm_backend_service.py:23
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/ibm_backend_service.py:23
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/ibm_backend_service.py:23
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/ibm_backend_service.py:23
+  /workspace/gh_COPILOT/.venv/lib/python3.12/site-packages/qiskit_ibm_provider/ibm_backend_service.py:23: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import (
+
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/utils/backend_decoder.py:20
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/utils/backend_decoder.py:20
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/utils/backend_decoder.py:20
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/utils/backend_decoder.py:20
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/utils/backend_decoder.py:20
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/utils/backend_decoder.py:20
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/utils/backend_decoder.py:20
+.venv/lib/python3.12/site-packages/qiskit_ibm_provider/utils/backend_decoder.py:20
+  /workspace/gh_COPILOT/.venv/lib/python3.12/site-packages/qiskit_ibm_provider/utils/backend_decoder.py:20: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import (
+
+quantum/utils/backend_provider.py:27
+  /workspace/gh_COPILOT/quantum/utils/backend_provider.py:27: DeprecationWarning: The package qiskit_ibm_provider is being deprecated. Please see https://docs.quantum.ibm.com/api/migration-guides/qiskit-runtime to get instructions on how to migrate to qiskit-ibm-runtime (https://github.com/Qiskit/qiskit-ibm-runtime).
+    from qiskit_ibm_provider import IBMProvider
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================================================== Skipped tests =========================================================
+misc/tests/test_base64_zip_transformer.py - ('/workspace/gh_COPILOT/misc/tests/test_base64_zip_transformer.py', 12, "Skipped: could not import 'PyQt6': No module named 'PyQt6'")
+misc/tests/test_zip_transformer.py - ('/workspace/gh_COPILOT/misc/tests/test_zip_transformer.py', 11, "Skipped: could not import 'PyQt6': No module named 'PyQt6'")
+========================================================= Future work ==========================================================
+Consider extending artifact_manager tests for additional edge cases and CI integration.
+=================================================== short test summary info ====================================================
+ERROR tests/monitoring/anomaly/test_model.py
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+=========================================== 2 skipped, 40 warnings, 1 error in 5.94s ===========================================
