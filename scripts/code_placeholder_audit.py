@@ -242,7 +242,7 @@ def log_placeholder_tasks(
         if "suggestion" not in cols:
             conn.execute("ALTER TABLE todo_fixme_tracking ADD COLUMN suggestion TEXT")
         author = os.getenv("GH_COPILOT_USER", getpass.getuser())
-        inserted = 0
+        tasks_inserted = 0
         for task in tasks:
             key = (task["file"], int(task["line"]), task["pattern"], task["context"])
 
@@ -275,7 +275,7 @@ def log_placeholder_tasks(
                         author,
                     ),
                 )
-                inserted += 1
+                tasks_inserted += 1
 
             # Mirror entry in legacy todo_fixme_tracking table
             cur = conn.execute(
@@ -307,7 +307,7 @@ def log_placeholder_tasks(
                     ),
                 )
         conn.commit()
-    return inserted
+    return tasks_inserted
 
 
 def verify_task_completion(analytics_db: Path, workspace: Path) -> int:
@@ -578,7 +578,7 @@ def log_findings(
             "[TEST MODE] Simulation enabled: not writing to analytics.db",
         )
         return 0
-    inserted = 0
+    findings_inserted = 0
     with sqlite3.connect(analytics_db) as conn:
         _ensure_placeholder_tables(conn)
         conn.execute(
@@ -681,9 +681,9 @@ def log_findings(
                         " VALUES (?, ?, ?, ?, ?, 'open')",
                         values[:-1],
                     )
-                    inserted += 1
+                    findings_inserted += 1
         conn.commit()
-    return inserted
+    return findings_inserted
 
 
 
