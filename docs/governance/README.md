@@ -14,4 +14,15 @@ This directory records governance standards and the latest compliance enforcemen
 - Run `ruff` and `pytest` before submitting a pull request.
 
 ## Compliance Enforcement Patterns
-Automated compliance metrics gate changes by evaluating lint results, test outcomes, and placeholder audits. The safe pytest runner logs a summary and removes coverage flags when plugins are missing, preventing hangs. Dual-copilot validation and anti-recursion safeguards remain mandatory; a failing composite score blocks deployments and pull requests until issues are resolved.
+Automated compliance metrics gate changes by evaluating lint results,
+test outcomes, and placeholder audits. The safe pytest runner logs a
+summary and removes coverage flags when plugins are missing, preventing
+hangs. Dual-copilot validation and anti-recursion safeguards remain
+mandatory; a failing composite score blocks deployments and pull
+requests until issues are resolved.
+
+Composite thresholds:
+
+* **Green** – score ≥ 0.90
+* **Yellow** – 0.80 ≤ score < 0.90
+* **Red** – score < 0.80 triggers alerts and blocks merges
