@@ -1,7 +1,5 @@
 # Failing Test Modules
 
-The following test modules encountered errors:
-
-- `tests/test_analytics_modules.py` – collection error
-
-Source: `failing_tests.log`
+The test suite currently reports 39 collection errors, primarily within
+monitoring and quantum-related modules. See `failing_tests.log` for a detailed
+listing of the affected tests.
