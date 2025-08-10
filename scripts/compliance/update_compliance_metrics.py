@@ -145,7 +145,7 @@ def _compute(c: ComplianceComponents) -> Tuple[float, float, float, float]:
     placeholder_score = (
         float(c.placeholders_resolved) / denom * 100.0
         if denom
-        else 0.0
+        else 100.0
     )
     composite = 0.3 * L + 0.5 * T + 0.2 * placeholder_score
     return L, T, placeholder_score, composite

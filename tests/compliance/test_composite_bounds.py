@@ -6,7 +6,6 @@ import sys
 from pathlib import Path
 from dataclasses import dataclass
 from typing import Tuple
-import pytest
 
 # Add the scripts directory to path for direct import
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
@@ -27,7 +26,7 @@ def _compute(c: ComplianceComponents) -> Tuple[float, float, float, float]:
     L = min(100.0, max(0.0, 100.0 - float(c.ruff_issues)))
     T = (float(c.tests_passed) / c.tests_total * 100.0) if c.tests_total else 0.0
     denom = c.placeholders_open + c.placeholders_resolved
-    P = (float(c.placeholders_resolved) / denom * 100.0) if denom else 0.0
+    P = (float(c.placeholders_resolved) / denom * 100.0) if denom else 100.0
     composite = 0.3 * L + 0.5 * T + 0.2 * P
     return L, T, P, composite
 
@@ -45,10 +44,10 @@ def test_composite_bounds_extremes():
     L, T, P, composite = _compute(c)
     assert L == 100.0
     assert T == 0.0
-    assert P == 0.0  # When no placeholders, P=0 (not 100)
+    assert P == 100.0  # When no placeholders, P defaults to 100
     assert 0.0 <= composite <= 100.0
-    # Expected: 0.3*100 + 0.5*0 + 0.2*0 = 30.0
-    assert math.isclose(composite, 30.0, rel_tol=1e-6)
+    # Expected: 0.3*100 + 0.5*0 + 0.2*100 = 50.0
+    assert math.isclose(composite, 50.0, rel_tol=1e-6)
 
     # Huge ruff issues -> L floor at 0
     c2 = ComplianceComponents(
@@ -146,7 +145,7 @@ def test_placeholder_edge_cases():
     # No placeholders at all
     c1 = ComplianceComponents(0, 100, 100, 0, 0)
     _, _, P1, _ = _compute(c1)
-    assert P1 == 0.0
+    assert P1 == 100.0
     
     # Only open placeholders
     c2 = ComplianceComponents(0, 100, 100, 10, 0)

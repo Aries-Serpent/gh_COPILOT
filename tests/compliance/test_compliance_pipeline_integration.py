@@ -249,10 +249,10 @@ class TestCompleteCompliancePipeline:
         ingest(str(temp_workspace))
         score = update_compliance_metrics(str(temp_workspace))
 
-        # Should get default score (no issues, no tests, placeholders unresolved)
-        # L = 100 (no ruff issues), T = 0 (no tests), P = 0 (no placeholder scan)
-        # composite = 0.3*100 + 0.5*0 + 0.2*0 = 30
-        assert score == 30.0
+        # Should get default score (no issues, no tests, no placeholders)
+        # L = 100 (no ruff issues), T = 0 (no tests), P = 100 (no placeholder scan)
+        # composite = 0.3*100 + 0.5*0 + 0.2*100 = 50
+        assert score == 50.0
 
         # Verify data was recorded with zeros
         with sqlite3.connect(analytics_db) as conn:
@@ -261,8 +261,8 @@ class TestCompleteCompliancePipeline:
             assert row is not None
             assert row[0] == 100.0  # L
             assert row[1] == 0.0    # T
-            assert row[2] == 0.0    # P
-            assert row[3] == 30.0   # composite
+            assert row[2] == 100.0  # P
+            assert row[3] == 50.0   # composite
 
     def test_pipeline_error_recovery(self, temp_workspace):
         """Test pipeline behavior with malformed data."""
