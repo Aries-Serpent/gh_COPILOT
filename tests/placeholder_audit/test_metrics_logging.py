@@ -221,3 +221,51 @@ def test_metrics_logged_without_task_insertion(tmp_path, monkeypatch):
         row = cur.fetchone()
         data = json.loads(row[0])
         assert "placeholder_open" in data
+
+
+def test_placeholder_findings_metric_logged_without_task_insertion(
+    tmp_path, monkeypatch
+):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    (workspace / "e.py").write_text("# TODO\n")
+
+    analytics = tmp_path / "analytics.db"
+    dash_dir = tmp_path / "dashboard"
+
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    monkeypatch.setattr(secondary_copilot_validator, "run_flake8", lambda *a, **k: True)
+    monkeypatch.setattr(
+        secondary_copilot_validator,
+        "SecondaryCopilotValidator",
+        lambda: SimpleNamespace(validate_corrections=lambda *a, **k: True),
+    )
+    monkeypatch.setattr(
+        "scripts.code_placeholder_audit.log_placeholder_tasks", lambda *a, **k: 0
+    )
+
+    pushed: list[dict] = []
+
+    def _collect(**_kwargs) -> dict:
+        return {"cpu_percent": 0.0}
+
+    def _push(metrics, *, db_path=None, **_kwargs):
+        pushed.append(metrics)
+
+    monkeypatch.setattr("scripts.code_placeholder_audit.collect_metrics", _collect)
+    monkeypatch.setattr("scripts.code_placeholder_audit.push_metrics", _push)
+    monkeypatch.setattr(
+        "scripts.code_placeholder_audit.ComplianceMetricsUpdater",
+        lambda *a, **k: SimpleNamespace(
+            update=lambda *a, **k: None, validate_update=lambda *a, **k: True
+        ),
+    )
+
+    main(
+        workspace_path=str(workspace),
+        analytics_db=str(analytics),
+        production_db=None,
+        dashboard_dir=str(dash_dir / "compliance"),
+    )
+
+    assert any("placeholder_findings" in m for m in pushed)
