@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function refresh() {
-        fetch('/api/placeholder_details').then(r => r.json()).then(data => {
+        fetch('/api/placeholder_history').then(r => r.json()).then(data => {
             const history = data.history || [];
             chart.data.labels = history.map(h => new Date(h.timestamp * 1000).toLocaleString());
             chart.data.datasets[0].data = history.map(h => h.open);
