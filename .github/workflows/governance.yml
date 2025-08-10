@@ -12,3 +12,4 @@ jobs:
           test -f docs/GOVERNANCE_STANDARDS.md
           test -f docs/REPOSITORY_GUIDELINES.md
           grep -q "GOVERNANCE_STANDARDS.md" README.md
+          grep -q "GOVERNANCE_STANDARDS.md" .github/pull_request_template.md

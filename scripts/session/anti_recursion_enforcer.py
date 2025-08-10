@@ -5,7 +5,10 @@ from pathlib import Path
 from typing import Callable, TypeVar, cast
 import logging
 import os
-import psutil
+try:  # pragma: no cover - optional dependency
+    import psutil
+except Exception:  # pragma: no cover
+    psutil = None  # type: ignore[assignment]
 import tempfile
 
 __all__ = ["AntiRecursionEnforcer", "anti_recursion_guard"]
@@ -33,7 +36,7 @@ class AntiRecursionEnforcer:
         tests where the PID might be stale.
         """
         pid = current_pid or os.getpid()
-        if not psutil.pid_exists(pid):
+        if psutil is None or not psutil.pid_exists(pid):
             self.logger.warning(
                 "PID %s not found in process table; skipping recursion enforcement",
                 pid,
@@ -45,6 +48,8 @@ class AntiRecursionEnforcer:
 
     def _detect_recursion(self, pid: int) -> bool:
         """Return ``True`` if another process shares the same command line."""
+        if psutil is None:
+            return False
         try:
             cmdline = psutil.Process(pid).cmdline()
         except psutil.Error:
@@ -58,6 +63,8 @@ class AntiRecursionEnforcer:
 
     def _terminate_session(self, pid: int) -> None:
         """Attempt to terminate the session associated with ``pid``."""
+        if psutil is None:
+            return
         try:
             psutil.Process(pid).terminate()
         except psutil.Error as exc:  # pragma: no cover - best effort

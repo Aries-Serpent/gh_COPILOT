@@ -7,3 +7,17 @@ h1 {
     color: #333;
 }
 
+.gauge {
+    width: 120px;
+    height: 60px;
+}
+
+.status-indicator {
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #fff;
+}
+.status-green { background: #2ecc71; }
+.status-yellow { background: #f1c40f; color: #000; }
+.status-red { background: #e74c3c; }
+

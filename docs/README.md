@@ -5,7 +5,7 @@ This folder contains helper documentation for keeping repository metrics in sync
 On every push the CI pipeline automatically runs
 `scripts/generate_docs_metrics.py` followed by
 `scripts/validate_docs_metrics.py` to ensure documentation statistics stay
-consistent with the production database.
+consistent with the production database. Sessions must run through `start_session` and `end_session` so successful wrap-ups contribute to the session success ratio used in the composite compliance score.
 
 ## Updating Metrics
 

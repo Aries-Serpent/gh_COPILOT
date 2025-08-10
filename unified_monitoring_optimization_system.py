@@ -564,7 +564,6 @@ def auto_heal_session(
         )
     else:
         anomalies = list(anomalies)
-    anomalies = [a for a in anomalies if a.get("anomaly_score", 0) > 0.5]
     if not anomalies:
         return False
     if manager is None:
@@ -589,6 +588,7 @@ def anomaly_detection_loop(
     *,
     iterations: Optional[int] = None,
     contamination: float = 0.1,
+    threshold: float = 0.5,
     manager: Optional[UnifiedSessionManagementSystem] = None,
     db_path: Optional[Path] = None,
     model_path: Optional[Path] = None,
@@ -625,9 +625,12 @@ def anomaly_detection_loop(
             db_path=db_path,
             model_path=model_path,
         )
-        if anomalies:
+        filtered = [
+            a for a in anomalies if a.get("anomaly_score", 0) > threshold
+        ]
+        if filtered:
             auto_heal_session(
-                anomalies=anomalies, manager=manager, db_path=db_path
+                anomalies=filtered, manager=manager, db_path=db_path
             )
         count += 1
         if iterations is None or count < iterations:

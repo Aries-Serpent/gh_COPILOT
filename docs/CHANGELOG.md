@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.1.25] - 2025-08-10
+- Clarified composite compliance score with session lifecycle metrics.
+- Added governance notes for ML monitoring and placeholder audits.
+
+## [4.1.24] - 2025-08-09
+- Finalized compliance scoring rules and placeholder targets in `GOVERNANCE_STANDARDS.md`.
+- Updated README and white papers with monitoring and session metrics details.
+- Added dashboard tooltips clarifying lint, test, and placeholder gauges.
+
 ## [4.1.23] - 2025-08-13
 - Documented `collect_metrics` and `quantum_hook` APIs in monitoring utilities.
 - Updated AGENTS guide with auto Git LFS policy sync instructions.

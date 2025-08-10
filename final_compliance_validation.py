@@ -3,7 +3,6 @@
 
 import sys
 from pathlib import Path
-from unittest.mock import patch
 
 # Add scripts to path
 sys.path.insert(0, str(Path.cwd() / 'scripts'))

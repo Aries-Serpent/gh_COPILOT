@@ -162,8 +162,13 @@ def test_backup_logging_records_entry(tmp_path, monkeypatch):
     assert Path(rows[0][1]).parent == backup_root
 
 
-def test_prevent_recursion_blocks_nested_calls():
+def test_prevent_recursion_blocks_nested_calls(monkeypatch):
     calls: list[int] = []
+
+    monkeypatch.setattr(
+        "unified_session_management_system.record_codex_action",
+        lambda *_, **__: None,
+    )
 
     @prevent_recursion
     def recurse(depth: int = 0) -> None:

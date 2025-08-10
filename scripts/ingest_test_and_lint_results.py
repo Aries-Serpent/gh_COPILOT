@@ -12,6 +12,7 @@ from scripts.compliance.update_compliance_metrics import (
     _ensure_metrics_table,
     _ensure_table,
 )
+from scripts.code_placeholder_audit import get_latest_placeholder_snapshot
 
 RUFF_JSON = Path("ruff_report.json")
 PYTEST_JSON = Path(".report.json")  # default name from pytest --json-report
@@ -50,6 +51,8 @@ def ingest(
         _ensure_table(conn)
         _ensure_metrics_table(conn)
 
+        run_ts = int(time.time() * 1000)
+
         # --- Ruff issues log ---
         conn.execute(
             """
@@ -66,7 +69,10 @@ def ingest(
                 issues = len(data) if isinstance(data, list) else int(data.get("issue_count", 0))
             except Exception:
                 issues = 0
-        conn.execute("INSERT INTO ruff_issue_log(issues) VALUES(?)", (issues,))
+        conn.execute(
+            "INSERT INTO ruff_issue_log(run_timestamp, issues) VALUES(?,?)",
+            (run_ts, issues),
+        )
 
         # --- Pytest stats ---
         conn.execute(
@@ -87,13 +93,18 @@ def ingest(
                 passed = int(summary.get("passed", 0))
             except Exception:
                 total = passed = 0
-        conn.execute("INSERT INTO test_run_stats(passed,total) VALUES(?,?)", (passed, total))
+        conn.execute(
+            "INSERT INTO test_run_stats(run_timestamp, passed,total) VALUES(?,?,?)",
+            (run_ts, passed, total),
+        )
 
         # --- Compliance metrics ---
-        # L: Lint (ruff) score, T: Test score, P: Placeholder score (set to 0 here)
+        # Retrieve latest placeholder snapshot for placeholder score
+        open_ph, resolved_ph = get_latest_placeholder_snapshot(conn)
         L = max(0.0, 100.0 - float(issues))
         T = (float(passed) / total * 100.0) if total else 0.0
-        P = 0.0  # Placeholder score not available at ingest
+        denom = open_ph + resolved_ph
+        P = (float(resolved_ph) / denom * 100.0) if denom else 100.0
         composite = 0.3 * L + 0.5 * T + 0.2 * P
         ts = int(time.time())
         # Insert into metrics history (newer normalized table)
@@ -106,7 +117,7 @@ def ingest(
                 composite_score, source, meta_json
             ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
             """,
-            (ts, issues, passed, total, None, None, L, T, P, composite, "ingest_pipeline", None),
+            (ts, issues, passed, total, open_ph, resolved_ph, L, T, P, composite, "ingest_pipeline", None),
         )
         row_id = cur.lastrowid
         # Insert into legacy compliance_scores table
@@ -118,7 +129,7 @@ def ingest(
                 placeholders_open, placeholders_resolved
             ) VALUES (?,?,?,?,?,?,?,?,?,?)
             """,
-            (ts, L, T, P, composite, issues, passed, total, 0, 0),
+            (ts, L, T, P, composite, issues, passed, total, open_ph, resolved_ph),
         )
         conn.commit()
 

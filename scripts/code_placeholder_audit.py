@@ -4,7 +4,7 @@ Enterprise Database-First Code Audit Script
 MANDATORY REQUIREMENTS:
 1. Query production.db for tracked file patterns and audit templates.
 2. Traverse all files, extract line number, context, and type.
-3. Log each finding to analytics.db.todo_fixme_tracking with file path, line number, context, timestamp.
+3. Log each finding to analytics.db.placeholder_tasks with file path, line number, context, timestamp.
 4. Update /dashboard/compliance with removal status and compliance metrics.
 5. Include tqdm progress bar, start time logging, timeout, ETC calculation, anti-recursion validation.
 6. DUAL COPILOT: Secondary validator checks audit completeness and compliance.
@@ -40,9 +40,16 @@ except ModuleNotFoundError:
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 import secondary_copilot_validator
 from utils.log_utils import log_message
-from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
-from unified_script_generation_system import EnterpriseUtility
+try:  # pragma: no cover - optional dependency for dashboard integration
+    from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
+except Exception:  # pragma: no cover - allow absence during unit tests
+    ComplianceMetricsUpdater = None  # type: ignore[assignment]
+try:  # pragma: no cover - optional dependency for template generation
+    from unified_script_generation_system import EnterpriseUtility
+except Exception:  # pragma: no cover - allow absence during unit tests
+    EnterpriseUtility = None  # type: ignore[assignment]
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
+from unified_monitoring_optimization_system import collect_metrics, push_metrics
 
 __all__ = [
     "snapshot_placeholder_counts",
@@ -181,11 +188,12 @@ def write_tasks_report(tasks: List[Dict[str, str]], report_path: Path) -> None:
 def log_placeholder_tasks(
     tasks: List[Dict[str, str]], analytics_db: Path, simulate: bool = False
 ) -> int:
-    """Persist placeholder removal tasks to ``todo_fixme_tracking``.
+    """Persist placeholder removal tasks to tracking tables.
 
-    The function enriches existing tracking entries with human readable
-    suggestions. When an entry does not yet exist, it is inserted so the
-    dashboard can surface the recommendation.
+    Findings are written to both the legacy ``todo_fixme_tracking`` table
+    and the newer ``placeholder_tasks`` table. Each entry tracks whether the
+    placeholder is ``open`` or ``resolved`` so downstream tooling can derive
+    resolution ratios.
     """
 
     if simulate:
@@ -211,6 +219,23 @@ def log_placeholder_tasks(
             )
             """
         )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS placeholder_tasks (
+                file_path TEXT,
+                line_number INTEGER,
+                pattern TEXT,
+                context TEXT,
+                suggestion TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                author TEXT,
+                resolved BOOLEAN DEFAULT 0,
+                resolved_timestamp DATETIME,
+                resolved_by TEXT,
+                status TEXT DEFAULT 'open'
+            )
+            """
+        )
         # Ensure the suggestion column exists for pre-existing databases.
         cur = conn.execute("PRAGMA table_info(todo_fixme_tracking)")
         cols = {row[1] for row in cur.fetchall()}
@@ -220,6 +245,39 @@ def log_placeholder_tasks(
         inserted = 0
         for task in tasks:
             key = (task["file"], int(task["line"]), task["pattern"], task["context"])
+
+            # Insert/update placeholder_tasks table
+            cur = conn.execute(
+                "SELECT rowid FROM placeholder_tasks WHERE file_path=? AND line_number=? AND pattern=? AND context=?",
+                key,
+            )
+            row = cur.fetchone()
+            if row:
+                conn.execute(
+                    "UPDATE placeholder_tasks SET suggestion=?, status='open', resolved=0 WHERE rowid=?",
+                    (task["suggestion"], row[0]),
+                )
+            else:
+                conn.execute(
+                    """
+                    INSERT INTO placeholder_tasks (
+                        file_path, line_number, pattern, context,
+                        suggestion, timestamp, author, status
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, 'open')
+                    """,
+                    (
+                        task["file"],
+                        int(task["line"]),
+                        task["pattern"],
+                        task["context"],
+                        task["suggestion"],
+                        datetime.now().isoformat(),
+                        author,
+                    ),
+                )
+                inserted += 1
+
+            # Mirror entry in legacy todo_fixme_tracking table
             cur = conn.execute(
                 "SELECT rowid FROM todo_fixme_tracking WHERE file_path=? AND line_number=? AND placeholder_type=? AND context=?",
                 key,
@@ -227,7 +285,7 @@ def log_placeholder_tasks(
             row = cur.fetchone()
             if row:
                 conn.execute(
-                    "UPDATE todo_fixme_tracking SET suggestion=?, status='open' WHERE rowid=?",
+                    "UPDATE todo_fixme_tracking SET suggestion=?, status='open', resolved=0 WHERE rowid=?",
                     (task["suggestion"], row[0]),
                 )
             else:
@@ -248,7 +306,6 @@ def log_placeholder_tasks(
                         author,
                     ),
                 )
-                inserted += 1
         conn.commit()
     return inserted
 
@@ -274,35 +331,45 @@ def verify_task_completion(analytics_db: Path, workspace: Path) -> int:
 
     resolved = 0
     with sqlite3.connect(analytics_db) as conn:
-        cur = conn.execute(
-            "SELECT rowid, file_path, line_number, placeholder_type FROM todo_fixme_tracking WHERE status='open'",
-        )
-        rows = cur.fetchall()
-        for rowid, fpath, line, pattern in rows:
-            path = Path(fpath)
-            try:
-                if not path.resolve().is_relative_to(workspace.resolve()):
-                    continue
-            except Exception:
-                # Python <3.9 compatibility: fallback to manual check
+        tables = []
+        if conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='placeholder_tasks'"
+        ).fetchone():
+            tables.append(("placeholder_tasks", "pattern"))
+        if conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='todo_fixme_tracking'"
+        ).fetchone():
+            tables.append(("todo_fixme_tracking", "placeholder_type"))
+
+        for table, col in tables:
+            cur = conn.execute(
+                f"SELECT rowid, file_path, line_number, {col} FROM {table} WHERE status='open'"
+            )
+            rows = cur.fetchall()
+            for rowid, fpath, line, pattern in rows:
+                path = Path(fpath)
                 try:
-                    if not str(path.resolve()).startswith(str(workspace.resolve())):
+                    if not path.resolve().is_relative_to(workspace.resolve()):
                         continue
                 except Exception:
+                    try:
+                        if not str(path.resolve()).startswith(str(workspace.resolve())):
+                            continue
+                    except Exception:
+                        continue
+                if not path.exists():
                     continue
-            if not path.exists():
-                continue
-            try:
-                content = path.read_text(encoding="utf-8").splitlines()
-            except Exception:
-                continue
-            if 1 <= int(line) <= len(content):
-                if not re.search(pattern, content[int(line) - 1]):
-                    conn.execute(
-                        "UPDATE todo_fixme_tracking SET resolved=1, status='resolved', resolved_timestamp=? WHERE rowid=?",
-                        (datetime.now().isoformat(), rowid),
-                    )
-                    resolved += 1
+                try:
+                    content = path.read_text(encoding="utf-8").splitlines()
+                except Exception:
+                    continue
+                if 1 <= int(line) <= len(content):
+                    if not re.search(pattern, content[int(line) - 1]):
+                        conn.execute(
+                            f"UPDATE {table} SET resolved=1, status='resolved', resolved_timestamp=? WHERE rowid=?",
+                            (datetime.now().isoformat(), rowid),
+                        )
+                        resolved += 1
         conn.commit()
     return resolved
 
@@ -339,6 +406,55 @@ def _ensure_placeholder_tables(conn: sqlite3.Connection) -> None:
     )
 
 
+_snapshot_recorded = False
+
+
+def _record_placeholder_snapshot(
+    conn: sqlite3.Connection,
+    open_count: int,
+    resolved_count: int,
+    *,
+    auto_removal_count: int = 0,
+) -> None:
+    """Insert metrics and snapshot rows unless already recorded."""
+
+    global _snapshot_recorded
+    if _snapshot_recorded:
+        return
+    _snapshot_recorded = True
+
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS placeholder_metrics (
+            timestamp TEXT,
+            open_placeholders INTEGER,
+            resolved_placeholders INTEGER,
+            compliance_score REAL,
+            progress REAL,
+            auto_removal_count INTEGER
+        )
+        """
+    )
+    denom = open_count + resolved_count
+    compliance_score = resolved_count / denom if denom else 1.0
+    conn.execute(
+        "INSERT INTO placeholder_metrics VALUES (?,?,?,?,?,?)",
+        (
+            datetime.now().isoformat(),
+            open_count,
+            resolved_count,
+            compliance_score,
+            compliance_score,
+            auto_removal_count,
+        ),
+    )
+    _ensure_placeholder_tables(conn)
+    conn.execute(
+        "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (?,?,?)",
+        (int(time.time()), open_count, resolved_count),
+    )
+
+
 def snapshot_placeholder_counts(db: Path) -> Tuple[int, int]:
     """Aggregate open and resolved placeholder counts and record a snapshot.
 
@@ -355,18 +471,27 @@ def snapshot_placeholder_counts(db: Path) -> Tuple[int, int]:
 
     with sqlite3.connect(db) as conn:
         _ensure_placeholder_tables(conn)
-        cur = conn.execute(
-            "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'"
-        )
-        open_count = int(cur.fetchone()[0])
-        cur = conn.execute(
-            "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
-        )
-        resolved_count = int(cur.fetchone()[0])
-        conn.execute(
-            "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (?,?,?)",
-            (int(time.time()), open_count, resolved_count),
-        )
+        if conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='placeholder_tasks'"
+        ).fetchone():
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM placeholder_tasks WHERE status='open'"
+            )
+            open_count = int(cur.fetchone()[0])
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM placeholder_tasks WHERE status='resolved'"
+            )
+            resolved_count = int(cur.fetchone()[0])
+        else:
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'"
+            )
+            open_count = int(cur.fetchone()[0])
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
+            )
+            resolved_count = int(cur.fetchone()[0])
+        _record_placeholder_snapshot(conn, open_count, resolved_count)
         conn.commit()
         return open_count, resolved_count
 
@@ -561,34 +686,6 @@ def log_findings(
     return inserted
 
 
-def record_unresolved_placeholders(
-    tasks: List[Dict[str, str]], analytics_db: Path, simulate: bool = False
-) -> int:
-    """Store unresolved placeholder locations in analytics.db."""
-
-    if simulate:
-        return 0
-    analytics_db.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(analytics_db) as conn:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS unresolved_placeholders (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                file TEXT NOT NULL,
-                line INTEGER NOT NULL,
-                suggestion TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-            """
-        )
-        cur = conn.cursor()
-        for task in tasks:
-            cur.execute(
-                "INSERT INTO unresolved_placeholders (file, line, suggestion) VALUES (?, ?, ?)",
-                (task["file"], int(task["line"]), task["suggestion"]),
-            )
-        conn.commit()
-        return len(tasks)
 
 
 def apply_suggestions_to_files(
@@ -675,13 +772,14 @@ def update_dashboard(
 
     denominator = open_count + resolved
     compliance = resolved / denominator if denominator else 1.0
+    compliance_pct = compliance * 100
     status = "complete" if open_count == 0 else "issues_pending"
     compliance_status = "compliant" if open_count == 0 else "non_compliant"
     data = {
         "timestamp": datetime.now().isoformat(),
         "findings": open_count,
         "resolved_count": resolved,
-        "compliance_score": compliance,
+        "compliance_score": compliance_pct,
         "progress": resolved / denominator if denominator else 1.0,
         "progress_status": status,
         "compliance_status": compliance_status,
@@ -695,7 +793,7 @@ def update_dashboard(
     dashboard_metrics = {
         "open_placeholders": open_count,
         "resolved_placeholders": resolved,
-        "compliance_score": compliance,
+        "compliance_score": compliance_pct,
         "progress": data["progress"],
         "auto_removal_count": auto_removal_count,
     }
@@ -720,7 +818,7 @@ def update_dashboard(
                     data["timestamp"],
                     open_count,
                     resolved,
-                    compliance,
+                    compliance_pct,
                     data["progress"],
                     auto_removal_count,
                 ),
@@ -921,6 +1019,8 @@ def _auto_fill_with_templates(
         Path to backup for potential rollback.
     """
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
+    if not EnterpriseUtility:
+        return
     utility = EnterpriseUtility(str(workspace))
     if utility.perform_utility_function():
         gen_dir = workspace / "generated_templates"
@@ -1190,14 +1290,23 @@ def main(
             __name__,
             f"{TEXT['info']} logged {inserted} findings to {analytics}",
         )
+        try:
+            metrics = collect_metrics(db_path=Path(":memory:"))
+            metrics["placeholder_findings"] = float(inserted)
+            push_metrics(metrics, db_path=analytics)
+        except Exception as exc:
+            log_message(
+                __name__,
+                f"{TEXT['error']} metrics collection failed: {exc}",
+                level=logging.ERROR,
+            )
     if export:
         export.write_text(json.dumps(results, indent=2), encoding="utf-8")
     tasks = generate_removal_tasks(results, production, analytics)
     if apply_suggestions and not simulate:
         tasks = apply_suggestions_to_files(tasks, analytics)
     if not simulate:
-        log_placeholder_tasks(tasks, analytics)
-        record_unresolved_placeholders(tasks, analytics)
+        inserted = log_placeholder_tasks(tasks, analytics)
     for task in tasks:
         log_message(__name__, f"[TASK] {task['task']}")
     if task_report:
@@ -1215,18 +1324,34 @@ def main(
         export_resolved_placeholders(analytics, dashboard)
         # Snapshot placeholder counts for compliance scoring
         try:
-            snapshot_placeholder_counts(analytics)
+            open_count, resolved_count = snapshot_placeholder_counts(analytics)
         except Exception:
-            pass
+            open_count = resolved_count = 0
+        try:
+            metrics = collect_metrics(db_path=Path(":memory:"))
+            metrics["placeholder_open"] = float(open_count)
+            metrics["placeholder_resolved"] = float(resolved_count)
+            push_metrics(metrics, db_path=analytics)
+        except Exception as exc:
+            log_message(
+                __name__,
+                f"{TEXT['error']} metrics collection failed: {exc}",
+                level=logging.ERROR,
+            )
     else:
         log_message(__name__, "[TEST MODE] Dashboard update skipped")
     # Combine with Compliance Metrics Updater for real-time metrics
-    try:
-        updater = ComplianceMetricsUpdater(dashboard, test_mode=simulate)
-        updater.update(simulate=simulate)
-        updater.validate_update()
-    except Exception as exc:  # pragma: no cover - updater errors
-        log_message(__name__, f"{TEXT['error']} compliance update failed: {exc}", level=logging.ERROR)
+    if (not simulate) and ComplianceMetricsUpdater and inserted:
+        try:
+            updater = ComplianceMetricsUpdater(dashboard, test_mode=simulate)
+            updater.update(simulate=simulate)
+            updater.validate_update()
+        except Exception as exc:  # pragma: no cover - updater errors
+            log_message(
+                __name__,
+                f"{TEXT['error']} compliance update failed: {exc}",
+                level=logging.ERROR,
+            )
     elapsed = time.time() - start_time
     log_message(__name__, f"{TEXT['info']} audit completed in {elapsed:.2f}s")
 
@@ -1257,7 +1382,12 @@ def parse_args(argv: Optional[List[str]] | None = None) -> argparse.Namespace:
         epilog="For cleanup only, run scripts/placeholder_cleanup.py",
     )
     parser.add_argument("--workspace-path", type=str, help="Workspace to scan")
-    parser.add_argument("--analytics-db", type=str, help="analytics.db location")
+    parser.add_argument(
+        "--analytics-db",
+        type=str,
+        default="databases/analytics.db",
+        help="analytics.db location",
+    )
     parser.add_argument("--production-db", type=str, help="production.db location")
     parser.add_argument("--dashboard-dir", type=str, help="dashboard/compliance directory")
     parser.add_argument("--dataset-path", type=str, help="Optional JSON dataset with additional patterns")

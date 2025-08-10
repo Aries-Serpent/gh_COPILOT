@@ -60,6 +60,8 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     monkeypatch.setattr(module, "insert_event", _capture_event)
     monkeypatch.setattr(module, "validate_no_recursive_folders", lambda: None)
     monkeypatch.setattr(module, "validate_environment_root", lambda: None)
+    monkeypatch.setattr(module, "_run_ruff", lambda: 5)
+    monkeypatch.setattr(module, "_run_pytest", lambda: (8, 2))
 
     db_dir = tmp_path / "databases"
     db_dir.mkdir()
@@ -73,6 +75,15 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
         )
         conn.execute(
             "INSERT INTO todo_fixme_tracking VALUES (0, 'open', 2, 'type1')"
+        )
+        conn.execute(
+            "CREATE TABLE placeholder_audit_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, open_count INTEGER, resolved_count INTEGER)"
+        )
+        conn.execute(
+            "INSERT INTO placeholder_audit_snapshots (timestamp, open_count, resolved_count) VALUES (1, 1, 0)"
+        )
+        conn.execute(
+            "INSERT INTO placeholder_audit_snapshots (timestamp, open_count, resolved_count) VALUES (2, 1, 1)"
         )
         conn.execute("CREATE TABLE correction_logs (compliance_score REAL)")
         conn.execute("INSERT INTO correction_logs VALUES (0.9)")
@@ -125,8 +136,12 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
         return
     data = json.loads(metrics_file.read_text())
     assert data["metrics"]["placeholder_removal"] == 1
-    expected_score = max(0.0, min(1.0, (1 / (1 + 1)) - 0.15))
-    assert data["metrics"]["compliance_score"] == expected_score
+    assert data["metrics"]["placeholder_trend"]
+    lint_val = 100 if test_mode else 95
+    test_val = 100 if test_mode else 80
+    expected_score = 0.3 * lint_val + 0.4 * test_val + 0.2 * 50 + 0.1 * 100
+    assert data["metrics"]["composite_score"] == expected_score
+    assert data["metrics"]["compliance_score"] == pytest.approx(0.35)
     assert data["metrics"]["violation_count"] == 1
     assert data["metrics"]["rollback_count"] == 1
     assert data["metrics"]["progress_status"] == "issues_pending"
@@ -139,6 +154,12 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     assert push_calls
     keys = {k for call in push_calls for k in call}
     assert {"lint_score", "test_score", "placeholder_score"}.issubset(keys)
+    if not test_mode:
+        with sqlite3.connect(analytics_db) as conn:
+            row = conn.execute(
+                "SELECT ruff_issues, tests_passed, tests_failed, placeholders_open, placeholders_resolved, lint_score, test_score, placeholder_score, composite_score FROM code_quality_metrics ORDER BY id DESC LIMIT 1"
+            ).fetchone()
+        assert row == pytest.approx((5.0, 8.0, 2.0, 1.0, 1.0, float(lint_val), float(test_val), 50.0, expected_score), rel=1e-3)
     assert executed
     logger_instance = DummyCorrectionLoggerRollback.instances[0]
     assert logger_instance.logged["violation"] == 1

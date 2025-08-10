@@ -1,6 +1,29 @@
 import logging
 import sqlite3
 from datetime import datetime
+import sys
+import types
+
+sys.modules["unified_monitoring_optimization_system"] = types.SimpleNamespace(
+    EnterpriseUtility=object,
+    push_metrics=lambda *a, **k: None,
+    collect_metrics=lambda: {},
+)
+sys.modules["quantum"] = types.ModuleType("quantum")
+sys.modules["quantum.benchmarking"] = types.ModuleType("quantum.benchmarking")
+sys.modules["physics_optimization_engine"] = types.ModuleType("physics_optimization_engine")
+sys.modules[
+    "scripts.optimization.physics_optimization_engine"
+] = types.ModuleType("scripts.optimization.physics_optimization_engine")
+sys.modules["qiskit"] = types.ModuleType("qiskit")
+sys.modules[
+    "scripts.monitoring.unified_monitoring_optimization_system"
+] = sys.modules["unified_monitoring_optimization_system"]
+sys.modules["monitoring"] = types.ModuleType("monitoring")
+sys.modules["monitoring.health_monitor"] = types.ModuleType("monitoring.health_monitor")
+sys.modules["quantum_algorithm_library_expansion"] = types.ModuleType(
+    "quantum_algorithm_library_expansion"
+)
 
 import pytest
 
@@ -97,4 +120,50 @@ def test_warn_when_tables_empty(tmp_path, monkeypatch, caplog):
     warnings = [r.message for r in caplog.records]
     assert any("violation_logs table has no entries" in m for m in warnings)
     assert any("rollback_logs table has no entries" in m for m in warnings)
+
+
+def test_resolving_placeholders_improves_score(tmp_path, monkeypatch):
+    db = tmp_path / "analytics.db"
+    dash_dir = tmp_path / "dash"
+    monkeypatch.setattr(cmu, "ANALYTICS_DB", db)
+    monkeypatch.setattr(cmu, "DASHBOARD_DIR", dash_dir)
+    monkeypatch.setattr(cmu, "validate_no_recursive_folders", lambda: None)
+    monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
+    class DummyCorrectionLoggerRollback:
+        def __init__(self, *a, **k):
+            pass
+
+        def log_violation(self, *a, **k):
+            pass
+
+        def log_change(self, *a, **k):
+            pass
+
+    monkeypatch.setattr(cmu, "CorrectionLoggerRollback", DummyCorrectionLoggerRollback)
+    ensure_tables(db, ["violation_logs", "rollback_logs", "correction_logs", "event_log"], test_mode=False)
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            """
+            CREATE TABLE placeholder_tasks (
+                file_path TEXT,
+                line_number INTEGER,
+                pattern TEXT,
+                context TEXT,
+                suggestion TEXT,
+                status TEXT
+            )
+            """
+        )
+        conn.execute(
+            "INSERT INTO placeholder_tasks VALUES ('a.py',1,'TODO','ctx','', 'open')"
+        )
+        conn.execute(
+            "INSERT INTO placeholder_tasks VALUES ('b.py',2,'TODO','ctx','', 'resolved')"
+        )
+    updater = cmu.ComplianceMetricsUpdater(dash_dir, test_mode=True)
+    metrics_before = updater._fetch_compliance_metrics(test_mode=True)
+    with sqlite3.connect(db) as conn:
+        conn.execute("UPDATE placeholder_tasks SET status='resolved' WHERE status='open'")
+    metrics_after = updater._fetch_compliance_metrics(test_mode=True)
+    assert metrics_after["composite_score"] > metrics_before["composite_score"]
 

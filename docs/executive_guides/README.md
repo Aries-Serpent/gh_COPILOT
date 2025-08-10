@@ -8,11 +8,15 @@ Quick references for leadership teams using the enterprise dashboard.
   – launches the executive dashboard
 - [web_gui/documentation/user_guides/README.md](../../web_gui/documentation/user_guides/README.md)
   – general user documentation
+- [Governance Standards](../GOVERNANCE_STANDARDS.md)
+  – compliance policies and scoring rules
 
 ## Overview
 
 The executive dashboard surfaces compliance summaries, performance
-metrics, and certification status. Run the dashboard script and navigate
+metrics, and certification status. It displays the composite compliance
+score (30% lint, 40% tests, 20% placeholders, 10% session success) and
+highlights placeholder audit results. Run the dashboard script and navigate
 to the highlighted sections to review system health at a glance.
 
 ## Related Modules

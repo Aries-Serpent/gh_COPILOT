@@ -4,6 +4,7 @@ import sqlite3
 import pytest
 
 import dashboard.enterprise_dashboard as ed
+import dashboard.app  # ensure CSV export routes are registered
 
 
 def _prepare_metrics(tmp_path, monkeypatch):
@@ -25,7 +26,10 @@ def _prepare_metrics(tmp_path, monkeypatch):
         ),
         encoding="utf-8",
     )
-    db = tmp_path / "analytics.db"
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
+    db = db_dir / "analytics.db"
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     with sqlite3.connect(db) as conn:
         conn.execute(
             "CREATE TABLE compliance_scores (timestamp TEXT, composite_score REAL)"
@@ -52,3 +56,21 @@ def test_dashboard_compliance_route(tmp_path, monkeypatch):
     data = resp.get_json()["metrics"]
     assert data["code_quality_score"] == pytest.approx(82.5, rel=1e-3)
     assert data["score_breakdown"]["lint_score"] == pytest.approx(95.0, rel=1e-3)
+
+
+def test_compliance_scores_csv_export(tmp_path, monkeypatch):
+    client, ed_module = _prepare_metrics(tmp_path, monkeypatch)
+    with sqlite3.connect(ed_module.ANALYTICS_DB) as conn:
+        conn.execute(
+            "CREATE TABLE compliance_metrics_history (ts TEXT, composite_score REAL, lint_score REAL, test_score REAL, placeholder_score REAL)"
+        )
+        conn.execute(
+            "INSERT INTO compliance_metrics_history VALUES (?,?,?,?,?)",
+            ("2024-01-01", 90.0, 80.0, 85.0, 95.0),
+        )
+        conn.commit()
+    resp = client.get("/api/compliance_scores.csv")
+    assert resp.status_code == 200
+    body = resp.data.decode("utf-8")
+    assert "timestamp,composite,lint_score,test_score,placeholder_score" in body
+    assert "2024-01-01,90.0,80.0,85.0,95.0" in body

@@ -110,3 +110,28 @@ def test_placeholder_history_reads_snapshots(tmp_path, monkeypatch):
     monkeypatch.setattr(idash, "ANALYTICS_DB", db)
     history = idash._load_placeholder_history()
     assert history and history[0]["count"] == 5
+
+
+def test_placeholder_details_endpoint(tmp_path, monkeypatch):
+    db = tmp_path / "analytics.db"
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            "CREATE TABLE placeholder_audit_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, open_count INTEGER, resolved_count INTEGER)"
+        )
+        conn.execute(
+            "CREATE TABLE placeholder_tasks (file_path TEXT, line_number INTEGER, status TEXT)"
+        )
+        conn.execute(
+            "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (1,2,3)"
+        )
+        conn.execute(
+            "INSERT INTO placeholder_tasks VALUES ('file.py', 10, 'open')"
+        )
+    monkeypatch.setattr(ed, "ANALYTICS_DB", db)
+    client = ed.app.test_client()
+    resp = client.get("/api/placeholder_details")
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data["history"][0]["open"] == 2
+    assert data["history"][0]["resolved"] == 3
+    assert data["unresolved"][0]["file"] == "file.py"

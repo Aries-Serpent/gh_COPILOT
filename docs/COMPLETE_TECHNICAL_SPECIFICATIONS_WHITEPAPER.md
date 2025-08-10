@@ -14,6 +14,7 @@ Compliance and audit metrics are logged to `analytics.db` via the
 `EnterpriseComplianceValidator`, and compliance scores combine lint, test, and
 placeholder metrics before being computed by the `WLC_SESSION_MANAGER` during
 session wrap-up.
+Dashboard gauges now provide tooltips describing lint, test, and placeholder scores, and each session wrap-up records these metrics alongside the composite compliance score.
 Daily compliance and test summaries are written to
 `documentation/generated/daily state update/`.
 
