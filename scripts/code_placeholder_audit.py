@@ -317,45 +317,7 @@ def log_placeholder_tasks(
             "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
         )
         resolved_count = int(cur.fetchone()[0])
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS placeholder_metrics (
-                timestamp TEXT,
-                open_placeholders INTEGER,
-                resolved_placeholders INTEGER,
-                compliance_score REAL,
-                progress REAL,
-                auto_removal_count INTEGER
-            )
-            """
-        )
-        denom = open_count + resolved_count
-        compliance_score = resolved_count / denom if denom else 1.0
-        conn.execute(
-            "INSERT INTO placeholder_metrics VALUES (?,?,?,?,?,?)",
-            (
-                datetime.now().isoformat(),
-                open_count,
-                resolved_count,
-                compliance_score,
-                compliance_score,
-                0,
-            ),
-        )
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS placeholder_audit_snapshots (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp INTEGER,
-                open_count INTEGER,
-                resolved_count INTEGER
-            )
-            """
-        )
-        conn.execute(
-            "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (?,?,?)",
-            (int(time.time()), open_count, resolved_count),
-        )
+        _record_placeholder_snapshot(conn, open_count, resolved_count)
         conn.commit()
     return inserted
 
@@ -456,6 +418,55 @@ def _ensure_placeholder_tables(conn: sqlite3.Connection) -> None:
     )
 
 
+_snapshot_recorded = False
+
+
+def _record_placeholder_snapshot(
+    conn: sqlite3.Connection,
+    open_count: int,
+    resolved_count: int,
+    *,
+    auto_removal_count: int = 0,
+) -> None:
+    """Insert metrics and snapshot rows unless already recorded."""
+
+    global _snapshot_recorded
+    if _snapshot_recorded:
+        return
+    _snapshot_recorded = True
+
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS placeholder_metrics (
+            timestamp TEXT,
+            open_placeholders INTEGER,
+            resolved_placeholders INTEGER,
+            compliance_score REAL,
+            progress REAL,
+            auto_removal_count INTEGER
+        )
+        """
+    )
+    denom = open_count + resolved_count
+    compliance_score = resolved_count / denom if denom else 1.0
+    conn.execute(
+        "INSERT INTO placeholder_metrics VALUES (?,?,?,?,?,?)",
+        (
+            datetime.now().isoformat(),
+            open_count,
+            resolved_count,
+            compliance_score,
+            compliance_score,
+            auto_removal_count,
+        ),
+    )
+    _ensure_placeholder_tables(conn)
+    conn.execute(
+        "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (?,?,?)",
+        (int(time.time()), open_count, resolved_count),
+    )
+
+
 def snapshot_placeholder_counts(db: Path) -> Tuple[int, int]:
     """Aggregate open and resolved placeholder counts and record a snapshot.
 
@@ -492,10 +503,7 @@ def snapshot_placeholder_counts(db: Path) -> Tuple[int, int]:
                 "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
             )
             resolved_count = int(cur.fetchone()[0])
-        conn.execute(
-            "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (?,?,?)",
-            (int(time.time()), open_count, resolved_count),
-        )
+        _record_placeholder_snapshot(conn, open_count, resolved_count)
         conn.commit()
         return open_count, resolved_count
 
@@ -697,35 +705,7 @@ def log_findings(
             "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
         )
         resolved_count = int(cur.fetchone()[0])
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS placeholder_metrics (
-                timestamp TEXT,
-                open_placeholders INTEGER,
-                resolved_placeholders INTEGER,
-                compliance_score REAL,
-                progress REAL,
-                auto_removal_count INTEGER
-            )
-            """
-        )
-        denom = open_count + resolved_count
-        compliance_score = resolved_count / denom if denom else 1.0
-        conn.execute(
-            "INSERT INTO placeholder_metrics VALUES (?,?,?,?,?,?)",
-            (
-                datetime.now().isoformat(),
-                open_count,
-                resolved_count,
-                compliance_score,
-                compliance_score,
-                0,
-            ),
-        )
-        conn.execute(
-            "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (?,?,?)",
-            (int(time.time()), open_count, resolved_count),
-        )
+        _record_placeholder_snapshot(conn, open_count, resolved_count)
         conn.commit()
     return inserted
 
