@@ -3,6 +3,8 @@
 import json
 import sqlite3
 
+import pytest
+
 from utils import codex_log_db
 
 
@@ -89,3 +91,20 @@ def test_finalize_codex_log_db_copies_db(tmp_path, monkeypatch):
 
     assert rows == [("s1", "act", "stmt")]
     assert any(cmd[:2] == ["git", "add"] for cmd in calls)
+
+
+def test_finalize_codex_log_db_integrity(tmp_path, monkeypatch):
+    """Corrupted database should cause finalize_codex_log_db to raise."""
+    src = tmp_path / "codex_log.db"
+    dest = tmp_path / "codex_session_logs.db"
+    monkeypatch.setattr(codex_log_db, "CODEX_LOG_DB", src)
+    monkeypatch.setattr(codex_log_db, "CODEX_SESSION_LOG_DB", dest)
+    monkeypatch.setattr(
+        codex_log_db.CrossPlatformPathManager, "get_workspace_path", lambda: tmp_path
+    )
+
+    codex_log_db.log_codex_action("s1", "act", "stmt")
+    src.write_text("corrupt", encoding="utf-8")
+
+    with pytest.raises(RuntimeError):
+        codex_log_db.finalize_codex_log_db()

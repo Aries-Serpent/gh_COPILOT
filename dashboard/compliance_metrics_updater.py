@@ -26,13 +26,10 @@ from tqdm import tqdm
 from utils.log_utils import ensure_tables, insert_event
 from enterprise_modules.compliance import (
     validate_enterprise_operation,
-    record_code_quality_metrics,
     _run_ruff,
     _run_pytest,
     pid_recursion_guard,
-    calculate_compliance_score,
-    # The following import is for one branch; ensure both are available for composite scoring:
-    # If calculate_composite_compliance_score exists, prefer that for composite scoring, else fallback.
+    calculate_code_quality_score,
 )
 from disaster_recovery_orchestrator import DisasterRecoveryOrchestrator
 from unified_monitoring_optimization_system import (
@@ -41,12 +38,6 @@ from unified_monitoring_optimization_system import (
 )
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
-
-try:
-    from enterprise_modules.compliance import calculate_composite_compliance_score
-    _HAS_COMPOSITE = True
-except ImportError:
-    _HAS_COMPOSITE = False
 
 # Enterprise logging setup
 LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "/workspace/gh_COPILOT")) / "logs" / "dashboard"
@@ -191,6 +182,7 @@ class ComplianceMetricsUpdater:
             "last_update": datetime.now().isoformat(),
             "placeholder_breakdown": {},
             "compliance_trend": [],
+            "placeholder_trend": [],
             "composite_score": 0.0,
             "score_breakdown": {},
         }
@@ -268,8 +260,9 @@ class ComplianceMetricsUpdater:
                 open_ph = metrics["open_placeholders"]
                 resolved_ph = metrics["resolved_placeholders"]
                 denominator = resolved_ph + open_ph
-                base_score = resolved_ph / denominator if denominator else 1.0
-                metrics["compliance_score"] = base_score
+                resolution_ratio = resolved_ph / denominator if denominator else 1.0
+                metrics["placeholder_resolution_ratio"] = resolution_ratio
+                metrics["compliance_score"] = resolution_ratio
 
                 try:
                     cur.execute(
@@ -288,6 +281,19 @@ class ComplianceMetricsUpdater:
                     metrics["compliance_trend"] = list(reversed(scores))
                 except sqlite3.Error:
                     metrics["compliance_trend"] = []
+
+                # Placeholder resolution trend
+                try:
+                    cur.execute(
+                        "SELECT timestamp, open_count, resolved_count FROM placeholder_audit_snapshots ORDER BY timestamp DESC LIMIT 5"
+                    )
+                    rows = cur.fetchall()
+                    metrics["placeholder_trend"] = [
+                        {"timestamp": r[0], "open": r[1], "resolved": r[2]}
+                        for r in reversed(rows)
+                    ]
+                except sqlite3.Error:
+                    metrics["placeholder_trend"] = []
 
                 cur.execute("SELECT COUNT(*) FROM correction_logs")
                 metrics["correction_count"] = cur.fetchone()[0]
@@ -324,7 +330,9 @@ class ComplianceMetricsUpdater:
                     metrics["rollback_count"] = 0
                     logging.warning("rollback_logs table missing")
                 penalty = 0.1 * metrics["violation_count"] + 0.05 * metrics["rollback_count"]
-                metrics["compliance_score"] = max(0.0, min(1.0, base_score - penalty))
+                metrics["compliance_score"] = max(
+                    0.0, min(1.0, resolution_ratio - penalty)
+                )
 
                 # Pattern mining quality metrics
                 try:
@@ -389,66 +397,33 @@ class ComplianceMetricsUpdater:
             ruff_issues = _run_ruff()
             tests_passed, tests_failed = _run_pytest()
 
-        # Composite score calculation - resolve merge logic to prefer composite function, fallback to original
-        if _HAS_COMPOSITE:
-            composite = calculate_composite_compliance_score(
-                ruff_issues,
-                tests_passed,
-                tests_failed,
-                open_ph,
-                resolved_ph,
-            )
-        else:
-            composite = calculate_compliance_score(
-                ruff_issues,
-                tests_passed,
-                tests_failed,
-                open_ph,
-                resolved_ph,
-            )
-        total_tests = tests_passed + tests_failed
-        test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
-        lint_score = max(0.0, 100 - ruff_issues)
-        total_placeholders = (
-            metrics.get("open_placeholders", 0)
-            + metrics.get("resolved_placeholders", 0)
-        )
-        placeholder_score = (
-            metrics.get("resolved_placeholders", 0) / total_placeholders * 100
-            if total_placeholders
-            else 100.0
-        )
-        scores = {
-            "lint_score": round(lint_score, 2),
-            "test_score": round(test_score, 2),
-            "placeholder_score": round(placeholder_score, 2),
-            "composite": round(composite, 2),
-        }
-        violation_penalty = metrics["violation_count"] * 10
-        rollback_penalty = metrics["rollback_count"] * 5
-        composite_adj = max(0.0, composite - violation_penalty - rollback_penalty)
-        scores["violation_penalty"] = violation_penalty
-        scores["rollback_penalty"] = rollback_penalty
-        metrics["composite_score"] = composite_adj
-        metrics["composite_compliance_score"] = composite_adj
-        metrics["score_breakdown"] = scores
-        metrics["lint_score"] = scores["lint_score"]
-        metrics["test_score"] = scores["test_score"]
-        metrics["placeholder_score"] = scores["placeholder_score"]
-        metrics["ruff_issues"] = ruff_issues
-        metrics["tests_passed"] = tests_passed
-        metrics["tests_failed"] = tests_failed
-
-        record_code_quality_metrics(
+        score, breakdown = calculate_code_quality_score(
             ruff_issues,
             tests_passed,
             tests_failed,
             open_ph,
             resolved_ph,
-            composite_adj,
+            0,
+            0,
             db_path=ANALYTICS_DB,
+            persist=not test_mode,
             test_mode=test_mode,
         )
+        metrics["composite_score"] = score
+        metrics["composite_compliance_score"] = score
+        metrics["score_breakdown"] = breakdown
+        metrics["lint_score"] = breakdown["lint_score"]
+        metrics["test_score"] = breakdown["test_score"]
+        metrics["placeholder_score"] = breakdown["placeholder_score"]
+        metrics["ruff_issues"] = ruff_issues
+        metrics["tests_passed"] = tests_passed
+        metrics["tests_failed"] = tests_failed
+
+        total_ph = open_ph + resolved_ph
+        base = resolved_ph / total_ph if total_ph else 1.0
+        penalty = 0.10 * metrics["violation_count"] + 0.05 * metrics["rollback_count"]
+        metrics["compliance_score"] = max(0.0, min(1.0, base - penalty))
+
         if metrics["violation_count"] or metrics["rollback_count"] or metrics["open_placeholders"]:
             metrics["progress_status"] = "issues_pending"
         else:
@@ -596,8 +571,13 @@ class ComplianceMetricsUpdater:
             json.dumps(metrics.get("recent_rollbacks", []), indent=2),
             encoding="utf-8",
         )
+        placeholder_payload = {
+            "open": metrics.get("open_placeholders", 0),
+            "resolved": metrics.get("resolved_placeholders", 0),
+            "breakdown": metrics.get("placeholder_breakdown", {}),
+        }
         placeholder_file.write_text(
-            json.dumps(metrics.get("placeholder_breakdown", {}), indent=2),
+            json.dumps(placeholder_payload, indent=2),
             encoding="utf-8",
         )
         logging.info(f"Dashboard metrics updated: {dashboard_file}")
@@ -648,6 +628,8 @@ class ComplianceMetricsUpdater:
             "compliance_score": float(metrics.get("compliance_score", 0.0)),
             "violation_count": float(metrics.get("violation_count", 0.0)),
             "rollback_count": float(metrics.get("rollback_count", 0.0)),
+            "open_placeholders": float(metrics.get("open_placeholders", 0.0)),
+            "resolved_placeholders": float(metrics.get("resolved_placeholders", 0.0)),
         }
         push_metrics(monitoring_metrics, table="enterprise_metrics", db_path=ANALYTICS_DB)
         score_breakdown = metrics.get("score_breakdown", {})

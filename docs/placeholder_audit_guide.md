@@ -35,7 +35,7 @@ python scripts/code_placeholder_audit.py --apply-suggestions \
 ```
 
 Unresolved placeholders are recorded in `analytics.db` under the
-`unresolved_placeholders` table with their file paths and line numbers.
+`placeholder_tasks` table (entries with `status='open'`) with their file paths and line numbers.
 
 ## Viewing Results
 

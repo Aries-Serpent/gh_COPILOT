@@ -1,22 +1,9 @@
 name: CI
 on:
   push:
-    tags:
-      - 'v*'
-    paths:
-      - '**.py'
-      - '**.md'
-      - '.github/**'
-      - 'docs/**'
-      - 'documentation/**'
+    branches: ["**"]
   pull_request:
     branches: [main]
-    paths:
-      - '**.py'
-      - '**.md'
-      - '.github/**'
-      - 'docs/**'
-      - 'documentation/**'
 jobs:
   lint-test:
     runs-on: ubuntu-latest

@@ -8,7 +8,11 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-from enterprise_modules.compliance import validate_enterprise_operation
+from enterprise_modules.compliance import (
+    ComplianceError,
+    enforce_anti_recursion,
+    validate_enterprise_operation,
+)
 from utils.log_utils import _log_event
 from validation.protocols.session import SessionProtocolValidator
 from utils.validation_utils import (
@@ -30,6 +34,7 @@ class EnterpriseUtility:
         self.analytics_db = self.workspace_path / "databases" / "analytics.db"
         backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp"))
         self.pid_file = backup_root / "session_management_consolidation_executor.pid"
+        self.recursion_depth = 0
 
     def _validate_environment(self) -> bool:
         """Ensure workspace and backup paths are set and non-recursive."""
@@ -88,6 +93,16 @@ class EnterpriseUtility:
     @anti_recursion_guard
     def execute_utility(self) -> bool:
         """Execute consolidation routine with logging and validation."""
+        try:
+            enforce_anti_recursion(self)
+        except ComplianceError as exc:
+            self.logger.error("[ABORT] %s", exc)
+            _log_event(
+                {"event": "recursion_abort", "details": str(exc)},
+                db_path=self.analytics_db,
+            )
+            return False
+
         self._register_pid()
         session_id = "consolidation"
         start_session(session_id, workspace=str(self.workspace_path))
@@ -121,6 +136,8 @@ class EnterpriseUtility:
                 status="success" if success else "failed",
             )
             self._clear_pid()
+            if hasattr(self, "recursion_depth") and self.recursion_depth > 0:
+                self.recursion_depth -= 1
 
     def _register_pid(self) -> None:
         """Record the current PID to prevent recursive execution."""

@@ -7,19 +7,55 @@
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='placeholder_chart.js') }}"></script>
     <script>
+        let lintGauge, testGauge, placeholderGauge;
+        function initGauges(){
+            const base = {
+                type: 'doughnut',
+                data: {
+                    labels: ['score', 'rest'],
+                    datasets: [{
+                        data: [0, 100],
+                        backgroundColor: ['#2e86de', '#eee'],
+                        borderWidth: 0,
+                    }],
+                },
+                options: {
+                    rotation: -Math.PI,
+                    circumference: Math.PI,
+                    cutout: '70%',
+                    plugins: { legend: { display: false } },
+                },
+            };
+            lintGauge = new Chart(document.getElementById('lintGauge'), JSON.parse(JSON.stringify(base)));
+            testGauge = new Chart(document.getElementById('testGauge'), JSON.parse(JSON.stringify(base)));
+            placeholderGauge = new Chart(document.getElementById('placeholderGauge'), JSON.parse(JSON.stringify(base)));
+        }
+        function updateGauge(chart, value){
+            if(!chart) return;
+            chart.data.datasets[0].data = [value, 100 - value];
+            chart.update();
+        }
         function updateMetrics(data){
-            document.getElementById('placeholder_removal').textContent = data.placeholder_removal;
-            document.getElementById('compliance_score').textContent = data.compliance_score.toFixed(3);
-            if(data.composite_score !== undefined){
-                document.getElementById('composite_score').textContent = data.composite_score.toFixed(2);
-            }
+        document.getElementById('placeholder_removal').textContent = data.placeholder_removal;
+        document.getElementById('compliance_score').textContent = data.compliance_score.toFixed(3);
+        if(data.composite_score !== undefined){
+            document.getElementById('composite_score').textContent = data.composite_score.toFixed(2);
+        }
             document.getElementById('ruff_issues').textContent = data.ruff_issues || 0;
             document.getElementById('tests_passed').textContent = data.tests_passed || 0;
             document.getElementById('tests_failed').textContent = data.tests_failed || 0;
-            document.getElementById('lint_score').textContent = (data.lint_score ?? 0).toFixed(2);
-            document.getElementById('test_score').textContent = (data.test_score ?? 0).toFixed(2);
-            document.getElementById('placeholder_score').textContent = (data.placeholder_score ?? 0).toFixed(2);
-            document.getElementById('open_placeholders').textContent = data.open_placeholders || 0;
+        document.getElementById('lint_score').textContent = (data.lint_score ?? 0).toFixed(2);
+        document.getElementById('test_score').textContent = (data.test_score ?? 0).toFixed(2);
+        document.getElementById('placeholder_score').textContent = (data.placeholder_score ?? 0).toFixed(2);
+        updateGauge(lintGauge, data.lint_score ?? 0);
+        updateGauge(testGauge, data.test_score ?? 0);
+        updateGauge(placeholderGauge, data.placeholder_score ?? 0);
+        const comp = data.composite_score ?? data.compliance_score;
+        const alert = document.getElementById('compliance_alert');
+        alert.textContent = comp.toFixed(2);
+        alert.className = 'status-indicator ' +
+            (comp >= 90 ? 'status-green' : comp >= 80 ? 'status-yellow' : 'status-red');
+        document.getElementById('open_placeholders').textContent = data.open_placeholders || 0;
             document.getElementById('resolved_placeholders').textContent = data.resolved_placeholders || 0;
             const prog = data.progress !== undefined ? (data.progress * 100).toFixed(1) + '%' : '0%';
             document.getElementById('remediation_progress').textContent = prog;
@@ -154,6 +190,7 @@
             fetch('/corrections').then(r=>r.json()).then(updateCorrections);
         }
         window.onload = function(){
+            initGauges();
             if(!!window.EventSource){
                 const es = new EventSource('/metrics_stream');
                 es.onmessage = function(evt){
@@ -194,9 +231,19 @@
     <strong>Lint Issues:</strong> <span id="ruff_issues">{{ metrics.ruff_issues | default(0) }}</span><br>
     <strong>Tests Passed:</strong> <span id="tests_passed">{{ metrics.tests_passed | default(0) }}</span><br>
     <strong>Tests Failed:</strong> <span id="tests_failed">{{ metrics.tests_failed | default(0) }}</span><br>
-    <strong>Lint Score:</strong> <span id="lint_score">{{ metrics.lint_score | default(0) }}</span><br>
-    <strong>Test Score:</strong> <span id="test_score">{{ metrics.test_score | default(0) }}</span><br>
-    <strong>Placeholder Score:</strong> <span id="placeholder_score">{{ metrics.placeholder_score | default(0) }}</span><br>
+    <strong title="Percentage of files passing ruff checks">Lint Score:</strong> <span id="lint_score">{{ metrics.lint_score | default(0) }}</span><br>
+    <strong title="Percentage of tests passing">Test Score:</strong> <span id="test_score">{{ metrics.test_score | default(0) }}</span><br>
+    <strong title="Progress removing TODO/FIXME placeholders">Placeholder Score:</strong> <span id="placeholder_score">{{ metrics.placeholder_score | default(0) }}</span><br>
+    <div id="score_gauges">
+        <canvas id="lintGauge" class="gauge" title="Lint score gauge"></canvas>
+        <canvas id="testGauge" class="gauge" title="Test score gauge"></canvas>
+        <canvas id="placeholderGauge" class="gauge" title="Placeholder score gauge"></canvas>
+    </div>
+    <div class="exports">
+        <a href="/api/compliance_scores" id="export-json">Download JSON</a> |
+        <a href="/api/compliance_scores.csv" id="export-csv">Download CSV</a>
+    </div>
+    <div>Composite Alert: <span id="compliance_alert" class="status-indicator">--</span></div>
     <strong>Open Placeholders:</strong> <span id="open_placeholders">{{ metrics.open_placeholders | default(0) }}</span><br>
     <strong>Resolved Placeholders:</strong> <span id="resolved_placeholders">{{ metrics.resolved_placeholders | default(0) }}</span><br>
     <strong>Remediation Progress:</strong> <span id="remediation_progress">{{ ((metrics.progress or 0) * 100) | round(1) }}%</span><br>
@@ -210,9 +257,14 @@
     <ul id="placeholder_breakdown"></ul>
     <h3>Compliance Trend</h3>
     <ul id="compliance_trend"></ul>
-    <h3>Unresolved Placeholder Trend</h3>
+    <h3>Placeholder History</h3>
     <canvas id="placeholderChart"></canvas>
-    
+    <h3>Unresolved Placeholders</h3>
+    <table id="unresolvedTable">
+        <thead><tr><th>File</th><th>Line</th></tr></thead>
+        <tbody id="unresolvedBody"></tbody>
+    </table>
+
     <h3>Compliance Score Trend</h3>
     <canvas id="complianceChart" width="800" height="300"></canvas>
 </div>
@@ -244,6 +296,10 @@
 <h2>Session Lifecycle</h2>
 <div>Total Sessions: <span id="session_count">{{ lifecycle.count }}</span></div>
 <div>Average Duration: <span id="avg_duration">{{ lifecycle.avg_duration }}</span></div>
+<div>Success Rate: <span id="success_rate">{{ lifecycle.success_rate }}</span></div>
+<div>Last Duration: <span id="last_duration">{{ lifecycle.last_duration }}</span></div>
+<div>Last Status: <span id="last_status">{{ lifecycle.last_status }}</span></div>
+<div>Last Zero-Byte Files: <span id="last_zero_byte">{{ lifecycle.last_zero_byte_violations }}</span></div>
 
 <h2>Audit Results</h2>
 <ul id="audit_results">

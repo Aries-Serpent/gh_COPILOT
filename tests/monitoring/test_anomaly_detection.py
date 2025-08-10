@@ -5,6 +5,8 @@ from src.monitoring.anomaly import detect_anomalies, train_baseline_models
 from src.monitoring.anomaly_detector import detect_anomalies as db_detect_anomalies
 from src.monitoring.anomaly_detector import train_models as db_train_models
 
+import unified_monitoring_optimization_system as umos
+
 
 def _data_dir() -> Path:
     return Path(__file__).resolve().parents[2] / "data" / "metrics"
@@ -55,3 +57,32 @@ def test_db_detects_memory_spike(tmp_path: Path) -> None:
     models = db_train_models(db_file)
     anomalies = db_detect_anomalies({"memory_usage": 160}, models)
     assert anomalies["memory_usage"]
+
+
+def test_anomaly_loop_triggers_auto_heal(tmp_path, monkeypatch):
+    db_file = tmp_path / "analytics.db"
+    model_file = tmp_path / "anomaly_iforest.pkl"
+    for i in range(20):
+        umos.push_metrics({"cpu": float(i), "memory": 50.0 + i}, db_path=db_file)
+    umos.train_anomaly_model(db_path=db_file, model_path=model_file)
+
+    called: list = []
+
+    def fake_auto_heal(**kwargs):
+        called.append(list(kwargs.get("anomalies", [])))
+        return True
+
+    monkeypatch.setattr(umos, "auto_heal_session", fake_auto_heal)
+
+    def collector(*, db_path=None):
+        return {"cpu": 999.0, "memory": 999.0}
+
+    umos.anomaly_detection_loop(
+        interval=0,
+        iterations=1,
+        db_path=db_file,
+        model_path=model_file,
+        collector=collector,
+    )
+
+    assert called and called[0] and called[0][0]["anomaly_score"] > 0.5

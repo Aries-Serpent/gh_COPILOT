@@ -131,13 +131,17 @@ class TestComponentFetching:
         """Test fetching components from populated database."""
         with _connect(temp_db) as conn:
             # Create tables and insert test data
-            conn.execute("CREATE TABLE ruff_issue_log (issues INTEGER)")
-            conn.execute("INSERT INTO ruff_issue_log VALUES (5)")
-            conn.execute("INSERT INTO ruff_issue_log VALUES (3)")
-            
-            conn.execute("CREATE TABLE test_run_stats (passed INTEGER, total INTEGER)")
-            conn.execute("INSERT INTO test_run_stats VALUES (18, 20)")
-            conn.execute("INSERT INTO test_run_stats VALUES (15, 18)")
+            conn.execute(
+                "CREATE TABLE ruff_issue_log (run_timestamp INTEGER, issues INTEGER)"
+            )
+            conn.execute("INSERT INTO ruff_issue_log VALUES (1, 5)")
+            conn.execute("INSERT INTO ruff_issue_log VALUES (2, 3)")
+
+            conn.execute(
+                "CREATE TABLE test_run_stats (run_timestamp INTEGER, passed INTEGER, total INTEGER)"
+            )
+            conn.execute("INSERT INTO test_run_stats VALUES (1, 18, 20)")
+            conn.execute("INSERT INTO test_run_stats VALUES (2, 15, 18)")
             
             conn.execute(
                 "CREATE TABLE placeholder_audit_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, open_count INTEGER, resolved_count INTEGER)"
@@ -150,9 +154,9 @@ class TestComponentFetching:
             )
             
             comp = _fetch_components(conn)
-            assert comp.ruff_issues == 8  # Sum of issues
-            assert comp.tests_passed == 33  # Sum of passed
-            assert comp.tests_total == 38   # Sum of total
+            assert comp.ruff_issues == 3  # Latest issues
+            assert comp.tests_passed == 15  # Latest passed
+            assert comp.tests_total == 18   # Latest total
             assert comp.placeholders_open == 8    # Latest open count
             assert comp.placeholders_resolved == 18  # Latest resolved count
 

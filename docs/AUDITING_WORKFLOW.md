@@ -15,8 +15,8 @@ This project includes an automated placeholder audit to keep the codebase compli
 4. Pass `--apply-fixes` to remove placeholder comments directly from source files. The
    audit also cleans up any placeholder metadata that is no longer needed.
 5. `dashboard/compliance_metrics_updater.py` reads `analytics.db` and recomputes the
-   `compliance_score` based on remaining open or ticketed placeholders. Run it to
-   refresh the dashboard after each audit/enforcement.
+   `compliance_score` (0–100%) based on remaining open or ticketed placeholders. Run it
+   to refresh the dashboard after each audit/enforcement.
 
 The `DatabaseComplianceChecker` now corrects common issues automatically. Its
 `correct_file` routine removes placeholder markers (such as `TODO` or

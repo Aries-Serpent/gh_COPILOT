@@ -8,7 +8,7 @@
 ![Coverage](https://img.shields.io/badge/coverage-automated-blue)
 ![Ruff](https://img.shields.io/badge/ruff-linted-blue)
 
-**Status:** Active development with incremental improvements. Disaster recovery now enforces external backup roots with verified restore tests, and session-management lifecycle APIs (`start_session` / `end_session`) are now available. Monitoring modules expose a unified metrics API via `UnifiedMonitoringOptimizationSystem.collect_metrics` with optional quantum scoring hooks, and Git LFS rules are auto-synced from `.codex_lfs_policy.yaml` to ensure binary assets are tracked. The compliance metrics feature is fully implemented, combining lint, test, and placeholder audits into a composite score persisted to `analytics.db` and exposed through `/api/refresh_compliance` (recalculate) and `/api/compliance_scores` (fetch recent scores).
+**Status:** Active development with incremental improvements. Disaster recovery now enforces external backup roots with verified restore tests, and session-management lifecycle APIs (`start_session` / `end_session`) are now available. Monitoring modules expose a unified metrics API via `UnifiedMonitoringOptimizationSystem.collect_metrics` with optional quantum scoring hooks, and Git LFS rules are auto-synced from `.codex_lfs_policy.yaml` to ensure binary assets are tracked. The compliance metrics feature is fully implemented, combining lint, test, placeholder, and session lifecycle audits into a composite score persisted to `analytics.db` and exposed through `/api/refresh_compliance` (recalculate) and `/api/compliance_scores` (fetch recent scores). Dashboard gauges now include tooltips explaining lint, test, placeholder, and session success scores, and session wrap-ups log these metrics for every run.
 
 > Combined checks: run `python scripts/run_checks.py` to execute `ruff` and `pytest` sequentially.
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
@@ -16,7 +16,7 @@
 > Compliance: run `python secondary_copilot_validator.py --validate` after critical changes to enforce dual-copilot and EnterpriseComplianceValidator checks.
 > Quantum modules run exclusively in simulation mode; hardware flags are currently ignored. Documentation and guides now clearly mark these components as simulation-only. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Module completion status is tracked in [docs/STUB_MODULE_STATUS.md](docs/STUB_MODULE_STATUS.md). Compliance auditing is enforced via `EnterpriseComplianceValidator`, and composite scores combine lint, test, and placeholder metrics stored in `analytics_collector.db`.
 > Integration plan: [docs/quantum_integration_plan.md](docs/quantum_integration_plan.md) outlines staged hardware enablement while current builds remain simulator-only.
-> Governance: see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards.
+> Governance: see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards. New compliance routines and monitoring capabilities are detailed in [docs/white-paper.md](docs/white-paper.md).
 > Security: updated protocols and configuration files reside under `security/` including `security/enterprise_security_policy.json`, `security/access_control_matrix.json`, `security/encryption_standards.json`, and `security/security_audit_framework.json`.
 > Documentation: quantum preparation, executive guides, and certification workflows live under `docs/` — see [docs/quantum_preparation/README.md](docs/quantum_preparation/README.md), [docs/executive_guides/README.md](docs/executive_guides/README.md), and [docs/certification/README.md](docs/certification/README.md) for details and related module links.
 > White-paper summary: [documentation/generated/daily_state_update/gh_COPILOT_Project_White-Paper_Blueprint_Summary_(2025-08-06).md](documentation/generated/daily_state_update/gh_COPILOT_Project_White-Paper_Blueprint_Summary_(2025-08-06).md)
@@ -67,11 +67,13 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
 - **Codex Session Logging:** `utils.codex_log_database` stores all Codex actions
   and statements in `databases/codex_session_logs.db` for post-session review.
+- **Session Metrics Logging:** wrap-ups automatically capture lint, test, and placeholder scores for each session.
 - **Anti-Recursion Guards:** backup and session modules now enforce external backup roots.
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, `add_code_audit_history.sql`, `add_violation_logs.sql`, and `add_rollback_logs.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
 - **Real-Time Sync Engine:** `SyncManager` and `SyncWatcher` log synchronization outcomes to `analytics.db` and, when `SYNC_ENGINE_WS_URL` is set, broadcast updates over WebSocket for the dashboard.
 - **Dashboard Metrics View:** compliance, synchronization, and monitoring metrics refresh live when `WEB_DASHBOARD_ENABLED=1`.
 - **Monitoring Pipeline:** anomaly detection results stored in `analytics.db` appear on the dashboard's monitoring panels and stream through `/metrics_stream` when the dashboard is enabled.
+- **Dashboard Tooltips:** lint, test, and placeholder gauges now provide explanatory titles for quick reference.
 
 - **Quantum Placeholder Utilities:** see [quantum/README.md](quantum/README.md) for simulated optimizer and search helpers. `quantum_optimizer.run_quantum_routine` includes placeholder hooks for annealing and search routines; entanglement correction is not implemented. These stubs run on Qiskit simulators and ignore `use_hardware=True` until real hardware integration lands. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) for current status.
 - **Phase 6 Quantum Demo:** `quantum_integration_orchestrator.py` demonstrates a simulated quantum
@@ -80,14 +82,17 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 
 ### Compliance Scoring
 
-The fully implemented compliance metrics engine computes an overall code quality score by combining lint issues, test results, and placeholder resolution rates:
+The fully implemented compliance metrics engine computes an overall code quality score by combining lint issues, test results, placeholder resolution rates, and session lifecycle success:
 
 ```
 L = max(0, 100 - ruff_issues)
 T = (tests_passed / total_tests) * 100
 P = (placeholders_resolved / (placeholders_open + placeholders_resolved)) * 100
-score = 0.3 * L + 0.5 * T + 0.2 * P
+S = (sessions_successful / (sessions_successful + sessions_failed)) * 100
+score = 0.3 * L + 0.4 * T + 0.2 * P + 0.1 * S
 ```
+
+Sessions must call `start_session` and `end_session`; runs that fail to close cleanly reduce `S` and therefore the composite score.
 
 This value is persisted to `analytics.db` (table `compliance_scores`) via `scripts/compliance/update_compliance_metrics.py` which aggregates:
 
@@ -98,6 +103,11 @@ This value is persisted to `analytics.db` (table `compliance_scores`) via `scrip
 Endpoints:
 * `POST /api/refresh_compliance` – compute & persist a new composite score
 * `GET /api/compliance_scores` – last 50 scores for trend visualization
+* `GET /api/compliance_scores.csv` – same data in CSV for offline analysis
+
+The Flask dashboard streams these metrics in real time with Chart.js
+gauges and line charts, exposing red/yellow/green indicators based on
+composite score thresholds.
 
 Anti-recursion guards (`validate_enterprise_operation`, `anti_recursion_guard`) execute alongside scoring; violating runs are excluded.
 
@@ -1271,7 +1281,7 @@ The audit results are used by the `/dashboard/compliance` endpoint to
 report ongoing placeholder removal progress and overall compliance
 metrics. A machine-readable summary is also written to
 `dashboard/compliance/placeholder_summary.json`. This file tracks total
-findings, resolved counts, and the current compliance score. Refer to
+findings, resolved counts, and the current compliance score (0–100%). Refer to
 the JSON schema in [dashboard/README.md](dashboard/README.md#placeholder_summaryjson-schema).
 ```
 

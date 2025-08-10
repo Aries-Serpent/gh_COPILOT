@@ -21,6 +21,9 @@ dashboard.
   `databases/analytics.db` under the `compliance_scores` table.
 - The updater exposes a list of correction logs, the latest composite score and
   a trend of recent scores alongside placeholder and violation statistics.
+- `scripts/code_placeholder_audit.py` writes findings to
+  `analytics.db.todo_fixme_tracking` and triggers the metrics updater so that
+  placeholder counts immediately influence the composite score and trend data.
 
 ## Dashboard Display
 
@@ -28,7 +31,9 @@ dashboard.
   and renders each correction log with its individual score and rationale.
 - `dashboard/enterprise_dashboard.py` provides a `/compliance-metrics` route
   returning the most recent composite score, its component breakdown, and a
-  history of prior scores for trend visualizations.
+  history of prior scores for trend visualizations. Placeholder resolution
+  trends sourced from the audit snapshots are displayed alongside these
+  metrics to highlight ongoing remediation progress.
 
 Running `compliance_metrics_updater.py` after executing the correction logger
 keeps the dashboard synchronized with the latest corrections and compliance

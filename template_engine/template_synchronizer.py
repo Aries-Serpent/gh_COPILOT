@@ -162,9 +162,9 @@ def _cluster_templates(templates: dict[str, str], n_clusters: int = 2) -> dict[s
                 f"sync_clusters={n_clusters},inertia={inertia:.2f},silhouette={silhouette:.4f}",
             )
         return reps
-    except Exception:
+    except Exception as exc:
         # If clustering fails, fallback to original templates
-        logger.exception("Clustering failed; using all templates")
+        logger.exception("Clustering failed; using all templates: %s", exc)
         return templates
 
 

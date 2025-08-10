@@ -99,7 +99,7 @@ class TestIngest:
                 "FROM compliance_metrics_history WHERE id=?",
                 (row_id,),
             ).fetchone()
-        assert row == (2, 20, 25, None, None)
+        assert row == (2, 20, 25, 0, 0)
 
     def test_ingest_handles_missing_files(self, temp_workspace):
         row_id = ingest(str(temp_workspace))

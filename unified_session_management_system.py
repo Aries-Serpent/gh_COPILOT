@@ -9,7 +9,14 @@ from typing import Callable
 from functools import wraps
 import logging
 import sqlite3
+import gc
+import io
 from datetime import UTC, datetime
+
+try:  # pragma: no cover - optional dependency
+    import psutil
+except Exception:  # pragma: no cover - best effort
+    psutil = None  # type: ignore[assignment]
 
 from utils.validation_utils import detect_zero_byte_files
 from scripts.session.anti_recursion_enforcer import anti_recursion_guard
@@ -50,6 +57,86 @@ def _record_zero_byte_findings(paths: list[Path], phase: str, session_id: str) -
             "INSERT INTO zero_byte_files (path, phase, session_id, ts) VALUES (?, ?, ?, ?)",
             [(str(p), phase, session_id, timestamp) for p in paths] or [],
         )
+
+
+def _record_wrap_up_metrics(
+    session_id: str,
+    open_handles: int,
+    zero_byte_count: int,
+    duration: float,
+    status: str,
+) -> None:
+    """Store wrap-up metrics in ``analytics.db``.
+
+    Parameters
+    ----------
+    session_id:
+        Identifier for the session being finalized.
+    open_handles:
+        Number of file descriptors currently open.
+    zero_byte_count:
+        Count of zero-byte files present at wrap-up.
+    duration:
+        Session duration in seconds.
+    status:
+        Final outcome status for the session.
+    """
+
+    ts = datetime.utcnow().isoformat()
+    with sqlite3.connect(ANALYTICS_DB) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS wrap_up_metrics (
+                session_id TEXT NOT NULL,
+                open_handles INTEGER NOT NULL,
+                zero_byte_files INTEGER NOT NULL,
+                duration_seconds REAL NOT NULL,
+                status TEXT NOT NULL,
+                ts TEXT NOT NULL
+            )
+            """
+        )
+        conn.execute(
+            """
+            INSERT INTO wrap_up_metrics (
+                session_id, open_handles, zero_byte_files,
+                duration_seconds, status, ts
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                session_id,
+                int(open_handles),
+                int(zero_byte_count),
+                float(duration),
+                status,
+                ts,
+            ),
+        )
+
+
+def _detect_open_files() -> list[str]:
+    """Return a list of non-stdio file handles still open."""
+    paths: list[str] = []
+    for obj in gc.get_objects():
+        if isinstance(obj, io.IOBase) and not obj.closed:
+            name = getattr(obj, "name", "")
+            if name not in {"<stdin>", "<stdout>", "<stderr>"}:
+                paths.append(str(name))
+    return paths
+
+
+def _detect_open_transactions() -> int:
+    """Return the number of SQLite connections with uncommitted work."""
+    count = 0
+    for obj in gc.get_objects():
+        if isinstance(obj, sqlite3.Connection):
+            try:
+                if obj.in_transaction:
+                    count += 1
+            except Exception:
+                continue
+    return count
 
 
 @contextmanager
@@ -94,8 +181,9 @@ def prevent_recursion(func: Callable) -> Callable:
         try:
             return guarded(*args, **kwargs)
         except RuntimeError as exc:
+            logger.error("Recursion detected in %s: %s", func.__name__, exc)
             record_codex_action(session_id, "anti_recursion_triggered", str(exc))
-            raise
+            raise RuntimeError(f"Recursion detected in {func.__name__}") from exc
 
     return wrapper
 
@@ -105,11 +193,15 @@ def finalize_session(
     log_dir: str | Path,
     root: str | Path | None = None,
     session_id: str = "unknown",
+    start_time: datetime | None = None,
+    status: str = "success",
 ) -> str:
     """Verify logs are complete and record a session integrity hash.
 
     A zero-byte file scan is executed before and after processing. Results are
     persisted to ``analytics.db`` using ``session_id`` for traceability.
+    During finalization, session duration and outcome metrics are also stored
+    for dashboard consumption.
 
     Parameters
     ----------
@@ -156,6 +248,58 @@ def finalize_session(
                 (hash_value, datetime.utcnow().isoformat()),
             )
 
+    zero_byte_count = len(detect_zero_byte_files(root_path))
+    open_handles = len(psutil.Process().open_files()) if psutil else 0
+    end_ts = datetime.now(UTC)
+    start_ts = int((start_time or end_ts).timestamp())
+    duration = (end_ts - (start_time or end_ts)).total_seconds()
+    _record_wrap_up_metrics(
+        session_id, open_handles, zero_byte_count, duration, status
+    )
+
+    with sqlite3.connect(ANALYTICS_DB) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS session_lifecycle (
+                session_id TEXT PRIMARY KEY,
+                start_ts INTEGER NOT NULL,
+                end_ts INTEGER,
+                duration_seconds REAL,
+                zero_byte_violations INTEGER DEFAULT 0,
+                recursion_flags INTEGER DEFAULT 0,
+                status TEXT DEFAULT 'running'
+            )
+            """
+        )
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO session_lifecycle (
+                session_id, start_ts, end_ts, duration_seconds,
+                zero_byte_violations, status
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                session_id,
+                start_ts,
+                int(end_ts.timestamp()),
+                float(duration),
+                int(zero_byte_count),
+                status,
+            ),
+        )
+    lingering_files = _detect_open_files()
+    pending_tx = _detect_open_transactions()
+    if lingering_files or pending_tx:
+        if lingering_files:
+            record_codex_action(
+                session_id, "open_handles_detected", str(lingering_files)
+            )
+        if pending_tx:
+            record_codex_action(
+                session_id, "transactions_open", str(pending_tx)
+            )
+        raise RuntimeError("Resource cleanup validation failed")
+
     return hash_value
 
 @anti_recursion_guard
@@ -177,6 +321,7 @@ def main() -> int:
     success = False
     with ensure_no_zero_byte_files(system.workspace_root, system.session_id):
         log_action(system.session_id, "start_session_begin", "Starting session")
+        start_time = datetime.now(UTC)
         success = system.start_session()
         log_action(system.session_id, "start_session_complete", "Session started")
         log_action(system.session_id, "end_session_begin", "Ending session")
@@ -187,6 +332,8 @@ def main() -> int:
             Path(system.workspace_root) / "logs",
             system.workspace_root,
             system.session_id,
+            start_time=start_time,
+            status="success" if success else "failed",
         )
         log_action(
             system.session_id,

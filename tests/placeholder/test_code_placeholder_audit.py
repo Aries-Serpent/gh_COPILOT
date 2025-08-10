@@ -167,12 +167,12 @@ def test_apply_suggestions_updates_file_and_db(tmp_path, monkeypatch):
     assert "FIXME" not in src.read_text()
     with sqlite3.connect(analytics_db) as conn:
         unresolved = conn.execute(
-            "SELECT COUNT(*) FROM unresolved_placeholders"
+            "SELECT COUNT(*) FROM placeholder_tasks"
         ).fetchone()[0]
     assert unresolved == 0
 
 
-def test_unresolved_placeholders_logged(tmp_path, monkeypatch):
+def test_placeholder_tasks_logged(tmp_path, monkeypatch):
     workspace = tmp_path / "ws"
     workspace.mkdir()
     src = workspace / "sample.py"
@@ -200,6 +200,6 @@ def test_unresolved_placeholders_logged(tmp_path, monkeypatch):
     )
     with sqlite3.connect(analytics_db) as conn:
         row = conn.execute(
-            "SELECT file, line FROM unresolved_placeholders"
+            "SELECT file_path, line_number FROM placeholder_tasks"
         ).fetchone()
     assert row == (str(src), 1)

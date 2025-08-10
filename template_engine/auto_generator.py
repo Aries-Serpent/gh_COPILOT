@@ -47,7 +47,10 @@ except ImportError:  # pragma: no cover - optional dependency
 
     try:
         _qal = import_module("quantum_algorithm_library_expansion")
-    except Exception:
+    except ImportError as exc:
+        logging.getLogger(__name__).debug(
+            "Quantum library import failed: %s", exc
+        )
         _qal = None
 
     if _qal is not None:
