@@ -1342,6 +1342,16 @@ def main(
             __name__,
             f"{TEXT['info']} logged {inserted} findings to {analytics}",
         )
+        try:
+            metrics = collect_metrics(db_path=Path(":memory:"))
+            metrics["placeholder_findings"] = float(inserted)
+            push_metrics(metrics, db_path=analytics)
+        except Exception as exc:
+            log_message(
+                __name__,
+                f"{TEXT['error']} metrics collection failed: {exc}",
+                level=logging.ERROR,
+            )
     if export:
         export.write_text(json.dumps(results, indent=2), encoding="utf-8")
     tasks = generate_removal_tasks(results, production, analytics)

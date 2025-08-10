@@ -94,3 +94,43 @@ def test_metrics_logged_and_dashboard_updated(tmp_path, monkeypatch):
         data = json.loads(metrics_row[0])
         assert data["placeholder_open"] >= 1
         assert data["placeholder_resolved"] == 0
+
+
+def test_collect_metrics_called_for_findings(tmp_path, monkeypatch):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    (workspace / "b.py").write_text("# TODO\n")
+
+    analytics = tmp_path / "analytics.db"
+    dash_dir = tmp_path / "dashboard"
+
+    calls: list[dict] = []
+
+    def _tracking_collect_metrics(**kwargs):
+        calls.append(kwargs)
+        return {"cpu_percent": 0.0}
+
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    monkeypatch.setattr(secondary_copilot_validator, "run_flake8", lambda *a, **k: True)
+    monkeypatch.setattr(
+        secondary_copilot_validator,
+        "SecondaryCopilotValidator",
+        lambda: SimpleNamespace(validate_corrections=lambda *a, **k: True),
+    )
+    monkeypatch.setattr(
+        "scripts.code_placeholder_audit.ComplianceMetricsUpdater",
+        lambda *a, **k: SimpleNamespace(
+            update=lambda *a, **k: None, validate_update=lambda *a, **k: True
+        ),
+    )
+    monkeypatch.setattr("scripts.code_placeholder_audit.collect_metrics", _tracking_collect_metrics)
+    monkeypatch.setattr("scripts.code_placeholder_audit.push_metrics", _fake_push_metrics)
+
+    assert main(
+        workspace_path=str(workspace),
+        analytics_db=str(analytics),
+        production_db=None,
+        dashboard_dir=str(dash_dir / "compliance"),
+    )
+
+    assert len(calls) == 2
