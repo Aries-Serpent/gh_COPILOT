@@ -1,31 +1,85 @@
+"""Tests for docs_status_reconciler."""
+from __future__ import annotations
+
+import json
 from pathlib import Path
 
 import pytest
 
-from scripts.docs_status_reconciler import generate_status_index
+from scripts import reconcile_task_status as reconciler
 
 
-def test_generate_status_index(tmp_path: Path, monkeypatch):
-    stubs = tmp_path / "task_stubs.md"
-    stubs.write_text("| Task |\n| --- |\n| Alpha |\n| Beta |\n")
-    started = tmp_path / "PHASE5_TASKS_STARTED.md"
-    started.write_text("- Alpha\n")
-
-    monkeypatch.setattr("scripts.docs_status_reconciler.TASK_STUBS_PATH", stubs)
-    monkeypatch.setattr("scripts.docs_status_reconciler.TASKS_STARTED_PATH", started)
-
-    index = generate_status_index()
-    assert index == {"Alpha": True, "Beta": False}
+def _write(path: Path, content: str) -> Path:
+    path.write_text(content, encoding="utf-8")
+    return path
 
 
-def test_unknown_task_raises(tmp_path: Path, monkeypatch):
-    stubs = tmp_path / "task_stubs.md"
-    stubs.write_text("| Task |\n| --- |\n| Alpha |\n")
-    started = tmp_path / "PHASE5_TASKS_STARTED.md"
-    started.write_text("- Beta\n")
+def test_reconcile_success(tmp_path: Path) -> None:
+    phase5 = _write(
+        tmp_path / "PHASE5_TASKS_STARTED.md",
+        """
+## 1. TaskA
+- [x] **Progress:** 100%
+""".strip(),
+    )
+    stubs = _write(
+        tmp_path / "task_stubs.md",
+        """
+| Task | Design | Development | Testing | Documentation | Planning | Progress |
+| --- | --- | --- | --- | --- | --- | --- |
+| TaskA | d | d | t | doc | plan | 100% |
+""".strip(),
+    )
+    schema = _write(
+        tmp_path / "schema.json",
+        json.dumps({
+            "type": "object",
+            "additionalProperties": {"type": "integer", "minimum": 0, "maximum": 100}
+        }),
+    )
+    index = tmp_path / "status_index.json"
 
-    monkeypatch.setattr("scripts.docs_status_reconciler.TASK_STUBS_PATH", stubs)
-    monkeypatch.setattr("scripts.docs_status_reconciler.TASKS_STARTED_PATH", started)
+    drift = reconciler.reconcile(
+        phase5_path=phase5,
+        stubs_path=stubs,
+        schema_path=schema,
+        index_path=index,
+        check=False,
+    )
+    assert drift == {}
+    assert json.loads(index.read_text(encoding="utf-8")) == {"TaskA": 100}
 
-    with pytest.raises(ValueError):
-        generate_status_index()
+
+def test_reconcile_drift(tmp_path: Path) -> None:
+    phase5 = _write(
+        tmp_path / "PHASE5_TASKS_STARTED.md",
+        """
+## 1. TaskA
+- [ ] **Progress:** 50%
+""".strip(),
+    )
+    stubs = _write(
+        tmp_path / "task_stubs.md",
+        """
+| Task | Design | Development | Testing | Documentation | Planning | Progress |
+| --- | --- | --- | --- | --- | --- | --- |
+| TaskA | d | d | t | doc | plan | 40% |
+""".strip(),
+    )
+    schema = _write(
+        tmp_path / "schema.json",
+        json.dumps({
+            "type": "object",
+            "additionalProperties": {"type": "integer", "minimum": 0, "maximum": 100}
+        }),
+    )
+    index = tmp_path / "status_index.json"
+
+    with pytest.raises(SystemExit):
+        reconciler.reconcile(
+            phase5_path=phase5,
+            stubs_path=stubs,
+            schema_path=schema,
+            index_path=index,
+            check=True,
+        )
