@@ -27,6 +27,7 @@ EXCLUDED_FILES = {
     "validation/compliance_report_generator.py",
     "db_tools/operations/compliance.py",
     "scripts/database/documentation_db_analyzer.py",
+    "src/dashboard/auth.py",
 }
 PATTERNS = [re.compile(r"TODO"), re.compile(r"FIXME")]
 

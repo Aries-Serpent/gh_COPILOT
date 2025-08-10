@@ -753,15 +753,30 @@ def update_dashboard(
     placeholder_counts: Dict[str, int] = {}
     auto_removal_count = 0
     if analytics_db.exists():
+        open_count = 0
+        resolved = 0
         with sqlite3.connect(analytics_db) as conn:
-            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'")
-            open_count = cur.fetchone()[0]
-            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'")
-            resolved = cur.fetchone()[0]
-            cur = conn.execute(
-                "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' GROUP BY placeholder_type"
-            )
-            placeholder_counts = {row[0]: row[1] for row in cur.fetchall()}
+            # Gather open/resolved counts from both tracking tables
+            for table, col in (
+                ("todo_fixme_tracking", "placeholder_type"),
+                ("placeholder_tasks", "pattern"),
+            ):
+                try:
+                    cur = conn.execute(
+                        f"SELECT status, COUNT(*) FROM {table} GROUP BY status"
+                    )
+                    for status, cnt in cur.fetchall():
+                        if status == "open":
+                            open_count += cnt
+                        elif status == "resolved":
+                            resolved += cnt
+                    cur = conn.execute(
+                        f"SELECT {col}, COUNT(*) FROM {table} WHERE status='open' GROUP BY {col}"
+                    )
+                    for ptype, cnt in cur.fetchall():
+                        placeholder_counts[ptype] = placeholder_counts.get(ptype, 0) + cnt
+                except sqlite3.Error:
+                    continue
             try:
                 cur = conn.execute(
                     "SELECT COUNT(*) FROM corrections WHERE rationale='Auto placeholder cleanup'"
@@ -1278,7 +1293,7 @@ def main(
             bar.update(1)
 
     # Log findings to analytics.db
-    inserted = log_findings(
+    findings_inserted = log_findings(
         results,
         analytics,
         simulate=simulate,
@@ -1288,11 +1303,11 @@ def main(
     if not simulate:
         log_message(
             __name__,
-            f"{TEXT['info']} logged {inserted} findings to {analytics}",
+            f"{TEXT['info']} logged {findings_inserted} findings to {analytics}",
         )
         try:
             metrics = collect_metrics(db_path=Path(":memory:"))
-            metrics["placeholder_findings"] = float(inserted)
+            metrics["placeholder_findings"] = float(findings_inserted)
             push_metrics(metrics, db_path=analytics)
         except Exception as exc:
             log_message(
@@ -1306,7 +1321,11 @@ def main(
     if apply_suggestions and not simulate:
         tasks = apply_suggestions_to_files(tasks, analytics)
     if not simulate:
-        inserted = log_placeholder_tasks(tasks, analytics)
+        tasks_inserted = log_placeholder_tasks(tasks, analytics)
+        log_message(
+            __name__,
+            f"{TEXT['info']} logged {tasks_inserted} tasks to {analytics}",
+        )
     for task in tasks:
         log_message(__name__, f"[TASK] {task['task']}")
     if task_report:
@@ -1341,7 +1360,7 @@ def main(
     else:
         log_message(__name__, "[TEST MODE] Dashboard update skipped")
     # Combine with Compliance Metrics Updater for real-time metrics
-    if (not simulate) and ComplianceMetricsUpdater and inserted:
+    if (not simulate) and ComplianceMetricsUpdater and findings_inserted:
         try:
             updater = ComplianceMetricsUpdater(dashboard, test_mode=simulate)
             updater.update(simulate=simulate)

@@ -134,3 +134,49 @@ def test_collect_metrics_called_for_findings(tmp_path, monkeypatch):
     )
 
     assert len(calls) == 2
+
+
+def test_metrics_updater_runs_without_task_insertion(tmp_path, monkeypatch):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    (workspace / "c.py").write_text("# TODO\n")
+
+    analytics = tmp_path / "analytics.db"
+    dash_dir = tmp_path / "dashboard"
+
+    updates: list[str] = []
+
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    monkeypatch.setattr(secondary_copilot_validator, "run_flake8", lambda *a, **k: True)
+    monkeypatch.setattr(
+        secondary_copilot_validator,
+        "SecondaryCopilotValidator",
+        lambda: SimpleNamespace(validate_corrections=lambda *a, **k: True),
+    )
+
+    monkeypatch.setattr(
+        "scripts.code_placeholder_audit.log_placeholder_tasks", lambda *a, **k: 0
+    )
+
+    class DummyUpdater:
+        def __init__(self, *a, **k):
+            pass
+
+        def update(self, *a, **k):
+            updates.append("called")
+
+        def validate_update(self):
+            pass
+
+    monkeypatch.setattr(
+        "scripts.code_placeholder_audit.ComplianceMetricsUpdater", DummyUpdater
+    )
+
+    main(
+        workspace_path=str(workspace),
+        analytics_db=str(analytics),
+        production_db=None,
+        dashboard_dir=str(dash_dir / "compliance"),
+    )
+
+    assert updates == ["called"]
