@@ -710,34 +710,6 @@ def log_findings(
     return inserted
 
 
-def record_unresolved_placeholders(
-    tasks: List[Dict[str, str]], analytics_db: Path, simulate: bool = False
-) -> int:
-    """Store unresolved placeholder locations in analytics.db."""
-
-    if simulate:
-        return 0
-    analytics_db.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(analytics_db) as conn:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS unresolved_placeholders (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                file TEXT NOT NULL,
-                line INTEGER NOT NULL,
-                suggestion TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-            """
-        )
-        cur = conn.cursor()
-        for task in tasks:
-            cur.execute(
-                "INSERT INTO unresolved_placeholders (file, line, suggestion) VALUES (?, ?, ?)",
-                (task["file"], int(task["line"]), task["suggestion"]),
-            )
-        conn.commit()
-        return len(tasks)
 
 
 def apply_suggestions_to_files(
@@ -1359,7 +1331,6 @@ def main(
         tasks = apply_suggestions_to_files(tasks, analytics)
     if not simulate:
         inserted = log_placeholder_tasks(tasks, analytics)
-        record_unresolved_placeholders(tasks, analytics)
     for task in tasks:
         log_message(__name__, f"[TASK] {task['task']}")
     if task_report:

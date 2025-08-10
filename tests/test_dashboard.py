@@ -119,13 +119,13 @@ def test_placeholder_details_endpoint(tmp_path, monkeypatch):
             "CREATE TABLE placeholder_audit_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, open_count INTEGER, resolved_count INTEGER)"
         )
         conn.execute(
-            "CREATE TABLE unresolved_placeholders (file TEXT, line INTEGER)"
+            "CREATE TABLE placeholder_tasks (file_path TEXT, line_number INTEGER, status TEXT)"
         )
         conn.execute(
             "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (1,2,3)"
         )
         conn.execute(
-            "INSERT INTO unresolved_placeholders(file, line) VALUES ('file.py', 10)"
+            "INSERT INTO placeholder_tasks VALUES ('file.py', 10, 'open')"
         )
     monkeypatch.setattr(ed, "ANALYTICS_DB", db)
     client = ed.app.test_client()
