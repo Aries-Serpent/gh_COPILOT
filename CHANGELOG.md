@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.1
+
+- T027: Document finalized composite score with session lifecycle and add ML monitoring and placeholder audit governance notes.
+
 ## v1.1.0
 
 - T025: Document automated compliance routines and monitoring capabilities.

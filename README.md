@@ -8,7 +8,7 @@
 ![Coverage](https://img.shields.io/badge/coverage-automated-blue)
 ![Ruff](https://img.shields.io/badge/ruff-linted-blue)
 
-**Status:** Active development with incremental improvements. Disaster recovery now enforces external backup roots with verified restore tests, and session-management lifecycle APIs (`start_session` / `end_session`) are now available. Monitoring modules expose a unified metrics API via `UnifiedMonitoringOptimizationSystem.collect_metrics` with optional quantum scoring hooks, and Git LFS rules are auto-synced from `.codex_lfs_policy.yaml` to ensure binary assets are tracked. The compliance metrics feature is fully implemented, combining lint, test, and placeholder audits into a composite score persisted to `analytics.db` and exposed through `/api/refresh_compliance` (recalculate) and `/api/compliance_scores` (fetch recent scores). Dashboard gauges now include tooltips explaining lint, test, and placeholder scores, and session wrap-ups log these metrics for every run.
+**Status:** Active development with incremental improvements. Disaster recovery now enforces external backup roots with verified restore tests, and session-management lifecycle APIs (`start_session` / `end_session`) are now available. Monitoring modules expose a unified metrics API via `UnifiedMonitoringOptimizationSystem.collect_metrics` with optional quantum scoring hooks, and Git LFS rules are auto-synced from `.codex_lfs_policy.yaml` to ensure binary assets are tracked. The compliance metrics feature is fully implemented, combining lint, test, placeholder, and session lifecycle audits into a composite score persisted to `analytics.db` and exposed through `/api/refresh_compliance` (recalculate) and `/api/compliance_scores` (fetch recent scores). Dashboard gauges now include tooltips explaining lint, test, placeholder, and session success scores, and session wrap-ups log these metrics for every run.
 
 > Combined checks: run `python scripts/run_checks.py` to execute `ruff` and `pytest` sequentially.
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
@@ -82,14 +82,17 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 
 ### Compliance Scoring
 
-The fully implemented compliance metrics engine computes an overall code quality score by combining lint issues, test results, and placeholder resolution rates:
+The fully implemented compliance metrics engine computes an overall code quality score by combining lint issues, test results, placeholder resolution rates, and session lifecycle success:
 
 ```
 L = max(0, 100 - ruff_issues)
 T = (tests_passed / total_tests) * 100
 P = (placeholders_resolved / (placeholders_open + placeholders_resolved)) * 100
-score = 0.3 * L + 0.5 * T + 0.2 * P
+S = (sessions_successful / (sessions_successful + sessions_failed)) * 100
+score = 0.3 * L + 0.4 * T + 0.2 * P + 0.1 * S
 ```
+
+Sessions must call `start_session` and `end_session`; runs that fail to close cleanly reduce `S` and therefore the composite score.
 
 This value is persisted to `analytics.db` (table `compliance_scores`) via `scripts/compliance/update_compliance_metrics.py` which aggregates:
 
