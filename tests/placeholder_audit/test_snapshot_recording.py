@@ -47,10 +47,28 @@ def test_single_snapshot_per_run(tmp_path, monkeypatch):
         "scripts.code_placeholder_audit.ComplianceMetricsUpdater",
         lambda *a, **k: SimpleNamespace(update=lambda *a, **k: None, validate_update=lambda *a, **k: True),
     )
+
+    calls = {"count": 0}
+    original = audit._record_placeholder_snapshot
+
+    def counting_record(conn, open_count, resolved_count, *, auto_removal_count=0):
+        calls["count"] += 1
+        return original(
+            conn,
+            open_count,
+            resolved_count,
+            auto_removal_count=auto_removal_count,
+        )
+
+    monkeypatch.setattr(audit, "_record_placeholder_snapshot", counting_record)
     audit._snapshot_recorded = False
 
-    assert audit.main(workspace_path=str(workspace), analytics_db=str(analytics), production_db=None)
+    assert audit.main(
+        workspace_path=str(workspace), analytics_db=str(analytics), production_db=None
+    )
 
     with sqlite3.connect(analytics) as conn:
         cur = conn.execute("SELECT COUNT(*) FROM placeholder_audit_snapshots")
         assert cur.fetchone()[0] == 1
+
+    assert calls["count"] == 1
