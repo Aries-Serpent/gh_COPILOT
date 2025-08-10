@@ -1,0 +1,76 @@
+name: Dashboard Compliance UI
+
+on:
+  pull_request:
+    paths:
+      - 'web_gui/**'
+      - 'templates/**'
+      - 'static/**'
+      - '.github/workflows/dashboard-compliance.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'web_gui/**'
+      - 'templates/**'
+      - 'static/**'
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-smoke:
+    name: Build & UI Smoke
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements-web.txt', 'requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install web deps
+        run: |
+          if [ -f requirements-web.txt ]; then pip install -r requirements-web.txt; fi
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Lint (ruff) — non-blocking
+        run: |
+          if command -v ruff >/dev/null 2>&1; then ruff check . || true; fi
+
+      - name: Export version stamp
+        run: echo "DASHBOARD_VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Smoke test endpoints (Python inline)
+        run: |
+          python - <<'PY'
+          import os, sys, json
+          from importlib import import_module
+          # Basic import check for Flask dashboard module; adjust if app factory exists
+          try:
+              import_module('web_gui.scripts.flask_apps.enterprise_dashboard')
+              print(json.dumps({"status":"import_ok"}))
+          except Exception as e:
+              print(json.dumps({"status":"import_failed","error":str(e)}))
+              sys.exit(1)
+          PY
+
+      - name: Archive static artifacts (if present)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-static-preview
+          path: |
+            static/**
+            templates/**
+          if-no-files-found: ignore
+
