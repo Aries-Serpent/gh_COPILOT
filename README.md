@@ -989,6 +989,8 @@ Synchronization outcomes are logged to `databases/analytics.db`, allowing the da
 
 The compliance score is averaged from records in the `correction_logs` table.
 Correction history is summarized via `scripts/correction_logger_and_rollback.py`.
+Use `scripts/correction_logger_and_rollback.py --rollback-last` to undo the most
+recent correction when necessary.
 The `summarize_corrections()` routine now keeps only the most recent entries
 (configurable via the `max_entries` argument). Existing summary files are moved
 to `dashboard/compliance/archive/` before new summaries are written. The main
@@ -1014,6 +1016,7 @@ Set `GH_COPILOT_WORKSPACE` before running these utilities:
 export GH_COPILOT_WORKSPACE=$(pwd)
 python dashboard/compliance_metrics_updater.py
 python scripts/correction_logger_and_rollback.py
+python scripts/correction_logger_and_rollback.py --rollback-last  # undo last correction
 ```
 
 ---
