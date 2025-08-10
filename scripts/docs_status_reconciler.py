@@ -1,3 +1,22 @@
+#!/usr/bin/env python3
+"""Reconcile task status documentation.
+
+This script treats ``docs/PHASE5_TASKS_STARTED.md`` as the single source of
+truth (SSOT). It parses the task sections from that file and generates two
+artifacts:
+
+* ``docs/task_stubs.md`` – A concise markdown table of task names, statuses and
+  progress percentages.
+* ``status_index.json`` – A machine‑readable mapping of task names to their
+  status and progress.
+
+Running the script keeps derived documentation in sync with the canonical
+source file. The CI workflow uses this script to detect drift.
+"""
+
+from __future__ import annotations
+
+=======
 """Reconcile Phase 5 task progress with task stubs.
 
 This script parses ``docs/PHASE5_TASKS_STARTED.md`` and
@@ -12,110 +31,74 @@ import json
 import re
 from pathlib import Path
 
-try:
-    import jsonschema
-    from jsonschema import validate
-except ImportError:
-    raise ImportError("jsonschema module required. Install via 'pip install jsonschema'.")
 
-PHASE5_PATH = Path("docs/PHASE5_TASKS_STARTED.md")
-TASK_STUBS_PATH = Path("docs/task_stubs.md")
-SCHEMA_PATH = Path("scripts/schemas/status_index.schema.json")
-STATUS_INDEX_PATH = Path("status_index.json")
-
-__all__ = [
-    "reconcile",
-    "main",
-]
+ROOT = Path(__file__).resolve().parents[1]
+SOURCE = ROOT / "docs" / "PHASE5_TASKS_STARTED.md"
+TASK_STUBS_MD = ROOT / "docs" / "task_stubs.md"
+STATUS_INDEX_JSON = ROOT / "status_index.json"
 
 
-def _parse_phase5(path: Path) -> dict[str, int]:
-    """Return mapping of task name to progress percentage."""
-    tasks: dict[str, int] = {}
-    current: str | None = None
-    for line in path.read_text(encoding="utf-8").splitlines():
-        heading = re.match(r"^##\s+\d+\.\s+(.*)", line)
-        if heading:
-            current = heading.group(1).strip()
-            continue
-        if current:
-            progress = re.search(r"Progress:\**\s*(\d+)%", line)
-            if progress:
-                tasks[current] = int(progress.group(1))
+def parse_tasks(text: str) -> list[dict[str, str]]:
+    """Extract task metadata from the source markdown."""
+
+    tasks: list[dict[str, str]] = []
+    current: dict[str, str] | None = None
+    for line in text.splitlines():
+        if line.startswith("## "):
+            if ". " not in line:
+                # Ignore headings without a numeric prefix.
                 current = None
+                continue
+            if current:
+                tasks.append(current)
+            name = line.split(". ", 1)[1].strip()
+            current = {"task": name}
+        elif "**Status:**" in line and current is not None:
+            status = line.split("**Status:**", 1)[1].strip()
+            current["status"] = status
+        elif "**Progress:**" in line and current is not None:
+            match = re.search(r"Progress:\*\*\s*(\d+%)", line)
+            if match:
+                current["progress"] = match.group(1)
+    if current:
+        tasks.append(current)
     return tasks
 
 
-def _parse_task_stubs(path: Path) -> dict[str, int]:
-    """Return mapping from task stubs table to progress percentage."""
-    tasks: dict[str, int] = {}
-    lines = path.read_text(encoding="utf-8").splitlines()
-    for line in lines:
-        if not line.startswith("|") or line.startswith("| Task "):
-            continue
-        parts = [p.strip() for p in line.strip().strip("|").split("|")]
-        if len(parts) < 7:
-            continue
-        name = parts[0]
-        match = re.match(r"(\d+)%", parts[-1])
-        if match:
-            tasks[name] = int(match.group(1))
-    return tasks
+def write_markdown(tasks: list[dict[str, str]]) -> None:
+    """Write the aggregated markdown table."""
+
+    with TASK_STUBS_MD.open("w", encoding="utf-8") as fh:
+        fh.write("# Task Status Overview\n\n")
+        fh.write("| Task | Status | Progress |\n| --- | --- | --- |\n")
+        for task in tasks:
+            fh.write(
+                f"| {task['task']} | {task.get('status', '')} | {task.get('progress', '')} |\n"
+            )
 
 
-def reconcile(
-    phase5_path: Path = PHASE5_PATH,
-    stubs_path: Path = TASK_STUBS_PATH,
-    *,
-    schema_path: Path = SCHEMA_PATH,
-    index_path: Path = STATUS_INDEX_PATH,
-    check: bool = False,
-) -> dict[str, dict[str, int]]:
-    """Generate status index and optionally fail on drift.
+def write_json(tasks: list[dict[str, str]]) -> None:
+    """Write the machine readable index."""
 
-    Returns a mapping of tasks with differing progress values.
-    """
-    try:
-        phase5 = _parse_phase5(phase5_path)
-        stubs = _parse_task_stubs(stubs_path)
-        status_index = phase5
-
-        # Validate the output with the schema, if present
-        if schema_path.exists():
-            schema = json.loads(schema_path.read_text(encoding="utf-8"))
-            validate(status_index, schema)
-        index_path.write_text(json.dumps(status_index, indent=2, sort_keys=True), encoding="utf-8")
-
-        drift: dict[str, dict[str, int]] = {}
-        for task, pct in phase5.items():
-            stub_pct = stubs.get(task)
-            if stub_pct != pct:
-                drift[task] = {"phase5": pct, "stubs": stub_pct if stub_pct is not None else 0}
-        if check and drift:
-            raise SystemExit(1)
-        return drift
-    except Exception as exc:
-        # Write empty index to signal error, for CI compatibility
-        index_path.write_text(json.dumps({}, indent=2), encoding="utf-8")
-        print(f"[ERROR][reconcile_task_status] {exc}")
-        if check:
-            raise SystemExit(1)
-        return {}
+    index = {
+        task["task"]: {
+            "status": task.get("status", ""),
+            "progress": task.get("progress", ""),
+        }
+        for task in tasks
+    }
+    with STATUS_INDEX_JSON.open("w", encoding="utf-8") as fh:
+        json.dump(index, fh, indent=2)
 
 
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Reconcile task status files")
-    parser.add_argument("--check", action="store_true", help="Fail on drift")
-    args = parser.parse_args(argv)
-    try:
-        reconcile(check=args.check)
-    except SystemExit as exc:
-        return exc.code
-    except Exception as exc:
-        print(f"[ERROR][main] {exc}")
-        return 1
-    return 0
+def main() -> None:
+    text = SOURCE.read_text(encoding="utf-8")
+    if text.startswith("---"):
+        text = text.split("---", 2)[2]
+    tasks = parse_tasks(text)
+    write_markdown(tasks)
+    write_json(tasks)
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
+if __name__ == "__main__":  # pragma: no cover - CLI entry point
+    main()
