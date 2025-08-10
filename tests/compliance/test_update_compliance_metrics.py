@@ -255,8 +255,8 @@ class TestScoreComputation:
         
         assert L == 90.0   # 100-10
         assert T == 90.0   # 18/20 * 100
-        assert P == 0.0  # No placeholders => placeholder score 0
-        assert composite == pytest.approx(72.0)  # 0.3*90 + 0.5*90 + 0.2*0
+        assert P == 100.0  # No placeholders => placeholder score 100
+        assert composite == pytest.approx(92.0)  # 0.3*90 + 0.5*90 + 0.2*100
 
 
 class TestUpdateComplianceMetrics:
@@ -332,7 +332,7 @@ class TestUpdateComplianceMetrics:
             
             with patch.dict(os.environ, {"GH_COPILOT_WORKSPACE": str(workspace)}):
                 score = update_compliance_metrics()
-                assert score == 30.0  # Expected default score with placeholder penalty
+                assert score == 50.0  # Expected default score with no placeholders
 
     def test_update_compliance_metrics_custom_db_path(self, temp_workspace):
         """Test update with custom database path."""
@@ -343,7 +343,7 @@ class TestUpdateComplianceMetrics:
             pass  # Empty db
         
         score = update_compliance_metrics(str(temp_workspace), custom_db)
-        assert score == 30.0  # Expected default score with placeholder penalty
+        assert score == 50.0  # Expected default score with no placeholders
 
 
 class TestEdgeCases:

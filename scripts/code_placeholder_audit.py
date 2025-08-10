@@ -62,6 +62,7 @@ TEXT = {
     "success": "[SUCCESS]",
     "error": "[ERROR]",
     "info": "[INFO]",
+    "warn": "[WARN]",
     "progress": "[PROGRESS]",
     "validate": "[VALIDATE]",
     "complete": "[COMPLETE]",
@@ -689,7 +690,10 @@ def log_findings(
 
 
 def apply_suggestions_to_files(
-    tasks: List[Dict[str, str]], analytics_db: Path, simulate: bool = False
+    tasks: List[Dict[str, str]],
+    analytics_db: Path,
+    workspace: Path,
+    simulate: bool = False,
 ) -> List[Dict[str, str]]:
     """Apply generated suggestions to source files.
 
@@ -699,6 +703,7 @@ def apply_suggestions_to_files(
         return tasks
     unresolved: List[Dict[str, str]] = []
     author = os.getenv("GH_COPILOT_USER", getpass.getuser())
+    ws_resolved = workspace.resolve()
     for task in tasks:
         suggestion = task.get("suggestion", "").strip()
         if not suggestion or suggestion == task["context"].strip():
@@ -706,14 +711,21 @@ def apply_suggestions_to_files(
             continue
         path = Path(task["file"])
         try:
-            lines = path.read_text(encoding="utf-8").splitlines()
+            resolved = path.resolve()
+            resolved.relative_to(ws_resolved)
+        except Exception:
+            log_message(__name__, f"{TEXT['warn']} skipping outside workspace: {path}")
+            unresolved.append(task)
+            continue
+        try:
+            lines = resolved.read_text(encoding="utf-8").splitlines()
         except Exception:
             unresolved.append(task)
             continue
         idx = int(task["line"]) - 1
         if 0 <= idx < len(lines):
             lines[idx] = suggestion
-            path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            resolved.write_text("\n".join(lines) + "\n", encoding="utf-8")
             with sqlite3.connect(analytics_db) as conn:
                 conn.execute(
                     "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?, resolved_by=?, status='resolved' WHERE file_path=? AND line_number=? AND placeholder_type=? AND context=?",
@@ -1319,7 +1331,7 @@ def main(
         export.write_text(json.dumps(results, indent=2), encoding="utf-8")
     tasks = generate_removal_tasks(results, production, analytics)
     if apply_suggestions and not simulate:
-        tasks = apply_suggestions_to_files(tasks, analytics)
+        tasks = apply_suggestions_to_files(tasks, analytics, workspace)
     if not simulate:
         tasks_inserted = log_placeholder_tasks(tasks, analytics)
         log_message(
