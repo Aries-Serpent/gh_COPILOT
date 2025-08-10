@@ -307,18 +307,6 @@ def log_placeholder_tasks(
                     ),
                 )
         conn.commit()
-
-        # Persist aggregate counts for dashboard consumers.
-        cur = conn.execute(
-            "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'"
-        )
-        open_count = int(cur.fetchone()[0])
-        cur = conn.execute(
-            "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
-        )
-        resolved_count = int(cur.fetchone()[0])
-        _record_placeholder_snapshot(conn, open_count, resolved_count)
-        conn.commit()
     return inserted
 
 
@@ -694,18 +682,6 @@ def log_findings(
                         values[:-1],
                     )
                     inserted += 1
-        conn.commit()
-
-        # Persist aggregate counts for dashboard consumers.
-        cur = conn.execute(
-            "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'"
-        )
-        open_count = int(cur.fetchone()[0])
-        cur = conn.execute(
-            "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
-        )
-        resolved_count = int(cur.fetchone()[0])
-        _record_placeholder_snapshot(conn, open_count, resolved_count)
         conn.commit()
     return inserted
 
