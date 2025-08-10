@@ -226,7 +226,7 @@ def _load_placeholder_details(limit: int = 50) -> Dict[str, List[Dict[str, Any]]
                 for r in cur.fetchall()
             ]
             cur = conn.execute(
-                "SELECT file, line FROM unresolved_placeholders ORDER BY file LIMIT ?",
+                "SELECT file_path, line_number FROM placeholder_tasks WHERE status='open' ORDER BY file_path LIMIT ?",
                 (limit,),
             )
             unresolved = [
