@@ -1,0 +1,70 @@
+name: Status Reconciler
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/PHASE5_TASKS_STARTED.md'
+      - 'scripts/docs_status_reconciler.py'
+      - 'scripts/schemas/status_index.schema.json'
+      - '.github/workflows/status-reconciler.yml'
+  pull_request:
+    paths:
+      - 'docs/PHASE5_TASKS_STARTED.md'
+      - 'docs/task_stubs.md'
+      - 'scripts/docs_status_reconciler.py'
+      - 'scripts/schemas/status_index.schema.json'
+      - '.github/workflows/status-reconciler.yml'
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  drift-check:
+    name: SSOT Drift Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements-test.txt', 'requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install deps
+        run: |
+          if [ -f requirements-test.txt ]; then pip install -r requirements-test.txt; fi
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Validate SSOT & generate artifacts (check-only)
+        run: |
+          python scripts/docs_status_reconciler.py --check
+        continue-on-error: true
+        id: check
+
+      - name: Upload diff on drift
+        if: steps.check.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssot-drift-context
+          path: |
+            docs/task_stubs.md
+            status_index.json
+
+      - name: Fail on drift
+        if: steps.check.outcome == 'failure'
+        run: |
+          echo "SSOT drift detected. See artifact ssot-drift-context." >&2
+          exit 1
