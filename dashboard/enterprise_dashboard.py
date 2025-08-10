@@ -230,28 +230,37 @@ def _load_placeholder_history(limit: int = 50) -> List[Dict[str, Any]]:
     return rows
 
 
-def _load_placeholder_details(limit: int = 50) -> Dict[str, List[Dict[str, Any]]]:
+def _load_placeholder_audit(limit: int = 50) -> Dict[str, List[Dict[str, Any]]]:
     """Return placeholder snapshot history and unresolved placeholders."""
 
     history: List[Dict[str, Any]] = _load_placeholder_history(limit)
     unresolved: List[Dict[str, Any]] = []
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
-            cur = conn.execute(
-                "SELECT file_path, line_number FROM placeholder_tasks WHERE status='open' ORDER BY file_path LIMIT ?",
-                (limit,),
-            )
-            unresolved = [
-                {"file": r[0], "line": int(r[1])} for r in cur.fetchall()
-            ]
+            try:
+                cur = conn.execute(
+                    "SELECT file_path, line_number, placeholder_type, context FROM placeholder_audit ORDER BY id DESC LIMIT ?",
+                    (limit,),
+                )
+                unresolved = [
+                    {
+                        "file": row[0],
+                        "line": int(row[1]),
+                        "type": row[2],
+                        "context": row[3],
+                    }
+                    for row in cur.fetchall()
+                ]
+            except sqlite3.Error:
+                pass
     return {"history": history, "unresolved": unresolved}
 
 
-@app.route("/api/placeholder_details")
-def placeholder_details() -> Any:
+@app.route("/api/placeholder_audit")
+def placeholder_audit() -> Any:
     """Expose placeholder history and unresolved entries."""
 
-    return jsonify(_load_placeholder_details())
+    return jsonify(_load_placeholder_audit())
 
 
 @app.route("/api/placeholder_history")
