@@ -1,4 +1,2297 @@
-Test run: 2025-08-07 23:58:13 UTC
+===================================================== test session starts ======================================================
+platform linux -- Python 3.12.10, pytest-8.4.1, pluggy-1.6.0
+rootdir: /workspace/gh_COPILOT
+configfile: pytest.ini
+collected 909 items / 176 errors / 5 skipped
+
 ============================================================ ERRORS ============================================================
-_______________________________________ ERROR collecting tests/test_analytics_modules.py _______________________________________
-ERROR tests/test_analytics_modules.py
+_______________________________________ ERROR collecting scripts/bot/test_integration.py _______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/scripts/bot/test_integration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/bot/test_integration.py:12: in <module>
+    from flask.testing import FlaskClient
+E   ModuleNotFoundError: No module named 'flask'
+__________________________ ERROR collecting tests/compliance/test_compliance_pipeline_integration.py ___________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/compliance/test_compliance_pipeline_integration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/compliance/test_compliance_pipeline_integration.py:12: in <module>
+    from scripts.compliance.update_compliance_metrics import update_compliance_metrics
+scripts/compliance/update_compliance_metrics.py:25: in <module>
+    from scripts.code_placeholder_audit import get_latest_placeholder_snapshot
+scripts/code_placeholder_audit.py:28: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+____________________________ ERROR collecting tests/compliance/test_ingest_test_and_lint_results.py ____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/compliance/test_ingest_test_and_lint_results.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/compliance/test_ingest_test_and_lint_results.py:44: in <module>
+    from scripts.ingest_test_and_lint_results import _db, _ensure_db_path, ingest
+scripts/ingest_test_and_lint_results.py:11: in <module>
+    from scripts.compliance.update_compliance_metrics import (
+scripts/compliance/update_compliance_metrics.py:25: in <module>
+    from scripts.code_placeholder_audit import get_latest_placeholder_snapshot
+scripts/code_placeholder_audit.py:28: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+_____________________________ ERROR collecting tests/compliance/test_update_compliance_metrics.py ______________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/compliance/test_update_compliance_metrics.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/compliance/test_update_compliance_metrics.py:13: in <module>
+    from scripts.compliance.update_compliance_metrics import (
+scripts/compliance/update_compliance_metrics.py:25: in <module>
+    from scripts.code_placeholder_audit import get_latest_placeholder_snapshot
+scripts/code_placeholder_audit.py:28: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+__________________________ ERROR collecting tests/dashboard/corrections/test_correction_logs_route.py __________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/corrections/test_correction_logs_route.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/corrections/test_correction_logs_route.py:6: in <module>
+    from flask import Flask
+E   ModuleNotFoundError: No module named 'flask'
+________________________________ ERROR collecting tests/dashboard/integration/test_auth_flow.py ________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/integration/test_auth_flow.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/integration/test_auth_flow.py:1: in <module>
+    from flask import Flask, jsonify, request
+E   ModuleNotFoundError: No module named 'flask'
+_______________________________ ERROR collecting tests/dashboard/integration/test_charts_flow.py _______________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/integration/test_charts_flow.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/integration/test_charts_flow.py:4: in <module>
+    import dashboard.integrated_dashboard as idash
+dashboard/integrated_dashboard.py:11: in <module>
+    from flask import (
+E   ModuleNotFoundError: No module named 'flask'
+___________________________ ERROR collecting tests/dashboard/integration/test_dashboard_workflow.py ____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/integration/test_dashboard_workflow.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/integration/test_dashboard_workflow.py:5: in <module>
+    from flask import Flask, jsonify, request
+E   ModuleNotFoundError: No module named 'flask'
+________________________________ ERROR collecting tests/dashboard/integration/test_logs_flow.py ________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/integration/test_logs_flow.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/integration/test_logs_flow.py:5: in <module>
+    import dashboard.integrated_dashboard as idash
+dashboard/integrated_dashboard.py:11: in <module>
+    from flask import (
+E   ModuleNotFoundError: No module named 'flask'
+_____________________________ ERROR collecting tests/dashboard/integration/test_websocket_flow.py ______________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/integration/test_websocket_flow.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/integration/test_websocket_flow.py:7: in <module>
+    from dashboard import compliance_metrics_updater as cmu
+dashboard/compliance_metrics_updater.py:25: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+________________________________ ERROR collecting tests/dashboard/test_actionable_endpoints.py _________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/test_actionable_endpoints.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/test_actionable_endpoints.py:7: in <module>
+    from dashboard import integrated_dashboard as gui
+dashboard/integrated_dashboard.py:11: in <module>
+    from flask import (
+E   ModuleNotFoundError: No module named 'flask'
+_________________________________ ERROR collecting tests/dashboard/test_additional_metrics.py __________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/test_additional_metrics.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/test_additional_metrics.py:6: in <module>
+    from dashboard import compliance_metrics_updater as cmu
+dashboard/compliance_metrics_updater.py:25: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+____________________________________ ERROR collecting tests/dashboard/test_auth_security.py ____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/test_auth_security.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/test_auth_security.py:4: in <module>
+    from flask import Flask
+E   ModuleNotFoundError: No module named 'flask'
+_________________________________ ERROR collecting tests/dashboard/test_compliance_metrics.py __________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/test_compliance_metrics.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/test_compliance_metrics.py:4: in <module>
+    from validation import compliance_report_generator as crg
+validation/__init__.py:14: in <module>
+    from .reporting.formatters import ValidationReportFormatter
+validation/reporting/__init__.py:3: in <module>
+    from .formatters import ValidationReportFormatter
+validation/reporting/formatters.py:11: in <module>
+    from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
+scripts/correction_logger_and_rollback.py:26: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+_____________________________ ERROR collecting tests/dashboard/test_compliance_metrics_updater.py ______________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/test_compliance_metrics_updater.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/test_compliance_metrics_updater.py:30: in <module>
+    from dashboard import compliance_metrics_updater as cmu
+dashboard/compliance_metrics_updater.py:25: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+_____________________________ ERROR collecting tests/dashboard/test_composite_score_persistence.py _____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/test_composite_score_persistence.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/test_composite_score_persistence.py:6: in <module>
+    import dashboard.integrated_dashboard as gui
+dashboard/integrated_dashboard.py:11: in <module>
+    from flask import (
+E   ModuleNotFoundError: No module named 'flask'
+__________________________________ ERROR collecting tests/dashboard/test_correction_log_ui.py __________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/test_correction_log_ui.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/test_correction_log_ui.py:8: in <module>
+    from flask import Flask
+E   ModuleNotFoundError: No module named 'flask'
+___________________________________ ERROR collecting tests/dashboard/test_correction_logs.py ___________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/test_correction_logs.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/test_correction_logs.py:4: in <module>
+    from flask import Flask
+E   ModuleNotFoundError: No module named 'flask'
+_________________________________ ERROR collecting tests/dashboard/test_executive_dashboard.py _________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/test_executive_dashboard.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/test_executive_dashboard.py:3: in <module>
+    from web_gui.dashboards.executive_dashboard import collect_analytics
+web_gui/dashboards/executive_dashboard.py:6: in <module>
+    from .technical_dashboard import get_metrics as get_technical_metrics
+web_gui/dashboards/technical_dashboard.py:8: in <module>
+    from web_gui.monitoring.performance_metrics import collect_performance_metrics
+web_gui/monitoring/performance_metrics.py:6: in <module>
+    import psutil
+E   ModuleNotFoundError: No module named 'psutil'
+____________________________________ ERROR collecting tests/dashboard/test_live_metrics.py _____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/test_live_metrics.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/test_live_metrics.py:6: in <module>
+    from dashboard import compliance_metrics_updater as cmu
+dashboard/compliance_metrics_updater.py:25: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+_________________________________ ERROR collecting tests/dashboard/test_placeholder_summary.py _________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/test_placeholder_summary.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/test_placeholder_summary.py:24: in <module>
+    from dashboard import compliance_metrics_updater as cmu
+dashboard/compliance_metrics_updater.py:25: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+______________________________ ERROR collecting tests/dashboard/test_placeholder_trend_metrics.py ______________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/test_placeholder_trend_metrics.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/test_placeholder_trend_metrics.py:6: in <module>
+    from dashboard import compliance_metrics_updater as cmu
+dashboard/compliance_metrics_updater.py:25: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+_________________________________ ERROR collecting tests/dashboard/test_score_serialization.py _________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/test_score_serialization.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/test_score_serialization.py:7: in <module>
+    import dashboard.app  # ensure CSV export routes are registered
+    ^^^^^^^^^^^^^^^^^^^^
+dashboard/app.py:7: in <module>
+    from flask import Response
+E   ModuleNotFoundError: No module named 'flask'
+___________________________________ ERROR collecting tests/dashboard/test_sub_dashboards.py ____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/dashboard/test_sub_dashboards.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/dashboard/test_sub_dashboards.py:1: in <module>
+    from web_gui.dashboards.technical_dashboard import get_metrics as tech
+web_gui/dashboards/technical_dashboard.py:8: in <module>
+    from web_gui.monitoring.performance_metrics import collect_performance_metrics
+web_gui/monitoring/performance_metrics.py:6: in <module>
+    import psutil
+E   ModuleNotFoundError: No module named 'psutil'
+________________________________ ERROR collecting tests/database/test_documentation_ingestor.py ________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/database/test_documentation_ingestor.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/database/test_documentation_ingestor.py:4: in <module>
+    from scripts.database.documentation_ingestor import ingest_documentation
+scripts/database/documentation_ingestor.py:13: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+_______________________________ ERROR collecting tests/database/test_template_asset_ingestor.py ________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/database/test_template_asset_ingestor.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/database/test_template_asset_ingestor.py:3: in <module>
+    from scripts.database.template_asset_ingestor import ingest_templates
+scripts/database/template_asset_ingestor.py:13: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+___________________________ ERROR collecting tests/database/test_template_asset_ingestor_logging.py ____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/database/test_template_asset_ingestor_logging.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/database/test_template_asset_ingestor_logging.py:6: in <module>
+    from scripts.database.template_asset_ingestor import ingest_templates
+scripts/database/template_asset_ingestor.py:13: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+__________________________ ERROR collecting tests/database/test_violation_and_rollback_validators.py ___________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/database/test_violation_and_rollback_validators.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/database/test_violation_and_rollback_validators.py:7: in <module>
+    import scripts.database.add_violation_logs as av
+scripts/database/add_violation_logs.py:12: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+________________________________ ERROR collecting tests/db/sync/logging/test_engine_logging.py _________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/db/sync/logging/test_engine_logging.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/db/sync/logging/test_engine_logging.py:5: in <module>
+    from src.sync.engine import Change, SyncEngine
+src/sync/__init__.py:3: in <module>
+    from .engine import Change, SyncEngine
+src/sync/engine.py:17: in <module>
+    import websockets
+E   ModuleNotFoundError: No module named 'websockets'
+________________________________ ERROR collecting tests/db_tools/test_compliance_corrections.py ________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/db_tools/test_compliance_corrections.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/db_tools/test_compliance_corrections.py:4: in <module>
+    from db_tools.operations.compliance import DatabaseComplianceChecker
+db_tools/__init__.py:13: in <module>
+    from .operations.access import DatabaseAccessLayer
+db_tools/operations/__init__.py:4: in <module>
+    from .cleanup import DatabaseCleanupProcessor
+db_tools/operations/cleanup.py:13: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+_________________________ ERROR collecting tests/documentation/test_documentation_manager_templates.py _________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/documentation/test_documentation_manager_templates.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/documentation/test_documentation_manager_templates.py:8: in <module>
+    from archive.consolidated_scripts import enterprise_database_driven_documentation_manager as mgr
+archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py:15: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+_______________________________ ERROR collecting tests/documentation_manager/test_compliance.py ________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/documentation_manager/test_compliance.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/documentation_manager/test_compliance.py:1: in <module>
+    from documentation.enterprise_documentation_manager import EnterpriseDocumentationManager
+documentation/__init__.py:8: in <module>
+    from .enterprise_documentation_manager import EnterpriseDocumentationManager
+documentation/enterprise_documentation_manager.py:12: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+____________________________________ ERROR collecting tests/integration/test_performance.py ____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/integration/test_performance.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/integration/test_performance.py:5: in <module>
+    from performance_validation_framework import PerformanceValidationFramework
+performance_validation_framework.py:3: in <module>
+    from scripts.validation.performance_validation_framework import PerformanceValidationFramework
+scripts/validation/performance_validation_framework.py:18: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+___________________________________ ERROR collecting tests/monitoring/anomaly/test_model.py ____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/monitoring/anomaly/test_model.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/monitoring/anomaly/test_model.py:1: in <module>
+    from monitoring.anomaly import StatisticalAnomalyDetector
+E   ModuleNotFoundError: No module named 'monitoring.anomaly'; 'monitoring' is not a package
+_________________________________ ERROR collecting tests/monitoring/recovery/test_recovery.py __________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/monitoring/recovery/test_recovery.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/monitoring/recovery/test_recovery.py:3: in <module>
+    from monitoring.recovery import recover_system
+E   ModuleNotFoundError: No module named 'monitoring.recovery'; 'monitoring' is not a package
+_____________________________ ERROR collecting tests/monitoring/session/test_session_validators.py _____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/monitoring/session/test_session_validators.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/monitoring/session/test_session_validators.py:5: in <module>
+    from monitoring.session_validators import (
+E   ModuleNotFoundError: No module named 'monitoring.session_validators'; 'monitoring' is not a package
+__________________________________ ERROR collecting tests/monitoring/test_anomaly_pipeline.py __________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/monitoring/test_anomaly_pipeline.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/monitoring/test_anomaly_pipeline.py:24: in <module>
+    from unified_monitoring_optimization_system import anomaly_detection_loop
+E   ImportError: cannot import name 'anomaly_detection_loop' from '<unknown module name>' (unknown location)
+_________________________________ ERROR collecting tests/monitoring/test_compliance_monitor.py _________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/monitoring/test_compliance_monitor.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/monitoring/test_compliance_monitor.py:8: in <module>
+    from monitoring import compliance_monitor
+E   ImportError: cannot import name 'compliance_monitor' from 'monitoring' (unknown location)
+___________________________ ERROR collecting tests/monitoring/test_enterprise_compliance_monitor.py ____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/monitoring/test_enterprise_compliance_monitor.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/monitoring/test_enterprise_compliance_monitor.py:1: in <module>
+    from scripts.monitoring import enterprise_compliance_monitor as ecm
+scripts/monitoring/enterprise_compliance_monitor.py:11: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+___________________________________ ERROR collecting tests/monitoring/test_service_health.py ___________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/monitoring/test_service_health.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/monitoring/test_service_health.py:8: in <module>
+    from monitoring.service_health import check_service
+E   ModuleNotFoundError: No module named 'monitoring.service_health'; 'monitoring' is not a package
+_______________________ ERROR collecting tests/monitoring/test_unified_monitoring_optimization_system.py _______________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/monitoring/test_unified_monitoring_optimization_system.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/monitoring/test_unified_monitoring_optimization_system.py:6: in <module>
+    from unified_monitoring_optimization_system import (
+E   ImportError: cannot import name 'detect_anomalies' from '<unknown module name>' (unknown location)
+______________________________ ERROR collecting tests/placeholder/test_code_placeholder_audit.py _______________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/placeholder/test_code_placeholder_audit.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/placeholder/test_code_placeholder_audit.py:4: in <module>
+    import scripts.code_placeholder_audit as audit
+scripts/code_placeholder_audit.py:28: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+________________________________ ERROR collecting tests/placeholder_audit/test_auto_resolve.py _________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/placeholder_audit/test_auto_resolve.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/placeholder_audit/test_auto_resolve.py:6: in <module>
+    from scripts.code_placeholder_audit import main
+scripts/code_placeholder_audit.py:28: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+_____________________________ ERROR collecting tests/placeholder_audit/test_dashboard_rendering.py _____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/placeholder_audit/test_dashboard_rendering.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/placeholder_audit/test_dashboard_rendering.py:2: in <module>
+    from flask import Flask, render_template
+E   ModuleNotFoundError: No module named 'flask'
+__________________________________ ERROR collecting tests/placeholder_audit/test_full_scan.py __________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/placeholder_audit/test_full_scan.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/placeholder_audit/test_full_scan.py:4: in <module>
+    from scripts.code_placeholder_audit import main
+scripts/code_placeholder_audit.py:28: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+_______________________________ ERROR collecting tests/placeholder_audit/test_metrics_logging.py _______________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/placeholder_audit/test_metrics_logging.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/placeholder_audit/test_metrics_logging.py:45: in <module>
+    from scripts.code_placeholder_audit import main
+scripts/code_placeholder_audit.py:28: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+_________________________________ ERROR collecting tests/placeholder_audit/test_parse_args.py __________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/placeholder_audit/test_parse_args.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/placeholder_audit/test_parse_args.py:1: in <module>
+    import scripts.code_placeholder_audit as audit
+scripts/code_placeholder_audit.py:28: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+____________________________ ERROR collecting tests/placeholder_audit/test_placeholder_enforcer.py _____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/placeholder_audit/test_placeholder_enforcer.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/placeholder_audit/test_placeholder_enforcer.py:5: in <module>
+    from scripts.code_placeholder_audit import main as audit_main
+scripts/code_placeholder_audit.py:28: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+______________________________ ERROR collecting tests/placeholder_audit/test_summary_creation.py _______________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/placeholder_audit/test_summary_creation.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/placeholder_audit/test_summary_creation.py:4: in <module>
+    from scripts.code_placeholder_audit import main
+scripts/code_placeholder_audit.py:28: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+___________________________ ERROR collecting tests/placeholder_audit/test_task_report_generation.py ____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/placeholder_audit/test_task_report_generation.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/placeholder_audit/test_task_report_generation.py:5: in <module>
+    from scripts.code_placeholder_audit import main
+scripts/code_placeholder_audit.py:28: in <module>
+    from tqdm import tqdm
+E   ModuleNotFoundError: No module named 'tqdm'
+__________________________________ ERROR collecting tests/quantum/test_advanced_algorithms.py __________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_advanced_algorithms.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_advanced_algorithms.py:5: in <module>
+    from quantum.advanced_quantum_algorithms import (
+E   ModuleNotFoundError: No module named 'quantum.advanced_quantum_algorithms'; 'quantum' is not a package
+_________________________________ ERROR collecting tests/quantum/test_ai_enhancement_utils.py __________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_ai_enhancement_utils.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_ai_enhancement_utils.py:3: in <module>
+    from quantum.ai_enhancement import (
+E   ModuleNotFoundError: No module named 'quantum.ai_enhancement'; 'quantum' is not a package
+___________________________________ ERROR collecting tests/quantum/test_backend_provider.py ____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_backend_provider.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_backend_provider.py:3: in <module>
+    from quantum.utils import backend_provider
+E   ModuleNotFoundError: No module named 'quantum.utils'; 'quantum' is not a package
+________________________________ ERROR collecting tests/quantum/test_backend_provider_config.py ________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_backend_provider_config.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_backend_provider_config.py:3: in <module>
+    from quantum.utils import backend_provider
+E   ModuleNotFoundError: No module named 'quantum.utils'; 'quantum' is not a package
+___________________________________ ERROR collecting tests/quantum/test_backend_selection.py ___________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_backend_selection.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_backend_selection.py:1: in <module>
+    from quantum.optimizers.quantum_optimizer import QuantumOptimizer
+E   ModuleNotFoundError: No module named 'quantum.optimizers'; 'quantum' is not a package
+_______________________________ ERROR collecting tests/quantum/test_database_search_hardware.py ________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_database_search_hardware.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_database_search_hardware.py:7: in <module>
+    from quantum.algorithms.database_search import QuantumDatabaseSearch
+E   ModuleNotFoundError: No module named 'quantum.algorithms'; 'quantum' is not a package
+_________________________________ ERROR collecting tests/quantum/test_database_search_token.py _________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_database_search_token.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_database_search_token.py:3: in <module>
+    from quantum import quantum_database_search as qdb
+E   ImportError: cannot import name 'quantum_database_search' from 'quantum' (unknown location)
+____________________________ ERROR collecting tests/quantum/test_detect_c_temp_case_insensitive.py _____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_detect_c_temp_case_insensitive.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_detect_c_temp_case_insensitive.py:6: in <module>
+    from quantum.optimizers import quantum_optimizer as qo
+E   ModuleNotFoundError: No module named 'quantum.optimizers'; 'quantum' is not a package
+___________________________________ ERROR collecting tests/quantum/test_executor_hardware.py ___________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_executor_hardware.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_executor_hardware.py:2: in <module>
+    from quantum.orchestration import executor as qexec
+E   ModuleNotFoundError: No module named 'quantum.orchestration'; 'quantum' is not a package
+___________________________________ ERROR collecting tests/quantum/test_framework_models.py ____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_framework_models.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_framework_models.py:3: in <module>
+    from quantum.framework import QuantumExecutor, SimulatorBackend, backend as fw_backend
+E   ModuleNotFoundError: No module named 'quantum.framework'; 'quantum' is not a package
+_______________________________ ERROR collecting tests/quantum/test_hardware_aware_algorithm.py ________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_hardware_aware_algorithm.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_hardware_aware_algorithm.py:3: in <module>
+    from quantum.algorithms import hardware_aware
+E   ModuleNotFoundError: No module named 'quantum.algorithms'; 'quantum' is not a package
+___________________________________ ERROR collecting tests/quantum/test_hardware_backend.py ____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_hardware_backend.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_hardware_backend.py:3: in <module>
+    from quantum.ibm_backend import init_ibm_backend
+E   ModuleNotFoundError: No module named 'quantum.ibm_backend'; 'quantum' is not a package
+____________________________________ ERROR collecting tests/quantum/test_hybrid_routines.py ____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_hybrid_routines.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_hybrid_routines.py:1: in <module>
+    from quantum.framework import SimulatorBackend, QuantumExecutor, run_with_fallback
+E   ModuleNotFoundError: No module named 'quantum.framework'; 'quantum' is not a package
+______________________________________ ERROR collecting tests/quantum/test_interfaces.py _______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_interfaces.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_interfaces.py:2: in <module>
+    from quantum.interfaces import quantum_api, quantum_templates, quantum_websocket
+E   ModuleNotFoundError: No module named 'quantum.interfaces'; 'quantum' is not a package
+________________________________ ERROR collecting tests/quantum/test_ml_pattern_recognition.py _________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_ml_pattern_recognition.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_ml_pattern_recognition.py:1: in <module>
+    from quantum.ml_pattern_recognition import PatternRecognizer, load_production_data
+E   ModuleNotFoundError: No module named 'quantum.ml_pattern_recognition'; 'quantum' is not a package
+__________________________________ ERROR collecting tests/quantum/test_modules_simulation.py ___________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_modules_simulation.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_modules_simulation.py:4: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+_____________________________________ ERROR collecting tests/quantum/test_new_routines.py ______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_new_routines.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_new_routines.py:3: in <module>
+    from scripts.quantum_placeholders.quantum_annealing import run_quantum_annealing
+scripts/quantum_placeholders/__init__.py:27: in <module>
+    from . import (
+scripts/quantum_placeholders/quantum_annealing.py:12: in <module>
+    from quantum.utils.backend_provider import get_backend
+E   ModuleNotFoundError: No module named 'quantum.utils'; 'quantum' is not a package
+___________________________________ ERROR collecting tests/quantum/test_optimizer_backend.py ___________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_optimizer_backend.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_optimizer_backend.py:1: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+__________________________________ ERROR collecting tests/quantum/test_placeholder_modules.py __________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_placeholder_modules.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_placeholder_modules.py:5: in <module>
+    from scripts.quantum_placeholders import (
+scripts/quantum_placeholders/__init__.py:27: in <module>
+    from . import (
+scripts/quantum_placeholders/quantum_annealing.py:12: in <module>
+    from quantum.utils.backend_provider import get_backend
+E   ModuleNotFoundError: No module named 'quantum.utils'; 'quantum' is not a package
+___________________________________ ERROR collecting tests/quantum/test_provider_fallback.py ___________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_provider_fallback.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_provider_fallback.py:5: in <module>
+    from quantum.orchestration.executor import QuantumExecutor
+E   ModuleNotFoundError: No module named 'quantum.orchestration'; 'quantum' is not a package
+__________________________________ ERROR collecting tests/quantum/test_quantum_algorithms.py ___________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_quantum_algorithms.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_quantum_algorithms.py:3: in <module>
+    from quantum_algorithms_functional import run_quantum_fourier_transform
+quantum_algorithms_functional.py:21: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+____________________________ ERROR collecting tests/quantum/test_quantum_compliance_engine_logic.py ____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_quantum_compliance_engine_logic.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_quantum_compliance_engine_logic.py:8: in <module>
+    from quantum.quantum_compliance_engine import QuantumComplianceEngine
+E   ModuleNotFoundError: No module named 'quantum.quantum_compliance_engine'; 'quantum' is not a package
+_____________________________ ERROR collecting tests/quantum/test_quantum_compliance_engine_ml.py ______________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_quantum_compliance_engine_ml.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_quantum_compliance_engine_ml.py:1: in <module>
+    from quantum.quantum_compliance_engine import QuantumComplianceEngine
+E   ModuleNotFoundError: No module named 'quantum.quantum_compliance_engine'; 'quantum' is not a package
+___________________________ ERROR collecting tests/quantum/test_quantum_integration_orchestrator.py ____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_quantum_integration_orchestrator.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_quantum_integration_orchestrator.py:1: in <module>
+    from quantum.quantum_integration_orchestrator import QuantumIntegrationOrchestrator
+E   ModuleNotFoundError: No module named 'quantum.quantum_integration_orchestrator'; 'quantum' is not a package
+__________________________________ ERROR collecting tests/quantum/test_quantum_performance.py __________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_quantum_performance.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_quantum_performance.py:3: in <module>
+    from scripts.validation.quantum_performance_integration_tester import (
+scripts/validation/quantum_performance_integration_tester.py:18: in <module>
+    from qiskit_aer import AerSimulator
+E   ModuleNotFoundError: No module named 'qiskit_aer'
+_________________________________ ERROR collecting tests/quantum/test_quantum_secure_search.py _________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_quantum_secure_search.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_quantum_secure_search.py:5: in <module>
+    from quantum.algorithms import QuantumEncryptedCommunication
+E   ModuleNotFoundError: No module named 'quantum.algorithms'; 'quantum' is not a package
+____________________________ ERROR collecting tests/quantum/test_root_quantum_optimizer_backend.py _____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_root_quantum_optimizer_backend.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_root_quantum_optimizer_backend.py:2: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+________________________________________ ERROR collecting tests/quantum/test_scoring.py ________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_scoring.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_scoring.py:2: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+__________________________________ ERROR collecting tests/quantum/test_simulation_markers.py ___________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_simulation_markers.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_simulation_markers.py:3: in <module>
+    from quantum.utils.backend_provider import get_backend
+E   ModuleNotFoundError: No module named 'quantum.utils'; 'quantum' is not a package
+_____________________________________ ERROR collecting tests/quantum/test_teleportation.py _____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_teleportation.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_teleportation.py:3: in <module>
+    from quantum.orchestration.executor import QuantumExecutor
+E   ModuleNotFoundError: No module named 'quantum.orchestration'; 'quantum' is not a package
+_____________________________ ERROR collecting tests/quantum/test_validate_no_recursive_folders.py _____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_validate_no_recursive_folders.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_validate_no_recursive_folders.py:5: in <module>
+    from quantum_optimizer import validate_no_recursive_folders
+quantum_optimizer.py:4: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+_______________________________ ERROR collecting tests/quantum/test_vqe_phase_estimation_demo.py _______________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/quantum/test_vqe_phase_estimation_demo.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/quantum/test_vqe_phase_estimation_demo.py:5: in <module>
+    from quantum.algorithms import phase_estimation_demo, vqe_demo
+E   ModuleNotFoundError: No module named 'quantum.algorithms'; 'quantum' is not a package
+_____________________________ ERROR collecting tests/script_generation/test_template_clustering.py _____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/script_generation/test_template_clustering.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/script_generation/test_template_clustering.py:5: in <module>
+    from unified_script_generation_system import EnterpriseUtility
+unified_script_generation_system.py:3: in <module>
+    from scripts.utilities.unified_script_generation_system import EnterpriseUtility
+scripts/utilities/unified_script_generation_system.py:24: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+______________________________________ ERROR collecting tests/sync/test_logging_hooks.py _______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/sync/test_logging_hooks.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/sync/test_logging_hooks.py:5: in <module>
+    from src.sync.engine import Change, SyncEngine
+src/sync/__init__.py:3: in <module>
+    from .engine import Change, SyncEngine
+src/sync/engine.py:17: in <module>
+    import websockets
+E   ModuleNotFoundError: No module named 'websockets'
+______________________________________ ERROR collecting tests/sync/test_realtime_sync.py _______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/sync/test_realtime_sync.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/sync/test_realtime_sync.py:1: in <module>
+    from src.sync.engine import Change, SyncEngine
+src/sync/__init__.py:3: in <module>
+    from .engine import Change, SyncEngine
+src/sync/engine.py:17: in <module>
+    import websockets
+E   ModuleNotFoundError: No module named 'websockets'
+______________________________________ ERROR collecting tests/sync/test_websocket_sync.py ______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/sync/test_websocket_sync.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/sync/test_websocket_sync.py:4: in <module>
+    import websockets
+E   ModuleNotFoundError: No module named 'websockets'
+_______________________________ ERROR collecting tests/template_engine/test_database_scoring.py ________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/template_engine/test_database_scoring.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/template_engine/test_database_scoring.py:4: in <module>
+    import template_engine.auto_generator as auto_generator
+template_engine/auto_generator.py:23: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+________________________ ERROR collecting tests/template_engine/test_db_first_code_generator_updates.py ________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/template_engine/test_db_first_code_generator_updates.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/template_engine/test_db_first_code_generator_updates.py:9: in <module>
+    from template_engine.db_first_code_generator import TemplateAutoGenerator
+template_engine/db_first_code_generator.py:22: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+_____________________________ ERROR collecting tests/template_engine/test_lesson_driven_updates.py _____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/template_engine/test_lesson_driven_updates.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/template_engine/test_lesson_driven_updates.py:3: in <module>
+    import template_engine.auto_generator as ag
+template_engine/auto_generator.py:23: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+_____________________________ ERROR collecting tests/template_engine/test_lesson_template_merge.py _____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/template_engine/test_lesson_template_merge.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/template_engine/test_lesson_template_merge.py:1: in <module>
+    import template_engine.auto_generator as ag
+template_engine/auto_generator.py:23: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+________________________ ERROR collecting tests/template_engine/test_placeholder_removal_and_ranking.py ________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/template_engine/test_placeholder_removal_and_ranking.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/template_engine/test_placeholder_removal_and_ranking.py:2: in <module>
+    from template_engine.template_placeholder_remover import remove_unused_placeholders
+template_engine/template_placeholder_remover.py:28: in <module>
+    from unified_script_generation_system import EnterpriseUtility
+unified_script_generation_system.py:3: in <module>
+    from scripts.utilities.unified_script_generation_system import EnterpriseUtility
+scripts/utilities/unified_script_generation_system.py:24: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+______________________________ ERROR collecting tests/template_engine/test_synchronizer_audit.py _______________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/template_engine/test_synchronizer_audit.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/template_engine/test_synchronizer_audit.py:6: in <module>
+    from template_engine import template_synchronizer as ts
+template_engine/__init__.py:56: in __getattr__
+    module = import_module(f"{__name__}.{name}")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+template_engine/template_synchronizer.py:20: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+_______________________________ ERROR collecting tests/template_engine/test_template_caching.py ________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/template_engine/test_template_caching.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/template_engine/test_template_caching.py:4: in <module>
+    from template_engine.auto_generator import TemplateAutoGenerator
+template_engine/auto_generator.py:23: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+__________________________ ERROR collecting tests/template_engine/test_template_curation_pipeline.py ___________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/template_engine/test_template_curation_pipeline.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/template_engine/test_template_curation_pipeline.py:3: in <module>
+    from template_engine.template_curation_pipeline import curate_templates
+template_engine/template_curation_pipeline.py:14: in <module>
+    from .pattern_mining_engine import (
+template_engine/pattern_mining_engine.py:29: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+__________________________________ ERROR collecting tests/test_advanced_qubo_optimization.py ___________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_advanced_qubo_optimization.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_advanced_qubo_optimization.py:5: in <module>
+    from scripts.optimization.advanced_qubo_optimization import EnterpriseUtility
+scripts/optimization/advanced_qubo_optimization.py:21: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+________________________________________ ERROR collecting tests/test_anti_recursion.py _________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_anti_recursion.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_anti_recursion.py:26: in <module>
+    _spec.loader.exec_module(_module)  # type: ignore[assignment]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+quantum/optimizers/quantum_optimizer.py:12: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+____________________________________ ERROR collecting tests/test_anti_recursion_enforcer.py ____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_anti_recursion_enforcer.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_anti_recursion_enforcer.py:2: in <module>
+    import psutil
+E   ModuleNotFoundError: No module named 'psutil'
+_____________________________________ ERROR collecting tests/test_anti_recursion_guard.py ______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_anti_recursion_guard.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_anti_recursion_guard.py:8: in <module>
+    import py7zr
+E   ModuleNotFoundError: No module named 'py7zr'
+___________________________________ ERROR collecting tests/test_anti_recursion_validator.py ____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_anti_recursion_validator.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_anti_recursion_validator.py:3: in <module>
+    from scripts.validation.enterprise_dual_copilot_validator import AntiRecursionValidator
+scripts/validation/enterprise_dual_copilot_validator.py:37: in <module>
+    import psutil
+E   ModuleNotFoundError: No module named 'psutil'
+_______________________________________ ERROR collecting tests/test_artifact_manager.py ________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_artifact_manager.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_artifact_manager.py:15: in <module>
+    import artifact_manager
+artifact_manager.py:45: in <module>
+    import yaml
+E   ModuleNotFoundError: No module named 'yaml'
+------------------------------------------------------- Captured stderr --------------------------------------------------------
+PyYAML is required for artifact management. Install it to continue.
+________________________________________ ERROR collecting tests/test_auto_generator.py _________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_auto_generator.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_auto_generator.py:5: in <module>
+    from template_engine.auto_generator import TemplateAutoGenerator
+template_engine/auto_generator.py:23: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+__________________________________ ERROR collecting tests/test_autonomous_audit_validator.py ___________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_autonomous_audit_validator.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_autonomous_audit_validator.py:1: in <module>
+    import scripts.autonomous_setup_and_audit as asa
+scripts/autonomous_setup_and_audit.py:16: in <module>
+    from template_engine.template_synchronizer import _compliance_score
+template_engine/template_synchronizer.py:20: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+__________________________________ ERROR collecting tests/test_autonomous_setup_and_audit.py ___________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_autonomous_setup_and_audit.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_autonomous_setup_and_audit.py:9: in <module>
+    from scripts.autonomous_setup_and_audit import ingest_assets
+scripts/autonomous_setup_and_audit.py:16: in <module>
+    from template_engine.template_synchronizer import _compliance_score
+template_engine/template_synchronizer.py:20: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+________________________________________ ERROR collecting tests/test_backup_archiver.py ________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_backup_archiver.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_backup_archiver.py:1: in <module>
+    import py7zr
+E   ModuleNotFoundError: No module named 'py7zr'
+______________________________________________ ERROR collecting tests/test_bot.py ______________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_bot.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_bot.py:4: in <module>
+    from scripts.bot.webhook_server import create_app
+scripts/bot/webhook_server.py:12: in <module>
+    from flask import Flask, request
+E   ModuleNotFoundError: No module named 'flask'
+______________________________ ERROR collecting tests/test_complete_consolidation_orchestrator.py ______________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_complete_consolidation_orchestrator.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_complete_consolidation_orchestrator.py:5: in <module>
+    import py7zr  # pyright: ignore[reportMissingImports]
+    ^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'py7zr'
+_______________________________________ ERROR collecting tests/test_compress_database.py _______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_compress_database.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_compress_database.py:4: in <module>
+    from scripts.database.unified_database_migration import _compress_database
+scripts/database/unified_database_migration.py:24: in <module>
+    from .database_consolidation_migration import consolidate_databases
+scripts/database/database_consolidation_migration.py:18: in <module>
+    from monitoring.performance_tracker import benchmark_queries
+E   ModuleNotFoundError: No module named 'monitoring.performance_tracker'; 'monitoring' is not a package
+______________________________________ ERROR collecting tests/test_configuration_utils.py ______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_configuration_utils.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_configuration_utils.py:3: in <module>
+    import yaml
+E   ModuleNotFoundError: No module named 'yaml'
+_____________________________________ ERROR collecting tests/test_continuous_monitoring.py _____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_continuous_monitoring.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_continuous_monitoring.py:9: in <module>
+    from monitoring.log_error_notifier import schedule_log_monitoring
+E   ModuleNotFoundError: No module named 'monitoring.log_error_notifier'; 'monitoring' is not a package
+_________________________________ ERROR collecting tests/test_continuous_monitoring_engine.py __________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_continuous_monitoring_engine.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_continuous_monitoring_engine.py:4: in <module>
+    from scripts.monitoring.continuous_monitoring_engine import (
+scripts/monitoring/continuous_monitoring_engine.py:14: in <module>
+    import psutil
+E   ModuleNotFoundError: No module named 'psutil'
+___________________________________ ERROR collecting tests/test_convert_daily_whitepaper.py ____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_convert_daily_whitepaper.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_convert_daily_whitepaper.py:1: in <module>
+    from tools.convert_daily_whitepaper import _sanitize_name, DEFAULT_PDF_DIR
+tools/convert_daily_whitepaper.py:36: in <module>
+    import PyPDF2  # noqa: F401
+    ^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'PyPDF2'
+_____________________________________ ERROR collecting tests/test_daily_state_generator.py _____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_daily_state_generator.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_daily_state_generator.py:5: in <module>
+    from scripts.documentation import daily_state_generator as dsg
+scripts/documentation/daily_state_generator.py:9: in <module>
+    from PyPDF2 import PdfWriter
+E   ModuleNotFoundError: No module named 'PyPDF2'
+___________________________________________ ERROR collecting tests/test_dashboard.py ___________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_dashboard.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_dashboard.py:10: in <module>
+    import dashboard.integrated_dashboard as idash
+dashboard/integrated_dashboard.py:11: in <module>
+    from flask import (
+E   ModuleNotFoundError: No module named 'flask'
+___________________________________ ERROR collecting tests/test_dashboard_actionable_gui.py ____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_dashboard_actionable_gui.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_dashboard_actionable_gui.py:5: in <module>
+    from dashboard import integrated_dashboard as gui
+dashboard/integrated_dashboard.py:11: in <module>
+    from flask import (
+E   ModuleNotFoundError: No module named 'flask'
+______________________________________ ERROR collecting tests/test_dashboard_endpoints.py ______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_dashboard_endpoints.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_dashboard_endpoints.py:29: in <module>
+    import web_gui.scripts.flask_apps.enterprise_dashboard as ed
+web_gui/scripts/flask_apps/enterprise_dashboard.py:14: in <module>
+    from flask import (
+E   ModuleNotFoundError: No module named 'flask'
+_______________________________ ERROR collecting tests/test_database_consolidation_migration.py ________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_database_consolidation_migration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_database_consolidation_migration.py:5: in <module>
+    from scripts.database.database_consolidation_migration import consolidate_databases
+scripts/database/database_consolidation_migration.py:18: in <module>
+    from monitoring.performance_tracker import benchmark_queries
+E   ModuleNotFoundError: No module named 'monitoring.performance_tracker'; 'monitoring' is not a package
+__________________________________ ERROR collecting tests/test_database_consolidation_run.py ___________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_database_consolidation_run.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_database_consolidation_run.py:5: in <module>
+    from scripts.database import database_consolidation_migration as dcm
+scripts/database/database_consolidation_migration.py:18: in <module>
+    from monitoring.performance_tracker import benchmark_queries
+E   ModuleNotFoundError: No module named 'monitoring.performance_tracker'; 'monitoring' is not a package
+_______________________________ ERROR collecting tests/test_database_first_correction_engine.py ________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_database_first_correction_engine.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_database_first_correction_engine.py:4: in <module>
+    from scripts.database.database_first_correction_engine import DatabaseFirstCorrectionEngine
+scripts/database/database_first_correction_engine.py:18: in <module>
+    from scripts.automation.template_auto_generation_complete import TemplateSynthesisEngine
+scripts/automation/template_auto_generation_complete.py:18: in <module>
+    from template_engine.auto_generator import TemplateAutoGenerator
+template_engine/auto_generator.py:23: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+____________________________________ ERROR collecting tests/test_db_first_code_generator.py ____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_db_first_code_generator.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_db_first_code_generator.py:7: in <module>
+    from template_engine import db_first_code_generator
+template_engine/__init__.py:56: in __getattr__
+    module = import_module(f"{__name__}.{name}")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+template_engine/db_first_code_generator.py:22: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+__________________________________ ERROR collecting tests/test_db_first_codegen_analytics.py ___________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_db_first_codegen_analytics.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_db_first_codegen_analytics.py:6: in <module>
+    from template_engine.db_first_code_generator import DBFirstCodeGenerator
+template_engine/db_first_code_generator.py:22: in <module>
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'
+_________________________________________ ERROR collecting tests/test_docs_metrics.py __________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_docs_metrics.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_docs_metrics.py:10: in <module>
+    from scripts import generate_docs_metrics, validate_docs_metrics
+scripts/generate_docs_metrics.py:23: in <module>
+    from secondary_copilot_validator import SecondaryCopilotValidator, run_dual_copilot_validation
+E   ImportError: cannot import name 'run_dual_copilot_validation' from '<unknown module name>' (unknown location)
+_____________________________________ ERROR collecting tests/test_documentation_manager.py _____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_documentation_manager.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_documentation_manager.py:4: in <module>
+    from scripts.documentation.enterprise_documentation_manager import (
+scripts/documentation/enterprise_documentation_manager.py:11: in <module>
+    from template_engine.auto_generator import (
+template_engine/auto_generator.py:35: in <module>
+    from .objective_similarity_scorer import compute_similarity_scores
+template_engine/objective_similarity_scorer.py:25: in <module>
+    from sklearn.feature_extraction.text import CountVectorizer
+E   ImportError: cannot import name 'CountVectorizer' from 'sklearn.feature_extraction.text' (unknown location)
+________________________________ ERROR collecting tests/test_documentation_manager_validator.py ________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_documentation_manager_validator.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_documentation_manager_validator.py:5: in <module>
+    from archive.consolidated_scripts.enterprise_database_driven_documentation_manager import (
+archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py:17: in <module>
+    from template_engine.auto_generator import TemplateAutoGenerator, calculate_etc
+template_engine/auto_generator.py:35: in <module>
+    from .objective_similarity_scorer import compute_similarity_scores
+template_engine/objective_similarity_scorer.py:25: in <module>
+    from sklearn.feature_extraction.text import CountVectorizer
+E   ImportError: cannot import name 'CountVectorizer' from 'sklearn.feature_extraction.text' (unknown location)
+____________________________________ ERROR collecting tests/test_dual_copilot_validation.py ____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_dual_copilot_validation.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_dual_copilot_validation.py:3: in <module>
+    from secondary_copilot_validator import run_dual_copilot_validation
+E   ImportError: cannot import name 'run_dual_copilot_validation' from '<unknown module name>' (unknown location)
+__________________________________________ ERROR collecting tests/test_end_to_end.py ___________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_end_to_end.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_end_to_end.py:4: in <module>
+    from web_gui.scripts.flask_apps.quantum_enhanced_framework import (
+web_gui/scripts/flask_apps/quantum_enhanced_framework.py:30: in <module>
+    from flask import Blueprint, jsonify, request
+E   ModuleNotFoundError: No module named 'flask'
+______________________________________ ERROR collecting tests/test_enterprise_api_auth.py ______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_enterprise_api_auth.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_enterprise_api_auth.py:2: in <module>
+    from scripts.enterprise.enterprise_api_infrastructure_framework import EnterpriseAuthentication
+scripts/enterprise/enterprise_api_infrastructure_framework.py:37: in <module>
+    from web_gui import middleware
+web_gui/middleware/__init__.py:3: in <module>
+    from flask import Flask
+E   ModuleNotFoundError: No module named 'flask'
+_____________________________________ ERROR collecting tests/test_enterprise_api_server.py _____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_enterprise_api_server.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_enterprise_api_server.py:3: in <module>
+    from scripts.enterprise.enterprise_api_infrastructure_framework import EnterpriseAPIServer
+scripts/enterprise/enterprise_api_infrastructure_framework.py:37: in <module>
+    from web_gui import middleware
+web_gui/middleware/__init__.py:3: in <module>
+    from flask import Flask
+E   ModuleNotFoundError: No module named 'flask'
+_______________________ ERROR collecting tests/test_enterprise_database_driven_documentation_manager.py ________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_enterprise_database_driven_documentation_manager.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_enterprise_database_driven_documentation_manager.py:9: in <module>
+    from archive.consolidated_scripts.enterprise_database_driven_documentation_manager import (
+archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py:17: in <module>
+    from template_engine.auto_generator import TemplateAutoGenerator, calculate_etc
+template_engine/auto_generator.py:35: in <module>
+    from .objective_similarity_scorer import compute_similarity_scores
+template_engine/objective_similarity_scorer.py:25: in <module>
+    from sklearn.feature_extraction.text import CountVectorizer
+E   ImportError: cannot import name 'CountVectorizer' from 'sklearn.feature_extraction.text' (unknown location)
+__________________________________________ ERROR collecting tests/test_flask_apps.py ___________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_flask_apps.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_flask_apps.py:3: in <module>
+    from web_gui.scripts.flask_apps.quantum_enhanced_framework import (
+web_gui/scripts/flask_apps/quantum_enhanced_framework.py:30: in <module>
+    from flask import Blueprint, jsonify, request
+E   ModuleNotFoundError: No module named 'flask'
+________________________________________ ERROR collecting tests/test_health_monitor.py _________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_health_monitor.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_health_monitor.py:5: in <module>
+    from monitoring.health_monitor import (
+E   ImportError: cannot import name 'ensure_table' from 'monitoring.health_monitor' (unknown location)
+______________________________________ ERROR collecting tests/test_log_error_notifier.py _______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_log_error_notifier.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_log_error_notifier.py:7: in <module>
+    import monitoring.log_error_notifier as notifier
+E   ModuleNotFoundError: No module named 'monitoring.log_error_notifier'; 'monitoring' is not a package
+__________________________________________ ERROR collecting tests/test_monitoring.py ___________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_monitoring.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_monitoring.py:2: in <module>
+    from monitoring.health_monitor import check_alerts, quantum_hook as health_quantum_hook
+E   ImportError: cannot import name 'check_alerts' from 'monitoring.health_monitor' (unknown location)
+_________________________________________ ERROR collecting tests/test_monitoring_ml.py _________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_monitoring_ml.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_monitoring_ml.py:56: in <module>
+    from unified_monitoring_optimization_system import (
+E   ImportError: cannot import name 'train_anomaly_model' from '<unknown module name>' (unknown location)
+_______________________________________ ERROR collecting tests/test_new_placeholders.py ________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_new_placeholders.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_new_placeholders.py:22: in <module>
+    from web_gui.scripts.flask_apps.web_gui_integrator import WebGUIIntegrator
+web_gui/scripts/flask_apps/web_gui_integrator.py:12: in <module>
+    from flask import Flask, Response, jsonify, request
+E   ModuleNotFoundError: No module named 'flask'
+__________________________________ ERROR collecting tests/test_objective_similarity_scorer.py __________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_objective_similarity_scorer.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_objective_similarity_scorer.py:7: in <module>
+    from template_engine.objective_similarity_scorer import (
+template_engine/objective_similarity_scorer.py:25: in <module>
+    from sklearn.feature_extraction.text import CountVectorizer
+E   ImportError: cannot import name 'CountVectorizer' from 'sklearn.feature_extraction.text' (unknown location)
+_________________________________________ ERROR collecting tests/test_openai_client.py _________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_openai_client.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_openai_client.py:4: in <module>
+    from third_party.openai_client import OpenAIClient
+third_party/openai_client.py:9: in <module>
+    import requests
+E   ModuleNotFoundError: No module named 'requests'
+_______________________________________ ERROR collecting tests/test_openai_connector.py ________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_openai_connector.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_openai_connector.py:4: in <module>
+    import third_party.openai_client
+third_party/openai_client.py:9: in <module>
+    import requests
+E   ModuleNotFoundError: No module named 'requests'
+_________________________________ ERROR collecting tests/test_orchestrator_wlc_integration.py __________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_orchestrator_wlc_integration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_orchestrator_wlc_integration.py:3: in <module>
+    import scripts.orchestrators.unified_wrapup_orchestrator as uwo
+scripts/orchestrators/unified_wrapup_orchestrator.py:33: in <module>
+    from secondary_copilot_validator import SecondaryCopilotValidator, run_dual_copilot_validation
+E   ImportError: cannot import name 'run_dual_copilot_validation' from '<unknown module name>' (unknown location)
+__________________________________________ ERROR collecting tests/test_performance.py __________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_performance.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_performance.py:1: in <module>
+    from performance_validation_framework import PerformanceValidationFramework
+performance_validation_framework.py:3: in <module>
+    from scripts.validation.performance_validation_framework import PerformanceValidationFramework
+scripts/validation/performance_validation_framework.py:21: in <module>
+    from scripts.utilities.quantum_algorithms_functional import (
+scripts/utilities/quantum_algorithms_functional.py:5: in <module>
+    from quantum.algorithms.functional import QuantumFunctional
+E   ModuleNotFoundError: No module named 'quantum.algorithms.functional'; 'quantum.algorithms' is not a package
+______________________________________ ERROR collecting tests/test_performance_tracker.py ______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_performance_tracker.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_performance_tracker.py:5: in <module>
+    from monitoring.performance_tracker import benchmark_queries, ensure_table, record_error, track_query_time
+E   ModuleNotFoundError: No module named 'monitoring.performance_tracker'; 'monitoring' is not a package
+________________________________ ERROR collecting tests/test_performance_validation_complete.py ________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_performance_validation_complete.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_performance_validation_complete.py:7: in <module>
+    from scripts.validation.performance_validation_complete import benchmark
+scripts/validation/performance_validation_complete.py:15: in <module>
+    from performance_validation_framework import PerformanceValidationFramework
+performance_validation_framework.py:3: in <module>
+    from scripts.validation.performance_validation_framework import PerformanceValidationFramework
+scripts/validation/performance_validation_framework.py:21: in <module>
+    from scripts.utilities.quantum_algorithms_functional import (
+scripts/utilities/quantum_algorithms_functional.py:5: in <module>
+    from quantum.algorithms.functional import QuantumFunctional
+E   ModuleNotFoundError: No module named 'quantum.algorithms.functional'; 'quantum.algorithms' is not a package
+_______________________________ ERROR collecting tests/test_performance_validation_framework.py ________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_performance_validation_framework.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_performance_validation_framework.py:6: in <module>
+    from scripts.validation.performance_validation_framework import PerformanceValidationFramework
+scripts/validation/performance_validation_framework.py:21: in <module>
+    from scripts.utilities.quantum_algorithms_functional import (
+scripts/utilities/quantum_algorithms_functional.py:5: in <module>
+    from quantum.algorithms.functional import QuantumFunctional
+E   ModuleNotFoundError: No module named 'quantum.algorithms.functional'; 'quantum.algorithms' is not a package
+________________________________________ ERROR collecting tests/test_physics_engine.py _________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_physics_engine.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_physics_engine.py:7: in <module>
+    from qiskit import QuantumCircuit
+E   ImportError: cannot import name 'QuantumCircuit' from 'qiskit' (unknown location)
+_____________________________ ERROR collecting tests/test_prevent_executable_misclassification.py ______________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_prevent_executable_misclassification.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_prevent_executable_misclassification.py:5: in <module>
+    from scripts.orchestrators.unified_wrapup_orchestrator import (
+scripts/orchestrators/unified_wrapup_orchestrator.py:33: in <module>
+    from secondary_copilot_validator import SecondaryCopilotValidator, run_dual_copilot_validation
+E   ImportError: cannot import name 'run_dual_copilot_validation' from '<unknown module name>' (unknown location)
+______________________________ ERROR collecting tests/test_quantum_algorithm_library_expansion.py ______________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_quantum_algorithm_library_expansion.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_quantum_algorithm_library_expansion.py:4: in <module>
+    from quantum_algorithm_library_expansion import (
+E   ImportError: cannot import name 'EnterpriseUtility' from 'quantum_algorithm_library_expansion' (unknown location)
+______________________________________ ERROR collecting tests/test_quantum_algorithms.py _______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_quantum_algorithms.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_quantum_algorithms.py:1: in <module>
+    from quantum.quantum_integration_orchestrator import QuantumIntegrationOrchestrator
+quantum/quantum_integration_orchestrator.py:13: in <module>
+    from quantum.orchestration.executor import QuantumExecutor
+quantum/orchestration/__init__.py:3: in <module>
+    from .registry import QuantumAlgorithmRegistry
+quantum/orchestration/registry.py:8: in <module>
+    from ..algorithms.base import QuantumAlgorithmBase
+E   ImportError: cannot import name 'QuantumAlgorithmBase' from 'quantum.algorithms.base' (unknown location)
+_________________________________ ERROR collecting tests/test_quantum_algorithms_functional.py _________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_quantum_algorithms_functional.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_quantum_algorithms_functional.py:4: in <module>
+    from scripts.utilities.quantum_algorithms_functional import (
+scripts/utilities/quantum_algorithms_functional.py:5: in <module>
+    from quantum.algorithms.functional import QuantumFunctional
+E   ModuleNotFoundError: No module named 'quantum.algorithms.functional'; 'quantum.algorithms' is not a package
+_____________________________________ ERROR collecting tests/test_quantum_benchmarking.py ______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_quantum_benchmarking.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_quantum_benchmarking.py:4: in <module>
+    from qiskit_machine_learning.neural_networks import EstimatorQNN
+E   ModuleNotFoundError: No module named 'qiskit_machine_learning'
+_____________________________ ERROR collecting tests/test_quantum_clustering_file_organization.py ______________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_quantum_clustering_file_organization.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_quantum_clustering_file_organization.py:5: in <module>
+    from scripts.utilities.quantum_clustering_file_organization import EnterpriseUtility
+scripts/utilities/quantum_clustering_file_organization.py:21: in <module>
+    from quantum.algorithms.clustering import QuantumClustering, main
+E   ModuleNotFoundError: No module named 'quantum.algorithms.clustering'; 'quantum.algorithms' is not a package
+____________________________________ ERROR collecting tests/test_quantum_database_search.py ____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_quantum_database_search.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_quantum_database_search.py:7: in <module>
+    from quantum.algorithms.database_search import QuantumDatabaseSearch
+E   ModuleNotFoundError: No module named 'quantum.algorithms.database_search'; 'quantum.algorithms' is not a package
+__________________________________ ERROR collecting tests/test_quantum_enhanced_framework.py ___________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_quantum_enhanced_framework.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_quantum_enhanced_framework.py:3: in <module>
+    from web_gui.scripts.flask_apps.quantum_enhanced_framework import (
+web_gui/scripts/flask_apps/quantum_enhanced_framework.py:30: in <module>
+    from flask import Blueprint, jsonify, request
+E   ModuleNotFoundError: No module named 'flask'
+_______________________________________ ERROR collecting tests/test_quantum_framework.py _______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_quantum_framework.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_quantum_framework.py:1: in <module>
+    from web_gui.scripts.flask_apps.quantum_enhanced_framework import (
+web_gui/scripts/flask_apps/quantum_enhanced_framework.py:30: in <module>
+    from flask import Blueprint, jsonify, request
+E   ModuleNotFoundError: No module named 'flask'
+________________________________________ ERROR collecting tests/test_quantum_package.py ________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_quantum_package.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_quantum_package.py:9: in <module>
+    from quantum.algorithms.base import QuantumAlgorithmBase
+E   ImportError: cannot import name 'QuantumAlgorithmBase' from 'quantum.algorithms.base' (unknown location)
+____________________________ ERROR collecting tests/test_quantum_performance_integration_tester.py _____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_quantum_performance_integration_tester.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_quantum_performance_integration_tester.py:2: in <module>
+    from quantum_performance_integration_tester import EnterpriseUtility
+quantum_performance_integration_tester.py:3: in <module>
+    from scripts.validation.quantum_performance_integration_tester import (
+scripts/validation/quantum_performance_integration_tester.py:18: in <module>
+    from qiskit_aer import AerSimulator
+E   ModuleNotFoundError: No module named 'qiskit_aer'
+____________________________________ ERROR collecting tests/test_quantum_search_wrapper.py _____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_quantum_search_wrapper.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_quantum_search_wrapper.py:5: in <module>
+    from quantum.quantum_database_search import (
+quantum/quantum_database_search.py:20: in <module>
+    from quantum.algorithms import QuantumEncryptedCommunication
+E   ImportError: cannot import name 'QuantumEncryptedCommunication' from 'quantum.algorithms' (unknown location)
+__________________________________ ERROR collecting tests/test_quantum_template_generator.py ___________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_quantum_template_generator.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_quantum_template_generator.py:4: in <module>
+    from docs.quantum_template_generator import generate_default_templates
+docs/quantum_template_generator.py:13: in <module>
+    from template_engine.auto_generator import TemplateAutoGenerator
+template_engine/auto_generator.py:35: in <module>
+    from .objective_similarity_scorer import compute_similarity_scores
+template_engine/objective_similarity_scorer.py:25: in <module>
+    from sklearn.feature_extraction.text import CountVectorizer
+E   ImportError: cannot import name 'CountVectorizer' from 'sklearn.feature_extraction.text' (unknown location)
+_____________________________________ ERROR collecting tests/test_quick_database_query.py ______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_quick_database_query.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_quick_database_query.py:3: in <module>
+    from scripts.quick_database_query import log_metrics
+scripts/quick_database_query.py:20: in <module>
+    from secondary_copilot_validator import (
+E   ImportError: cannot import name 'run_dual_copilot_validation' from '<unknown module name>' (unknown location)
+_______________________________ ERROR collecting tests/test_self_healing_self_learning_system.py _______________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_self_healing_self_learning_system.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_self_healing_self_learning_system.py:7: in <module>
+    from scripts.utilities.self_healing_self_learning_system import (
+scripts/utilities/self_healing_self_learning_system.py:21: in <module>
+    import schedule
+E   ModuleNotFoundError: No module named 'schedule'
+_________________________________ ERROR collecting tests/test_system_maintenance_scheduler.py __________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_system_maintenance_scheduler.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_system_maintenance_scheduler.py:5: in <module>
+    import scripts.automation.system_maintenance_scheduler as sms
+scripts/automation/system_maintenance_scheduler.py:14: in <module>
+    import schedule
+E   ModuleNotFoundError: No module named 'schedule'
+_______________________________ ERROR collecting tests/test_template_auto_generation_complete.py _______________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_template_auto_generation_complete.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_template_auto_generation_complete.py:5: in <module>
+    from scripts.automation.template_auto_generation_complete import TemplateSynthesisEngine
+scripts/automation/template_auto_generation_complete.py:18: in <module>
+    from template_engine.auto_generator import TemplateAutoGenerator
+template_engine/auto_generator.py:35: in <module>
+    from .objective_similarity_scorer import compute_similarity_scores
+template_engine/objective_similarity_scorer.py:25: in <module>
+    from sklearn.feature_extraction.text import CountVectorizer
+E   ImportError: cannot import name 'CountVectorizer' from 'sklearn.feature_extraction.text' (unknown location)
+________________________________________ ERROR collecting tests/test_template_engine.py ________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_template_engine.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_template_engine.py:10: in <module>
+    from template_engine.auto_generator import TemplateAutoGenerator
+template_engine/auto_generator.py:35: in <module>
+    from .objective_similarity_scorer import compute_similarity_scores
+template_engine/objective_similarity_scorer.py:25: in <module>
+    from sklearn.feature_extraction.text import CountVectorizer
+E   ImportError: cannot import name 'CountVectorizer' from 'sklearn.feature_extraction.text' (unknown location)
+__________________________________ ERROR collecting tests/test_unified_database_migration.py ___________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_unified_database_migration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_unified_database_migration.py:6: in <module>
+    from scripts.database.unified_database_migration import run_migration
+scripts/database/unified_database_migration.py:24: in <module>
+    from .database_consolidation_migration import consolidate_databases
+scripts/database/database_consolidation_migration.py:18: in <module>
+    from monitoring.performance_tracker import benchmark_queries
+E   ModuleNotFoundError: No module named 'monitoring.performance_tracker'; 'monitoring' is not a package
+____________________________ ERROR collecting tests/test_unified_monitoring_optimization_system.py _____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_unified_monitoring_optimization_system.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_unified_monitoring_optimization_system.py:36: in <module>
+    from unified_monitoring_optimization_system import (
+E   ImportError: cannot import name 'detect_anomalies' from '<unknown module name>' (unknown location)
+_____________________________ ERROR collecting tests/test_unified_wrapup_orchestrator_postinit.py ______________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_unified_wrapup_orchestrator_postinit.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_unified_wrapup_orchestrator_postinit.py:3: in <module>
+    from scripts.orchestrators.unified_wrapup_orchestrator import WrapUpResult
+scripts/orchestrators/unified_wrapup_orchestrator.py:33: in <module>
+    from secondary_copilot_validator import SecondaryCopilotValidator, run_dual_copilot_validation
+E   ImportError: cannot import name 'run_dual_copilot_validation' from '<unknown module name>' (unknown location)
+____________________________ ERROR collecting tests/test_unified_wrapup_orchestrator_validation.py _____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_unified_wrapup_orchestrator_validation.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_unified_wrapup_orchestrator_validation.py:1: in <module>
+    import scripts.orchestrators.unified_wrapup_orchestrator as uwo
+scripts/orchestrators/unified_wrapup_orchestrator.py:33: in <module>
+    from secondary_copilot_validator import SecondaryCopilotValidator, run_dual_copilot_validation
+E   ImportError: cannot import name 'run_dual_copilot_validation' from '<unknown module name>' (unknown location)
+________________________________ ERROR collecting tests/test_web_gui_integrator_registration.py ________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_web_gui_integrator_registration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_web_gui_integrator_registration.py:4: in <module>
+    from web_gui.scripts.flask_apps.web_gui_integrator import WebGUIIntegrator
+web_gui/scripts/flask_apps/web_gui_integrator.py:12: in <module>
+    from flask import Flask, Response, jsonify, request
+E   ModuleNotFoundError: No module named 'flask'
+_______________________________________ ERROR collecting tests/test_web_gui_templates.py _______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/test_web_gui_templates.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_web_gui_templates.py:2: in <module>
+    from flask import render_template
+E   ModuleNotFoundError: No module named 'flask'
+___________________________________ ERROR collecting tests/web_gui/test_analytics_modules.py ___________________________________
+import file mismatch:
+imported module 'test_analytics_modules' has this __file__ attribute:
+  /workspace/gh_COPILOT/tests/analytics/test_analytics_modules.py
+which is not the same as the test file we want to collect:
+  /workspace/gh_COPILOT/tests/web_gui/test_analytics_modules.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+_____________________________________ ERROR collecting tests/web_gui/test_certificates.py ______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/web_gui/test_certificates.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/web_gui/test_certificates.py:9: in <module>
+    from web_gui.certificates import certificate_manager as cm
+web_gui/certificates/__init__.py:3: in <module>
+    from flask import Flask
+E   ModuleNotFoundError: No module named 'flask'
+___________________________________ ERROR collecting tests/web_gui/test_dashboard_metrics.py ___________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/web_gui/test_dashboard_metrics.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/web_gui/test_dashboard_metrics.py:7: in <module>
+    from dashboard import integrated_dashboard as gui
+dashboard/integrated_dashboard.py:11: in <module>
+    from flask import (
+E   ModuleNotFoundError: No module named 'flask'
+________________________________ ERROR collecting tests/web_gui/test_database_web_connector.py _________________________________
+import file mismatch:
+imported module 'test_database_web_connector' has this __file__ attribute:
+  /workspace/gh_COPILOT/tests/dashboard/test_database_web_connector.py
+which is not the same as the test file we want to collect:
+  /workspace/gh_COPILOT/tests/web_gui/test_database_web_connector.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+____________________________________ ERROR collecting tests/web_gui/test_email_templates.py ____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/web_gui/test_email_templates.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/web_gui/test_email_templates.py:2: in <module>
+    from flask import render_template
+E   ModuleNotFoundError: No module named 'flask'
+______________________________________ ERROR collecting tests/web_gui/test_middleware.py _______________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/web_gui/test_middleware.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/web_gui/test_middleware.py:3: in <module>
+    from flask import Flask, session
+E   ModuleNotFoundError: No module named 'flask'
+_________________________________ ERROR collecting tests/web_gui/test_security_integration.py __________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/web_gui/test_security_integration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/web_gui/test_security_integration.py:1: in <module>
+    from dashboard.integrated_dashboard import create_app
+dashboard/integrated_dashboard.py:11: in <module>
+    from flask import (
+E   ModuleNotFoundError: No module named 'flask'
+___________________________________ ERROR collecting tests/web_gui/test_security_modules.py ____________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/web_gui/test_security_modules.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/web_gui/test_security_modules.py:2: in <module>
+    from flask import Flask, Response, g
+E   ModuleNotFoundError: No module named 'flask'
+___________________________ ERROR collecting tests/web_gui/test_web_gui_monitoring_health_checks.py ____________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/web_gui/test_web_gui_monitoring_health_checks.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/web_gui/test_web_gui_monitoring_health_checks.py:3: in <module>
+    from web_gui.monitoring.health_checks import (
+web_gui/monitoring/health_checks.py:17: in <module>
+    from jinja2 import Environment, FileSystemLoader, TemplateNotFound
+E   ModuleNotFoundError: No module named 'jinja2'
+======================================================= warnings summary =======================================================
+../../root/.pyenv/versions/3.12.10/lib/python3.12/site-packages/_pytest/config/__init__.py:1474
+  /root/.pyenv/versions/3.12.10/lib/python3.12/site-packages/_pytest/config/__init__.py:1474: PytestConfigWarning: Unknown config option: timeout
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+tests/test_quantum_optimizer.py:7
+  /workspace/gh_COPILOT/tests/test_quantum_optimizer.py:7: PytestUnknownMarkWarning: Unknown pytest.mark.timeout - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.timeout(60)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================================================== Skipped tests =========================================================
+misc/tests/test_base64_zip_transformer.py - ('/workspace/gh_COPILOT/misc/tests/test_base64_zip_transformer.py', 12, "Skipped: could not import 'PyQt6': No module named 'PyQt6'")
+misc/tests/test_zip_transformer.py - ('/workspace/gh_COPILOT/misc/tests/test_zip_transformer.py', 11, "Skipped: could not import 'PyQt6': No module named 'PyQt6'")
+tests/quantum/test_secure_channel.py - ('/workspace/gh_COPILOT/tests/quantum/test_secure_channel.py', 4, "Skipped: could not import 'numpy': No module named 'numpy'")
+tests/test_quantum_clustering.py - ('/workspace/gh_COPILOT/tests/test_quantum_clustering.py', 6, "Skipped: could not import 'qiskit_machine_learning': No module named 'qiskit_machine_learning'")
+tests/test_quantum_predictive_maintenance.py - ('/workspace/gh_COPILOT/tests/test_quantum_predictive_maintenance.py', 6, "Skipped: could not import 'qiskit_machine_learning': No module named 'qiskit_machine_learning'")
+========================================================= Future work ==========================================================
+Consider extending artifact_manager tests for additional edge cases and CI integration.
+=================================================== short test summary info ====================================================
+ERROR scripts/bot/test_integration.py
+ERROR tests/compliance/test_compliance_pipeline_integration.py
+ERROR tests/compliance/test_ingest_test_and_lint_results.py
+ERROR tests/compliance/test_update_compliance_metrics.py
+ERROR tests/dashboard/corrections/test_correction_logs_route.py
+ERROR tests/dashboard/integration/test_auth_flow.py
+ERROR tests/dashboard/integration/test_charts_flow.py
+ERROR tests/dashboard/integration/test_dashboard_workflow.py
+ERROR tests/dashboard/integration/test_logs_flow.py
+ERROR tests/dashboard/integration/test_websocket_flow.py
+ERROR tests/dashboard/test_actionable_endpoints.py
+ERROR tests/dashboard/test_additional_metrics.py
+ERROR tests/dashboard/test_auth_security.py
+ERROR tests/dashboard/test_compliance_metrics.py
+ERROR tests/dashboard/test_compliance_metrics_updater.py
+ERROR tests/dashboard/test_composite_score_persistence.py
+ERROR tests/dashboard/test_correction_log_ui.py
+ERROR tests/dashboard/test_correction_logs.py
+ERROR tests/dashboard/test_executive_dashboard.py
+ERROR tests/dashboard/test_live_metrics.py
+ERROR tests/dashboard/test_placeholder_summary.py
+ERROR tests/dashboard/test_placeholder_trend_metrics.py
+ERROR tests/dashboard/test_score_serialization.py
+ERROR tests/dashboard/test_sub_dashboards.py
+ERROR tests/database/test_documentation_ingestor.py
+ERROR tests/database/test_template_asset_ingestor.py
+ERROR tests/database/test_template_asset_ingestor_logging.py
+ERROR tests/database/test_violation_and_rollback_validators.py
+ERROR tests/db/sync/logging/test_engine_logging.py
+ERROR tests/db_tools/test_compliance_corrections.py
+ERROR tests/documentation/test_documentation_manager_templates.py
+ERROR tests/documentation_manager/test_compliance.py
+ERROR tests/integration/test_performance.py
+ERROR tests/monitoring/anomaly/test_model.py
+ERROR tests/monitoring/recovery/test_recovery.py
+ERROR tests/monitoring/session/test_session_validators.py
+ERROR tests/monitoring/test_anomaly_pipeline.py
+ERROR tests/monitoring/test_compliance_monitor.py
+ERROR tests/monitoring/test_enterprise_compliance_monitor.py
+ERROR tests/monitoring/test_service_health.py
+ERROR tests/monitoring/test_unified_monitoring_optimization_system.py
+ERROR tests/placeholder/test_code_placeholder_audit.py
+ERROR tests/placeholder_audit/test_auto_resolve.py
+ERROR tests/placeholder_audit/test_dashboard_rendering.py
+ERROR tests/placeholder_audit/test_full_scan.py
+ERROR tests/placeholder_audit/test_metrics_logging.py
+ERROR tests/placeholder_audit/test_parse_args.py
+ERROR tests/placeholder_audit/test_placeholder_enforcer.py
+ERROR tests/placeholder_audit/test_summary_creation.py
+ERROR tests/placeholder_audit/test_task_report_generation.py
+ERROR tests/quantum/test_advanced_algorithms.py
+ERROR tests/quantum/test_ai_enhancement_utils.py
+ERROR tests/quantum/test_backend_provider.py
+ERROR tests/quantum/test_backend_provider_config.py
+ERROR tests/quantum/test_backend_selection.py
+ERROR tests/quantum/test_database_search_hardware.py
+ERROR tests/quantum/test_database_search_token.py
+ERROR tests/quantum/test_detect_c_temp_case_insensitive.py
+ERROR tests/quantum/test_executor_hardware.py
+ERROR tests/quantum/test_framework_models.py
+ERROR tests/quantum/test_hardware_aware_algorithm.py
+ERROR tests/quantum/test_hardware_backend.py
+ERROR tests/quantum/test_hybrid_routines.py
+ERROR tests/quantum/test_interfaces.py
+ERROR tests/quantum/test_ml_pattern_recognition.py
+ERROR tests/quantum/test_modules_simulation.py
+ERROR tests/quantum/test_new_routines.py
+ERROR tests/quantum/test_optimizer_backend.py
+ERROR tests/quantum/test_placeholder_modules.py
+ERROR tests/quantum/test_provider_fallback.py
+ERROR tests/quantum/test_quantum_algorithms.py
+ERROR tests/quantum/test_quantum_compliance_engine_logic.py
+ERROR tests/quantum/test_quantum_compliance_engine_ml.py
+ERROR tests/quantum/test_quantum_integration_orchestrator.py
+ERROR tests/quantum/test_quantum_performance.py
+ERROR tests/quantum/test_quantum_secure_search.py
+ERROR tests/quantum/test_root_quantum_optimizer_backend.py
+ERROR tests/quantum/test_scoring.py
+ERROR tests/quantum/test_simulation_markers.py
+ERROR tests/quantum/test_teleportation.py
+ERROR tests/quantum/test_validate_no_recursive_folders.py
+ERROR tests/quantum/test_vqe_phase_estimation_demo.py
+ERROR tests/script_generation/test_template_clustering.py
+ERROR tests/sync/test_logging_hooks.py
+ERROR tests/sync/test_realtime_sync.py
+ERROR tests/sync/test_websocket_sync.py
+ERROR tests/template_engine/test_database_scoring.py
+ERROR tests/template_engine/test_db_first_code_generator_updates.py
+ERROR tests/template_engine/test_lesson_driven_updates.py
+ERROR tests/template_engine/test_lesson_template_merge.py
+ERROR tests/template_engine/test_placeholder_removal_and_ranking.py
+ERROR tests/template_engine/test_synchronizer_audit.py
+ERROR tests/template_engine/test_template_caching.py
+ERROR tests/template_engine/test_template_curation_pipeline.py
+ERROR tests/test_advanced_qubo_optimization.py
+ERROR tests/test_anti_recursion.py
+ERROR tests/test_anti_recursion_enforcer.py
+ERROR tests/test_anti_recursion_guard.py
+ERROR tests/test_anti_recursion_validator.py
+ERROR tests/test_artifact_manager.py
+ERROR tests/test_auto_generator.py
+ERROR tests/test_autonomous_audit_validator.py
+ERROR tests/test_autonomous_setup_and_audit.py
+ERROR tests/test_backup_archiver.py
+ERROR tests/test_bot.py
+ERROR tests/test_complete_consolidation_orchestrator.py
+ERROR tests/test_compress_database.py
+ERROR tests/test_configuration_utils.py
+ERROR tests/test_continuous_monitoring.py
+ERROR tests/test_continuous_monitoring_engine.py
+ERROR tests/test_convert_daily_whitepaper.py
+ERROR tests/test_daily_state_generator.py
+ERROR tests/test_dashboard.py
+ERROR tests/test_dashboard_actionable_gui.py
+ERROR tests/test_dashboard_endpoints.py
+ERROR tests/test_database_consolidation_migration.py
+ERROR tests/test_database_consolidation_run.py
+ERROR tests/test_database_first_correction_engine.py
+ERROR tests/test_db_first_code_generator.py
+ERROR tests/test_db_first_codegen_analytics.py
+ERROR tests/test_docs_metrics.py
+ERROR tests/test_documentation_manager.py
+ERROR tests/test_documentation_manager_validator.py
+ERROR tests/test_dual_copilot_validation.py
+ERROR tests/test_end_to_end.py
+ERROR tests/test_enterprise_api_auth.py
+ERROR tests/test_enterprise_api_server.py
+ERROR tests/test_enterprise_database_driven_documentation_manager.py
+ERROR tests/test_flask_apps.py
+ERROR tests/test_health_monitor.py
+ERROR tests/test_log_error_notifier.py
+ERROR tests/test_monitoring.py
+ERROR tests/test_monitoring_ml.py
+ERROR tests/test_new_placeholders.py
+ERROR tests/test_objective_similarity_scorer.py
+ERROR tests/test_openai_client.py
+ERROR tests/test_openai_connector.py
+ERROR tests/test_orchestrator_wlc_integration.py
+ERROR tests/test_performance.py
+ERROR tests/test_performance_tracker.py
+ERROR tests/test_performance_validation_complete.py
+ERROR tests/test_performance_validation_framework.py
+ERROR tests/test_physics_engine.py
+ERROR tests/test_prevent_executable_misclassification.py
+ERROR tests/test_quantum_algorithm_library_expansion.py
+ERROR tests/test_quantum_algorithms.py
+ERROR tests/test_quantum_algorithms_functional.py
+ERROR tests/test_quantum_benchmarking.py
+ERROR tests/test_quantum_clustering_file_organization.py
+ERROR tests/test_quantum_database_search.py
+ERROR tests/test_quantum_enhanced_framework.py
+ERROR tests/test_quantum_framework.py
+ERROR tests/test_quantum_package.py
+ERROR tests/test_quantum_performance_integration_tester.py
+ERROR tests/test_quantum_search_wrapper.py
+ERROR tests/test_quantum_template_generator.py
+ERROR tests/test_quick_database_query.py
+ERROR tests/test_self_healing_self_learning_system.py
+ERROR tests/test_system_maintenance_scheduler.py
+ERROR tests/test_template_auto_generation_complete.py
+ERROR tests/test_template_engine.py
+ERROR tests/test_unified_database_migration.py
+ERROR tests/test_unified_monitoring_optimization_system.py
+ERROR tests/test_unified_wrapup_orchestrator_postinit.py
+ERROR tests/test_unified_wrapup_orchestrator_validation.py
+ERROR tests/test_web_gui_integrator_registration.py
+ERROR tests/test_web_gui_templates.py
+ERROR tests/web_gui/test_analytics_modules.py
+ERROR tests/web_gui/test_certificates.py
+ERROR tests/web_gui/test_dashboard_metrics.py
+ERROR tests/web_gui/test_database_web_connector.py
+ERROR tests/web_gui/test_email_templates.py
+ERROR tests/web_gui/test_middleware.py
+ERROR tests/web_gui/test_security_integration.py
+ERROR tests/web_gui/test_security_modules.py
+ERROR tests/web_gui/test_web_gui_monitoring_health_checks.py
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Interrupted: 176 errors during collection !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+========================================= 5 skipped, 2 warnings, 176 errors in 12.00s ==========================================
