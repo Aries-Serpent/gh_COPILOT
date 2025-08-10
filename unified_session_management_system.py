@@ -58,7 +58,11 @@ def _record_zero_byte_findings(paths: list[Path], phase: str, session_id: str) -
 
 
 def _record_wrap_up_metrics(
-    session_id: str, open_handles: int, zero_byte_count: int
+    session_id: str,
+    open_handles: int,
+    zero_byte_count: int,
+    duration: float,
+    status: str,
 ) -> None:
     """Store wrap-up metrics in ``analytics.db``.
 
@@ -70,6 +74,10 @@ def _record_wrap_up_metrics(
         Number of file descriptors currently open.
     zero_byte_count:
         Count of zero-byte files present at wrap-up.
+    duration:
+        Session duration in seconds.
+    status:
+        Final outcome status for the session.
     """
 
     ts = datetime.utcnow().isoformat()
@@ -80,16 +88,28 @@ def _record_wrap_up_metrics(
                 session_id TEXT NOT NULL,
                 open_handles INTEGER NOT NULL,
                 zero_byte_files INTEGER NOT NULL,
+                duration_seconds REAL NOT NULL,
+                status TEXT NOT NULL,
                 ts TEXT NOT NULL
             )
             """
         )
         conn.execute(
             """
-            INSERT INTO wrap_up_metrics (session_id, open_handles, zero_byte_files, ts)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO wrap_up_metrics (
+                session_id, open_handles, zero_byte_files,
+                duration_seconds, status, ts
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
             """,
-            (session_id, int(open_handles), int(zero_byte_count), ts),
+            (
+                session_id,
+                int(open_handles),
+                int(zero_byte_count),
+                float(duration),
+                status,
+                ts,
+            ),
         )
 
 
@@ -135,9 +155,9 @@ def prevent_recursion(func: Callable) -> Callable:
         try:
             return guarded(*args, **kwargs)
         except RuntimeError as exc:
-            logger.warning("Recursion detected in %s: %s", func.__name__, exc)
+            logger.error("Recursion detected in %s: %s", func.__name__, exc)
             record_codex_action(session_id, "anti_recursion_triggered", str(exc))
-            raise
+            raise RuntimeError(f"Recursion detected in {func.__name__}") from exc
 
     return wrapper
 
@@ -154,6 +174,8 @@ def finalize_session(
 
     A zero-byte file scan is executed before and after processing. Results are
     persisted to ``analytics.db`` using ``session_id`` for traceability.
+    During finalization, session duration and outcome metrics are also stored
+    for dashboard consumption.
 
     Parameters
     ----------
@@ -202,11 +224,13 @@ def finalize_session(
 
     zero_byte_count = len(detect_zero_byte_files(root_path))
     open_handles = len(psutil.Process().open_files()) if psutil else 0
-    _record_wrap_up_metrics(session_id, open_handles, zero_byte_count)
-
     end_ts = datetime.now(UTC)
     start_ts = int((start_time or end_ts).timestamp())
     duration = (end_ts - (start_time or end_ts)).total_seconds()
+    _record_wrap_up_metrics(
+        session_id, open_handles, zero_byte_count, duration, status
+    )
+
     with sqlite3.connect(ANALYTICS_DB) as conn:
         conn.execute(
             """
@@ -224,14 +248,16 @@ def finalize_session(
         conn.execute(
             """
             INSERT OR REPLACE INTO session_lifecycle (
-                session_id, start_ts, end_ts, duration_seconds, status
-            ) VALUES (?, ?, ?, ?, ?)
+                session_id, start_ts, end_ts, duration_seconds,
+                zero_byte_violations, status
+            ) VALUES (?, ?, ?, ?, ?, ?)
             """,
             (
                 session_id,
                 start_ts,
                 int(end_ts.timestamp()),
                 float(duration),
+                int(zero_byte_count),
                 status,
             ),
         )
@@ -257,6 +283,7 @@ def main() -> int:
     success = False
     with ensure_no_zero_byte_files(system.workspace_root, system.session_id):
         log_action(system.session_id, "start_session_begin", "Starting session")
+        start_time = datetime.now(UTC)
         success = system.start_session()
         log_action(system.session_id, "start_session_complete", "Session started")
         log_action(system.session_id, "end_session_begin", "Ending session")
@@ -267,6 +294,8 @@ def main() -> int:
             Path(system.workspace_root) / "logs",
             system.workspace_root,
             system.session_id,
+            start_time=start_time,
+            status="success" if success else "failed",
         )
         log_action(
             system.session_id,

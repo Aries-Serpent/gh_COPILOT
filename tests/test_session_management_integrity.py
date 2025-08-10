@@ -36,3 +36,15 @@ def test_prevent_recursion_logs(monkeypatch):
     with pytest.raises(RuntimeError):
         recurse()
     assert any(a[1] == "anti_recursion_triggered" for a in calls)
+
+
+def test_prevent_recursion_runtime_error_message(monkeypatch):
+    monkeypatch.setattr(usm, "record_codex_action", lambda *a, **k: None)
+
+    @prevent_recursion
+    def recurse(n: int = 0) -> None:
+        if n == 0:
+            recurse(n + 1)
+
+    with pytest.raises(RuntimeError, match="Recursion detected"):
+        recurse()
