@@ -1,5 +1,9 @@
 # Changelog
 
+## [4.1.25] - 2025-08-10
+- Clarified composite compliance score with session lifecycle metrics.
+- Added governance notes for ML monitoring and placeholder audits.
+
 ## [4.1.24] - 2025-08-09
 - Finalized compliance scoring rules and placeholder targets in `GOVERNANCE_STANDARDS.md`.
 - Updated README and white papers with monitoring and session metrics details.
