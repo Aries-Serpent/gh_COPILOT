@@ -17,7 +17,11 @@ from datetime import datetime
 import logging
 import uuid
 
-from unified_monitoring_optimization_system import push_metrics
+try:  # pragma: no cover - optional dependency
+    from unified_monitoring_optimization_system import push_metrics
+except Exception:  # pragma: no cover
+    def push_metrics(*args, **kwargs):  # type: ignore[override]
+        return None
 from unified_disaster_recovery_system import (
     UnifiedDisasterRecoverySystem,
     log_backup_event,
