@@ -18,9 +18,25 @@ def test_dashboard_template_renders_counts(tmp_path):
         "progress": 0.6,
         "placeholder_breakdown": {},
         "compliance_trend": [],
+        "anomaly": {"threshold": 0},
     }
     with app.test_request_context("/"):
-        html = render_template("dashboard.html", metrics=metrics, rollbacks=[])
+        html = render_template(
+            "dashboard.html",
+            metrics=metrics,
+            rollbacks=[],
+            anomaly={"threshold": 0, "count": 0},
+            lifecycle={
+                "count": 0,
+                "avg_duration": 0,
+                "success_rate": 0,
+                "last_duration": 0,
+                "last_status": "",
+                "last_zero_byte_violations": 0,
+            },
+            sync_events=[],
+            audit_results=[],
+        )
     assert "Open Placeholders:" in html
     assert "Resolved Placeholders:" in html
     assert "Remediation Progress:" in html
