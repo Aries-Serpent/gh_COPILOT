@@ -46,3 +46,9 @@ A composite score below **85** blocks merges until issues are corrected.
 
 ## ML Monitoring and Placeholder Audits
 Machine-learning components must log performance and drift metrics to `analytics.db` via the unified monitoring interfaces. Placeholder audits run after each session and their results are stored in `placeholder_audit_snapshots` to satisfy enterprise governance requirements. Deviations from expected model behaviour or unresolved placeholders trigger compliance reviews and must be addressed before deployment.
+
+## Session Lifecycle Requirements
+- Invoke `start_session` at the beginning of every workflow and `end_session` upon completion.
+- Persist session metadata, compliance scores, and audit results to `analytics.db` for traceability.
+- Run zero-byte file checks and placeholder audits during `end_session` to confirm integrity.
+- Mark sessions that fail integrity checks or leave placeholders unresolved as non‑compliant until corrected.
