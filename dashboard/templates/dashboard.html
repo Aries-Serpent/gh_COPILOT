@@ -54,7 +54,7 @@
         const alert = document.getElementById('compliance_alert');
         alert.textContent = comp.toFixed(2);
         alert.className = 'status-indicator ' +
-            (comp >= 90 ? 'status-green' : comp >= 75 ? 'status-yellow' : 'status-red');
+            (comp >= 90 ? 'status-green' : comp >= 80 ? 'status-yellow' : 'status-red');
         document.getElementById('open_placeholders').textContent = data.open_placeholders || 0;
             document.getElementById('resolved_placeholders').textContent = data.resolved_placeholders || 0;
             const prog = data.progress !== undefined ? (data.progress * 100).toFixed(1) + '%' : '0%';

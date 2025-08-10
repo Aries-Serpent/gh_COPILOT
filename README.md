@@ -100,6 +100,11 @@ This value is persisted to `analytics.db` (table `compliance_scores`) via `scrip
 Endpoints:
 * `POST /api/refresh_compliance` – compute & persist a new composite score
 * `GET /api/compliance_scores` – last 50 scores for trend visualization
+* `GET /api/compliance_scores.csv` – same data in CSV for offline analysis
+
+The Flask dashboard streams these metrics in real time with Chart.js
+gauges and line charts, exposing red/yellow/green indicators based on
+composite score thresholds.
 
 Anti-recursion guards (`validate_enterprise_operation`, `anti_recursion_guard`) execute alongside scoring; violating runs are excluded.
 

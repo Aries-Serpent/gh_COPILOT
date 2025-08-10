@@ -8,6 +8,10 @@ The repository includes an integration test suite under `tests/integration/` tha
 pytest tests/integration
 ```
 
+Compliance dashboards and monitoring hooks have dedicated regression
+tests under `tests/dashboard/` and `tests/monitoring/` to ensure score
+serialization and alerting remain stable.
+
 ## Safe Pytest Runner
 
 Use the safe runner to execute tests with optional coverage and JSON reporting. It automatically enables plugins when available and writes a summary file to `artifacts/test_failures_summary.json` by default.
