@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """Generate documentation status indexes.
 
-The script scans markdown files under ``docs/`` for YAML front matter containing
-``id`` and ``status`` fields. It aggregates this metadata into two derived
-artifacts:
+The script parses ``docs/PHASE5_TASKS_STARTED.md`` for per‑task YAML front
+matter blocks containing ``id`` and ``status`` fields. It aggregates this
+metadata into two derived artifacts:
 
-* ``docs/task_stubs.md`` – human‑readable table linking each document to its
-  status.
-* ``docs/status_index.json`` – machine‑readable mapping of document ``id`` to
-  status and source path.
+* ``docs/task_stubs.md`` – human‑readable table linking each task to its status.
+* ``docs/status_index.json`` – machine‑readable mapping of task ``id`` to status
+  and source anchor.
 
 Run this script before committing to keep these artifacts in sync. CI calls the
 script and fails if the generated files differ from what is committed.
@@ -18,6 +17,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import re
 from typing import Iterable
 
 import yaml
@@ -27,38 +27,30 @@ ROOT = Path(__file__).resolve().parents[1]
 DOCS_DIR = ROOT / "docs"
 TASK_STUBS = DOCS_DIR / "task_stubs.md"
 STATUS_INDEX = DOCS_DIR / "status_index.json"
+PHASE5_TASKS = DOCS_DIR / "PHASE5_TASKS_STARTED.md"
 
 
-def _parse_front_matter(path: Path) -> dict[str, str] | None:
-    """Return front-matter metadata for ``path``.
+def _slug(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
 
-    The function expects the file to start with a YAML front-matter block. Only
-    entries containing both ``id`` and ``status`` keys are returned.
-    """
+
+def _collect_entries(path: Path = PHASE5_TASKS) -> list[dict[str, str]]:
+    """Return task entries parsed from ``path``."""
 
     text = path.read_text(encoding="utf-8")
-    if not text.startswith("---"):
-        return None
-    try:
-        _, fm, _ = text.split("---", 2)
-    except ValueError:
-        return None
-    data = yaml.safe_load(fm) or {}
-    if "id" in data and "status" in data:
-        return {
-            "id": str(data["id"]),
-            "status": str(data["status"]),
-            "file": path.relative_to(DOCS_DIR).as_posix(),
-        }
-    return None
-
-
-def _collect_entries() -> list[dict[str, str]]:
+    pattern = re.compile(r"^###\s+(?P<title>.+?)\n---\n(?P<yaml>.+?)\n---", re.MULTILINE | re.DOTALL)
     entries: list[dict[str, str]] = []
-    for md in DOCS_DIR.glob("*.md"):
-        meta = _parse_front_matter(md)
-        if meta:
-            entries.append(meta)
+    for match in pattern.finditer(text):
+        title = match.group("title").strip()
+        data = yaml.safe_load(match.group("yaml")) or {}
+        if "id" in data and "status" in data:
+            entries.append(
+                {
+                    "id": str(data["id"]),
+                    "status": str(data["status"]),
+                    "file": f"{path.name}#{_slug(title)}",
+                }
+            )
     return sorted(entries, key=lambda x: x["id"])
 
 
