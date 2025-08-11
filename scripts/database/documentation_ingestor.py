@@ -12,7 +12,12 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from enterprise_modules.compliance import validate_enterprise_operation
+from types import SimpleNamespace
+
+from enterprise_modules.compliance import (
+    enforce_anti_recursion,
+    validate_enterprise_operation,
+)
 from template_engine.learning_templates import get_dataset_sources
 
 from secondary_copilot_validator import SecondaryCopilotValidator
@@ -25,6 +30,8 @@ from .unified_database_initializer import initialize_database
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
+_RECURSION_CTX = SimpleNamespace()
+
 
 def _gather_markdown_files(directory: Path) -> list[Path]:
     """Return a sorted list of Markdown files under ``directory``."""
@@ -32,6 +39,7 @@ def _gather_markdown_files(directory: Path) -> list[Path]:
     return sorted(files)
 
 
+@pid_recursion_guard
 def ingest_documentation(
     workspace: Path,
     docs_dir: Path | None = None,
@@ -47,6 +55,7 @@ def ingest_documentation(
         Optional path to the documentation directory. Defaults to
         ``workspace / 'documentation'``.
     """
+    enforce_anti_recursion(_RECURSION_CTX)
     validate_enterprise_operation()
 
     validator = SecondaryCopilotValidator()
@@ -265,6 +274,12 @@ def ingest_documentation(
 
     if not check_database_sizes(db_dir):
         raise RuntimeError("Database size limit exceeded")
+
+    if getattr(_RECURSION_CTX, "recursion_depth", 0) > 0:
+        _RECURSION_CTX.recursion_depth -= 1
+        ancestors = getattr(_RECURSION_CTX, "ancestors", [])
+        if ancestors:
+            ancestors.pop()
 
 
 if __name__ == "__main__":
