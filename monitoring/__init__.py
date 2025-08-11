@@ -11,6 +11,17 @@ try:  # Optional dependency on requests
 except Exception:  # pragma: no cover - missing optional deps
     pass
 
-from .baseline_anomaly_detector import BaselineAnomalyDetector  # noqa: F401
+from .baseline_anomaly_detector import BaselineAnomalyDetector
+from .health_monitor import record_system_health
+from .performance_tracker import track_query_time, push_metrics
+from .compliance_monitor import check_compliance
+from .log_error_notifier import monitor_logs
 
-__all__.append("BaselineAnomalyDetector")
+__all__ += [
+    "BaselineAnomalyDetector",
+    "record_system_health",
+    "track_query_time",
+    "push_metrics",
+    "check_compliance",
+    "monitor_logs",
+]
