@@ -33,7 +33,7 @@ def _compute(c: ComplianceComponents) -> Tuple[float, float, float, float]:
 
 def test_composite_bounds_extremes():
     """Test extreme values for composite score bounds."""
-    # ruff_issues = 0 (best), no tests executed, no placeholders -> P fallback 0
+    # ruff_issues = 0 (best), no tests executed, no placeholders -> P defaults to 100
     c = ComplianceComponents(
         ruff_issues=0,
         tests_passed=0,
