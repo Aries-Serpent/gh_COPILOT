@@ -13,6 +13,21 @@ def _prepare_dbs(tmp_path: Path):
     return prod_db, analytics_db
 
 
+def test_record_unresolved_placeholders_ignores_duplicates(tmp_path):
+    analytics = tmp_path / "analytics.db"
+    rows = [
+        {"file": "a.py", "line": 1, "pattern": "TODO", "context": "# TODO"},
+        {"file": "a.py", "line": 1, "pattern": "TODO", "context": "# TODO again"},
+    ]
+    audit.record_unresolved_placeholders(rows, analytics)
+    audit.record_unresolved_placeholders(rows, analytics)
+    with sqlite3.connect(analytics) as conn:
+        count = conn.execute(
+            "SELECT COUNT(*) FROM unresolved_placeholders"
+        ).fetchone()[0]
+    assert count == 1
+
+
 def test_generate_fix_suggestions(tmp_path, monkeypatch):
     workspace = tmp_path / "ws"
     workspace.mkdir()

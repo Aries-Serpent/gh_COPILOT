@@ -455,6 +455,44 @@ def _ensure_placeholder_tables(conn: sqlite3.Connection) -> None:
     )
 
 
+def record_unresolved_placeholders(
+    results: List[Dict[str, str]],
+    analytics_db: Path,
+) -> None:
+    """Record unresolved placeholder findings to ``analytics_db``.
+
+    Creates the ``unresolved_placeholders`` table with a unique index on
+    ``(file, line)`` and inserts each result using ``INSERT OR IGNORE`` to
+    suppress duplicates.
+    """
+
+    rows = [
+        (r["file"], int(r["line"]), r.get("pattern", ""), r.get("context", ""))
+        for r in results
+    ]
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS unresolved_placeholders (
+                file TEXT,
+                line INTEGER,
+                pattern TEXT,
+                context TEXT
+            )
+            """
+        )
+        conn.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_unresolved_file_line"
+            " ON unresolved_placeholders(file, line)"
+        )
+        conn.executemany(
+            "INSERT OR IGNORE INTO unresolved_placeholders"
+            " (file, line, pattern, context) VALUES (?, ?, ?, ?)",
+            rows,
+        )
+        conn.commit()
+
+
 def snapshot_placeholder_counts(db: Path) -> Tuple[int, int]:
     """Aggregate open and resolved placeholder counts.
 
