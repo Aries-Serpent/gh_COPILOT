@@ -16,7 +16,7 @@
 > Compliance: run `python secondary_copilot_validator.py --validate` after critical changes to enforce dual-copilot and EnterpriseComplianceValidator checks.
 > Docs: run `python scripts/docs_status_reconciler.py` to refresh `docs/task_stubs.md` and `docs/status_index.json` before committing documentation changes.
 > CI: pipeline pins Ruff, enforces a 90% test pass rate, and fails if coverage regresses relative to `main`.
-> Quantum modules run exclusively in simulation mode; hardware flags are currently ignored. Documentation and guides now clearly mark these components as simulation-only. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Module completion status is tracked in [docs/STUB_MODULE_STATUS.md](docs/STUB_MODULE_STATUS.md). Compliance auditing is enforced via `EnterpriseComplianceValidator`, and composite scores combine lint, test, and placeholder metrics stored in `analytics.db`.
+> Quantum modules default to simulation but can target IBM hardware when `QISKIT_IBM_TOKEN` and `IBM_BACKEND` are set. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Module completion status is tracked in [docs/STUB_MODULE_STATUS.md](docs/STUB_MODULE_STATUS.md). Compliance auditing is enforced via `EnterpriseComplianceValidator`, and composite scores combine lint, test, and placeholder metrics stored in `analytics.db`.
 > Integration plan: [docs/quantum_integration_plan.md](docs/quantum_integration_plan.md) outlines staged hardware enablement while current builds remain simulator-only.
 > Governance: see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards. New compliance routines and monitoring capabilities are detailed in [docs/white-paper.md](docs/white-paper.md).
 > Security: updated protocols and configuration files reside under `security/` including `security/enterprise_security_policy.json`, `security/access_control_matrix.json`, `security/encryption_standards.json`, and `security/security_audit_framework.json`.
@@ -31,10 +31,10 @@
 
 The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. Many core modules are implemented, while others remain in development. Quantum functionality operates solely through simulators; hardware execution is not yet available.
 
-> **Note**
-> Modules accept backend-selection environment variables such as `QUANTUM_USE_HARDWARE`, `QUANTUM_BACKEND`, and `QISKIT_IBM_TOKEN`, but these flags are ignored and the simulator is always used.
-> **Roadmap**
-> Hardware integration is planned for future phases; current builds forcibly select simulator backends regardless of configuration.
+ > **Note**
+ > Set `QISKIT_IBM_TOKEN` and `IBM_BACKEND` (or pass `use_hardware=True`) to run quantum routines on IBM hardware when available; otherwise the simulator is used.
+ > **Roadmap**
+ > Hardware support is evolving and falls back to simulation if initialization fails.
 > **Phase 5 AI**
 > Advanced AI integration features operate in simulation mode by default and ignore hardware execution flags.
 
@@ -1320,9 +1320,9 @@ Set these variables in your `.env` file or shell before running scripts:
 - `OPENAI_API_KEY` – enables optional OpenAI features.
 - `FLASK_SECRET_KEY` – Flask dashboard secret.
 - `FLASK_RUN_PORT` – dashboard port (default `5000`).
- - `QISKIT_IBM_TOKEN` – placeholder for a future IBM Quantum API token; currently ignored.
- - `IBM_BACKEND` – preferred hardware backend for future use; defaults to `ibmq_qasm_simulator`.
- - `QUANTUM_USE_HARDWARE` – no-op flag reserved for eventual hardware execution.
+ - `QISKIT_IBM_TOKEN` – IBM Quantum API token enabling hardware execution.
+ - `IBM_BACKEND` – hardware backend name; defaults to `ibmq_qasm_simulator`.
+ - `QUANTUM_USE_HARDWARE` – set to `1` to prefer hardware when credentials are available.
 - `LOG_WEBSOCKET_ENABLED` – set to `1` to stream logs.
 - `CLW_MAX_LINE_LENGTH` – max line length for the `clw` wrapper (default `1550`).
 
