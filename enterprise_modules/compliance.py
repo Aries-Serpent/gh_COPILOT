@@ -59,9 +59,12 @@ MAX_RECURSION_DEPTH = 5
 PLACEHOLDER_PATTERNS = ["TODO", "FIXME"]
 
 # Weights for the composite compliance score components
-LINT_WEIGHT = 0.3
-TEST_WEIGHT = 0.5
-PLACEHOLDER_WEIGHT = 0.2
+SCORE_WEIGHTS = {
+    "lint": 0.3,
+    "test": 0.4,
+    "placeholder": 0.2,
+    "session": 0.1,
+}
 
 
 F = TypeVar("F", bound=Callable[..., Any])
@@ -469,108 +472,6 @@ def calculate_compliance_score(
     tests_failed: int,
     placeholders_open: int,
     placeholders_resolved: int,
-) -> float:
-    """Return overall code-quality score on a ``0..100`` scale.
-
-    The score is a weighted sum of three component scores:
-
-    ``lint_score`` (30%)
-        ``max(0, 100 - ruff_issues)``
-
-    ``test_score`` (50%)
-        ``(tests_passed / total_tests) * 100`` where ``total_tests`` is the sum
-        of passed and failed tests. If no tests ran, this component is ``0``.
-
-    ``placeholder_score`` (20%)
-        ``(placeholders_resolved / total_placeholders) * 100`` where
-        ``total_placeholders`` is the sum of open and resolved placeholders. If
-        no placeholders were found the component defaults to ``100``.
-    """
-
-    lint_score = max(0.0, 100 - ruff_issues)
-    total_tests = tests_passed + tests_failed
-    test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
-    total_placeholders = placeholders_open + placeholders_resolved
-    placeholder_score = (
-        placeholders_resolved / total_placeholders * 100
-        if total_placeholders
-        else 100.0
-    )
-    score = (
-        LINT_WEIGHT * lint_score
-        + TEST_WEIGHT * test_score
-        + PLACEHOLDER_WEIGHT * placeholder_score
-    )
-    return round(score, 2)
-
-
-def calculate_composite_score(
-    ruff_issues: int,
-    tests_passed: int,
-    tests_failed: int,
-    placeholders_open: int,
-    placeholders_resolved: int,
-) -> tuple[float, dict]:
-    """Return composite score and weighted component breakdown on a 0–100 scale.
-
-    All inputs are coerced to non-negative integers. ``lint_score`` is bounded to
-    ``0..100`` and the remaining scores gracefully handle ``0`` denominators.
-    """
-
-    ruff_issues = max(0, int(ruff_issues))
-    tests_passed = max(0, int(tests_passed))
-    tests_failed = max(0, int(tests_failed))
-    placeholders_open = max(0, int(placeholders_open))
-    placeholders_resolved = max(0, int(placeholders_resolved))
-
-    total_tests = tests_passed + tests_failed
-    total_placeholders = placeholders_open + placeholders_resolved
-
-    lint_score = max(0.0, 100.0 - float(ruff_issues))
-    test_score = (tests_passed / total_tests * 100.0) if total_tests else 0.0
-    placeholder_score = (
-        placeholders_resolved / total_placeholders * 100.0
-        if total_placeholders
-        else 100.0
-    )
-
-    total_weight = LINT_WEIGHT + TEST_WEIGHT + PLACEHOLDER_WEIGHT
-    if total_weight != 1.0:
-        norm_lint = LINT_WEIGHT / total_weight
-        norm_test = TEST_WEIGHT / total_weight
-        norm_placeholder = PLACEHOLDER_WEIGHT / total_weight
-    else:
-        norm_lint = LINT_WEIGHT
-        norm_test = TEST_WEIGHT
-        norm_placeholder = PLACEHOLDER_WEIGHT
-
-    score = (
-        norm_lint * lint_score
-        + norm_test * test_score
-        + norm_placeholder * placeholder_score
-    )
-    breakdown = {
-        "ruff_issues": ruff_issues,
-        "tests_passed": tests_passed,
-        "tests_failed": tests_failed,
-        "placeholders_open": placeholders_open,
-        "placeholders_resolved": placeholders_resolved,
-        "lint_score": round(lint_score, 2),
-        "test_score": round(test_score, 2),
-        "placeholder_score": round(placeholder_score, 2),
-        "lint_weighted": round(norm_lint * lint_score, 2),
-        "test_weighted": round(norm_test * test_score, 2),
-        "placeholder_weighted": round(norm_placeholder * placeholder_score, 2),
-    }
-    return round(score, 2), breakdown
-
-
-def calculate_code_quality_score(
-    ruff_issues: int,
-    tests_passed: int,
-    tests_failed: int,
-    placeholders_open: int,
-    placeholders_resolved: int,
     sessions_successful: int,
     sessions_failed: int,
     db_path: Path | None = None,
@@ -614,25 +515,31 @@ def calculate_code_quality_score(
     placeholder_score = resolution_ratio * 100
     session_score = session_ratio * 100
     composite = round(
-        0.3 * lint_score
-        + 0.4 * test_score
-        + 0.2 * placeholder_score
-        + 0.1 * session_score,
+        SCORE_WEIGHTS["lint"] * lint_score
+        + SCORE_WEIGHTS["test"] * test_score
+        + SCORE_WEIGHTS["placeholder"] * placeholder_score
+        + SCORE_WEIGHTS["session"] * session_score,
         2,
     )
     breakdown = {
         "lint_score": round(lint_score, 2),
-        "test_pass_ratio": round(pass_ratio, 2),
-        "placeholder_resolution_ratio": round(resolution_ratio, 2),
-        "session_success_ratio": round(session_ratio, 2),
         "test_score": round(test_score, 2),
         "placeholder_score": round(placeholder_score, 2),
         "session_score": round(session_score, 2),
+        "lint_weighted": round(SCORE_WEIGHTS["lint"] * lint_score, 2),
+        "test_weighted": round(SCORE_WEIGHTS["test"] * test_score, 2),
+        "placeholder_weighted": round(SCORE_WEIGHTS["placeholder"] * placeholder_score, 2),
+        "session_weighted": round(SCORE_WEIGHTS["session"] * session_score, 2),
+        "test_pass_ratio": round(pass_ratio, 2),
+        "placeholder_resolution_ratio": round(resolution_ratio, 2),
+        "session_success_ratio": round(session_ratio, 2),
         "ruff_issues": int(ruff_issues),
         "tests_passed": int(tests_passed),
         "tests_failed": int(tests_failed),
         "placeholders_open": int(placeholders_open),
         "placeholders_resolved": int(placeholders_resolved),
+        "sessions_successful": int(sessions_successful),
+        "sessions_failed": int(sessions_failed),
     }
 
     if persist and not test_mode:
@@ -724,24 +631,26 @@ def persist_compliance_score(
                 composite_score REAL,
                 lint_score REAL,
                 test_score REAL,
-                placeholder_score REAL
+                placeholder_score REAL,
+                session_score REAL
             )"""
         )
-        for column in ("lint_score", "test_score", "placeholder_score"):
+        for column in ("lint_score", "test_score", "placeholder_score", "session_score"):
             try:
                 conn.execute(f"ALTER TABLE compliance_scores ADD COLUMN {column} REAL")
             except sqlite3.OperationalError:
                 pass
         conn.execute(
             """INSERT INTO compliance_scores (
-                timestamp, composite_score, lint_score, test_score, placeholder_score
-            ) VALUES (?, ?, ?, ?, ?)""",
+                timestamp, composite_score, lint_score, test_score, placeholder_score, session_score
+            ) VALUES (?, ?, ?, ?, ?, ?)""",
             (
                 datetime.now().isoformat(),
                 float(score),
                 float(breakdown.get("lint_score", 0.0)),
                 float(breakdown.get("test_score", 0.0)),
                 float(breakdown.get("placeholder_score", 0.0)),
+                float(breakdown.get("session_score", 0.0)),
             ),
         )
         ts = int(datetime.now().timestamp())
@@ -771,6 +680,8 @@ def record_code_quality_metrics(
     tests_failed: int,
     placeholders_open: int,
     placeholders_resolved: int,
+    sessions_successful: int = 0,
+    sessions_failed: int = 0,
     db_path: Path | None = None,
     *,
     test_mode: bool = False,
@@ -781,12 +692,14 @@ def record_code_quality_metrics(
     ``True`` the calculation is performed but no database writes occur.
     """
 
-    composite_score, breakdown = calculate_composite_score(
+    composite_score, breakdown = calculate_compliance_score(
         ruff_issues,
         tests_passed,
         tests_failed,
         placeholders_open,
         placeholders_resolved,
+        sessions_successful,
+        sessions_failed,
     )
 
     if test_mode:
@@ -805,9 +718,12 @@ def record_code_quality_metrics(
                 tests_failed INTEGER,
                 placeholders_open INTEGER,
                 placeholders_resolved INTEGER,
+                sessions_successful INTEGER,
+                sessions_failed INTEGER,
                 lint_score REAL,
                 test_score REAL,
                 placeholder_score REAL,
+                session_score REAL,
                 composite_score REAL,
                 ts TEXT
             )""",
@@ -816,6 +732,7 @@ def record_code_quality_metrics(
             "lint_score",
             "test_score",
             "placeholder_score",
+            "session_score",
             "composite_score",
         ):
             try:
@@ -824,7 +741,12 @@ def record_code_quality_metrics(
                 )
             except sqlite3.OperationalError:
                 pass
-        for column in ("placeholders_open", "placeholders_resolved"):
+        for column in (
+            "placeholders_open",
+            "placeholders_resolved",
+            "sessions_successful",
+            "sessions_failed",
+        ):
             try:
                 conn.execute(
                     f"ALTER TABLE code_quality_metrics ADD COLUMN {column} INTEGER"
@@ -835,18 +757,22 @@ def record_code_quality_metrics(
             """INSERT INTO code_quality_metrics (
                 ruff_issues, tests_passed, tests_failed,
                 placeholders_open, placeholders_resolved,
+                sessions_successful, sessions_failed,
                 lint_score, test_score, placeholder_score,
-                composite_score, ts
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                session_score, composite_score, ts
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 int(ruff_issues),
                 int(tests_passed),
                 int(tests_failed),
                 int(placeholders_open),
                 int(placeholders_resolved),
+                int(sessions_successful),
+                int(sessions_failed),
                 float(breakdown["lint_score"]),
                 float(breakdown["test_score"]),
                 float(breakdown["placeholder_score"]),
+                float(breakdown["session_score"]),
                 float(composite_score),
                 datetime.now().isoformat(),
             ),
@@ -892,7 +818,7 @@ def calculate_and_persist_compliance_score() -> float:
     passed, failed = _run_pytest()
     placeholders_open = _count_placeholders()
     success, failed_sessions = _fetch_session_lifecycle_stats()
-    score, breakdown = calculate_code_quality_score(
+    score, breakdown = calculate_compliance_score(
         issues,
         passed,
         failed,
@@ -1091,10 +1017,9 @@ __all__ = [
     "generate_compliance_summary",
     "calculate_compliance_score",
     "persist_compliance_score",
-    "calculate_composite_score",
-    "calculate_code_quality_score",
     "record_code_quality_metrics",
     "get_latest_compliance_score",
     "calculate_and_persist_compliance_score",
     "ComplianceError",
+    "SCORE_WEIGHTS",
 ]

@@ -4,7 +4,8 @@ import sqlite3
 import pytest
 
 import dashboard.enterprise_dashboard as ed
-import dashboard.app  # ensure CSV export routes are registered
+# ensure CSV export routes are registered
+import dashboard.app  # noqa: F401
 
 
 def _prepare_metrics(tmp_path, monkeypatch):

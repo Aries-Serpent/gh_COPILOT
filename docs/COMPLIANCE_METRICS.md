@@ -31,11 +31,11 @@ reported alongside compliance metrics.
 ## Code Quality Composite Score
 
 Lint, test, placeholder, and session lifecycle outcomes are combined into a single score using
-``enterprise_modules.compliance.calculate_code_quality_score`` with weights of 30%, 40%, 20%, and 10% respectively:
+``enterprise_modules.compliance.calculate_compliance_score`` with weights defined in ``SCORE_WEIGHTS`` (30%, 40%, 20%, 10):
 
 ```python
-from enterprise_modules.compliance import calculate_code_quality_score
-score, breakdown = calculate_code_quality_score(
+from enterprise_modules.compliance import calculate_compliance_score, SCORE_WEIGHTS
+score, breakdown = calculate_compliance_score(
     ruff_issues,
     tests_passed,
     tests_failed,
@@ -53,8 +53,8 @@ The helper returns the composite ``score`` along with the ratios used to derive 
 - ``placeholder_resolution_ratio`` – ``placeholders_resolved / total_placeholders``
 - ``session_success_ratio`` – ``sessions_successful / (sessions_successful + sessions_failed)``
 
-The final ``score`` weights ``lint_score`` (30%), ``test_pass_ratio * 100`` (40%),
-``placeholder_resolution_ratio * 100`` (20%), and ``session_success_ratio * 100`` (10%).
+The final ``score`` applies ``SCORE_WEIGHTS`` to ``lint_score``, ``test_pass_ratio * 100``,
+``placeholder_resolution_ratio * 100``, and ``session_success_ratio * 100``.
 
 ### Session Lifecycle Requirements
 
