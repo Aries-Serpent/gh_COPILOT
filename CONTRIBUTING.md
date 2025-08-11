@@ -7,19 +7,19 @@ Thank you for considering a contribution to gh_COPILOT. Please follow these guid
 - Use conventional commit messages and reference these standards in your pull requests.
 - Follow the [Git LFS recovery guide](docs/git_lfs_recovery.md) when restoring large binary files.
 
-## Safe `rg` usage for large repositories
+## Safe ripgrep usage for large repositories
 
-Use [`rg`](https://github.com/BurntSushi/ripgrep) carefully to avoid overwhelming the console:
+Use the wrapper `./scripts/rg_safe.sh` (which invokes [`rg`](https://github.com/BurntSushi/ripgrep) with sensible limits) to avoid overwhelming the console:
 
 - Limit scope with globs or directory exclusions and cap matches.
   Example:
   ```bash
-  set +o pipefail && rg "except\s*:" -g "*.py" --max-count 200 | head
+  set +o pipefail && ./scripts/rg_safe.sh "except\s*:" -g "*.py" --max-count 200 | head
   ```
 - Ensure downstream tools read all input. Use `set +o pipefail`, `--no-buffer`, and viewers like `head`, `tail`, or `clw`.
 - When truncating output, capture the full results to a temporary log for later review:
   ```bash
-  set +o pipefail && rg --no-buffer "TODO" -g "*.py" --max-count 200 \
+  set +o pipefail && ./scripts/rg_safe.sh --no-buffer "TODO" -g "*.py" --max-count 200 \
     | tee /tmp/rg_todo.log | head
   ```
 

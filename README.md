@@ -603,8 +603,10 @@ validation through the `SecondaryCopilotValidator`. It records each session in
 Each run inserts a row into the `unified_wrapup_sessions` table with a
 compliance score for audit purposes. Ensure all command output is piped through
 `/usr/local/bin/clw` to avoid exceeding the line length limit.
-The scoring formula blends Ruff issues, pytest pass ratios and placeholder
-resolution statistics. See
+The scoring formula blends Ruff issues, pytest pass ratios, placeholder
+resolution, and session lifecycle success via
+`enterprise_modules.compliance.calculate_compliance_score` and the
+`SCORE_WEIGHTS` constants. See
 [docs/COMPLIANCE_METRICS.md](docs/COMPLIANCE_METRICS.md) for details.
 The table stores `session_id`, timestamps, status, compliance score, and
 optional error details so administrators can audit every session.
