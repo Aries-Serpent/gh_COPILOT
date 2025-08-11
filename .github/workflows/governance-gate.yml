@@ -1,77 +1,24 @@
 name: Governance Gate
 
 on:
+  push:
   pull_request:
-    paths:
-      - 'policy_tests/**'
-      - 'scripts/policy/**'
-      - 'compliance/attestations/**'
-      - '.github/workflows/governance-gate.yml'
-
-permissions:
-  contents: read
-  pull-requests: write
 
 jobs:
-  policy-checks:
-    name: Policy Tests & Gate
+  policy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements-test.txt', 'requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      - name: Install deps
-        run: |
-          if [ -f requirements-test.txt ]; then pip install -r requirements-test.txt; fi
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
-      - name: Run policy tests (pytest)
-        run: |
-          if [ -d policy_tests ]; then pytest -q policy_tests/; else echo "no policy_tests dir"; fi
-
-      - name: Summarize to analytics (optional)
-        run: |
-          if [ -f scripts/policy/run_policy_checks.py ]; then python scripts/policy/run_policy_checks.py; fi
-
-      - name: Check waiver (optional)
-        id: waiver
-        shell: bash
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          FILE=.governance-waivers/${PR_NUMBER}.yml
-          if [ -f "$FILE" ]; then
-            echo "waiver=true" >> $GITHUB_OUTPUT
-          else
-            echo "waiver=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Block on failures without waiver
-        if: failure() && steps.waiver.outputs.waiver != 'true'
-        run: |
-          echo "Governance checks failed and no valid waiver found." >&2
-          exit 1
-
-      - name: Comment summary (best effort)
+          python-version: '3.x'
+      - run: pip install -r requirements-test.txt
+      - name: Run policy tests
+        run: pytest policy_tests --junitxml=policy_tests.xml
+      - name: Annotate results
         if: always()
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: dorny/test-reporter@v1
         with:
-          header: governance-gate
-          message: |
-            **Governance Gate** completed.
-            - Status: ${{ job.status }}
-            - Waiver: ${{ steps.waiver.outputs.waiver }}
-
+          name: Policy Tests
+          path: policy_tests.xml
+          reporter: junit

@@ -2,4 +2,6 @@
 
 from typing import List
 
-__all__: List[str] = []
+from .analytics_db_inspector import record_governance_check
+
+__all__: List[str] = ["record_governance_check"]

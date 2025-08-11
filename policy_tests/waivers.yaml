@@ -1,0 +1,5 @@
+# List of active waivers for governance checks.
+# - check: policy_tests/test_db_size.py::test_databases_within_size
+#   expires: 2099-01-01T00:00:00
+#   action: skip  # or xfail
+#   reason: example waiver
