@@ -695,9 +695,12 @@ def apply_suggestions_to_files(
     workspace: Path,
     simulate: bool = False,
 ) -> List[Dict[str, str]]:
-    """Apply generated suggestions to source files.
+    """Apply generated suggestions to source files within ``workspace``.
 
-    Returns a list of tasks that could not be applied and remain unresolved."""
+    Any task whose path resolves outside the provided ``workspace`` is skipped
+    and logged. Returns a list of tasks that could not be applied and remain
+    unresolved.
+    """
 
     if simulate:
         return tasks
@@ -714,7 +717,11 @@ def apply_suggestions_to_files(
             resolved = path.resolve()
             resolved.relative_to(ws_resolved)
         except Exception:
-            log_message(__name__, f"{TEXT['warn']} skipping outside workspace: {path}")
+            log_message(
+                __name__,
+                f"{TEXT['warn']} skipping outside workspace: {path}",
+                level=logging.WARNING,
+            )
             unresolved.append(task)
             continue
         try:
