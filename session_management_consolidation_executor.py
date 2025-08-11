@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import os
 import shutil
+import sqlite3
 from datetime import datetime
 from pathlib import Path
 
@@ -21,10 +22,7 @@ from utils.validation_utils import (
 )
 from unified_session_management_system import ensure_no_zero_byte_files, finalize_session
 from session.session_lifecycle_metrics import start_session, end_session
-from unified_disaster_recovery_system import (
-    get_compliance_logger,
-    schedule_backups,
-)
+from unified_disaster_recovery_system import ComplianceLogger, schedule_backups
 
 
 class EnterpriseUtility:
@@ -36,6 +34,7 @@ class EnterpriseUtility:
         self.logger = logging.getLogger(__name__)
         self.validator = SessionProtocolValidator(str(self.workspace_path))
         self.analytics_db = self.workspace_path / "databases" / "analytics.db"
+        self.compliance_logger = ComplianceLogger()
         backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp"))
         self.pid_file = backup_root / "session_management_consolidation_executor.pid"
         self.recursion_depth = 0
@@ -139,14 +138,20 @@ class EnterpriseUtility:
                 workspace=str(self.workspace_path),
                 status="success" if success else "failed",
             )
-            prev_db = os.environ.get("ANALYTICS_DB")
-            os.environ["ANALYTICS_DB"] = str(self.analytics_db)
-            backup_file = schedule_backups()
-            get_compliance_logger().log("session_backup", path=str(backup_file))
-            if prev_db is None:
-                del os.environ["ANALYTICS_DB"]
-            else:
-                os.environ["ANALYTICS_DB"] = prev_db
+            try:
+                backup_file = schedule_backups()
+                self.compliance_logger.log("session_backup", path=str(backup_file))
+                with sqlite3.connect(self.analytics_db) as conn:
+                    cur = conn.execute(
+                        "SELECT 1 FROM event_log WHERE description=?",
+                        ("session_backup",),
+                    )
+                    if cur.fetchone() is None:
+                        self.logger.error(
+                            "[ERROR] session_backup log missing for %s", backup_file
+                        )
+            except Exception as exc:  # pragma: no cover - logging only
+                self.logger.error("[ERROR] backup scheduling failed: %s", exc)
             self._clear_pid()
             if hasattr(self, "recursion_depth") and self.recursion_depth > 0:
                 self.recursion_depth -= 1

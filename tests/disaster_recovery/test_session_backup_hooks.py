@@ -1,41 +1,35 @@
 import sqlite3
-
 from session_management_consolidation_executor import EnterpriseUtility
-import session_management_consolidation_executor as smce
-import unified_disaster_recovery_system as uds
-from types import SimpleNamespace
-from contextlib import contextmanager
+import utils.log_utils as log_utils
 
 
-def test_session_backup_creates_file_and_log(tmp_path, monkeypatch):
+def test_session_triggers_backup(tmp_path, monkeypatch):
     workspace = tmp_path / "ws"
-    (workspace / "databases").mkdir(parents=True)
-    db_path = workspace / "databases" / "analytics.db"
-    sqlite3.connect(db_path).close()
-    backup_root = tmp_path / "backups"
+    workspace.mkdir()
+    db_dir = workspace / "databases"
+    db_dir.mkdir()
+    analytics_db = db_dir / "analytics.db"
+    sqlite3.connect(analytics_db).close()
+    logs_dir = workspace / "logs"
+    logs_dir.mkdir()
+    (logs_dir / "run.log").write_text("log", encoding="utf-8")
+    backup_root = tmp_path.parent / "backups"
     backup_root.mkdir()
+    monkeypatch.setattr(log_utils, "_can_create_analytics_db", lambda db_path: True)
+    orig_log_event = log_utils.log_event
+    def _log_event(event, *, table=log_utils.DEFAULT_LOG_TABLE, db_path=analytics_db):
+        orig_log_event(event, table=table, db_path=db_path)
+    monkeypatch.setattr(log_utils, "log_event", _log_event)
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
-    monkeypatch.setenv("ANALYTICS_DB", str(db_path))
-    @contextmanager
-    def _noop(*a, **k):
-        yield
-    monkeypatch.setattr(smce, "ensure_no_zero_byte_files", _noop)
-    monkeypatch.setattr(smce, "finalize_session", lambda *a, **k: None)
-    monkeypatch.setattr(EnterpriseUtility, "_validate_environment", lambda self: True)
-    monkeypatch.setattr(
-        smce.SessionProtocolValidator,
-        "validate_startup",
-        lambda self: SimpleNamespace(is_success=True),
-    )
-    monkeypatch.setattr(EnterpriseUtility, "perform_utility_function", lambda self: True)
-
-    events = []
-    monkeypatch.setattr(uds.enterprise_logging, "log_event", lambda e, **k: events.append(e))
-
-    util = EnterpriseUtility(workspace)
+    util = EnterpriseUtility(str(workspace))
     util.execute_utility()
-
-    backups = list(backup_root.glob("scheduled_backup_*.bak"))
-    assert backups
-    assert any(evt.get("description") == "session_backup" for evt in events)
+    scheduled = list(backup_root.glob("scheduled_backup_*.bak"))
+    assert scheduled
+    with sqlite3.connect(analytics_db) as conn:
+        rows = list(
+            conn.execute(
+                "SELECT description FROM event_log WHERE description='session_backup'"
+            )
+        )
+    assert rows

@@ -4,6 +4,8 @@ import json
 import time
 from pathlib import Path
 import sqlite3
+import threading
+import asyncio
 from typing import Any, Callable, Dict, List
 
 from monitoring import BaselineAnomalyDetector
@@ -89,6 +91,7 @@ except Exception:  # pragma: no cover
 ANALYTICS_DB = Path("databases/analytics.db")
 MONITORING_DB = Path("databases/monitoring.db")
 METRICS_FILE = _METRICS_FILE
+CORRECTIONS_WS_PORT = 8767
 
 
 def _load_metrics_with_file() -> Dict[str, Any]:
@@ -186,6 +189,38 @@ def _load_corrections(limit: int = 10) -> List[Dict[str, Any]]:
             )
             rows = [{"timestamp": r[0], "path": r[1], "status": r[2]} for r in cur.fetchall()]
     return rows
+
+
+_ws_server_started = False
+
+
+def _run_corrections_ws_server() -> None:
+    """Start a background WebSocket server for corrections."""
+    global _ws_server_started
+    if _ws_server_started:
+        return
+    try:  # pragma: no cover - optional dependency
+        import websockets
+    except Exception:  # pragma: no cover - quietly skip if missing
+        return
+
+    async def handler(ws):
+        try:
+            while True:
+                await ws.send(json.dumps(_load_corrections()))
+                await asyncio.sleep(5)
+        except websockets.ConnectionClosed:  # pragma: no cover - network errors
+            pass
+
+    async def main() -> None:
+        async with websockets.serve(handler, "localhost", CORRECTIONS_WS_PORT):
+            await asyncio.Event().wait()
+
+    threading.Thread(target=lambda: asyncio.run(main()), daemon=True).start()
+    _ws_server_started = True
+
+
+_run_corrections_ws_server()
 
 
 def _load_audit_results(limit: int = 50) -> List[Dict[str, Any]]:
@@ -412,4 +447,5 @@ __all__ = [
     "session_lifecycle_stats",
     "_load_corrections",
     "load_code_quality_metrics",
+    "CORRECTIONS_WS_PORT",
 ]

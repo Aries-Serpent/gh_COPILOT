@@ -58,12 +58,17 @@ export default {
           this.logs = d;
         });
     },
+    handleUpdate(e) {
+      this.logs = e.detail;
+      this.page = 1;
+    },
   },
   created() {
     this.fetchLogs();
-    window.addEventListener('corrections-update', (e) => {
-      this.logs = e.detail;
-    });
+    window.addEventListener('corrections-update', this.handleUpdate);
+  },
+  beforeDestroy() {
+    window.removeEventListener('corrections-update', this.handleUpdate);
   },
 };
 </script>
