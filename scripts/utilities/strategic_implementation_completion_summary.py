@@ -18,8 +18,6 @@ Success Rate: 100.0%
 
 import json
 import os
-from datetime import datetime
-from pathlib import Path
 
 def generate_completion_summary():
     """📊 Generate comprehensive completion summary"""

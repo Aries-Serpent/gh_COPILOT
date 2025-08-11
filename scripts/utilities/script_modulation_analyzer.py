@@ -13,20 +13,15 @@ Features:
 - Enterprise-grade modulation analysis with DUAL COPILOT validation
 """
 
-import os
 import ast
 import json
-import hashlib
 import datetime
 import sqlite3
-import difflib
-import textwrap
 from pathlib import Path
-from typing import Dict, List, Any, Tuple, Optional
-from collections import defaultdict, Counter
+from typing import Dict, List, Any
+from collections import Counter
 from dataclasses import dataclass, field
 from tqdm import tqdm
-import re
 
 @dataclass
 class ScriptModulation:

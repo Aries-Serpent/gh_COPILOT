@@ -13,13 +13,10 @@ Status: SPECIALIZED CLEANUP TARGETING
 TOTAL TARGET: 250 remaining violations for complete elimination
 """
 
-import os
 import re
-import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Any
-import logging
+from typing import Dict, Any
 
 
 class Phase8FinalCleanupSpecialist:
