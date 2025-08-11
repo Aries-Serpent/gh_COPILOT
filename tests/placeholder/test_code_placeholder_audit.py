@@ -172,7 +172,7 @@ def test_apply_suggestions_updates_file_and_db(tmp_path, monkeypatch):
     assert unresolved == 0
 
 
-def test_apply_suggestions_ignores_files_outside_workspace(tmp_path):
+def test_apply_suggestions_ignores_files_outside_workspace(tmp_path, capsys):
     workspace = tmp_path / "ws"
     workspace.mkdir()
     outside = tmp_path / "outside.py"
@@ -188,8 +188,10 @@ def test_apply_suggestions_ignores_files_outside_workspace(tmp_path):
         }
     ]
     unresolved = audit.apply_suggestions_to_files(tasks, analytics_db, workspace)
+    out, _ = capsys.readouterr()
     assert unresolved == tasks
     assert outside.read_text(encoding="utf-8") == "# FIXME: adjust\n"
+    assert "outside workspace" in out
 
 
 def test_placeholder_tasks_logged(tmp_path, monkeypatch):
