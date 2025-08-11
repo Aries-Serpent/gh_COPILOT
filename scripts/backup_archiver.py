@@ -13,6 +13,7 @@ import py7zr
 
 from enterprise_modules.compliance import (
     enforce_anti_recursion,
+    pid_recursion_guard,
     validate_enterprise_operation,
     pid_recursion_guard,
 )
