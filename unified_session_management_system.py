@@ -18,13 +18,24 @@ try:  # pragma: no cover - optional dependency
 except Exception:  # pragma: no cover - best effort
     psutil = None  # type: ignore[assignment]
 
-from utils.validation_utils import detect_zero_byte_files
+from utils.validation_utils import detect_zero_byte_files, validate_path
 from scripts.session.anti_recursion_enforcer import anti_recursion_guard
 from enterprise_modules.compliance import validate_environment, ComplianceError
 from utils.logging_utils import ANALYTICS_DB
 from utils.codex_log_db import record_codex_action
 
 logger = logging.getLogger(__name__)
+
+DENY_PATTERNS = ["backup", "temp", "copy"]
+
+
+def _assert_safe_path(path: Path) -> None:
+    """Ensure *path* resides within the workspace and is not denied."""
+    if not validate_path(path):
+        raise RuntimeError(f"Disallowed path: {path}")
+    lowered = str(path).lower()
+    if any(pat in lowered for pat in DENY_PATTERNS):
+        raise RuntimeError(f"Deny-list pattern detected in path: {path}")
 
 
 def log_action(session_id: str, action: str, statement: str) -> None:
@@ -143,6 +154,7 @@ def _detect_open_transactions() -> int:
 def ensure_no_zero_byte_files(root: str | Path, session_id: str) -> None:
     """Verify the workspace is free of zero-byte files before and after the block."""
     root_path = Path(root)
+    _assert_safe_path(root_path)
     record_codex_action(session_id, "zero_byte_scan_start", str(root_path))
     before = detect_zero_byte_files(root_path)
     _record_zero_byte_findings(before, "before", session_id)
@@ -220,8 +232,10 @@ def finalize_session(
     """
 
     root_path = Path(root) if root else Path(log_dir).parent
+    log_path = Path(log_dir)
+    _assert_safe_path(log_path)
+    _assert_safe_path(root_path)
     with ensure_no_zero_byte_files(root_path, session_id):
-        log_path = Path(log_dir)
         logs = sorted(p for p in log_path.glob("*.log") if p.is_file())
         if not logs:
             raise RuntimeError("No log files found for session")

@@ -3,27 +3,40 @@
 from __future__ import annotations
 
 from pathlib import Path
+import math
 import os
 import sqlite3
 import time
 from typing import Callable, Optional
 
-__all__ = ["start_session", "end_session"]
+__all__ = ["start_session", "end_session", "record_latency", "record_retry"]
 
 
 def _db(workspace: Optional[str] = None) -> Path:
     ws = Path(workspace or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
-    return ws / "databases" / "analytics.db"
+    return ws / "databases" / "production.db"
 
 
 def _ensure(conn: sqlite3.Connection) -> None:
     conn.execute(
-        """CREATE TABLE IF NOT EXISTS session_lifecycle 
-            (session_id TEXT PRIMARY KEY, start_ts INTEGER NOT NULL, 
-             end_ts INTEGER, duration_seconds REAL, 
-             zero_byte_violations INTEGER DEFAULT 0, 
-             recursion_flags INTEGER DEFAULT 0, 
-             status TEXT DEFAULT 'running')"""
+        """CREATE TABLE IF NOT EXISTS session_lifecycle
+            (session_id TEXT PRIMARY KEY, start_ts INTEGER NOT NULL,
+             end_ts INTEGER, duration_seconds REAL,
+             zero_byte_violations INTEGER DEFAULT 0,
+             recursion_flags INTEGER DEFAULT 0,
+             status TEXT DEFAULT 'running',
+             p50_latency REAL,
+             p90_latency REAL,
+             p99_latency REAL,
+             retry_trace TEXT)"""
+    )
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS session_latency_samples
+            (session_id TEXT NOT NULL, latency REAL NOT NULL)"""
+    )
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS session_retry_traces
+            (session_id TEXT NOT NULL, trace TEXT NOT NULL)"""
     )
 
 
@@ -67,6 +80,40 @@ def start_session(session_id: str, *, workspace: Optional[str] = None) -> None:
     _retry(operation)
 
 
+def record_latency(session_id: str, latency: float, *, workspace: Optional[str] = None) -> None:
+    """Record a latency sample for ``session_id``."""
+    db_path = _db(workspace)
+    _ensure_db_path(db_path)
+
+    def operation() -> None:
+        with sqlite3.connect(db_path) as conn:
+            _ensure(conn)
+            conn.execute(
+                "INSERT INTO session_latency_samples (session_id, latency) VALUES (?, ?)",
+                (session_id, float(latency)),
+            )
+            conn.commit()
+
+    _retry(operation)
+
+
+def record_retry(session_id: str, trace: str, *, workspace: Optional[str] = None) -> None:
+    """Record a retry trace for ``session_id``."""
+    db_path = _db(workspace)
+    _ensure_db_path(db_path)
+
+    def operation() -> None:
+        with sqlite3.connect(db_path) as conn:
+            _ensure(conn)
+            conn.execute(
+                "INSERT INTO session_retry_traces (session_id, trace) VALUES (?, ?)",
+                (session_id, trace),
+            )
+            conn.commit()
+
+    _retry(operation)
+
+
 def end_session(
     session_id: str,
     *,
@@ -93,15 +140,42 @@ def end_session(
                 )
             end_ts = int(time.time())
             duration = time.time() - start_ts
+            lat_cur = conn.execute(
+                "SELECT latency FROM session_latency_samples WHERE session_id=?",
+                (session_id,),
+            )
+            latencies = [r[0] for r in lat_cur.fetchall()]
+
+            def percentile(values: list[float], pct: int) -> float | None:
+                if not values:
+                    return None
+                values.sort()
+                k = max(0, math.ceil(len(values) * (pct / 100)) - 1)
+                return values[k]
+
+            p50 = percentile(latencies, 50)
+            p90 = percentile(latencies, 90)
+            p99 = percentile(latencies, 99)
+
+            retry_cur = conn.execute(
+                "SELECT trace FROM session_retry_traces WHERE session_id=?",
+                (session_id,),
+            )
+            retry_trace = ";".join(r[0] for r in retry_cur.fetchall())
             conn.execute(
                 """UPDATE session_lifecycle SET end_ts=?, duration_seconds=?,
-                zero_byte_violations=?, recursion_flags=?, status=? WHERE session_id=?""",
+                zero_byte_violations=?, recursion_flags=?, status=?,
+                p50_latency=?, p90_latency=?, p99_latency=?, retry_trace=? WHERE session_id=?""",
                 (
                     end_ts,
                     float(duration),
                     int(zero_byte_violations),
                     int(recursion_flags),
                     status,
+                    p50,
+                    p90,
+                    p99,
+                    retry_trace,
                     session_id,
                 ),
             )
