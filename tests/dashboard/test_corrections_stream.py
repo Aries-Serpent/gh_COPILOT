@@ -1,8 +1,11 @@
 import json
 import sqlite3
+import asyncio
 from pathlib import Path
 
+import websockets
 import dashboard.enterprise_dashboard as ed
+from flask import Flask
 
 
 def _create_db(tmp_path: Path) -> Path:
@@ -20,7 +23,9 @@ def _create_db(tmp_path: Path) -> Path:
 def test_corrections_stream_once(tmp_path, monkeypatch):
     db = _create_db(tmp_path)
     monkeypatch.setattr(ed, "ANALYTICS_DB", db)
-    client = ed.app.test_client()
+    app = Flask(__name__)
+    app.add_url_rule("/corrections_stream", view_func=ed.corrections_stream)
+    client = app.test_client()
     resp = client.get("/corrections_stream?once=1")
     assert resp.status_code == 200
     line = resp.data.decode().split("\n")[0]
@@ -32,7 +37,9 @@ def test_corrections_stream_once(tmp_path, monkeypatch):
 def test_corrections_stream_live(tmp_path, monkeypatch):
     db = _create_db(tmp_path)
     monkeypatch.setattr(ed, "ANALYTICS_DB", db)
-    client = ed.app.test_client()
+    app = Flask(__name__)
+    app.add_url_rule("/corrections_stream", view_func=ed.corrections_stream)
+    client = app.test_client()
     resp = client.get("/corrections_stream?interval=0", buffered=False)
     first = next(resp.response).decode().strip()
     assert first.startswith("data:")
@@ -43,4 +50,19 @@ def test_corrections_stream_live(tmp_path, monkeypatch):
     second = next(resp.response).decode().strip()
     data = json.loads(second.split("data: ")[1])
     assert any(entry["path"] == "file2.py" for entry in data)
+
+
+def test_corrections_websocket(tmp_path, monkeypatch):
+    db = _create_db(tmp_path)
+    monkeypatch.setattr(ed, "ANALYTICS_DB", db)
+
+    async def receive() -> list:
+        await asyncio.sleep(0.1)
+        uri = f"ws://localhost:{ed.CORRECTIONS_WS_PORT}/ws/corrections"
+        async with websockets.connect(uri) as ws:
+            msg = await asyncio.wait_for(ws.recv(), timeout=5)
+            return json.loads(msg)
+
+    payload = asyncio.run(receive())
+    assert payload[0]["path"] == "file1.py"
 
