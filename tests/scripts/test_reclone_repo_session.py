@@ -86,17 +86,24 @@ def test_session_logged_on_success(monkeypatch, tmp_path: Path) -> None:
 
     starts: list[tuple[str | None]] = []
     ends: list[tuple[str, str | None]] = []
+    events: list[tuple[str, str]] = []
     monkeypatch.setattr(rr, "start_session", lambda sid, workspace=None: starts.append((sid, workspace)))
     monkeypatch.setattr(
         rr,
         "end_session",
         lambda sid, *, status, workspace=None: ends.append((sid, status, workspace)),
     )
+    monkeypatch.setattr(
+        rr,
+        "log_session_event",
+        lambda sid, event: events.append((sid, event)),
+    )
 
     rr.main()
     assert len(starts) == 1
     assert len(ends) == 1
     assert ends[0][1] == "success"
+    assert events == [(starts[0][0], "start"), (starts[0][0], "success")]
 
 
 def test_session_logged_on_failure(monkeypatch, tmp_path: Path) -> None:
@@ -108,11 +115,17 @@ def test_session_logged_on_failure(monkeypatch, tmp_path: Path) -> None:
 
     starts: list[tuple[str | None]] = []
     ends: list[tuple[str, str | None]] = []
+    events: list[tuple[str, str]] = []
     monkeypatch.setattr(rr, "start_session", lambda sid, workspace=None: starts.append((sid, workspace)))
     monkeypatch.setattr(
         rr,
         "end_session",
         lambda sid, *, status, workspace=None: ends.append((sid, status, workspace)),
+    )
+    monkeypatch.setattr(
+        rr,
+        "log_session_event",
+        lambda sid, event: events.append((sid, event)),
     )
 
     with pytest.raises(SystemExit):
@@ -120,3 +133,4 @@ def test_session_logged_on_failure(monkeypatch, tmp_path: Path) -> None:
     assert len(starts) == 1
     assert len(ends) == 1
     assert ends[0][1] == "failure"
+    assert events == [(starts[0][0], "start"), (starts[0][0], "failure")]
