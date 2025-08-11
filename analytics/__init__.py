@@ -1,7 +1,18 @@
 """Analytics utilities package."""
 
-from typing import List
+from __future__ import annotations
 
-from .analytics_db_inspector import record_governance_check
+from .pattern_recognition import detect_patterns, find_repeated
+from .performance_analysis import calculate_throughput, summarize_performance
+from .predictive_models import predict_next
+from .user_behavior import log_user_action, track_active_users
 
-__all__: List[str] = ["record_governance_check"]
+__all__ = [
+    "calculate_throughput",
+    "detect_patterns",
+    "find_repeated",
+    "log_user_action",
+    "predict_next",
+    "summarize_performance",
+    "track_active_users",
+]
