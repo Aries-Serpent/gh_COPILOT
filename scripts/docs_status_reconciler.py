@@ -1,104 +1,92 @@
 #!/usr/bin/env python3
-"""Reconcile task status documentation.
+"""Generate documentation status indexes.
 
-This script treats ``docs/PHASE5_TASKS_STARTED.md`` as the single source of
-truth (SSOT). It parses the task sections from that file and generates two
+The script scans markdown files under ``docs/`` for YAML front matter containing
+``id`` and ``status`` fields. It aggregates this metadata into two derived
 artifacts:
 
-* ``docs/task_stubs.md`` – A concise markdown table of task names, statuses and
-  progress percentages.
-* ``status_index.json`` – A machine‑readable mapping of task names to their
-  status and progress.
+* ``docs/task_stubs.md`` – human‑readable table linking each document to its
+  status.
+* ``docs/status_index.json`` – machine‑readable mapping of document ``id`` to
+  status and source path.
 
-Running the script keeps derived documentation in sync with the canonical
-source file. The CI workflow uses this script to detect drift.
+Run this script before committing to keep these artifacts in sync. CI calls the
+script and fails if the generated files differ from what is committed.
 """
 
 from __future__ import annotations
 
-=======
-"""Reconcile Phase 5 task progress with task stubs.
-
-This script parses ``docs/PHASE5_TASKS_STARTED.md`` and
-``docs/task_stubs.md`` to ensure their progress values match.
-It writes a JSON index of task progress and can be run in
-``--check`` mode to fail when drift is detected.
-"""
-from __future__ import annotations
-
-import argparse
 import json
-import re
 from pathlib import Path
+from typing import Iterable
+
+import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "docs" / "PHASE5_TASKS_STARTED.md"
-TASK_STUBS_MD = ROOT / "docs" / "task_stubs.md"
-STATUS_INDEX_JSON = ROOT / "status_index.json"
+DOCS_DIR = ROOT / "docs"
+TASK_STUBS = DOCS_DIR / "task_stubs.md"
+STATUS_INDEX = DOCS_DIR / "status_index.json"
 
 
-def parse_tasks(text: str) -> list[dict[str, str]]:
-    """Extract task metadata from the source markdown."""
+def _parse_front_matter(path: Path) -> dict[str, str] | None:
+    """Return front-matter metadata for ``path``.
 
-    tasks: list[dict[str, str]] = []
-    current: dict[str, str] | None = None
-    for line in text.splitlines():
-        if line.startswith("## "):
-            if ". " not in line:
-                # Ignore headings without a numeric prefix.
-                current = None
-                continue
-            if current:
-                tasks.append(current)
-            name = line.split(". ", 1)[1].strip()
-            current = {"task": name}
-        elif "**Status:**" in line and current is not None:
-            status = line.split("**Status:**", 1)[1].strip()
-            current["status"] = status
-        elif "**Progress:**" in line and current is not None:
-            match = re.search(r"Progress:\*\*\s*(\d+%)", line)
-            if match:
-                current["progress"] = match.group(1)
-    if current:
-        tasks.append(current)
-    return tasks
+    The function expects the file to start with a YAML front-matter block. Only
+    entries containing both ``id`` and ``status`` keys are returned.
+    """
+
+    text = path.read_text(encoding="utf-8")
+    if not text.startswith("---"):
+        return None
+    try:
+        _, fm, _ = text.split("---", 2)
+    except ValueError:
+        return None
+    data = yaml.safe_load(fm) or {}
+    if "id" in data and "status" in data:
+        return {
+            "id": str(data["id"]),
+            "status": str(data["status"]),
+            "file": path.relative_to(DOCS_DIR).as_posix(),
+        }
+    return None
 
 
-def write_markdown(tasks: list[dict[str, str]]) -> None:
-    """Write the aggregated markdown table."""
+def _collect_entries() -> list[dict[str, str]]:
+    entries: list[dict[str, str]] = []
+    for md in DOCS_DIR.glob("*.md"):
+        meta = _parse_front_matter(md)
+        if meta:
+            entries.append(meta)
+    return sorted(entries, key=lambda x: x["id"])
 
-    with TASK_STUBS_MD.open("w", encoding="utf-8") as fh:
+
+def _write_markdown(entries: Iterable[dict[str, str]]) -> None:
+    with TASK_STUBS.open("w", encoding="utf-8") as fh:
         fh.write("# Task Status Overview\n\n")
-        fh.write("| Task | Status | Progress |\n| --- | --- | --- |\n")
-        for task in tasks:
+        fh.write("| ID | Status | Document |\n| --- | --- | --- |\n")
+        for entry in entries:
             fh.write(
-                f"| {task['task']} | {task.get('status', '')} | {task.get('progress', '')} |\n"
+                f"| {entry['id']} | {entry['status']} | [{entry['file']}]({entry['file']}) |\n"
             )
 
 
-def write_json(tasks: list[dict[str, str]]) -> None:
-    """Write the machine readable index."""
-
+def _write_json(entries: Iterable[dict[str, str]]) -> None:
     index = {
-        task["task"]: {
-            "status": task.get("status", ""),
-            "progress": task.get("progress", ""),
-        }
-        for task in tasks
+        entry["id"]: {"status": entry["status"], "file": entry["file"]}
+        for entry in entries
     }
-    with STATUS_INDEX_JSON.open("w", encoding="utf-8") as fh:
+    with STATUS_INDEX.open("w", encoding="utf-8") as fh:
         json.dump(index, fh, indent=2)
 
 
-def main() -> None:
-    text = SOURCE.read_text(encoding="utf-8")
-    if text.startswith("---"):
-        text = text.split("---", 2)[2]
-    tasks = parse_tasks(text)
-    write_markdown(tasks)
-    write_json(tasks)
+def main() -> None:  # pragma: no cover - CLI entry
+    entries = _collect_entries()
+    _write_markdown(entries)
+    _write_json(entries)
 
 
-if __name__ == "__main__":  # pragma: no cover - CLI entry point
+if __name__ == "__main__":  # pragma: no cover
     main()
+
