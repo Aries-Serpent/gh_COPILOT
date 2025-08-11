@@ -1339,12 +1339,30 @@ def main(
     tasks = generate_removal_tasks(results, production, analytics)
     if apply_suggestions and not simulate:
         tasks = apply_suggestions_to_files(tasks, analytics, workspace)
+    open_count = resolved_count = 0
     if not simulate:
         tasks_inserted = log_placeholder_tasks(tasks, analytics)
         log_message(
             __name__,
             f"{TEXT['info']} logged {tasks_inserted} tasks to {analytics}",
         )
+        try:
+            open_count, resolved_count = snapshot_placeholder_counts(analytics)
+        except Exception as exc:
+            log_message(
+                __name__,
+                f"{TEXT['error']} snapshot failed: {exc}",
+                level=logging.ERROR,
+            )
+        try:
+            from scripts.compliance.update_compliance_metrics import update_compliance_metrics
+            update_compliance_metrics(str(workspace))
+        except Exception as exc:
+            log_message(
+                __name__,
+                f"{TEXT['error']} compliance metrics update failed: {exc}",
+                level=logging.ERROR,
+            )
     for task in tasks:
         log_message(__name__, f"[TASK] {task['task']}")
     if task_report:
@@ -1360,11 +1378,6 @@ def main(
     if not simulate:
         update_dashboard(len(results), dashboard, analytics, summary_path)
         export_resolved_placeholders(analytics, dashboard)
-        # Snapshot placeholder counts for compliance scoring
-        try:
-            open_count, resolved_count = snapshot_placeholder_counts(analytics)
-        except Exception:
-            open_count = resolved_count = 0
         try:
             metrics = collect_metrics(db_path=Path(":memory:"))
             metrics["placeholder_open"] = float(open_count)

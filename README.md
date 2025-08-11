@@ -99,7 +99,7 @@ This value is persisted to `analytics.db` (table `compliance_scores`) via `scrip
 
 * `ruff_issue_log` – populated by `scripts/ingest_test_and_lint_results.py` after running `ruff` with JSON output
 * `test_run_stats` – same ingestion script parses `pytest --json-report` results
-* `placeholder_audit_snapshots` – appended after each `scripts/code_placeholder_audit.py` run
+* `placeholder_audit_snapshots` – appended after each `scripts/code_placeholder_audit.py` run; `update_compliance_metrics` reads the latest snapshot, so run the audit before recomputing scores
 
 Endpoints:
 * `POST /api/refresh_compliance` – compute & persist a new composite score
