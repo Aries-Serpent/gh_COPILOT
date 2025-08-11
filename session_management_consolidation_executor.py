@@ -21,6 +21,10 @@ from utils.validation_utils import (
 )
 from unified_session_management_system import ensure_no_zero_byte_files, finalize_session
 from session.session_lifecycle_metrics import start_session, end_session
+from unified_disaster_recovery_system import (
+    get_compliance_logger,
+    schedule_backups,
+)
 
 
 class EnterpriseUtility:
@@ -135,6 +139,14 @@ class EnterpriseUtility:
                 workspace=str(self.workspace_path),
                 status="success" if success else "failed",
             )
+            prev_db = os.environ.get("ANALYTICS_DB")
+            os.environ["ANALYTICS_DB"] = str(self.analytics_db)
+            backup_file = schedule_backups()
+            get_compliance_logger().log("session_backup", path=str(backup_file))
+            if prev_db is None:
+                del os.environ["ANALYTICS_DB"]
+            else:
+                os.environ["ANALYTICS_DB"] = prev_db
             self._clear_pid()
             if hasattr(self, "recursion_depth") and self.recursion_depth > 0:
                 self.recursion_depth -= 1

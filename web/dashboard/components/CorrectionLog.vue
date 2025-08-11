@@ -61,6 +61,9 @@ export default {
   },
   created() {
     this.fetchLogs();
+    window.addEventListener('corrections-update', (e) => {
+      this.logs = e.detail;
+    });
   },
 };
 </script>
