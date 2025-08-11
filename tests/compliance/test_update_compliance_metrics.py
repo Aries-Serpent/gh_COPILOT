@@ -333,6 +333,11 @@ class TestUpdateComplianceMetrics:
             with patch.dict(os.environ, {"GH_COPILOT_WORKSPACE": str(workspace)}):
                 score = update_compliance_metrics()
                 assert score == 50.0  # Expected default score with no placeholders
+                with _connect(analytics_db) as conn:
+                    cur = conn.execute(
+                        "SELECT P FROM compliance_scores ORDER BY id DESC LIMIT 1"
+                    )
+                    assert cur.fetchone()[0] == 100.0
 
     def test_update_compliance_metrics_custom_db_path(self, temp_workspace):
         """Test update with custom database path."""
@@ -344,6 +349,11 @@ class TestUpdateComplianceMetrics:
         
         score = update_compliance_metrics(str(temp_workspace), custom_db)
         assert score == 50.0  # Expected default score with no placeholders
+        with _connect(custom_db) as conn:
+            cur = conn.execute(
+                "SELECT P FROM compliance_scores ORDER BY id DESC LIMIT 1"
+            )
+            assert cur.fetchone()[0] == 100.0
 
 
 class TestEdgeCases:
