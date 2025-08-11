@@ -7,17 +7,9 @@ import websockets
 import dashboard.enterprise_dashboard as ed
 from flask import Flask
 
-
-def _create_db(tmp_path: Path) -> Path:
-    db = tmp_path / "analytics.db"
-    with sqlite3.connect(db) as conn:
-        conn.execute(
-            "CREATE TABLE correction_logs(timestamp TEXT, path TEXT, status TEXT)"
-        )
-        conn.execute(
-            "INSERT INTO correction_logs VALUES ('t1', 'file1.py', 'fixed')"
-        )
-    return db
+@pytest.fixture
+def client():
+    return app.test_client()
 
 
 def test_corrections_stream_once(tmp_path, monkeypatch):
@@ -65,4 +57,3 @@ def test_corrections_websocket(tmp_path, monkeypatch):
 
     payload = asyncio.run(receive())
     assert payload[0]["path"] == "file1.py"
-
