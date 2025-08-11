@@ -51,6 +51,11 @@ def get_backend(
         The selected backend instance.
     """
 
+    if Aer is None:
+        raise ImportError(
+            "qiskit-aer is required; install qiskit==1.4.2"
+        )
+
     if use_hardware is None:
         use_hardware = os.getenv("QUANTUM_USE_HARDWARE", "0") == "1"
 
