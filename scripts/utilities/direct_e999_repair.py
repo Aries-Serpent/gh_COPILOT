@@ -3,9 +3,7 @@
 # # 🔧 DIRECT E999 REPAIR - Simple targeted fixes for specific syntax errors
 """
 
-import os
 from pathlib import Path
-import logging
 
 def fix_specific_syntax_errors():
     """Apply direct fixes to specific syntax errors"""

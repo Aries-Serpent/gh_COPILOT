@@ -61,9 +61,8 @@ jobs:
         if: steps.changed.outputs.added_modified != ''
         run: flake8 --config=.flake8 ${{ steps.changed.outputs.added_modified }}
 
-      - name: Run pyright on changed files
-        if: steps.changed.outputs.added_modified != ''
-        run: pyright ${{ steps.changed.outputs.added_modified }}
+      - name: Run pyright
+        run: pyright
 
       - name: Run combined checks
         env:

@@ -7,12 +7,10 @@ Advanced targeted elimination with robust flake8 output parsing
 import os
 import re
 import subprocess
-import ast
 from datetime import datetime
 from pathlib import Path
 from tqdm import tqdm
-from typing import Dict, List, Tuple, Optional, Any
-import logging
+from typing import Dict, List, Optional, Any
 
 class Phase11CorrectedParser:
     """Advanced violation elimination with improved parsing"""

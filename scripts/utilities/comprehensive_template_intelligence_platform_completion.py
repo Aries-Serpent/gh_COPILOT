@@ -14,17 +14,14 @@ Anti-Recursion: VALIDATED
 Enterprise Standards: FULL COMPLIANCE
 """
 
-import os
 import sys
 import sqlite3
 import logging
 import hashlib
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 from tqdm import tqdm
-import json
 
 # Configure enterprise logging
 logging.basicConfig(

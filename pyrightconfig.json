@@ -1,5 +1,5 @@
 {
-  "typeCheckingMode": "off",
+  "typeCheckingMode": "basic",
   "reportMissingModuleSource": false,
   "reportMissingImports": false,
   "reportGeneralTypeIssues": false,
