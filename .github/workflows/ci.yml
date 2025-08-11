@@ -85,13 +85,16 @@ jobs:
               importlib.import_module(m)
           PY
 
-      - name: Check for zero-byte files
-        run: bash scripts/check_zero_logs.sh .
+    - name: Check for zero-byte files
+      run: bash scripts/check_zero_logs.sh .
 
-      - name: Import template_engine
-        run: |
-          python - <<'PY'
-          import template_engine.auto_generator
+    - name: Scan repository TODOs
+      run: ./scripts/rg_safe.sh TODO -g "*.py" --max-count 100 | head || true
+
+    - name: Import template_engine
+      run: |
+        python - <<'PY'
+        import template_engine.auto_generator
           import template_engine.template_synchronizer
           PY
 
