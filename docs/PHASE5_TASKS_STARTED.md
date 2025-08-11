@@ -9,10 +9,29 @@ ssot: true
 
 The following tasks have begun and are tracked for status reconciliation:
 
-- UnifiedDisasterRecoverySystem
-- FlaskDashboard
-- ComplianceMetrics
-- DatabaseSynchronizationEngine
+### Unified Disaster Recovery System
+---
+id: unified-disaster-recovery-system
+status: started
+---
+
+### Flask Dashboard
+---
+id: flask-dashboard
+status: started
+---
+
+### Compliance Metrics
+---
+id: compliance-metrics
+status: started
+---
+
+### Database Synchronization Engine
+---
+id: database-synchronization-engine
+status: started
+---
 
 ## Reconciliation workflow
 
