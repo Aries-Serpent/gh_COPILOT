@@ -46,6 +46,7 @@ The terminal enforces a **1600-byte per-line limit**. Lines longer than this wil
 * When unsure, redirect command output to a log file and inspect it using `clw` or chunked reads (`head`, `tail`).
 * If `clw` is missing, recreate it from `tools/clw.py`, place it at `/usr/local/bin/clw`, and make it executable.
 * On any line-length error, start a new session, re-run setup, and retry the command using `clw` or log chunking.
+* The wrapper now exits quietly if the downstream pipe closes (e.g., when piping into `head`), avoiding `BrokenPipeError` stack traces.
 
 ## Large Output Handling
 
