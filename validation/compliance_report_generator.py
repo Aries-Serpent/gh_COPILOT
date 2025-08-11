@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from utils.log_utils import _log_plain
 from utils.validation_utils import calculate_composite_compliance_score
 import os
@@ -13,8 +14,9 @@ from pathlib import Path
 from typing import Dict, Any
 
 from tqdm import tqdm
+from enterprise_modules.compliance import load_placeholder_patterns
 
-PLACEHOLDER_PATTERNS = ["TODO", "FIXME"]
+PLACEHOLDER_PATTERNS = load_placeholder_patterns()
 
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
 LOGS_DIR = Path("artifacts/logs/template_rendering")
@@ -66,7 +68,7 @@ def _parse_pytest(path: Path) -> Dict[str, Any]:
 
 
 def _count_placeholders(workspace: Path) -> int:
-    """Return count of TODO/FIXME markers in ``workspace``."""
+    """Return count of placeholder markers in ``workspace``."""
     count = 0
     for file in workspace.rglob("*.py"):
         try:
@@ -74,7 +76,7 @@ def _count_placeholders(workspace: Path) -> int:
         except (OSError, UnicodeDecodeError):
             continue
         for pattern in PLACEHOLDER_PATTERNS:
-            count += text.count(pattern)
+            count += len(re.findall(pattern, text))
     return count
 
 

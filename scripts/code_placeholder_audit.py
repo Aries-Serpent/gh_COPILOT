@@ -59,6 +59,7 @@ except Exception:  # pragma: no cover - allow absence during unit tests
     EnterpriseUtility = None  # type: ignore[assignment]
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 from unified_monitoring_optimization_system import collect_metrics, push_metrics
+from enterprise_modules.compliance import load_placeholder_patterns
 
 __all__ = [
     "snapshot_placeholder_counts",
@@ -77,27 +78,19 @@ TEXT = {
     "complete": "[COMPLETE]",
 }
 
-DEFAULT_PATTERNS = [
-    r"TODO",
-    r"FIXME",
-    r"pass\b",
-    r"NotImplementedError",
-    r"placeholder",
-    r"HACK",
-    r"BUG",
-    r"XXX",
-]
+DEFAULT_PATTERNS = load_placeholder_patterns()
 
 
-def load_best_practice_patterns(config_path: Path | None = None, dataset_path: Path | None = None) -> List[str]:
-    """Load patterns from config and optional dataset."""
+def load_best_practice_patterns(
+    config_path: Path | None = None, dataset_path: Path | None = None
+) -> List[str]:
+    """Load patterns from optional config and dataset."""
 
     patterns: List[str] = []
-    cfg = config_path or Path("config/audit_patterns.json")
-    if cfg.exists():
+    if config_path and config_path.exists():
         try:
-            data = json.loads(cfg.read_text(encoding="utf-8"))
-            patterns.extend(str(p) for p in data.get("patterns", []))
+            data = json.loads(config_path.read_text(encoding="utf-8"))
+            patterns.extend(str(p) for p in data.get("placeholder_patterns", []))
         except Exception as exc:  # pragma: no cover - config errors
             log_message(__name__, f"{TEXT['error']} pattern load failed: {exc}")
 
@@ -1301,11 +1294,15 @@ def main(
     dashboard = Path(dashboard_dir or workspace / "dashboard" / "compliance")
     summary_path = Path(summary_json) if summary_json else None
 
-    # Database-first: fetch patterns from production.db and config
-    patterns = (
-        DEFAULT_PATTERNS
-        + fetch_db_placeholders(production)
-        + load_best_practice_patterns(dataset_path=Path(dataset_path) if dataset_path else None)
+    # Database-first: fetch patterns from production.db and dataset
+    patterns = list(
+        dict.fromkeys(
+            DEFAULT_PATTERNS
+            + fetch_db_placeholders(production)
+            + load_best_practice_patterns(
+                dataset_path=Path(dataset_path) if dataset_path else None
+            )
+        )
     )
     timeout = timeout_minutes * 60 if timeout_minutes else None
 

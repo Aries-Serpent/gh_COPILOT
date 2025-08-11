@@ -56,7 +56,23 @@ class ComplianceError(Exception):
 # Forbidden command patterns that must not appear in operations
 FORBIDDEN_COMMANDS = ["rm -rf", "mkfs", "shutdown", "reboot", "dd if="]
 MAX_RECURSION_DEPTH = 5
-PLACEHOLDER_PATTERNS = ["TODO", "FIXME"]
+
+
+def load_placeholder_patterns(config_path: Path | None = None) -> list[str]:
+    """Return placeholder regex patterns from ``config/audit_patterns.json``."""
+    default = ["TODO", "FIXME"]
+    config_file = (
+        config_path
+        or Path(__file__).resolve().parents[1] / "config" / "audit_patterns.json"
+    )
+    try:
+        data = json.loads(config_file.read_text(encoding="utf-8"))
+        return data.get("placeholder_patterns", default)
+    except Exception:
+        return default
+
+
+PLACEHOLDER_PATTERNS = load_placeholder_patterns()
 
 # Weights for the composite compliance score components
 SCORE_WEIGHTS = {
@@ -425,7 +441,7 @@ def _run_pytest() -> tuple[int, int]:
 
 
 def _count_placeholders() -> int:
-    """Return count of placeholder patterns (TODO/FIXME) in repository."""
+    """Return count of placeholder patterns in repository."""
     workspace = CrossPlatformPathManager.get_workspace_path()
     count = 0
     for path in workspace.rglob("*.py"):
@@ -434,7 +450,7 @@ def _count_placeholders() -> int:
         except OSError:
             continue
         for pat in PLACEHOLDER_PATTERNS:
-            count += text.count(pat)
+            count += len(re.findall(pat, text))
     return count
 
 
