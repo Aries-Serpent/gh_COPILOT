@@ -23,8 +23,6 @@ from .orchestration.registry import QuantumAlgorithmRegistry, get_global_registr
 from .orchestration.executor import QuantumExecutor
 from .quantum_integration_orchestrator import QuantumIntegrationOrchestrator
 
-import logging
-
 __version__ = "2.0.0"
 
 __all__ = [
