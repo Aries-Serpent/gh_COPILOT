@@ -223,6 +223,7 @@
 <h1>Compliance Dashboard</h1>
 <nav>
     <a href="/corrections/view">Corrections</a>
+    <a href="/compliance">Compliance</a>
 </nav>
 <div>
     <strong>Placeholder Removals:</strong> <span id="placeholder_removal">{{ metrics.placeholder_removal | default(0) }}</span><br>
@@ -311,5 +312,6 @@
     <li>{{ row.placeholder_type }}: {{ row.count }}</li>
 {% endfor %}
 </ul>
+{% include 'footer.html' %}
 </body>
 </html>
