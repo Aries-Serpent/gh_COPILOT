@@ -17,7 +17,17 @@ def test_metrics_endpoint(monkeypatch):
         lambda: {"composite_score": 0.9, "recursion_status": "clear"},
     )
     monkeypatch.setattr(
+        ed,
+        "_load_metrics",
+        lambda: {"composite_score": 0.9, "recursion_status": "clear"},
+    )
+    monkeypatch.setattr(
         idash,
+        "_load_placeholder_history",
+        lambda: [{"date": "2024-01-01", "count": 1}],
+    )
+    monkeypatch.setattr(
+        ed,
         "_load_placeholder_history",
         lambda: [{"date": "2024-01-01", "count": 1}],
     )
@@ -32,8 +42,14 @@ def test_metrics_endpoint(monkeypatch):
 
 def test_metrics_stream_history(monkeypatch):
     monkeypatch.setattr(idash, "_load_metrics", lambda: {"placeholder_removal": 1})
+    monkeypatch.setattr(ed, "_load_metrics", lambda: {"placeholder_removal": 1})
     monkeypatch.setattr(
         idash,
+        "_load_placeholder_history",
+        lambda: [{"date": "2024-01-01", "count": 1}],
+    )
+    monkeypatch.setattr(
+        ed,
         "_load_placeholder_history",
         lambda: [{"date": "2024-01-01", "count": 1}],
     )
@@ -150,7 +166,7 @@ def test_dashboard_nav_contains_compliance_link(monkeypatch):
     monkeypatch.setattr(ed, "session_lifecycle_stats", lambda: {})
     monkeypatch.setattr(ed, "load_code_quality_metrics", lambda: {})
     page = ed.app.test_client().get("/").get_data(as_text=True)
-    assert '<a href="/compliance">Compliance</a>' in page
+    assert '<a href="/api/compliance_scores">Compliance</a>' in page
 
 
 def test_compliance_page_tooltips():

@@ -194,10 +194,21 @@ def _load_audit_results(limit: int = 50) -> List[Dict[str, Any]]:
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
             cur = conn.execute(
-                "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' "
-                "GROUP BY placeholder_type ORDER BY COUNT(*) DESC LIMIT ?",
-                (limit,),
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='placeholder_audit'"
             )
+            table_exists = cur.fetchone() is not None
+            if table_exists:
+                cur = conn.execute(
+                    "SELECT placeholder_type, COUNT(*) FROM placeholder_audit "
+                    "GROUP BY placeholder_type ORDER BY COUNT(*) DESC LIMIT ?",
+                    (limit,),
+                )
+            else:
+                cur = conn.execute(
+                    "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' "
+                    "GROUP BY placeholder_type ORDER BY COUNT(*) DESC LIMIT ?",
+                    (limit,),
+                )
             rows = [{"placeholder_type": r[0], "count": r[1]} for r in cur.fetchall()]
     return rows
 
