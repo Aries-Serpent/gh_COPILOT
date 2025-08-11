@@ -39,6 +39,7 @@ def _gather_markdown_files(directory: Path) -> list[Path]:
     return sorted(files)
 
 
+@pid_recursion_guard
 def ingest_documentation(
     workspace: Path,
     docs_dir: Path | None = None,

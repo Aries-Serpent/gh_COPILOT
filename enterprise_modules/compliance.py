@@ -330,6 +330,7 @@ def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bo
     """
     root = path.resolve()
     pid = os.getpid()
+    ppid = os.getppid()
     setattr(_detect_recursion, "last_pid", pid)
     setattr(_detect_recursion, "max_depth_reached", 0)
     setattr(_detect_recursion, "aborted", False)
@@ -340,10 +341,10 @@ def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bo
     if root_depth > max_depth:
         setattr(_detect_recursion, "aborted", True)
         setattr(_detect_recursion, "aborted_path", root)
-        _record_recursion_pid(root, pid)
+        _record_recursion_pid(root, pid, ppid, 0)
         return True
 
-    _record_recursion_pid(root, pid)
+    _record_recursion_pid(root, pid, ppid, 0)
 
     visited: set[Path] = set()
 
@@ -358,7 +359,7 @@ def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bo
         except OSError:
             return False
 
-        _record_recursion_pid(current_resolved, pid)
+        _record_recursion_pid(current_resolved, pid, ppid, depth)
 
         if depth > max_depth:
             setattr(_detect_recursion, "aborted", True)
@@ -377,7 +378,7 @@ def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bo
             except OSError:
                 continue
             if child.name == root.name and child != root:
-                _record_recursion_pid(child_resolved, pid)
+                _record_recursion_pid(child_resolved, pid, ppid, depth + 1)
                 try:
                     child_resolved.relative_to(root)
                 except ValueError:

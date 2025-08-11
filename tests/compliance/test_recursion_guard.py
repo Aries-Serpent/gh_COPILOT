@@ -1,31 +1,33 @@
 import os
-from types import SimpleNamespace
+import sqlite3
 
-import pytest
-
-from enterprise_modules.compliance import ComplianceError, enforce_anti_recursion
+import enterprise_modules.compliance as comp
 
 
-def test_enforce_anti_recursion_tracks_lineage():
-    ctx = SimpleNamespace()
-    enforce_anti_recursion(ctx)
-    assert ctx.pid == os.getpid()
-    assert ctx.parent_pid == os.getppid()
-    assert ctx.ancestors == [os.getpid()]
-    if ctx.recursion_depth > 0:
-        ctx.recursion_depth -= 1
-    ctx.ancestors.pop()
+def test_pid_tracking_and_cleanup(monkeypatch, tmp_path):
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    comp._PID_PARENTS.clear()
+    comp._PID_CHILDREN.clear()
 
+    @comp.anti_recursion_guard
+    def sample():
+        pid = os.getpid()
+        ppid = os.getppid()
+        assert comp._PID_PARENTS[pid] == ppid
+        assert pid in comp._PID_CHILDREN[ppid]
+        return "ok"
 
-def test_enforce_anti_recursion_pid_loop():
+    assert sample() == "ok"
     pid = os.getpid()
-    ctx = SimpleNamespace(ancestors=[pid])
-    with pytest.raises(ComplianceError):
-        enforce_anti_recursion(ctx)
+    ppid = os.getppid()
+    assert pid not in comp._PID_PARENTS
+    assert ppid not in comp._PID_CHILDREN or pid not in comp._PID_CHILDREN[ppid]
 
 
-def test_enforce_anti_recursion_parent_mismatch():
-    ctx = SimpleNamespace(parent_pid=-1)
-    with pytest.raises(ComplianceError):
-        enforce_anti_recursion(ctx)
-
+def test_detect_recursion_records_parent_pid(monkeypatch, tmp_path):
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    assert comp._detect_recursion(tmp_path) is False
+    db = tmp_path / "databases" / "analytics.db"
+    with sqlite3.connect(db) as conn:
+        parents = [row[0] for row in conn.execute("SELECT parent_pid FROM recursion_pid_log").fetchall()]
+    assert parents and all(p == os.getppid() for p in parents)

@@ -24,6 +24,7 @@ from secondary_copilot_validator import (
 
 _RECURSION_CTX = SimpleNamespace()
 
+@pid_recursion_guard
 @anti_recursion_guard
 def archive_backups() -> Path:
     """Compress backup files and store the archive under ``archive/``."""

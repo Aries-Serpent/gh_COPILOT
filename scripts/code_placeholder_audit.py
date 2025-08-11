@@ -28,7 +28,11 @@ from typing import Dict, List, Optional, Tuple
 from tqdm import tqdm
 import shutil
 
-from enterprise_modules.compliance import validate_enterprise_operation
+from enterprise_modules.compliance import (
+    anti_recursion_guard,
+    pid_recursion_guard,
+    validate_enterprise_operation,
+)
 from scripts.database.add_code_audit_log import ensure_code_audit_log
 # ``template_engine`` is optional; fall back to a no-op if missing.
 try:
@@ -948,6 +952,8 @@ def scan_file_for_placeholders(file_path: Path, patterns: List[str] | None = Non
 
 
 # Scan files for patterns with timeout and visual indicators
+@pid_recursion_guard
+@anti_recursion_guard
 def scan_files(workspace: Path, patterns: List[str], timeout: Optional[float] = None) -> List[Dict]:
     """Scan files for given patterns with optional timeout and progress bar."""
     results: List[Dict] = []
