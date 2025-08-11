@@ -167,7 +167,7 @@ def test_apply_suggestions_updates_file_and_db(tmp_path, monkeypatch):
     assert "FIXME" not in src.read_text()
     with sqlite3.connect(analytics_db) as conn:
         unresolved = conn.execute(
-            "SELECT COUNT(*) FROM placeholder_tasks"
+            "SELECT COUNT(*) FROM placeholder_tasks WHERE status='open'"
         ).fetchone()[0]
     assert unresolved == 0
 
@@ -246,4 +246,8 @@ def test_placeholder_tasks_logged(tmp_path, monkeypatch):
         row = conn.execute(
             "SELECT file_path, line_number FROM placeholder_tasks"
         ).fetchone()
+        metrics_rows = conn.execute(
+            "SELECT COUNT(*) FROM placeholder_metrics"
+        ).fetchone()[0]
     assert row == (str(src), 1)
+    assert metrics_rows == 1

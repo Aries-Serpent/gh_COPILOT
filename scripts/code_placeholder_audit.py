@@ -202,41 +202,7 @@ def log_placeholder_tasks(
 
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(analytics_db) as conn:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS todo_fixme_tracking (
-                file_path TEXT,
-                line_number INTEGER,
-                placeholder_type TEXT,
-                context TEXT,
-                suggestion TEXT,
-                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-                author TEXT,
-                resolved BOOLEAN DEFAULT 0,
-                resolved_timestamp DATETIME,
-                resolved_by TEXT,
-                status TEXT DEFAULT 'open',
-                removal_id INTEGER
-            )
-            """
-        )
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS placeholder_tasks (
-                file_path TEXT,
-                line_number INTEGER,
-                pattern TEXT,
-                context TEXT,
-                suggestion TEXT,
-                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-                author TEXT,
-                resolved BOOLEAN DEFAULT 0,
-                resolved_timestamp DATETIME,
-                resolved_by TEXT,
-                status TEXT DEFAULT 'open'
-            )
-            """
-        )
+        _ensure_placeholder_tables(conn)
         # Ensure the suggestion column exists for pre-existing databases.
         cur = conn.execute("PRAGMA table_info(todo_fixme_tracking)")
         cols = {row[1] for row in cur.fetchall()}
@@ -307,6 +273,49 @@ def log_placeholder_tasks(
                         author,
                     ),
                 )
+        conn.commit()
+        # Record snapshot and metrics
+        open_count = conn.execute(
+            "SELECT COUNT(*) FROM placeholder_tasks WHERE status='open'"
+        ).fetchone()[0]
+        resolved_count = conn.execute(
+            "SELECT COUNT(*) FROM placeholder_tasks WHERE status='resolved'"
+        ).fetchone()[0]
+        try:
+            auto_removal_count = conn.execute(
+                "SELECT COUNT(*) FROM corrections WHERE rationale='Auto placeholder cleanup'"
+            ).fetchone()[0]
+        except sqlite3.Error:
+            auto_removal_count = 0
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS placeholder_metrics (
+                timestamp TEXT,
+                open_placeholders INTEGER,
+                resolved_placeholders INTEGER,
+                compliance_score REAL,
+                progress REAL,
+                auto_removal_count INTEGER
+            )
+            """
+        )
+        denom = open_count + resolved_count
+        compliance = resolved_count / denom if denom else 1.0
+        conn.execute(
+            "INSERT INTO placeholder_metrics VALUES (?,?,?,?,?,?)",
+            (
+                datetime.now().isoformat(),
+                open_count,
+                resolved_count,
+                compliance * 100,
+                compliance,
+                auto_removal_count,
+            ),
+        )
+        conn.execute(
+            "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (?,?,?)",
+            (int(time.time()), open_count, resolved_count),
+        )
         conn.commit()
     return tasks_inserted
 
@@ -442,57 +451,8 @@ def _ensure_placeholder_tables(conn: sqlite3.Connection) -> None:
     )
 
 
-_snapshot_recorded = False
-
-
-def _record_placeholder_snapshot(
-    conn: sqlite3.Connection,
-    open_count: int,
-    resolved_count: int,
-    *,
-    auto_removal_count: int = 0,
-) -> None:
-    """Insert metrics and snapshot rows unless already recorded."""
-
-    global _snapshot_recorded
-    if _snapshot_recorded:
-        return
-    _snapshot_recorded = True
-
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS placeholder_metrics (
-            timestamp TEXT,
-            open_placeholders INTEGER,
-            resolved_placeholders INTEGER,
-            compliance_score REAL,
-            progress REAL,
-            auto_removal_count INTEGER
-        )
-        """
-    )
-    denom = open_count + resolved_count
-    compliance_score = resolved_count / denom if denom else 1.0
-    conn.execute(
-        "INSERT INTO placeholder_metrics VALUES (?,?,?,?,?,?)",
-        (
-            datetime.now().isoformat(),
-            open_count,
-            resolved_count,
-            compliance_score,
-            compliance_score,
-            auto_removal_count,
-        ),
-    )
-    _ensure_placeholder_tables(conn)
-    conn.execute(
-        "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (?,?,?)",
-        (int(time.time()), open_count, resolved_count),
-    )
-
-
 def snapshot_placeholder_counts(db: Path) -> Tuple[int, int]:
-    """Aggregate open and resolved placeholder counts and record a snapshot.
+    """Aggregate open and resolved placeholder counts.
 
     Parameters
     ----------
@@ -527,8 +487,6 @@ def snapshot_placeholder_counts(db: Path) -> Tuple[int, int]:
                 "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
             )
             resolved_count = int(cur.fetchone()[0])
-        _record_placeholder_snapshot(conn, open_count, resolved_count)
-        conn.commit()
         return open_count, resolved_count
 
 
@@ -832,52 +790,48 @@ def update_dashboard(
     dashboard_dir.mkdir(parents=True, exist_ok=True)
     open_count = count
     resolved = 0
-    placeholder_counts: Dict[str, int] = {}
+    compliance_pct = 0.0
+    progress = 0.0
     auto_removal_count = 0
+    timestamp = datetime.now().isoformat()
+    placeholder_counts: Dict[str, int] = {}
     if analytics_db.exists():
-        open_count = 0
-        resolved = 0
         with sqlite3.connect(analytics_db) as conn:
+            try:
+                cur = conn.execute(
+                    """
+                    SELECT timestamp, open_placeholders, resolved_placeholders,
+                           compliance_score, progress, auto_removal_count
+                    FROM placeholder_metrics ORDER BY timestamp DESC LIMIT 1
+                    """
+                )
+                row = cur.fetchone()
+            except sqlite3.Error:
+                row = None
+            if row:
+                timestamp, open_count, resolved, compliance_pct, progress, auto_removal_count = row
             tables = []
             if conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name='placeholder_tasks'"
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='placeholder_tasks'",
             ).fetchone():
                 tables.append(("placeholder_tasks", "pattern"))
             else:
                 tables.append(("todo_fixme_tracking", "placeholder_type"))
             for table, col in tables:
                 cur = conn.execute(
-                    f"SELECT status, COUNT(*) FROM {table} GROUP BY status"
-                )
-                for status, cnt in cur.fetchall():
-                    if status == "open":
-                        open_count += cnt
-                    elif status == "resolved":
-                        resolved += cnt
-                cur = conn.execute(
-                    f"SELECT {col}, COUNT(*) FROM {table} WHERE status='open' GROUP BY {col}"
+                    f"SELECT {col}, COUNT(*) FROM {table} WHERE status='open' GROUP BY {col}",
                 )
                 for ptype, cnt in cur.fetchall():
                     placeholder_counts[ptype] = placeholder_counts.get(ptype, 0) + cnt
-            try:
-                cur = conn.execute(
-                    "SELECT COUNT(*) FROM corrections WHERE rationale='Auto placeholder cleanup'"
-                )
-                auto_removal_count = cur.fetchone()[0]
-            except sqlite3.Error:
-                auto_removal_count = 0
 
-    denominator = open_count + resolved
-    compliance = resolved / denominator if denominator else 1.0
-    compliance_pct = compliance * 100
     status = "complete" if open_count == 0 else "issues_pending"
     compliance_status = "compliant" if open_count == 0 else "non_compliant"
     data = {
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": timestamp,
         "findings": open_count,
         "resolved_count": resolved,
         "compliance_score": compliance_pct,
-        "progress": resolved / denominator if denominator else 1.0,
+        "progress": progress,
         "progress_status": status,
         "compliance_status": compliance_status,
         "placeholder_counts": placeholder_counts,
@@ -886,47 +840,19 @@ def update_dashboard(
     path = summary_json or dashboard_dir / "placeholder_summary.json"
     path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
-    # Persist metrics to analytics.db and metrics.json for dashboard consumption
     dashboard_metrics = {
         "open_placeholders": open_count,
         "resolved_placeholders": resolved,
         "compliance_score": compliance_pct,
-        "progress": data["progress"],
+        "progress": progress,
         "auto_removal_count": auto_removal_count,
     }
-
-    if analytics_db.exists():
-        with sqlite3.connect(analytics_db) as conn:
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS placeholder_metrics (
-                    timestamp TEXT,
-                    open_placeholders INTEGER,
-                    resolved_placeholders INTEGER,
-                    compliance_score REAL,
-                    progress REAL,
-                    auto_removal_count INTEGER
-                )
-                """
-            )
-            conn.execute(
-                "INSERT INTO placeholder_metrics VALUES (?, ?, ?, ?, ?, ?)",
-                (
-                    data["timestamp"],
-                    open_count,
-                    resolved,
-                    compliance_pct,
-                    data["progress"],
-                    auto_removal_count,
-                ),
-            )
-            conn.commit()
 
     metrics_path = dashboard_dir / "metrics.json"
     metrics_payload = {
         "metrics": dashboard_metrics,
         "status": "updated",
-        "timestamp": data["timestamp"],
+        "timestamp": timestamp,
     }
     metrics_path.write_text(json.dumps(metrics_payload, indent=2), encoding="utf-8")
 
@@ -934,7 +860,7 @@ def update_dashboard(
     counts_payload = {
         "open": open_count,
         "resolved": resolved,
-        "timestamp": data["timestamp"],
+        "timestamp": timestamp,
     }
     (dashboard_dir / "placeholder_counts.json").write_text(
         json.dumps(counts_payload, indent=2), encoding="utf-8"
