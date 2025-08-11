@@ -15,7 +15,7 @@ endpoints:
 
 #### 2. Database Integration
 - Primary: learning_monitor.db (template intelligence)
-- Analytics: analytics_collector.db (usage metrics)
+- Analytics: analytics.db (usage metrics)
 - Production: production.db (deployment configs)
 - Development: development.db (experimental features)
 

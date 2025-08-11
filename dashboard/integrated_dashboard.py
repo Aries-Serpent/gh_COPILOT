@@ -21,7 +21,7 @@ from tqdm import tqdm
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from database_first_synchronization_engine import list_events
 from enterprise_modules.compliance import (
-    calculate_composite_score,
+    calculate_compliance_score,
     get_latest_compliance_score,
 )
 from utils.validation_utils import calculate_composite_compliance_score
@@ -83,12 +83,14 @@ def _load_metrics() -> dict[str, Any]:
                     )
                     row = cur.fetchone()
                     if row:
-                        score, breakdown = calculate_composite_score(
+                        score, breakdown = calculate_compliance_score(
                             row["ruff_issues"],
                             row["tests_passed"],
                             row["tests_failed"],
                             row["placeholders_open"],
                             row["placeholders_resolved"],
+                            0,
+                            0,
                         )
                         metrics["code_quality_score"] = score
                         metrics["composite_score"] = score

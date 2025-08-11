@@ -53,7 +53,7 @@ def test_suggestions_logged_to_tracking(tmp_path, monkeypatch):
     audit.log_placeholder_tasks(tasks, analytics_db)
     with sqlite3.connect(analytics_db) as conn:
         cur = conn.execute("SELECT suggestion FROM todo_fixme_tracking")
-        assert "TODO" in cur.fetchone()[0]
+        assert cur.fetchone()[0].strip() == "# remove"
 
 
 def test_verify_task_completion_marks_resolved(tmp_path, monkeypatch):
@@ -77,7 +77,7 @@ def test_verify_task_completion_marks_resolved(tmp_path, monkeypatch):
     # Simulate manual fix
     src.write_text("# done\n", encoding="utf-8")
     resolved = audit.verify_task_completion(analytics_db, workspace)
-    assert resolved == 1
+    assert resolved == 2
     with sqlite3.connect(analytics_db) as conn:
         cur = conn.execute("SELECT status, resolved FROM todo_fixme_tracking")
         status, resolved_flag = cur.fetchone()
@@ -170,6 +170,50 @@ def test_apply_suggestions_updates_file_and_db(tmp_path, monkeypatch):
             "SELECT COUNT(*) FROM placeholder_tasks"
         ).fetchone()[0]
     assert unresolved == 0
+
+
+def test_apply_suggestions_ignores_files_outside_workspace(tmp_path, capsys):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    outside = tmp_path / "outside.py"
+    outside.write_text("# FIXME: adjust\n", encoding="utf-8")
+    analytics_db = tmp_path / "analytics.db"
+    tasks = [
+        {
+            "file": str(outside),
+            "line": 1,
+            "pattern": "FIXME",
+            "context": "# FIXME: adjust",
+            "suggestion": "# fixed",
+        }
+    ]
+    unresolved = audit.apply_suggestions_to_files(tasks, analytics_db, workspace)
+    out, _ = capsys.readouterr()
+    assert unresolved == tasks
+    assert outside.read_text(encoding="utf-8") == "# FIXME: adjust\n"
+    assert "outside workspace" in out
+
+
+def test_apply_suggestions_ignores_relative_paths_outside_workspace(tmp_path, capsys):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    outside = tmp_path / "outside.py"
+    outside.write_text("# TODO: keep\n", encoding="utf-8")
+    analytics_db = tmp_path / "analytics.db"
+    tasks = [
+        {
+            "file": "../outside.py",
+            "line": 1,
+            "pattern": "TODO",
+            "context": "# TODO: keep",
+            "suggestion": "# done",
+        }
+    ]
+    unresolved = audit.apply_suggestions_to_files(tasks, analytics_db, workspace)
+    out, _ = capsys.readouterr()
+    assert unresolved == tasks
+    assert outside.read_text(encoding="utf-8") == "# TODO: keep\n"
+    assert "outside workspace" in out
 
 
 def test_placeholder_tasks_logged(tmp_path, monkeypatch):

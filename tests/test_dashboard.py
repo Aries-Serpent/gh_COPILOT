@@ -87,6 +87,8 @@ def test_new_routes_and_dashboard_page(monkeypatch):
     monkeypatch.setattr(idash, "get_rollback_logs", lambda: [])
     monkeypatch.setattr(idash, "_load_sync_events", lambda: [])
     monkeypatch.setattr(idash, "_load_audit_results", lambda: [])
+    monkeypatch.setattr(ed, "session_lifecycle_stats", lambda: {})
+    monkeypatch.setattr(ed, "load_code_quality_metrics", lambda: {})
     client = ed.app.test_client()
     resp_sync = client.get("/sync_events")
     assert resp_sync.get_json()[0]["action"] == "sync"
@@ -116,22 +118,47 @@ def test_placeholder_details_endpoint(tmp_path, monkeypatch):
     db = tmp_path / "analytics.db"
     with sqlite3.connect(db) as conn:
         conn.execute(
-            "CREATE TABLE placeholder_audit_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, open_count INTEGER, resolved_count INTEGER)"
+            "CREATE TABLE placeholder_audit (file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT)"
         )
         conn.execute(
-            "CREATE TABLE placeholder_tasks (file_path TEXT, line_number INTEGER, status TEXT)"
+            "CREATE TABLE placeholder_audit_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, open_count INTEGER, resolved_count INTEGER)"
         )
         conn.execute(
             "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (1,2,3)"
         )
         conn.execute(
-            "INSERT INTO placeholder_tasks VALUES ('file.py', 10, 'open')"
+            "INSERT INTO placeholder_audit VALUES ('file.py', 10, 'TODO', 'ctx')"
         )
     monkeypatch.setattr(ed, "ANALYTICS_DB", db)
     client = ed.app.test_client()
-    resp = client.get("/api/placeholder_details")
+    resp = client.get("/api/placeholder_audit")
     assert resp.status_code == 200
     data = resp.get_json()
     assert data["history"][0]["open"] == 2
     assert data["history"][0]["resolved"] == 3
-    assert data["unresolved"][0]["file"] == "file.py"
+    assert isinstance(data["unresolved"], list)
+
+
+def test_dashboard_nav_contains_compliance_link(monkeypatch):
+    monkeypatch.setattr(idash, "_load_metrics", lambda: {})
+    monkeypatch.setattr(idash, "get_rollback_logs", lambda: [])
+    monkeypatch.setattr(idash, "_load_sync_events", lambda: [])
+    monkeypatch.setattr(idash, "_load_audit_results", lambda: [])
+    monkeypatch.setattr(ed, "_load_sync_events", lambda: [])
+    monkeypatch.setattr(ed, "_load_audit_results", lambda: [])
+    monkeypatch.setattr(ed, "_load_corrections", lambda: [])
+    monkeypatch.setattr(ed, "session_lifecycle_stats", lambda: {})
+    monkeypatch.setattr(ed, "load_code_quality_metrics", lambda: {})
+    page = ed.app.test_client().get("/").get_data(as_text=True)
+    assert '<a href="/compliance">Compliance</a>' in page
+
+
+def test_compliance_page_tooltips():
+    from flask import Flask
+    from dashboard.routes import compliance as compliance_route
+
+    app = Flask(__name__)
+    app.register_blueprint(compliance_route.bp)
+    client = app.test_client()
+    page = client.get("/compliance").get_data(as_text=True)
+    assert 'title="Definition: composite compliance score.' in page

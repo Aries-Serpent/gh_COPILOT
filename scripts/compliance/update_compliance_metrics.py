@@ -142,11 +142,10 @@ def _compute(c: ComplianceComponents) -> Tuple[float, float, float, float]:
     L = min(100.0, max(0.0, 100.0 - float(c.ruff_issues)))
     T = (float(c.tests_passed) / c.tests_total * 100.0) if c.tests_total else 0.0
     denom = c.placeholders_open + c.placeholders_resolved
-    placeholder_score = (
-        float(c.placeholders_resolved) / denom * 100.0
-        if denom
-        else 0.0
-    )
+    if denom == 0:
+        placeholder_score = 100.0
+    else:
+        placeholder_score = float(c.placeholders_resolved) / denom * 100.0
     composite = 0.3 * L + 0.5 * T + 0.2 * placeholder_score
     return L, T, placeholder_score, composite
 

@@ -4,10 +4,27 @@ from __future__ import annotations
 
 import csv
 import io
+import subprocess
 from flask import Response
 
 from .enterprise_dashboard import app
+from .routes import register_routes
 from scripts.compliance.update_compliance_metrics import fetch_recent_compliance
+
+
+GIT_SHA = (
+    subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]).decode().strip()
+)
+
+
+@app.context_processor
+def inject_git_sha() -> dict[str, str]:
+    """Expose current Git SHA to all templates."""
+    return {"git_sha": GIT_SHA}
+
+
+# Register additional blueprint routes such as compliance page
+register_routes(app)
 
 
 @app.route("/api/compliance_scores.csv")

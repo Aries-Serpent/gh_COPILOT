@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('placeholderChart');
     const tableBody = document.getElementById('unresolvedBody');
+    const openCount = document.getElementById('placeholderOpenCount');
+    const resolvedCount = document.getElementById('placeholderResolvedCount');
     if (!canvas || typeof Chart === 'undefined') {
         return;
     }
@@ -33,12 +35,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function refresh() {
-        fetch('/api/placeholder_details').then(r => r.json()).then(data => {
+        fetch('/api/placeholder_audit').then(r => r.json()).then(data => {
             const history = data.history || [];
             chart.data.labels = history.map(h => new Date(h.timestamp * 1000).toLocaleString());
             chart.data.datasets[0].data = history.map(h => h.open);
             chart.data.datasets[1].data = history.map(h => h.resolved);
             chart.update();
+            if (history.length && openCount && resolvedCount) {
+                const latest = history[history.length - 1];
+                openCount.textContent = latest.open;
+                resolvedCount.textContent = latest.resolved;
+            }
             if (tableBody) {
                 tableBody.innerHTML = '';
                 (data.unresolved || []).forEach(row => {
@@ -47,8 +54,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     fileTd.textContent = row.file;
                     const lineTd = document.createElement('td');
                     lineTd.textContent = row.line;
+                    const typeTd = document.createElement('td');
+                    typeTd.textContent = row.type;
                     tr.appendChild(fileTd);
                     tr.appendChild(lineTd);
+                    tr.appendChild(typeTd);
+                    if (row.context) {
+                        tr.title = row.context;
+                    }
                     tableBody.appendChild(tr);
                 });
             }

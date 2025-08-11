@@ -5,7 +5,7 @@ from validation import compliance_report_generator as crg
 from dashboard import integrated_dashboard as gui
 import dashboard.enterprise_dashboard as ed
 from enterprise_modules.compliance import (
-    calculate_composite_score,
+    calculate_compliance_score,
     persist_compliance_score,
 )
 
@@ -32,7 +32,7 @@ def test_compliance_metrics_breakdown(tmp_path, monkeypatch):
     db = tmp_path / "analytics.db"
     monkeypatch.setattr(ed, "ANALYTICS_DB", db)
 
-    score, breakdown = calculate_composite_score(1, 4, 1, 0, 0)
+    score, breakdown = calculate_compliance_score(1, 4, 1, 0, 0, 0, 0)
     persist_compliance_score(score, breakdown, db)
 
     client = ed.app.test_client()

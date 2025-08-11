@@ -1,7 +1,9 @@
-from analytics.user_behavior import log_user_action
-from analytics.performance_analysis import summarize_performance
-from analytics.pattern_recognition import find_repeated
-from analytics.predictive_models import predict_next
+from analytics import (
+    find_repeated,
+    log_user_action,
+    predict_next,
+    summarize_performance,
+)
 
 
 def test_log_user_action() -> None:

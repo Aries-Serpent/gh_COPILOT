@@ -1,7 +1,4 @@
 # Failing Tests Summary
 
-The following modules reported errors during the latest test run:
-
-- `tests/test_analytics_modules.py` – ImportError: cannot import name `track_active_users` from `analytics.user_behavior`
-
-See `failing_tests.log` for details.
+Recent test runs report numerous collection errors across monitoring and quantum
+modules. Refer to `failing_tests.log` for the complete output and module list.

@@ -14,7 +14,8 @@
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
 > Lint: run `ruff check .` before committing.
 > Compliance: run `python secondary_copilot_validator.py --validate` after critical changes to enforce dual-copilot and EnterpriseComplianceValidator checks.
-> Quantum modules run exclusively in simulation mode; hardware flags are currently ignored. Documentation and guides now clearly mark these components as simulation-only. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Module completion status is tracked in [docs/STUB_MODULE_STATUS.md](docs/STUB_MODULE_STATUS.md). Compliance auditing is enforced via `EnterpriseComplianceValidator`, and composite scores combine lint, test, and placeholder metrics stored in `analytics_collector.db`.
+> Docs: run `python scripts/docs_status_reconciler.py` to refresh `docs/task_stubs.md` and `docs/status_index.json` before committing documentation changes.
+> Quantum modules run exclusively in simulation mode; hardware flags are currently ignored. Documentation and guides now clearly mark these components as simulation-only. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Module completion status is tracked in [docs/STUB_MODULE_STATUS.md](docs/STUB_MODULE_STATUS.md). Compliance auditing is enforced via `EnterpriseComplianceValidator`, and composite scores combine lint, test, and placeholder metrics stored in `analytics.db`.
 > Integration plan: [docs/quantum_integration_plan.md](docs/quantum_integration_plan.md) outlines staged hardware enablement while current builds remain simulator-only.
 > Governance: see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards. New compliance routines and monitoring capabilities are detailed in [docs/white-paper.md](docs/white-paper.md).
 > Security: updated protocols and configuration files reside under `security/` including `security/enterprise_security_policy.json`, `security/access_control_matrix.json`, `security/encryption_standards.json`, and `security/security_audit_framework.json`.
@@ -98,7 +99,7 @@ This value is persisted to `analytics.db` (table `compliance_scores`) via `scrip
 
 * `ruff_issue_log` – populated by `scripts/ingest_test_and_lint_results.py` after running `ruff` with JSON output
 * `test_run_stats` – same ingestion script parses `pytest --json-report` results
-* `placeholder_audit_snapshots` – appended after each `scripts/code_placeholder_audit.py` run
+* `placeholder_audit_snapshots` – appended after each `scripts/code_placeholder_audit.py` run; `update_compliance_metrics` reads the latest snapshot, so run the audit before recomputing scores
 
 Endpoints:
 * `POST /api/refresh_compliance` – compute & persist a new composite score
@@ -602,8 +603,10 @@ validation through the `SecondaryCopilotValidator`. It records each session in
 Each run inserts a row into the `unified_wrapup_sessions` table with a
 compliance score for audit purposes. Ensure all command output is piped through
 `/usr/local/bin/clw` to avoid exceeding the line length limit.
-The scoring formula blends Ruff issues, pytest pass ratios and placeholder
-resolution statistics. See
+The scoring formula blends Ruff issues, pytest pass ratios, placeholder
+resolution, and session lifecycle success via
+`enterprise_modules.compliance.calculate_compliance_score` and the
+`SCORE_WEIGHTS` constants. See
 [docs/COMPLIANCE_METRICS.md](docs/COMPLIANCE_METRICS.md) for details.
 The table stores `session_id`, timestamps, status, compliance score, and
 optional error details so administrators can audit every session.
@@ -621,7 +624,6 @@ The repository currently maintains **24** active SQLite databases under
 
 ```text
 analytics.db
-analytics_collector.db
 autonomous_decisions.db
 capability_scaler.db
 consolidation_analysis.db
@@ -989,6 +991,8 @@ Synchronization outcomes are logged to `databases/analytics.db`, allowing the da
 
 The compliance score is averaged from records in the `correction_logs` table.
 Correction history is summarized via `scripts/correction_logger_and_rollback.py`.
+Use `scripts/correction_logger_and_rollback.py --rollback-last` to undo the most
+recent correction when necessary.
 The `summarize_corrections()` routine now keeps only the most recent entries
 (configurable via the `max_entries` argument). Existing summary files are moved
 to `dashboard/compliance/archive/` before new summaries are written. The main
@@ -1014,6 +1018,7 @@ Set `GH_COPILOT_WORKSPACE` before running these utilities:
 export GH_COPILOT_WORKSPACE=$(pwd)
 python dashboard/compliance_metrics_updater.py
 python scripts/correction_logger_and_rollback.py
+python scripts/correction_logger_and_rollback.py --rollback-last  # undo last correction
 ```
 
 ---

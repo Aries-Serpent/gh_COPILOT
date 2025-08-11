@@ -1,0 +1,38 @@
+name: Docs Status
+
+on:
+  push:
+    paths:
+      - 'docs/PHASE5_TASKS_STARTED.md'
+      - 'docs/task_stubs.md'
+      - 'docs/status_index.json'
+      - 'scripts/docs_status_reconciler.py'
+      - '.github/workflows/docs-status.yml'
+  pull_request:
+    paths:
+      - 'docs/PHASE5_TASKS_STARTED.md'
+      - 'docs/task_stubs.md'
+      - 'docs/status_index.json'
+      - 'scripts/docs_status_reconciler.py'
+      - '.github/workflows/docs-status.yml'
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Generate status indexes
+        run: python scripts/docs_status_reconciler.py
+
+      - name: Fail on drift
+        run: git diff --exit-code docs/task_stubs.md docs/status_index.json
+
