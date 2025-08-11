@@ -16,4 +16,3 @@ __all__ = [
     "summarize_performance",
     "track_active_users",
 ]
-
