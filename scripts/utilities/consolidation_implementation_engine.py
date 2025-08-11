@@ -13,13 +13,11 @@ Features:
 - Database-driven consolidation tracking and validation
 """
 
-import os
 import json
 import shutil
 import datetime
-import sqlite3
 from pathlib import Path
-from typing import Dict, List, Any, Tuple
+from typing import Dict, List, Any
 from dataclasses import dataclass
 from tqdm import tqdm
 

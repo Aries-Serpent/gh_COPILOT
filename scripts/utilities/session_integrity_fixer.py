@@ -4,12 +4,9 @@
 Comprehensive resolution of session validation issues
 """
 
-import os
-import shutil
 import json
 from pathlib import Path
 from datetime import datetime
-import sqlite3
 
 def fix_session_integrity():
     """Fix all session integrity issues"""

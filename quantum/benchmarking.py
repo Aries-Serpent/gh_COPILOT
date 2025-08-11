@@ -30,7 +30,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from physics_optimization_engine import PhysicsOptimizationEngine
-import logging
 
 __all__ = [
     "load_metrics",

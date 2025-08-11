@@ -13,7 +13,6 @@ Anti-Recursion: VALIDATED
 Enterprise Standards: FULL COMPLIANCE
 """
 
-import os
 import sys
 import sqlite3
 import logging

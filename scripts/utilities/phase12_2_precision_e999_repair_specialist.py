@@ -12,9 +12,8 @@ import json
 import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, Any
 from tqdm import tqdm
-import logging
 
 class Phase122PrecisionE999RepairSpecialist:
     """# # 🎯 Precision E999 Syntax Error Repair - Targeted Pattern Fixes"""

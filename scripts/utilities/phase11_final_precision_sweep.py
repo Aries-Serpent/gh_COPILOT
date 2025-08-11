@@ -17,17 +17,13 @@ Advanced Targeted Elimination of the Final 109 Stubborn Violations
 - Precision whitespace analysis with minimal code disruption
 """
 
-import os
 import re
-import ast
 import json
 import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Set, Any, Optional
+from typing import Dict, List, Any
 from tqdm import tqdm
-import time
-import logging
 
 
 class Phase11FinalPrecisionSweep:
@@ -388,7 +384,6 @@ class Phase11FinalPrecisionSweep:
             replacements = {
                 """: "'",  # Smart quote
                 """: "'",  # Smart quote
-                '"': '"',  # Smart quote
                 '"': '"',  # Smart quote
                 "–": "-",  # En dash
                 "—": "--",  # Em dash
