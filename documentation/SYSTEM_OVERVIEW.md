@@ -30,7 +30,6 @@
 - factory_deployment.db
 - project_grading_database.db
 - advanced_analytics.db
-- analytics_collector.db
 - autonomous_decisions.db
 - capability_scaler.db
 - continuous_innovation.db

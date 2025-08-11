@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 
 ANALYTICS_SOURCES = [
     "advanced_analytics.db",
-    "analytics_collector.db",
     "monitoring.db",
     "optimization_metrics.db",
     "performance_analysis.db",

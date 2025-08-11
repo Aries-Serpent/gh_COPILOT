@@ -11,9 +11,9 @@ This document provides comprehensive documentation for the Template Intelligence
 
 The Template Intelligence Platform employs a multi-database architecture with the following components:
 
-### Analytics Collector Database
+### Analytics Database
 
-- **File:** `e:\gh_COPILOT\databases\analytics_collector.db`
+- **File:** `e:\gh_COPILOT\databases\analytics.db`
 - **Tables:** 4
 - **Purpose:** Specialized data management
 
@@ -61,7 +61,7 @@ The Template Intelligence Platform employs a multi-database architecture with th
 
 ## Table Documentation
 
-### Analytics Collector Database Tables
+### Analytics Database Tables
 
 #### analytics_data_points
 

@@ -37,7 +37,7 @@
 - **File**: `unified_session_management_system.py`
 - **Status**: Basic features only (~30% complete)
 - **Features**: Anti-recursion present; zero-byte checks implemented
-- **Database Integration**: `session_management.db`, `analytics_collector.db`
+- **Database Integration**: `session_management.db`, `analytics.db`
 
 #### 3. **Unified Database Management System** ✅
 - **File**: `unified_database_management_system.py`
@@ -68,7 +68,7 @@
 
 ### **Core Production Databases**
 - **production.db** - Main enterprise data repository
-- **analytics_collector.db** - Real-time analytics and metrics
+- **analytics.db** - Real-time analytics and metrics
 - **template_intelligence.db** - Template patterns and generation
 - **session_management.db** - Session integrity and validation
 - **disaster_recovery.db** - Backup and recovery management
@@ -91,7 +91,7 @@
 - **learning_monitor.db** - Learning system tracking
 
 ### **Analytics & Reporting**
-- **analytics_collector.db** - Data collection
+- **analytics.db** - Data collection
 - **executive_alerts.db** - Executive-level reporting
 - **factory_deployment.db** - Factory deployment patterns
 - **enhanced_deployment_tracking.db** - Deployment monitoring
