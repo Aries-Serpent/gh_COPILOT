@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import io
+import os
 import subprocess
 from flask import Response
 
@@ -12,8 +13,10 @@ from .routes import register_routes
 from scripts.compliance.update_compliance_metrics import fetch_recent_compliance
 
 
-GIT_SHA = (
-    subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]).decode().strip()
+# Prefer build-time environment variable for versioning; fall back to git.
+GIT_SHA = os.getenv(
+    "GIT_SHA",
+    subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]).decode().strip(),
 )
 
 

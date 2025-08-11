@@ -60,6 +60,16 @@ This module is designed to meet enterprise auditability and compliance standards
 
 ---
 
+## Metric Sources and Tooltips
+
+Metrics shown in the dashboard are queried from `/api/compliance_scores`,
+which reads composite and component scores from `analytics.db`. The
+frontend updates the `title` attribute for each metric, enabling native
+browser tooltips with definitions and timestamps. Clicking a gauge
+reveals these descriptions in an inline panel for quick drill-down.
+
+---
+
 ## MODULE DIRECTORY STRUCTURE
 
 ```
