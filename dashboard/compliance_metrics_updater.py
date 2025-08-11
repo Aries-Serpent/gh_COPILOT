@@ -29,7 +29,7 @@ from enterprise_modules.compliance import (
     _run_ruff,
     _run_pytest,
     pid_recursion_guard,
-    calculate_code_quality_score,
+    calculate_compliance_score,
 )
 from disaster_recovery_orchestrator import DisasterRecoveryOrchestrator
 from unified_monitoring_optimization_system import (
@@ -397,7 +397,7 @@ class ComplianceMetricsUpdater:
             ruff_issues = _run_ruff()
             tests_passed, tests_failed = _run_pytest()
 
-        score, breakdown = calculate_code_quality_score(
+        score, breakdown = calculate_compliance_score(
             ruff_issues,
             tests_passed,
             tests_failed,

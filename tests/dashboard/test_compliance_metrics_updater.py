@@ -81,7 +81,7 @@ def test_violation_and_rollback_counts_affect_composite(tmp_path, monkeypatch):
     assert metrics["rollback_count"] == 1
     assert metrics["score_breakdown"]["violation_penalty"] == 10
     assert metrics["score_breakdown"]["rollback_penalty"] == 5
-    expected_base = calculate_compliance_score(0, 1, 0, 1, 1)
+    expected_base, _ = calculate_compliance_score(0, 1, 0, 1, 1, 0, 0)
     assert metrics["composite_score"] == pytest.approx(
         expected_base - 15, rel=1e-3
     )

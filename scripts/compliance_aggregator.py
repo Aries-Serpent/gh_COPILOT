@@ -11,7 +11,7 @@ import argparse
 from typing import Any, Dict
 
 from enterprise_modules.compliance import (
-    calculate_composite_score,
+    calculate_compliance_score,
     record_code_quality_metrics,
 )
 
@@ -22,22 +22,27 @@ def aggregate_metrics(
     tests_failed: int,
     placeholders_open: int,
     placeholders_resolved: int = 0,
+    sessions_successful: int = 0,
+    sessions_failed: int = 0,
     *,
     db_path: Path | None = None,
     test_mode: bool = False,
 ) -> Dict[str, Any]:
     """Return composite compliance metrics and optionally persist them."""
-    composite, breakdown = calculate_composite_score(
+    composite, breakdown = calculate_compliance_score(
         ruff_issues,
         tests_passed,
         tests_failed,
         placeholders_open,
         placeholders_resolved,
+        sessions_successful,
+        sessions_failed,
     )
     breakdown = {
         "lint_score": breakdown["lint_score"],
         "test_score": breakdown["test_score"],
         "placeholder_score": breakdown["placeholder_score"],
+        "session_score": breakdown["session_score"],
     }
 
     record_code_quality_metrics(
@@ -46,6 +51,8 @@ def aggregate_metrics(
         tests_failed,
         placeholders_open,
         placeholders_resolved,
+        sessions_successful,
+        sessions_failed,
         db_path,
         test_mode=test_mode,
     )
@@ -55,6 +62,8 @@ def aggregate_metrics(
         "tests_failed": tests_failed,
         "placeholders_open": placeholders_open,
         "placeholders_resolved": placeholders_resolved,
+        "sessions_successful": sessions_successful,
+        "sessions_failed": sessions_failed,
         "composite_score": composite,
         "breakdown": breakdown,
     }
@@ -68,6 +77,8 @@ def main() -> None:  # pragma: no cover - CLI wrapper
     parser.add_argument("--tests-failed", type=int, required=True)
     parser.add_argument("--placeholders-open", type=int, required=True)
     parser.add_argument("--placeholders-resolved", type=int, default=0)
+    parser.add_argument("--sessions-successful", type=int, default=0)
+    parser.add_argument("--sessions-failed", type=int, default=0)
     parser.add_argument("--db-path", type=Path)
     args = parser.parse_args()
     metrics = aggregate_metrics(
@@ -76,6 +87,8 @@ def main() -> None:  # pragma: no cover - CLI wrapper
         args.tests_failed,
         args.placeholders_open,
         args.placeholders_resolved,
+        args.sessions_successful,
+        args.sessions_failed,
         db_path=args.db_path,
     )
     print(metrics)
