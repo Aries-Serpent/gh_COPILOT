@@ -195,7 +195,6 @@
         function pollExtras(){
             fetch('/sync_events').then(r=>r.json()).then(updateSyncEvents);
             fetch('/audit_results').then(r=>r.json()).then(updateAuditResults);
-            fetch('/corrections').then(r=>r.json()).then(updateCorrections);
         }
         window.onload = function(){
             initGauges();
@@ -208,6 +207,10 @@
                         window.updatePlaceholderChart(payload.placeholder_history || []);
                     }
                 };
+                const cs = new EventSource('/corrections_stream');
+                cs.onmessage = function(evt){
+                    updateCorrections(JSON.parse(evt.data));
+                };
             }else{
                 setInterval(function(){
                     fetch('/metrics').then(r=>r.json()).then(payload => {
@@ -216,6 +219,9 @@
                             window.updatePlaceholderChart(payload.placeholder_history || []);
                         }
                     });
+                },5000);
+                setInterval(function(){
+                    fetch('/corrections').then(r=>r.json()).then(updateCorrections);
                 },5000);
             }
             pollCompliance();

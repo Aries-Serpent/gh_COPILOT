@@ -31,6 +31,7 @@ def init_ibm_backend(
     token: str | None = None,
     token_env: str = "QISKIT_IBM_TOKEN",
     backend_env: str = "IBM_BACKEND",
+    backend_name: str | None = None,
 ) -> Tuple[Any, bool]:
     """Initialize an IBM quantum backend.
 
@@ -43,6 +44,8 @@ def init_ibm_backend(
         Name of the environment variable that may contain the token.
     backend_env:
         Environment variable for selecting a specific backend.
+    backend_name:
+        Optional explicit backend name. Overrides ``backend_env`` when provided.
 
     Returns
     -------
@@ -52,7 +55,7 @@ def init_ibm_backend(
         hardware execution will be used.
     """
     token = token or os.getenv(token_env) or _load_token_from_config()
-    backend_name = os.getenv(backend_env)
+    backend_name = backend_name or os.getenv(backend_env)
 
     if IBMProvider is None or Aer is None:
         warnings.warn(

@@ -41,10 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
             chart.data.datasets[0].data = history.map(h => h.open);
             chart.data.datasets[1].data = history.map(h => h.resolved);
             chart.update();
-            if (history.length && openCount && resolvedCount) {
-                const latest = history[history.length - 1];
-                openCount.textContent = latest.open;
-                resolvedCount.textContent = latest.resolved;
+            if (openCount && resolvedCount) {
+                openCount.textContent = (data.totals && data.totals.open) || 0;
+                resolvedCount.textContent = (data.totals && data.totals.resolved) || 0;
             }
             if (tableBody) {
                 tableBody.innerHTML = '';

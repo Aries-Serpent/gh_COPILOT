@@ -4,10 +4,11 @@ This package provides experimental quantum-inspired utilities used across the
 gh_COPILOT toolkit.
 
 > **Note**
-> All utilities currently run **exclusively** on local Qiskit simulators.
-> Environment variables such as `QISKIT_IBM_TOKEN`, `QUANTUM_USE_HARDWARE`, and
-> `IBM_BACKEND` are accepted for future compatibility but are treated as
-> no-ops. Hardware execution is not yet supported.
+> Utilities default to local Qiskit simulators. When
+> `use_hardware=True` and a valid IBM Quantum token is supplied via
+> the `QISKIT_IBM_TOKEN` environment variable (or constructor argument),
+> `QuantumExecutor` will attempt to initialize the backend named by
+> `IBM_BACKEND`.
 
 ## Framework and Models
 
@@ -38,15 +39,17 @@ local simulator and ignores hardware-specific settings.
 - `quantum.quantum_database_search` – lightweight helpers for SQL, NoSQL and
   hybrid search. All queries are logged to `analytics.db` for compliance.
 
-These modules always execute on simulators regardless of command-line flags or
-environment variables. The `--hardware` flag in
-`quantum_integration_orchestrator.py` and the `QUANTUM_USE_HARDWARE` environment
-variable are placeholders for future hardware support.
+These modules default to simulators when no IBM credentials are available.
+The `--hardware` flag in `quantum_integration_orchestrator.py` and the
+`QUANTUM_USE_HARDWARE` environment variable enable hardware execution when
+`QISKIT_IBM_TOKEN` and a usable backend are supplied.
 
 ## IBM Quantum Access
 
-Setting `QISKIT_IBM_TOKEN` or providing a token argument has no effect today;
-the system always runs in simulation mode.
+Provide an IBM Quantum token via `QISKIT_IBM_TOKEN` (or the ``token`` argument)
+to allow `QuantumExecutor` to run circuits on real hardware. If the provider or
+backend cannot be loaded, the executor automatically falls back to the local
+simulator.
 
 ## Algorithms
 
