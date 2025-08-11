@@ -38,10 +38,10 @@ This guide outlines how to safely inspect or store command output without exceed
 
 ```bash
 # search repository for TODOs and wrap output
-rg TODO | /usr/local/bin/clw
+./scripts/rg_safe.sh TODO | /usr/local/bin/clw
 
 # or log and review in chunks
-rg TODO > /tmp/todo.log
+./scripts/rg_safe.sh TODO > /tmp/todo.log
 head -n 50 /tmp/todo.log
 rm /tmp/todo.log
 ```
