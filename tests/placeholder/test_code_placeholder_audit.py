@@ -194,6 +194,28 @@ def test_apply_suggestions_ignores_files_outside_workspace(tmp_path, capsys):
     assert "outside workspace" in out
 
 
+def test_apply_suggestions_ignores_relative_paths_outside_workspace(tmp_path, capsys):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    outside = tmp_path / "outside.py"
+    outside.write_text("# TODO: keep\n", encoding="utf-8")
+    analytics_db = tmp_path / "analytics.db"
+    tasks = [
+        {
+            "file": "../outside.py",
+            "line": 1,
+            "pattern": "TODO",
+            "context": "# TODO: keep",
+            "suggestion": "# done",
+        }
+    ]
+    unresolved = audit.apply_suggestions_to_files(tasks, analytics_db, workspace)
+    out, _ = capsys.readouterr()
+    assert unresolved == tasks
+    assert outside.read_text(encoding="utf-8") == "# TODO: keep\n"
+    assert "outside workspace" in out
+
+
 def test_placeholder_tasks_logged(tmp_path, monkeypatch):
     workspace = tmp_path / "ws"
     workspace.mkdir()
