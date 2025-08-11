@@ -7,11 +7,6 @@ and orchestration capabilities while maintaining backward compatibility.
 """
 
 from . import benchmarking, quantum_optimization
-from .quantum_database_search import (
-    quantum_search_sql,
-    quantum_search_nosql,
-    quantum_search_hybrid,
-)
 from .optimizers.quantum_optimizer import QuantumOptimizer
 
 # Import new modular components
