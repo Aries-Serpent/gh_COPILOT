@@ -12,7 +12,10 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from enterprise_modules.compliance import validate_enterprise_operation
+from enterprise_modules.compliance import (
+    pid_recursion_guard,
+    validate_enterprise_operation,
+)
 from template_engine.learning_templates import get_dataset_sources
 
 from secondary_copilot_validator import SecondaryCopilotValidator
@@ -32,6 +35,7 @@ def _gather_markdown_files(directory: Path) -> list[Path]:
     return sorted(files)
 
 
+@pid_recursion_guard
 def ingest_documentation(
     workspace: Path,
     docs_dir: Path | None = None,

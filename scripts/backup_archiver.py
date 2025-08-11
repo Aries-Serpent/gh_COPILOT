@@ -10,7 +10,7 @@ from pathlib import Path
 
 import py7zr
 
-from enterprise_modules.compliance import validate_enterprise_operation
+from enterprise_modules.compliance import pid_recursion_guard, validate_enterprise_operation
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.validation_utils import anti_recursion_guard
 from secondary_copilot_validator import (
@@ -19,6 +19,7 @@ from secondary_copilot_validator import (
 )
 
 
+@pid_recursion_guard
 @anti_recursion_guard
 def archive_backups() -> Path:
     """Compress backup files and store the archive under ``archive/``."""
