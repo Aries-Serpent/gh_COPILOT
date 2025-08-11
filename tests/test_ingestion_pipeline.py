@@ -3,8 +3,12 @@ import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
+from enterprise_modules.compliance import pid_recursion_guard as compliance_pid_guard
 from scripts.database.template_asset_ingestor import ingest_templates
-from scripts.database.documentation_ingestor import ingest_documentation
+from scripts.database.documentation_ingestor import (
+    ingest_documentation,
+    pid_recursion_guard,
+)
 from scripts.database.cross_database_sync_logger import _table_exists, log_sync_operation
 from scripts.database.ingestion_validator import IngestionValidator
 
@@ -20,6 +24,11 @@ def _create_unique_files(directory: Path) -> None:
     directory.mkdir(parents=True, exist_ok=True)
     (directory / "alpha.md").write_text("alpha", encoding="utf-8")
     (directory / "beta.md").write_text("beta", encoding="utf-8")
+
+
+def test_documentation_ingestor_decorator_exposed() -> None:
+    """Ensure the pid_recursion_guard decorator is imported correctly."""
+    assert pid_recursion_guard is compliance_pid_guard
 
 
 def test_ingestion_pipeline(tmp_path, monkeypatch):

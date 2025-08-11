@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from enterprise_modules.compliance import pid_recursion_guard as compliance_pid_guard
 from scripts.database import documentation_ingestor as di
 
 
@@ -37,3 +38,8 @@ def test_ingest_documentation_logs_event(tmp_path, monkeypatch):
 
     assert logged["op"] == "documentation_ingestion"
     assert logged["db"] == workspace / "databases" / "enterprise_assets.db"
+
+
+def test_pid_recursion_guard_exposed() -> None:
+    """Ensure the pid_recursion_guard decorator is imported correctly."""
+    assert di.pid_recursion_guard is compliance_pid_guard

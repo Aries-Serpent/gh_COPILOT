@@ -16,6 +16,7 @@ from types import SimpleNamespace
 
 from enterprise_modules.compliance import (
     enforce_anti_recursion,
+    pid_recursion_guard,
     validate_enterprise_operation,
 )
 from template_engine.learning_templates import get_dataset_sources

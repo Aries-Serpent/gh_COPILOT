@@ -4,7 +4,11 @@ import os
 import sqlite3
 from pathlib import Path
 
-from scripts.database.documentation_ingestor import ingest_documentation
+from enterprise_modules.compliance import pid_recursion_guard as compliance_pid_guard
+from scripts.database.documentation_ingestor import (
+    ingest_documentation,
+    pid_recursion_guard,
+)
 from scripts.database.unified_database_initializer import initialize_database
 
 
@@ -120,3 +124,8 @@ def test_reingest_logs_duplicate(tmp_path: Path, caplog, monkeypatch) -> None:
     with sqlite3.connect(db_path) as conn:
         count = conn.execute("SELECT COUNT(*) FROM documentation_assets").fetchone()[0]
     assert count == 1
+
+
+def test_pid_recursion_guard_exposed() -> None:
+    """Ensure the pid_recursion_guard decorator is imported correctly."""
+    assert pid_recursion_guard is compliance_pid_guard
