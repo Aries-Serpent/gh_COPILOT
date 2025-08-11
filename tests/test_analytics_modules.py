@@ -1,7 +1,9 @@
-from analytics.user_behavior import track_active_users
-from analytics.performance_analysis import calculate_throughput
-from analytics.pattern_recognition import detect_patterns
-from analytics.predictive_models import predict_next
+from analytics import (
+    calculate_throughput,
+    detect_patterns,
+    predict_next,
+    track_active_users,
+)
 
 
 def test_track_active_users():
