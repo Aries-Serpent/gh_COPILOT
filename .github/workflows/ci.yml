@@ -119,7 +119,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           mkdir -p reports/coverage artifacts
-          pytest --cov=. --cov-report=xml:reports/coverage/coverage.xml --cov-report=term -q --disable-warnings tests tests/documentation tests/quantum --junitxml=artifacts/test-results.xml || true
+          pytest --cov=. --cov-report=xml:reports/coverage/coverage.xml --cov-report=term -q --disable-warnings tests tests/documentation tests/monitoring_tests tests/quantum_tests --junitxml=artifacts/test-results.xml || true
 
       - name: Enforce test pass rate
         run: python scripts/enforce_test_pass_rate.py artifacts/test-results.xml 90
