@@ -713,6 +713,8 @@ def apply_suggestions_to_files(
             unresolved.append(task)
             continue
         path = Path(task["file"])
+        if not path.is_absolute():
+            path = ws_resolved / path
         try:
             resolved = path.resolve()
             resolved.relative_to(ws_resolved)
