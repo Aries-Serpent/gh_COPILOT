@@ -1,5 +1,7 @@
 """Enterprise dashboard routes and utilities."""
 
+import json
+import time
 from pathlib import Path
 import sqlite3
 from typing import Any, Callable, Dict, List
@@ -7,7 +9,7 @@ from typing import Any, Callable, Dict, List
 from monitoring import BaselineAnomalyDetector
 
 try:  # pragma: no cover - Flask is optional for tests
-    from flask import jsonify, render_template
+    from flask import jsonify, render_template, Response, request
 except Exception:  # pragma: no cover - provide fallbacks
 
     def jsonify(obj: Any) -> Any:  # type: ignore[override]
@@ -15,6 +17,14 @@ except Exception:  # pragma: no cover - provide fallbacks
 
     def render_template(*args: Any, **kwargs: Any) -> str:  # type: ignore[override]
         return ""
+
+    def Response(*args: Any, **kwargs: Any) -> Any:  # type: ignore[override]
+        return None
+
+    class _Request:
+        args: Dict[str, Any] = {}
+
+    request = _Request()  # type: ignore[assignment]
 
 
 try:  # pragma: no cover - dashboard features are optional in tests
@@ -79,6 +89,15 @@ except Exception:  # pragma: no cover
 ANALYTICS_DB = Path("databases/analytics.db")
 MONITORING_DB = Path("databases/monitoring.db")
 METRICS_FILE = _METRICS_FILE
+
+
+def _load_metrics_with_file() -> Dict[str, Any]:
+    """Wrapper ensuring ``_load_metrics`` uses the local ``METRICS_FILE``."""
+    try:
+        _load_metrics.__globals__["METRICS_FILE"] = METRICS_FILE
+    except Exception:
+        pass
+    return _load_metrics()
 
 
 def anomaly_metrics(monitoring_db: Path = MONITORING_DB) -> Dict[str, float]:
@@ -204,6 +223,52 @@ def audit_results_alias() -> Any:
 
 
 app.view_functions["dashboard.audit_results"] = audit_results_alias
+
+
+@app.route("/metrics")
+def metrics() -> Any:
+    """Expose metrics and placeholder history."""
+    return jsonify({"metrics": _load_metrics_with_file(), "placeholder_history": _load_placeholder_history()})
+
+
+@app.route("/metrics_stream")
+def metrics_stream() -> Response:
+    """Stream live metrics updates via SSE."""
+    once = request.args.get("once") == "1"
+    interval = int(request.args.get("interval", "5"))
+
+    def generate() -> Any:
+        while True:
+            metrics = _load_metrics_with_file()
+            metrics["placeholder_history"] = _load_placeholder_history()
+            yield f"data: {json.dumps(metrics)}\n\n"
+            if once:
+                break
+            time.sleep(interval)
+
+    return Response(generate(), mimetype="text/event-stream")
+
+
+@app.route("/corrections_stream")
+def corrections_stream() -> Response:
+    """Stream recent correction logs via SSE."""
+    once = request.args.get("once") == "1"
+    interval = int(request.args.get("interval", "5"))
+
+    def generate() -> Any:
+        while True:
+            payload = json.dumps(_load_corrections())
+            yield f"data: {payload}\n\n"
+            if once:
+                break
+            time.sleep(interval)
+
+    return Response(generate(), mimetype="text/event-stream")
+
+
+app.view_functions["dashboard.metrics"] = metrics
+app.view_functions["dashboard.metrics_stream"] = metrics_stream
+app.view_functions["dashboard.corrections_stream"] = corrections_stream
 
 
 def _load_placeholder_history(limit: int = 50) -> List[Dict[str, Any]]:
