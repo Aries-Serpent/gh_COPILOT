@@ -894,13 +894,25 @@ def enforce_anti_recursion(context: object) -> bool:
     depth = getattr(context, "recursion_depth", 0)
     if depth >= MAX_RECURSION_DEPTH:
         raise ComplianceError("Recursion limit exceeded.")
+
     pid = os.getpid()
+    ppid = os.getppid()
     previous_pid = getattr(context, "pid", pid)
+    previous_parent = getattr(context, "parent_pid", ppid)
+
     if previous_pid != pid:
         raise ComplianceError("PID mismatch detected.")
+    if previous_parent != ppid:
+        raise ComplianceError("Parent PID mismatch detected.")
+
+    ancestors = getattr(context, "ancestors", [])
+    if pid in ancestors:
+        raise ComplianceError("PID loop detected.")
+    ancestors.append(pid)
+    setattr(context, "ancestors", ancestors)
 
     setattr(context, "recursion_depth", depth + 1)
-    setattr(context, "parent_pid", os.getppid())
+    setattr(context, "parent_pid", ppid)
     setattr(context, "pid", pid)
     return True
 

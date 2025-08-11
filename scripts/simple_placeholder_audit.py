@@ -16,14 +16,18 @@ import sqlite3
 from datetime import datetime
 from pathlib import Path
 from typing import Iterable, List
+from types import SimpleNamespace
 
 from tqdm import tqdm
 
+from enterprise_modules.compliance import enforce_anti_recursion
 from scripts.database.add_code_audit_log import ensure_code_audit_log
 from secondary_copilot_validator import SecondaryCopilotValidator
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
 DEFAULT_TOKENS = ["TODO", "FIXME", "pass"]
+
+_RECURSION_CTX = SimpleNamespace()
 
 
 def load_canonical_tokens(db_path: Path) -> List[str]:
@@ -69,6 +73,7 @@ def scan_file_for_placeholders(file_path: Path, tokens: Iterable[str]) -> List[t
 
 def audit_path(path: Path, analytics_db: Path, production_db: Path) -> int:
     """Scan ``path`` recursively and log all placeholder findings."""
+    enforce_anti_recursion(_RECURSION_CTX)
     tokens = DEFAULT_TOKENS + load_canonical_tokens(production_db)
     files = [f for f in path.rglob("*") if f.is_file()]
     total = 0
@@ -82,6 +87,11 @@ def audit_path(path: Path, analytics_db: Path, production_db: Path) -> int:
                 validator.validate_corrections([str(file)])
             total += len(findings)
             bar.update(1)
+    if getattr(_RECURSION_CTX, "recursion_depth", 0) > 0:
+        _RECURSION_CTX.recursion_depth -= 1
+        ancestors = getattr(_RECURSION_CTX, "ancestors", [])
+        if ancestors:
+            ancestors.pop()
     return total
 
 
