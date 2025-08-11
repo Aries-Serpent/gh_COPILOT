@@ -1,49 +1,27 @@
 import json
 import sqlite3
 
-from scripts.code_placeholder_audit import update_dashboard
+from scripts.code_placeholder_audit import log_placeholder_tasks, update_dashboard
 
 
 def test_update_dashboard_merges_placeholder_tables(tmp_path) -> None:
     db = tmp_path / "analytics.db"
+    tasks = [
+        {"file": "a.py", "line": 1, "pattern": "TODO", "context": "todo", "suggestion": ""},
+        {"file": "b.py", "line": 2, "pattern": "BUG", "context": "bug", "suggestion": ""},
+        {"file": "c.py", "line": 3, "pattern": "FIXME", "context": "fix", "suggestion": ""},
+    ]
+    log_placeholder_tasks(tasks, db)
     with sqlite3.connect(db) as conn:
         conn.execute(
-            """
-            CREATE TABLE todo_fixme_tracking (
-                file_path TEXT,
-                line_number INTEGER,
-                placeholder_type TEXT,
-                context TEXT,
-                suggestion TEXT,
-                status TEXT
-            )
-            """
-        )
-        conn.execute(
-            """
-            CREATE TABLE placeholder_tasks (
-                file_path TEXT,
-                line_number INTEGER,
-                pattern TEXT,
-                context TEXT,
-                suggestion TEXT,
-                status TEXT
-            )
-            """
-        )
-        conn.execute(
-            "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, suggestion, status) VALUES ('a.py',1,'TODO','todo','', 'open')"
-        )
-        conn.execute(
-            "INSERT INTO placeholder_tasks (file_path, line_number, pattern, context, suggestion, status) VALUES ('b.py',2,'BUG','bug','', 'open')"
-        )
-        conn.execute(
-            "INSERT INTO placeholder_tasks (file_path, line_number, pattern, context, suggestion, status) VALUES ('c.py',3,'FIXME','fix','', 'resolved')"
+            "UPDATE placeholder_tasks SET status='resolved' WHERE pattern='FIXME'",
         )
         conn.commit()
+    # record updated metrics reflecting resolved entry
+    log_placeholder_tasks([], db)
 
     dash_dir = tmp_path / "dashboard"
-    update_dashboard(0, dash_dir, db)
+    update_dashboard(dash_dir, db)
 
     summary = json.loads((dash_dir / "placeholder_summary.json").read_text())
     metrics = json.loads((dash_dir / "metrics.json").read_text())

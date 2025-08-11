@@ -198,7 +198,9 @@ def log_placeholder_tasks(
     Findings are written to both the legacy ``todo_fixme_tracking`` table
     and the newer ``placeholder_tasks`` table. Each entry tracks whether the
     placeholder is ``open`` or ``resolved`` so downstream tooling can derive
-    resolution ratios.
+    resolution ratios. This function also records a single row in the
+    ``placeholder_metrics`` table capturing overall open/resolved counts and
+    compliance data for the current audit.
     """
 
     if simulate:
@@ -778,12 +780,15 @@ def apply_suggestions_to_files(
 
 # Update dashboard/compliance with summary JSON
 def update_dashboard(
-    count: int,
     dashboard_dir: Path,
     analytics_db: Path,
     summary_json: Path | None = None,
 ) -> None:
     """Write summary JSON to ``dashboard/compliance`` directory.
+
+    The dashboard now relies on existing ``placeholder_metrics`` rows for
+    compliance statistics. It does not insert new metric records and instead
+    simply reads the latest metrics snapshot.
 
     Parameters
     ----------
@@ -792,7 +797,7 @@ def update_dashboard(
         ``dashboard_dir/placeholder_summary.json``.
     """
     dashboard_dir.mkdir(parents=True, exist_ok=True)
-    open_count = count
+    open_count = 0
     resolved = 0
     compliance_pct = 0.0
     progress = 0.0
@@ -1394,7 +1399,7 @@ def main(
     secondary_copilot_validator.run_flake8([r["file"] for r in results])
     # Update dashboard/compliance
     if not simulate:
-        update_dashboard(len(results), dashboard, analytics, summary_path)
+        update_dashboard(dashboard, analytics, summary_path)
         export_resolved_placeholders(analytics, dashboard)
         try:
             metrics = collect_metrics(db_path=Path(":memory:"))
