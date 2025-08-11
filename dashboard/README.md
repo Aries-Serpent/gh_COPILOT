@@ -42,9 +42,11 @@ This module is designed to meet enterprise auditability and compliance standards
 - **Templates:** Jinja2 HTML (`dashboard/templates/`)
 - **Static Content:** CSS, JS, images (`dashboard/static/`)
 - **Correction Log UI:** Vue component (`web/dashboard/components/CorrectionLog.vue`) fetches
-  `/corrections/logs` and supports client-side filtering and pagination.
+  `/corrections/logs` and supports client-side filtering and pagination. Real-time
+  updates arrive via `/ws/corrections` with automatic SSE fallback handled by
+  `dashboard/static/js/corrections_ws.js`.
 - **Data Sources:** `production.db`, `analytics.db`, `monitoring.db`
-- **Primary Endpoints:** `/`, `/database`, `/backup`, `/migration`, `/deployment`, `/api/scripts`, `/api/health`, `/metrics_stream`, `/dashboard/compliance`
+- **Primary Endpoints:** `/`, `/database`, `/backup`, `/migration`, `/deployment`, `/api/scripts`, `/api/health`, `/metrics_stream`, `/corrections_stream`, `/ws/corrections`, `/dashboard/compliance`
 - **Session Logging:** All actions are recorded in `production.db` and mirrored in `analytics.db`
 - **Compliance Display:** DUAL COPILOT validation and compliance events visible in dashboard sidebar and `/dashboard/compliance`
 
@@ -57,6 +59,16 @@ This module is designed to meet enterprise auditability and compliance standards
 | `GH_COPILOT_WORKSPACE`     | Sets the workspace root for all dashboard operations     |
 | `GH_COPILOT_BACKUP_ROOT`   | Location for backup files and dashboard logs             |
 | `FLASK_ENV`                | Set to `development` for Flask debug mode                |
+
+---
+
+## Metric Sources and Tooltips
+
+Metrics shown in the dashboard are queried from `/api/compliance_scores`,
+which reads composite and component scores from `analytics.db`. The
+frontend updates the `title` attribute for each metric, enabling native
+browser tooltips with definitions and timestamps. Clicking a gauge
+reveals these descriptions in an inline panel for quick drill-down.
 
 ---
 
@@ -108,12 +120,12 @@ Example screenshot:
 
 ### Live Metrics
 
-The dashboard templates consume `/metrics_stream` via Server-Sent Events (SSE).
-Metrics are retrieved from `analytics.db` and include placeholder removal totals,
-open placeholder counts, and the average compliance score. If SSE is
-unavailable, a JavaScript fallback polls `/dashboard/compliance` every five
-seconds. Alerts combine rollback and violation logs so operators can react to
-compliance issues immediately.
+The dashboard templates consume `/metrics_stream` and `/corrections_stream` via
+Server-Sent Events (SSE). Metrics and correction logs are retrieved from
+`analytics.db`. If SSE is unavailable, a JavaScript fallback polls
+`/dashboard/compliance` and `/corrections` every five seconds. Alerts combine
+rollback and violation logs so operators can react to compliance issues
+immediately.
 
 ---
 
@@ -129,6 +141,8 @@ compliance issues immediately.
 | `/api/scripts`            | Run and monitor scripts via API                                                  |
 | `/api/health`             | System health check API                                                          |
 | `/metrics_stream`         | Server-Sent Events stream of live metrics                                       |
+| `/corrections_stream`     | SSE stream of recent correction logs                                            |
+| `/ws/corrections`         | WebSocket stream of correction logs (SSE fallback)                              |
 | `/dashboard/compliance`   | Returns compliance metrics, rollback and audit trail as JSON                     |
 | `/overview`               | Consolidated dashboard with metrics, rollbacks, sync events, and audit results   |
 #### Example `/dashboard/compliance` Response

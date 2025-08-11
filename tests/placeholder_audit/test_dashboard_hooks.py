@@ -2,7 +2,12 @@ import json
 import sqlite3
 
 from scripts import code_placeholder_audit as audit
-from scripts.code_placeholder_audit import log_findings, snapshot_placeholder_counts, update_dashboard
+from scripts.code_placeholder_audit import (
+    log_findings,
+    log_placeholder_tasks,
+    snapshot_placeholder_counts,
+    update_dashboard,
+)
 
 
 def test_log_findings_updates_tables(tmp_path):
@@ -14,6 +19,8 @@ def test_log_findings_updates_tables(tmp_path):
     ]
     inserted = log_findings(results, db, simulate=False)
     assert inserted == 2
+    # record metrics and snapshot for placeholder counts
+    log_placeholder_tasks([], db)
     open_count, resolved_count = snapshot_placeholder_counts(db)
     assert open_count == 2
     assert resolved_count == 0
@@ -37,7 +44,9 @@ def test_update_dashboard_writes_counts_and_history(tmp_path):
     results = [{"file": "c.py", "line": 3, "pattern": "BUG", "context": "bug"}]
     log_findings(results, db, simulate=False)
     snapshot_placeholder_counts(db)
-    update_dashboard(1, dash, db)
+    # metrics are recorded via log_placeholder_tasks
+    log_placeholder_tasks([], db)
+    update_dashboard(dash, db)
     counts = json.loads((dash / "placeholder_counts.json").read_text())
     assert counts["open"] == 1
     assert counts["resolved"] == 0

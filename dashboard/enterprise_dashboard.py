@@ -1,19 +1,33 @@
 """Enterprise dashboard routes and utilities."""
 
+import json
+import time
 from pathlib import Path
 import sqlite3
+import threading
+import asyncio
 from typing import Any, Callable, Dict, List
 
 from monitoring import BaselineAnomalyDetector
 
 try:  # pragma: no cover - Flask is optional for tests
-    from flask import jsonify, render_template
+    from flask import jsonify, render_template, Response, request
 except Exception:  # pragma: no cover - provide fallbacks
+
     def jsonify(obj: Any) -> Any:  # type: ignore[override]
         return obj
 
     def render_template(*args: Any, **kwargs: Any) -> str:  # type: ignore[override]
         return ""
+
+    def Response(*args: Any, **kwargs: Any) -> Any:  # type: ignore[override]
+        return None
+
+    class _Request:
+        args: Dict[str, Any] = {}
+
+    request = _Request()  # type: ignore[assignment]
+
 
 try:  # pragma: no cover - dashboard features are optional in tests
     from .integrated_dashboard import (
@@ -26,6 +40,7 @@ try:  # pragma: no cover - dashboard features are optional in tests
         METRICS_FILE as _METRICS_FILE,
     )
 except Exception:  # pragma: no cover - provide fallbacks
+
     class _DummyApp:
         view_functions: Dict[str, Callable[..., Any]] = {}
 
@@ -54,23 +69,38 @@ except Exception:  # pragma: no cover - provide fallbacks
 try:  # pragma: no cover - optional dependency
     from unified_monitoring_optimization_system import get_anomaly_summary
 except Exception:  # pragma: no cover
+
     def get_anomaly_summary(*args: Any, **kwargs: Any) -> Dict[str, Any]:  # type: ignore[override]
         return {}
+
+
 try:  # pragma: no cover - optional dependency
     from scripts.compliance.update_compliance_metrics import (
         update_compliance_metrics,
         fetch_recent_compliance,
     )
 except Exception:  # pragma: no cover
+
     def update_compliance_metrics(*args: Any, **kwargs: Any) -> None:  # type: ignore[override]
         return None
 
     def fetch_recent_compliance(*args: Any, **kwargs: Any) -> Dict[str, Any]:  # type: ignore[override]
         return {}
 
+
 ANALYTICS_DB = Path("databases/analytics.db")
 MONITORING_DB = Path("databases/monitoring.db")
 METRICS_FILE = _METRICS_FILE
+CORRECTIONS_WS_PORT = 8767
+
+
+def _load_metrics_with_file() -> Dict[str, Any]:
+    """Wrapper ensuring ``_load_metrics`` uses the local ``METRICS_FILE``."""
+    try:
+        _load_metrics.__globals__["METRICS_FILE"] = METRICS_FILE
+    except Exception:
+        pass
+    return _load_metrics()
 
 
 def anomaly_metrics(monitoring_db: Path = MONITORING_DB) -> Dict[str, float]:
@@ -106,9 +136,7 @@ def session_lifecycle_stats(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
             count, avg, success = cur.fetchone()
             stats["count"] = int(count or 0)
             stats["avg_duration"] = float(avg or 0.0)
-            stats["success_rate"] = (
-                float(success or 0) / stats["count"] if stats["count"] else 0.0
-            )
+            stats["success_rate"] = float(success or 0) / stats["count"] if stats["count"] else 0.0
             cur = conn.execute(
                 "SELECT duration_seconds, status, zero_byte_violations FROM session_lifecycle ORDER BY end_ts DESC LIMIT 1",
             )
@@ -159,11 +187,40 @@ def _load_corrections(limit: int = 10) -> List[Dict[str, Any]]:
                 "SELECT timestamp, path, status FROM correction_logs ORDER BY timestamp DESC LIMIT ?",
                 (limit,),
             )
-            rows = [
-                {"timestamp": r[0], "path": r[1], "status": r[2]}
-                for r in cur.fetchall()
-            ]
+            rows = [{"timestamp": r[0], "path": r[1], "status": r[2]} for r in cur.fetchall()]
     return rows
+
+
+_ws_server_started = False
+
+
+def _run_corrections_ws_server() -> None:
+    """Start a background WebSocket server for corrections."""
+    global _ws_server_started
+    if _ws_server_started:
+        return
+    try:  # pragma: no cover - optional dependency
+        import websockets
+    except Exception:  # pragma: no cover - quietly skip if missing
+        return
+
+    async def handler(ws):
+        try:
+            while True:
+                await ws.send(json.dumps(_load_corrections()))
+                await asyncio.sleep(5)
+        except websockets.ConnectionClosed:  # pragma: no cover - network errors
+            pass
+
+    async def main() -> None:
+        async with websockets.serve(handler, "localhost", CORRECTIONS_WS_PORT):
+            await asyncio.Event().wait()
+
+    threading.Thread(target=lambda: asyncio.run(main()), daemon=True).start()
+    _ws_server_started = True
+
+
+_run_corrections_ws_server()
 
 
 def _load_audit_results(limit: int = 50) -> List[Dict[str, Any]]:
@@ -172,13 +229,22 @@ def _load_audit_results(limit: int = 50) -> List[Dict[str, Any]]:
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
             cur = conn.execute(
-                "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' "
-                "GROUP BY placeholder_type ORDER BY COUNT(*) DESC LIMIT ?",
-                (limit,),
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='placeholder_audit'"
             )
-            rows = [
-                {"placeholder_type": r[0], "count": r[1]} for r in cur.fetchall()
-            ]
+            table_exists = cur.fetchone() is not None
+            if table_exists:
+                cur = conn.execute(
+                    "SELECT placeholder_type, COUNT(*) FROM placeholder_audit "
+                    "GROUP BY placeholder_type ORDER BY COUNT(*) DESC LIMIT ?",
+                    (limit,),
+                )
+            else:
+                cur = conn.execute(
+                    "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' "
+                    "GROUP BY placeholder_type ORDER BY COUNT(*) DESC LIMIT ?",
+                    (limit,),
+                )
+            rows = [{"placeholder_type": r[0], "count": r[1]} for r in cur.fetchall()]
     return rows
 
 
@@ -205,6 +271,70 @@ def audit_results_alias() -> Any:
 app.view_functions["dashboard.audit_results"] = audit_results_alias
 
 
+@app.route("/metrics")
+def metrics() -> Any:
+    """Expose metrics and placeholder history."""
+    return jsonify({"metrics": _load_metrics_with_file(), "placeholder_history": _load_placeholder_history()})
+
+
+@app.route("/metrics_stream")
+def metrics_stream() -> Response:
+    """Stream live metrics updates via SSE."""
+    once = request.args.get("once") == "1"
+    interval = int(request.args.get("interval", "5"))
+
+    def generate() -> Any:
+        while True:
+            metrics = _load_metrics_with_file()
+            metrics["placeholder_history"] = _load_placeholder_history()
+            yield f"data: {json.dumps(metrics)}\n\n"
+            if once:
+                break
+            time.sleep(interval)
+
+    return Response(generate(), mimetype="text/event-stream")
+
+
+@app.route("/corrections_stream")
+def corrections_stream() -> Response:
+    """Stream recent correction logs via SSE."""
+    once = request.args.get("once") == "1"
+    interval = int(request.args.get("interval", "5"))
+
+    def generate() -> Any:
+        while True:
+            payload = json.dumps(_load_corrections())
+            yield f"data: {payload}\n\n"
+            if once:
+                break
+            time.sleep(interval)
+
+    return Response(generate(), mimetype="text/event-stream")
+
+
+@app.route("/ws/corrections")
+def corrections_ws() -> Any:
+    """WebSocket endpoint for streaming corrections with SSE fallback."""
+    ws = request.environ.get("wsgi.websocket")
+    if ws is not None:
+        interval = int(request.args.get("interval", "5"))
+        while True:
+            payload = json.dumps(_load_corrections())
+            try:
+                ws.send(payload)
+            except Exception:
+                break
+            time.sleep(interval)
+        return ""
+    return corrections_stream()
+
+
+app.view_functions["dashboard.metrics"] = metrics
+app.view_functions["dashboard.metrics_stream"] = metrics_stream
+app.view_functions["dashboard.corrections_stream"] = corrections_stream
+app.view_functions["dashboard.corrections_ws"] = corrections_ws
+
+
 def _load_placeholder_history(limit: int = 50) -> List[Dict[str, Any]]:
     """Return placeholder snapshot history."""
 
@@ -214,7 +344,7 @@ def _load_placeholder_history(limit: int = 50) -> List[Dict[str, Any]]:
             try:
                 cur = conn.execute(
                     "SELECT timestamp, open_count, resolved_count "
-                    "FROM placeholder_audit_snapshots ORDER BY timestamp LIMIT ?",
+                    "FROM placeholder_audit_snapshots ORDER BY timestamp DESC LIMIT ?",
                     (limit,),
                 )
                 rows = [
@@ -225,15 +355,20 @@ def _load_placeholder_history(limit: int = 50) -> List[Dict[str, Any]]:
                     }
                     for r in cur.fetchall()
                 ]
+                rows.reverse()
             except sqlite3.Error:
                 pass
     return rows
 
 
-def _load_placeholder_audit(limit: int = 50) -> Dict[str, List[Dict[str, Any]]]:
-    """Return placeholder snapshot history and unresolved placeholders."""
+def _load_placeholder_audit(limit: int = 50) -> Dict[str, Any]:
+    """Return placeholder trend history, totals and unresolved placeholders."""
 
     history: List[Dict[str, Any]] = _load_placeholder_history(limit)
+    totals = {
+        "open": history[-1]["open"] if history else 0,
+        "resolved": history[-1]["resolved"] if history else 0,
+    }
     unresolved: List[Dict[str, Any]] = []
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
@@ -253,7 +388,7 @@ def _load_placeholder_audit(limit: int = 50) -> Dict[str, List[Dict[str, Any]]]:
                 ]
             except sqlite3.Error:
                 pass
-    return {"history": history, "unresolved": unresolved}
+    return {"history": history, "totals": totals, "unresolved": unresolved}
 
 
 @app.route("/api/placeholder_audit")
@@ -312,5 +447,5 @@ __all__ = [
     "session_lifecycle_stats",
     "_load_corrections",
     "load_code_quality_metrics",
+    "CORRECTIONS_WS_PORT",
 ]
-

@@ -10,12 +10,10 @@ MISSION ACCOMPLISHED:
 - Enterprise certification achieved
 """
 
-import os
 import json
-import sqlite3
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 
 class FinalProjectCompletionSummary:

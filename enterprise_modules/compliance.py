@@ -56,7 +56,23 @@ class ComplianceError(Exception):
 # Forbidden command patterns that must not appear in operations
 FORBIDDEN_COMMANDS = ["rm -rf", "mkfs", "shutdown", "reboot", "dd if="]
 MAX_RECURSION_DEPTH = 5
-PLACEHOLDER_PATTERNS = ["TODO", "FIXME"]
+
+
+def load_placeholder_patterns(config_path: Path | None = None) -> list[str]:
+    """Return placeholder regex patterns from ``config/audit_patterns.json``."""
+    default = ["TODO", "FIXME"]
+    config_file = (
+        config_path
+        or Path(__file__).resolve().parents[1] / "config" / "audit_patterns.json"
+    )
+    try:
+        data = json.loads(config_file.read_text(encoding="utf-8"))
+        return data.get("placeholder_patterns", default)
+    except Exception:
+        return default
+
+
+PLACEHOLDER_PATTERNS = load_placeholder_patterns()
 
 # Weights for the composite compliance score components
 SCORE_WEIGHTS = {
@@ -330,6 +346,7 @@ def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bo
     """
     root = path.resolve()
     pid = os.getpid()
+    ppid = os.getppid()
     setattr(_detect_recursion, "last_pid", pid)
     setattr(_detect_recursion, "max_depth_reached", 0)
     setattr(_detect_recursion, "aborted", False)
@@ -340,10 +357,10 @@ def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bo
     if root_depth > max_depth:
         setattr(_detect_recursion, "aborted", True)
         setattr(_detect_recursion, "aborted_path", root)
-        _record_recursion_pid(root, pid)
+        _record_recursion_pid(root, pid, ppid, 0)
         return True
 
-    _record_recursion_pid(root, pid)
+    _record_recursion_pid(root, pid, ppid, 0)
 
     visited: set[Path] = set()
 
@@ -358,7 +375,7 @@ def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bo
         except OSError:
             return False
 
-        _record_recursion_pid(current_resolved, pid)
+        _record_recursion_pid(current_resolved, pid, ppid, depth)
 
         if depth > max_depth:
             setattr(_detect_recursion, "aborted", True)
@@ -377,7 +394,7 @@ def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bo
             except OSError:
                 continue
             if child.name == root.name and child != root:
-                _record_recursion_pid(child_resolved, pid)
+                _record_recursion_pid(child_resolved, pid, ppid, depth + 1)
                 try:
                     child_resolved.relative_to(root)
                 except ValueError:
@@ -424,7 +441,7 @@ def _run_pytest() -> tuple[int, int]:
 
 
 def _count_placeholders() -> int:
-    """Return count of placeholder patterns (TODO/FIXME) in repository."""
+    """Return count of placeholder patterns in repository."""
     workspace = CrossPlatformPathManager.get_workspace_path()
     count = 0
     for path in workspace.rglob("*.py"):
@@ -433,7 +450,7 @@ def _count_placeholders() -> int:
         except OSError:
             continue
         for pat in PLACEHOLDER_PATTERNS:
-            count += text.count(pat)
+            count += len(re.findall(pat, text))
     return count
 
 
@@ -893,13 +910,25 @@ def enforce_anti_recursion(context: object) -> bool:
     depth = getattr(context, "recursion_depth", 0)
     if depth >= MAX_RECURSION_DEPTH:
         raise ComplianceError("Recursion limit exceeded.")
+
     pid = os.getpid()
+    ppid = os.getppid()
     previous_pid = getattr(context, "pid", pid)
+    previous_parent = getattr(context, "parent_pid", ppid)
+
     if previous_pid != pid:
         raise ComplianceError("PID mismatch detected.")
+    if previous_parent != ppid:
+        raise ComplianceError("Parent PID mismatch detected.")
+
+    ancestors = getattr(context, "ancestors", [])
+    if pid in ancestors:
+        raise ComplianceError("PID loop detected.")
+    ancestors.append(pid)
+    setattr(context, "ancestors", ancestors)
 
     setattr(context, "recursion_depth", depth + 1)
-    setattr(context, "parent_pid", os.getppid())
+    setattr(context, "parent_pid", ppid)
     setattr(context, "pid", pid)
     return True
 

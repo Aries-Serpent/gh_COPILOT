@@ -30,7 +30,9 @@ def _setup_db(path: Path) -> None:
 
 
 def test_executor_falls_back_without_ibm(monkeypatch):
-    monkeypatch.setattr(qexec, "HAS_IBM_PROVIDER", False)
+    monkeypatch.setattr(
+        qexec, "init_ibm_backend", lambda token=None, backend_name=None: (None, False)
+    )
     exec_ = QuantumExecutor(use_hardware=True)
     assert exec_.use_hardware is False
     if qexec.QISKIT_AVAILABLE:

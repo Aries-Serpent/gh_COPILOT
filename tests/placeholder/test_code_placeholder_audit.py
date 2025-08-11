@@ -13,6 +13,19 @@ def _prepare_dbs(tmp_path: Path):
     return prod_db, analytics_db
 
 
+def test_record_unresolved_placeholders_ignores_duplicates(tmp_path):
+    analytics = tmp_path / "analytics.db"
+    rows = [
+        {"file": "a.py", "line": 1, "pattern": "TODO", "context": "# TODO"},
+        {"file": "a.py", "line": 1, "pattern": "TODO", "context": "# TODO again"},
+    ]
+    audit.record_unresolved_placeholders(rows, analytics)
+    audit.record_unresolved_placeholders(rows, analytics)
+    with sqlite3.connect(analytics) as conn:
+        count = conn.execute("SELECT COUNT(*) FROM unresolved_placeholders").fetchone()[0]
+    assert count == 1
+
+
 def test_generate_fix_suggestions(tmp_path, monkeypatch):
     workspace = tmp_path / "ws"
     workspace.mkdir()
@@ -94,24 +107,12 @@ def test_apply_fixes_updates_db_and_file(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(tmp_path / "backups"))
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
-    monkeypatch.setattr(
-        "scripts.database.add_violation_logs.ensure_violation_logs", lambda *a, **k: None
-    )
-    monkeypatch.setattr(
-        "enterprise_modules.compliance.ensure_violation_logs", lambda *a, **k: None
-    )
-    monkeypatch.setattr(
-        "scripts.correction_logger_and_rollback.ensure_violation_logs", lambda *a, **k: None
-    )
-    monkeypatch.setattr(
-        "scripts.database.add_rollback_logs.ensure_rollback_logs", lambda *a, **k: None
-    )
-    monkeypatch.setattr(
-        "enterprise_modules.compliance.ensure_rollback_logs", lambda *a, **k: None
-    )
-    monkeypatch.setattr(
-        "scripts.correction_logger_and_rollback.ensure_rollback_logs", lambda *a, **k: None
-    )
+    monkeypatch.setattr("scripts.database.add_violation_logs.ensure_violation_logs", lambda *a, **k: None)
+    monkeypatch.setattr("enterprise_modules.compliance.ensure_violation_logs", lambda *a, **k: None)
+    monkeypatch.setattr("scripts.correction_logger_and_rollback.ensure_violation_logs", lambda *a, **k: None)
+    monkeypatch.setattr("scripts.database.add_rollback_logs.ensure_rollback_logs", lambda *a, **k: None)
+    monkeypatch.setattr("enterprise_modules.compliance.ensure_rollback_logs", lambda *a, **k: None)
+    monkeypatch.setattr("scripts.correction_logger_and_rollback.ensure_rollback_logs", lambda *a, **k: None)
     audit.main(
         workspace_path=str(workspace),
         analytics_db=str(analytics_db),
@@ -129,9 +130,7 @@ def test_apply_fixes_updates_db_and_file(tmp_path, monkeypatch):
     )
     assert "TODO" not in src.read_text()
     with sqlite3.connect(analytics_db) as conn:
-        cur = conn.execute(
-            "SELECT status, resolved FROM todo_fixme_tracking"
-        )
+        cur = conn.execute("SELECT status, resolved FROM todo_fixme_tracking")
         status, resolved = cur.fetchone()
     assert status == "resolved" and resolved == 1
     resolved_file = dashboard / "resolved_placeholders.json"
@@ -166,9 +165,7 @@ def test_apply_suggestions_updates_file_and_db(tmp_path, monkeypatch):
     )
     assert "FIXME" not in src.read_text()
     with sqlite3.connect(analytics_db) as conn:
-        unresolved = conn.execute(
-            "SELECT COUNT(*) FROM placeholder_tasks WHERE status='open'"
-        ).fetchone()[0]
+        unresolved = conn.execute("SELECT COUNT(*) FROM placeholder_tasks WHERE status='open'").fetchone()[0]
     assert unresolved == 0
 
 
@@ -216,6 +213,34 @@ def test_apply_suggestions_ignores_relative_paths_outside_workspace(tmp_path, ca
     assert "outside workspace" in out
 
 
+def test_apply_suggestions_skips_missing_tracking_entry(tmp_path):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    src = workspace / "foo.py"
+    src.write_text("# TODO: fix\n", encoding="utf-8")
+    analytics_db = tmp_path / "analytics.db"
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            "CREATE TABLE todo_fixme_tracking (file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, suggestion TEXT, resolved INTEGER, resolved_timestamp TEXT, resolved_by TEXT, status TEXT)"
+        )
+        conn.commit()
+    tasks = [
+        {
+            "file": str(src),
+            "line": 1,
+            "pattern": "TODO",
+            "context": "# TODO: fix",
+            "suggestion": "# done",
+        }
+    ]
+    unresolved = audit.apply_suggestions_to_files(tasks, analytics_db, workspace)
+    assert unresolved == tasks
+    assert src.read_text(encoding="utf-8") == "# TODO: fix\n"
+    with sqlite3.connect(analytics_db) as conn:
+        count = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking").fetchone()[0]
+    assert count == 0
+
+
 def test_placeholder_tasks_logged(tmp_path, monkeypatch):
     workspace = tmp_path / "ws"
     workspace.mkdir()
@@ -243,11 +268,8 @@ def test_placeholder_tasks_logged(tmp_path, monkeypatch):
         fail_on_findings=False,
     )
     with sqlite3.connect(analytics_db) as conn:
-        row = conn.execute(
-            "SELECT file_path, line_number FROM placeholder_tasks"
-        ).fetchone()
-        metrics_rows = conn.execute(
-            "SELECT COUNT(*) FROM placeholder_metrics"
-        ).fetchone()[0]
+        row = conn.execute("SELECT file_path, line_number FROM placeholder_tasks").fetchone()
+        metrics_rows = conn.execute("SELECT COUNT(*) FROM placeholder_metrics").fetchone()[0]
     assert row == (str(src), 1)
+    # only one metrics row should exist per audit
     assert metrics_rows == 1

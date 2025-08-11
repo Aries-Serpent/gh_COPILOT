@@ -1,7 +1,11 @@
 import sqlite3
 from pathlib import Path
 
-from scripts.database.documentation_ingestor import ingest_documentation
+from enterprise_modules.compliance import pid_recursion_guard as compliance_pid_guard
+from scripts.database.documentation_ingestor import (
+    ingest_documentation,
+    pid_recursion_guard,
+)
 
 
 def test_duplicate_detection(tmp_path: Path, monkeypatch) -> None:
@@ -55,3 +59,8 @@ def test_validator_invoked(tmp_path: Path, monkeypatch) -> None:
 
     ingest_documentation(workspace, docs_dir)
     assert called["files"] == [str(doc)]
+
+
+def test_pid_recursion_guard_exposed() -> None:
+    """Ensure the pid_recursion_guard decorator is imported correctly."""
+    assert pid_recursion_guard is compliance_pid_guard

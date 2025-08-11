@@ -10,11 +10,8 @@ Enterprise Standards Compliance:
 - Anti-recursion protection
 """
 
-import logging
 import sys
-from datetime import datetime
 from pathlib import Path
-from tqdm import tqdm
 import os
 import subprocess
 from copilot.common.workspace_utils import (

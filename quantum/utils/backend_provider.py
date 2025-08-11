@@ -7,21 +7,9 @@ import os
 from typing import Optional
 
 try:  # pragma: no cover - optional dependency
-    from qiskit import Aer
+    from qiskit_aer import Aer
 except Exception:  # pragma: no cover - qiskit may be missing
-    try:  # fallback to BasicAer if available
-        from qiskit.providers.basicaer import QasmSimulator
-
-        class _AerShim:  # pragma: no cover - simple shim
-            @staticmethod
-            def get_backend(name: str):
-                if name == "qasm_simulator":
-                    return QasmSimulator()
-                raise ValueError("Backend not available")
-
-        Aer = _AerShim()
-    except Exception:
-        Aer = None
+    Aer = None
 
 try:  # pragma: no cover - optional dependency
     from qiskit_ibm_provider import IBMProvider
@@ -60,14 +48,21 @@ def get_backend(
     Returns
     -------
     Any
-        The selected backend instance or ``None`` if Qiskit is unavailable.
+        The selected backend instance.
     """
+
     if Aer is None:
-        LOGGER.warning("Qiskit Aer not available; no backend returned")
-        return None
+        raise ImportError(
+            "qiskit-aer is required; install qiskit==1.4.2"
+        )
 
     if use_hardware is None:
         use_hardware = os.getenv("QUANTUM_USE_HARDWARE", "0") == "1"
+
+    if Aer is None:
+        raise ImportError(
+            "qiskit-aer is required; install qiskit==1.4.2 and qiskit-aer==0.17.1"
+        )
 
     if use_hardware and IBMProvider is not None:
         try:  # pragma: no cover - requires network credentials

@@ -52,10 +52,13 @@ def main() -> None:
 
     for line in sys.stdin.buffer:
         for wrapped, chunk in split_into_chunks(line, chunk_size):
-            sys.stdout.buffer.write(chunk)
-            if wrapped:
-                sys.stdout.buffer.write(mark)
-            sys.stdout.buffer.flush()
+            try:
+                sys.stdout.buffer.write(chunk)
+                if wrapped:
+                    sys.stdout.buffer.write(mark)
+                sys.stdout.buffer.flush()
+            except BrokenPipeError:
+                return
 
 
 if __name__ == "__main__":

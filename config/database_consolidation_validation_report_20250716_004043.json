@@ -33,7 +33,7 @@
         "check_time_seconds": 0.002,
         "table_count": 5
       },
-      "analytics_collector.db": {
+      "analytics.db": {
         "check_time_seconds": 0.006,
         "table_count": 25
       },
@@ -259,7 +259,7 @@
       "size_mb": 0.33
     },
     {
-      "name": "analytics_collector.db",
+      "name": "analytics.db",
       "size_mb": 2.62
     },
     {

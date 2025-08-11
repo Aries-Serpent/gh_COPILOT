@@ -2,7 +2,7 @@
 import sqlite3
 from pathlib import Path
 
-from scripts.monitoring.unified_monitoring_optimization_system import EnterpriseUtility
+from unified_monitoring_optimization_system import EnterpriseUtility
 
 
 def create_dbs(workspace: Path) -> None:

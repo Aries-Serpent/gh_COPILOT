@@ -4,6 +4,7 @@
     <title>Compliance Metrics</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script>
+        // Pull metrics from /api/compliance_scores and populate tooltip titles
         function loadCompliance() {
             fetch('/api/compliance_scores').then(r => r.json()).then(data => {
                 const scores = data.scores || [];

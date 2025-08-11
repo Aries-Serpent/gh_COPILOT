@@ -3,7 +3,7 @@ Quantum mathematical utilities.
 """
 
 import numpy as np
-from typing import List, Tuple, Optional
+from typing import Tuple
 
 
 class QuantumMath:

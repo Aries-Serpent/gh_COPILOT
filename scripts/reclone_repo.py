@@ -13,6 +13,12 @@ import shutil
 import subprocess
 import sys
 from datetime import datetime
+from pathlib import Path
+import uuid
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+from session.session_lifecycle_metrics import start_session, end_session
+from utils.logging_utils import log_session_event
 
 from enterprise_modules.compliance import (
     anti_recursion_guard,
@@ -102,6 +108,10 @@ def clone_repository(repo_url: str, dest: str, branch: str) -> str:
 
 def main() -> None:
     args = parse_args()
+    session_id = os.getenv("SESSION_ID_SOURCE", str(uuid.uuid4()))
+    workspace = os.getenv("GH_COPILOT_WORKSPACE")
+    start_session(session_id, workspace=workspace)
+    log_session_event(session_id, "start")
     try:
         ensure_git_installed()
         if args.backup_existing and args.clean:
@@ -122,7 +132,11 @@ def main() -> None:
 
         commit = clone_repository(args.repo_url, args.dest, args.branch)
         print(commit)
+        log_session_event(session_id, "success")
+        end_session(session_id, status="success", workspace=workspace)
     except Exception as exc:  # pragma: no cover - broad exception for CLI user feedback
+        log_session_event(session_id, "failure")
+        end_session(session_id, status="failure", workspace=workspace)
         print(f"Error: {exc}", file=sys.stderr)
         sys.exit(1)
 

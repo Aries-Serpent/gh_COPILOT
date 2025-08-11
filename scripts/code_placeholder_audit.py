@@ -28,18 +28,27 @@ from typing import Dict, List, Optional, Tuple
 from tqdm import tqdm
 import shutil
 
-from enterprise_modules.compliance import validate_enterprise_operation
+from enterprise_modules.compliance import (
+    anti_recursion_guard,
+    pid_recursion_guard,
+    validate_enterprise_operation,
+)
 from scripts.database.add_code_audit_log import ensure_code_audit_log
+
 # ``template_engine`` is optional; fall back to a no-op if missing.
 try:
     from template_engine.template_placeholder_remover import remove_unused_placeholders
 except ModuleNotFoundError:
+
     def remove_unused_placeholders(text: str, *args, **kwargs) -> str:  # type: ignore[no-redef]
         """Return text unchanged when placeholder remover is unavailable."""
         return text
+
+
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 import secondary_copilot_validator
 from utils.log_utils import log_message
+
 try:  # pragma: no cover - optional dependency for dashboard integration
     from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
 except Exception:  # pragma: no cover - allow absence during unit tests
@@ -50,6 +59,7 @@ except Exception:  # pragma: no cover - allow absence during unit tests
     EnterpriseUtility = None  # type: ignore[assignment]
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 from unified_monitoring_optimization_system import collect_metrics, push_metrics
+from enterprise_modules.compliance import load_placeholder_patterns
 
 __all__ = [
     "snapshot_placeholder_counts",
@@ -68,27 +78,19 @@ TEXT = {
     "complete": "[COMPLETE]",
 }
 
-DEFAULT_PATTERNS = [
-    r"TODO",
-    r"FIXME",
-    r"pass\b",
-    r"NotImplementedError",
-    r"placeholder",
-    r"HACK",
-    r"BUG",
-    r"XXX",
-]
+DEFAULT_PATTERNS = load_placeholder_patterns()
 
 
-def load_best_practice_patterns(config_path: Path | None = None, dataset_path: Path | None = None) -> List[str]:
-    """Load patterns from config and optional dataset."""
+def load_best_practice_patterns(
+    config_path: Path | None = None, dataset_path: Path | None = None
+) -> List[str]:
+    """Load patterns from optional config and dataset."""
 
     patterns: List[str] = []
-    cfg = config_path or Path("config/audit_patterns.json")
-    if cfg.exists():
+    if config_path and config_path.exists():
         try:
-            data = json.loads(cfg.read_text(encoding="utf-8"))
-            patterns.extend(str(p) for p in data.get("patterns", []))
+            data = json.loads(config_path.read_text(encoding="utf-8"))
+            patterns.extend(str(p) for p in data.get("placeholder_patterns", []))
         except Exception as exc:  # pragma: no cover - config errors
             log_message(__name__, f"{TEXT['error']} pattern load failed: {exc}")
 
@@ -146,9 +148,7 @@ def generate_removal_tasks(
 
     tasks: List[Dict[str, str]] = []
     for item in results:
-        description = (
-            f"Remove {item['pattern']} in {item['file']}:{item['line']} - {item['context']}"
-        )
+        description = f"Remove {item['pattern']} in {item['file']}:{item['line']} - {item['context']}"
         suggestion = _suggest_fix(item["context"])
         if production_db and analytics_db:
             try:
@@ -186,9 +186,7 @@ def write_tasks_report(tasks: List[Dict[str, str]], report_path: Path) -> None:
         report_path.write_text(json.dumps(tasks, indent=2), encoding="utf-8")
 
 
-def log_placeholder_tasks(
-    tasks: List[Dict[str, str]], analytics_db: Path, simulate: bool = False
-) -> int:
+def log_placeholder_tasks(tasks: List[Dict[str, str]], analytics_db: Path, simulate: bool = False) -> int:
     """Persist placeholder removal tasks to tracking tables.
 
     Findings are written to both the legacy ``todo_fixme_tracking`` table
@@ -275,12 +273,8 @@ def log_placeholder_tasks(
                 )
         conn.commit()
         # Record snapshot and metrics
-        open_count = conn.execute(
-            "SELECT COUNT(*) FROM placeholder_tasks WHERE status='open'"
-        ).fetchone()[0]
-        resolved_count = conn.execute(
-            "SELECT COUNT(*) FROM placeholder_tasks WHERE status='resolved'"
-        ).fetchone()[0]
+        open_count = conn.execute("SELECT COUNT(*) FROM placeholder_tasks WHERE status='open'").fetchone()[0]
+        resolved_count = conn.execute("SELECT COUNT(*) FROM placeholder_tasks WHERE status='resolved'").fetchone()[0]
         try:
             auto_removal_count = conn.execute(
                 "SELECT COUNT(*) FROM corrections WHERE rationale='Auto placeholder cleanup'"
@@ -342,19 +336,13 @@ def verify_task_completion(analytics_db: Path, workspace: Path) -> int:
     resolved = 0
     with sqlite3.connect(analytics_db) as conn:
         tables = []
-        if conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='placeholder_tasks'"
-        ).fetchone():
+        if conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='placeholder_tasks'").fetchone():
             tables.append(("placeholder_tasks", "pattern"))
-        if conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='todo_fixme_tracking'"
-        ).fetchone():
+        if conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='todo_fixme_tracking'").fetchone():
             tables.append(("todo_fixme_tracking", "placeholder_type"))
 
         for table, col in tables:
-            cur = conn.execute(
-                f"SELECT rowid, file_path, line_number, {col} FROM {table} WHERE status='open'"
-            )
+            cur = conn.execute(f"SELECT rowid, file_path, line_number, {col} FROM {table} WHERE status='open'")
             rows = cur.fetchall()
             for rowid, fpath, line, pattern in rows:
                 path = Path(fpath)
@@ -451,6 +439,39 @@ def _ensure_placeholder_tables(conn: sqlite3.Connection) -> None:
     )
 
 
+def record_unresolved_placeholders(
+    results: List[Dict[str, str]],
+    analytics_db: Path,
+) -> None:
+    """Record unresolved placeholder findings to ``analytics_db``.
+
+    Creates the ``unresolved_placeholders`` table with a unique index on
+    ``(file, line)`` and inserts each result using ``INSERT OR IGNORE`` to
+    suppress duplicates.
+    """
+
+    rows = [(r["file"], int(r["line"]), r.get("pattern", ""), r.get("context", "")) for r in results]
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS unresolved_placeholders (
+                file TEXT,
+                line INTEGER,
+                pattern TEXT,
+                context TEXT
+            )
+            """
+        )
+        conn.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_unresolved_file_line ON unresolved_placeholders(file, line)"
+        )
+        conn.executemany(
+            "INSERT OR IGNORE INTO unresolved_placeholders (file, line, pattern, context) VALUES (?, ?, ?, ?)",
+            rows,
+        )
+        conn.commit()
+
+
 def snapshot_placeholder_counts(db: Path) -> Tuple[int, int]:
     """Aggregate open and resolved placeholder counts.
 
@@ -467,25 +488,15 @@ def snapshot_placeholder_counts(db: Path) -> Tuple[int, int]:
 
     with sqlite3.connect(db) as conn:
         _ensure_placeholder_tables(conn)
-        if conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='placeholder_tasks'"
-        ).fetchone():
-            cur = conn.execute(
-                "SELECT COUNT(*) FROM placeholder_tasks WHERE status='open'"
-            )
+        if conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='placeholder_tasks'").fetchone():
+            cur = conn.execute("SELECT COUNT(*) FROM placeholder_tasks WHERE status='open'")
             open_count = int(cur.fetchone()[0])
-            cur = conn.execute(
-                "SELECT COUNT(*) FROM placeholder_tasks WHERE status='resolved'"
-            )
+            cur = conn.execute("SELECT COUNT(*) FROM placeholder_tasks WHERE status='resolved'")
             resolved_count = int(cur.fetchone()[0])
         else:
-            cur = conn.execute(
-                "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'"
-            )
+            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'")
             open_count = int(cur.fetchone()[0])
-            cur = conn.execute(
-                "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
-            )
+            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'")
             resolved_count = int(cur.fetchone()[0])
         return open_count, resolved_count
 
@@ -508,11 +519,10 @@ def get_latest_placeholder_snapshot(
     """
 
     _ensure_placeholder_tables(conn)
-    cur = conn.execute(
-        "SELECT open_count, resolved_count FROM placeholder_audit_snapshots ORDER BY id DESC LIMIT 1"
-    )
+    cur = conn.execute("SELECT open_count, resolved_count FROM placeholder_audit_snapshots ORDER BY id DESC LIMIT 1")
     row = cur.fetchone()
     return (int(row[0]), int(row[1])) if row else (0, 0)
+
 
 # Insert findings into analytics.db.code_audit_log
 def log_findings(
@@ -522,7 +532,7 @@ def log_findings(
     *,
     update_resolutions: bool = False,
     auto_remove_resolved: bool = False,
-    ) -> int:
+) -> int:
     """Log audit results to analytics.db.
 
     Parameters
@@ -706,8 +716,6 @@ def log_findings(
     return findings_inserted
 
 
-
-
 def apply_suggestions_to_files(
     tasks: List[Dict[str, str]],
     analytics_db: Path,
@@ -752,21 +760,33 @@ def apply_suggestions_to_files(
             continue
         idx = int(task["line"]) - 1
         if 0 <= idx < len(lines):
-            lines[idx] = suggestion
-            resolved.write_text("\n".join(lines) + "\n", encoding="utf-8")
             with sqlite3.connect(analytics_db) as conn:
-                conn.execute(
-                    "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?, resolved_by=?, status='resolved' WHERE file_path=? AND line_number=? AND placeholder_type=? AND context=?",
+                cur = conn.execute(
+                    "SELECT 1 FROM todo_fixme_tracking WHERE file_path=? AND line_number=? AND placeholder_type=? AND context=?",
                     (
-                        datetime.now().isoformat(),
-                        author,
                         task["file"],
                         int(task["line"]),
                         task["pattern"],
                         task["context"],
                     ),
                 )
-                conn.commit()
+                if cur.fetchone():
+                    lines[idx] = suggestion
+                    resolved.write_text("\n".join(lines) + "\n", encoding="utf-8")
+                    conn.execute(
+                        "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?, resolved_by=?, status='resolved' WHERE file_path=? AND line_number=? AND placeholder_type=? AND context=?",
+                        (
+                            datetime.now().isoformat(),
+                            author,
+                            task["file"],
+                            int(task["line"]),
+                            task["pattern"],
+                            task["context"],
+                        ),
+                    )
+                    conn.commit()
+                else:
+                    unresolved.append(task)
         else:
             unresolved.append(task)
     return unresolved
@@ -862,19 +882,14 @@ def update_dashboard(
         "resolved": resolved,
         "timestamp": timestamp,
     }
-    (dashboard_dir / "placeholder_counts.json").write_text(
-        json.dumps(counts_payload, indent=2), encoding="utf-8"
-    )
+    (dashboard_dir / "placeholder_counts.json").write_text(json.dumps(counts_payload, indent=2), encoding="utf-8")
     history: List[Dict[str, int]] = []
     if analytics_db.exists():
         with sqlite3.connect(analytics_db) as conn:
             cur = conn.execute(
                 "SELECT timestamp, open_count, resolved_count FROM placeholder_audit_snapshots ORDER BY timestamp"
             )
-            history = [
-                {"timestamp": row[0], "open_count": row[1], "resolved_count": row[2]}
-                for row in cur.fetchall()
-            ]
+            history = [{"timestamp": row[0], "open_count": row[1], "resolved_count": row[2]} for row in cur.fetchall()]
     (dashboard_dir / "placeholder_history.json").write_text(
         json.dumps({"history": history}, indent=2), encoding="utf-8"
     )
@@ -899,9 +914,7 @@ def export_resolved_placeholders(analytics_db: Path, dashboard_dir: Path) -> Non
             }
             for row in cur.fetchall()
         ]
-    (dashboard_dir / "resolved_placeholders.json").write_text(
-        json.dumps(rows, indent=2), encoding="utf-8"
-    )
+    (dashboard_dir / "resolved_placeholders.json").write_text(json.dumps(rows, indent=2), encoding="utf-8")
 
 
 # Scan a single file for placeholder patterns
@@ -948,6 +961,8 @@ def scan_file_for_placeholders(file_path: Path, patterns: List[str] | None = Non
 
 
 # Scan files for patterns with timeout and visual indicators
+@pid_recursion_guard
+@anti_recursion_guard
 def scan_files(workspace: Path, patterns: List[str], timeout: Optional[float] = None) -> List[Dict]:
     """Scan files for given patterns with optional timeout and progress bar."""
     results: List[Dict] = []
@@ -1279,11 +1294,15 @@ def main(
     dashboard = Path(dashboard_dir or workspace / "dashboard" / "compliance")
     summary_path = Path(summary_json) if summary_json else None
 
-    # Database-first: fetch patterns from production.db and config
-    patterns = (
-        DEFAULT_PATTERNS
-        + fetch_db_placeholders(production)
-        + load_best_practice_patterns(dataset_path=Path(dataset_path) if dataset_path else None)
+    # Database-first: fetch patterns from production.db and dataset
+    patterns = list(
+        dict.fromkeys(
+            DEFAULT_PATTERNS
+            + fetch_db_placeholders(production)
+            + load_best_practice_patterns(
+                dataset_path=Path(dataset_path) if dataset_path else None
+            )
+        )
     )
     timeout = timeout_minutes * 60 if timeout_minutes else None
 
@@ -1368,6 +1387,7 @@ def main(
             )
         try:
             from scripts.compliance.update_compliance_metrics import update_compliance_metrics
+
             update_compliance_metrics(str(workspace))
         except Exception as exc:
             log_message(

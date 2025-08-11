@@ -12,7 +12,10 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from enterprise_modules.compliance import validate_enterprise_operation
+from enterprise_modules.compliance import (
+    pid_recursion_guard,
+    validate_enterprise_operation,
+)
 from template_engine.learning_templates import get_dataset_sources, get_lesson_templates
 from .cross_database_sync_logger import _table_exists, log_sync_operation
 from .size_compliance_checker import check_database_sizes
@@ -30,6 +33,7 @@ def _gather_template_files(directory: Path) -> list[Path]:
     return sorted(files)
 
 
+@pid_recursion_guard
 def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
     """Load template and pattern data into ``enterprise_assets.db``.
 

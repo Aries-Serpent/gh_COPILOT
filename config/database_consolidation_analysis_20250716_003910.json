@@ -84,7 +84,7 @@
       "type": "purpose_consolidation",
       "purpose": "analytics",
       "databases": [
-        "analytics_collector.db",
+        "analytics.db",
         "analytics.db",
         "advanced_analytics.db"
       ],
@@ -426,8 +426,8 @@
       "timestamp_pattern": null
     },
     {
-      "name": "analytics_collector.db",
-      "path": "databases/analytics_collector.db",
+      "name": "analytics.db",
+      "path": "databases/analytics.db",
       "size_bytes": 2752512,
       "size_mb": 2.62,
       "last_modified": "2025-07-16T00:31:40.391506",

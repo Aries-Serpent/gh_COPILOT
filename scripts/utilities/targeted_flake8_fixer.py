@@ -9,14 +9,11 @@ Enterprise Standards Compliance:
 - Database-first architecture
 - Anti-recursion protection
 """
-from datetime import datetime
 from pathlib import Path
-from tqdm import tqdm
 import sys
 import os
 import subprocess
 
-import logging
 from copilot.common.workspace_utils import (
     get_workspace_path,
     _within_workspace,

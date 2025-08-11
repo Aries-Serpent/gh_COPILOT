@@ -13,19 +13,15 @@ Enterprise-Grade Multi-Processor Violation Elimination Framework
 🏆 SUCCESS METRIC: 95%+ elimination rate across all categories
 """
 
-import os
 import re
-import sys
-import ast
 import json
 import time
-import shutil
 import logging
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Any
 from dataclasses import dataclass
-from collections import defaultdict, Counter
+from collections import defaultdict
 
 # Configure enterprise logging
 logging.basicConfig(
@@ -119,8 +115,9 @@ class Phase6ComprehensiveEliminationSystem:
                 files_modified.update(getattr(result, 'modified_files', []))
 
                 logger.info(
-    f"# # # ✅ {processor_name}: {result.eliminated_count}/{result.initial_count} eliminated (
-    {result.elimination_rate:.1f}%)")
+                    f"# # # ✅ {processor_name}: {result.eliminated_count}/{result.initial_count} eliminated "
+                    f"({result.elimination_rate:.1f}%)"
+                )
 
             except Exception as e:
                 logger.error(f"❌ {processor_name} failed: {e}")
@@ -234,8 +231,9 @@ class E999SyntaxErrorProcessor:
         elimination_rate = (eliminated_count / initial_count * 100) if initial_count > 0 else 0
 
         logger.info(
-    f"# # # ✅ E999 Processor: {eliminated_count}/{initial_count} corrected (
-    {elimination_rate:.1f}%)")
+            f"# # # ✅ E999 Processor: {eliminated_count}/{initial_count} corrected "
+            f"({elimination_rate:.1f}%)"
+        )
 
         return ViolationMetrics(
             category=self.category,

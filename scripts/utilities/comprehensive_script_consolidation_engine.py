@@ -25,10 +25,9 @@ import json
 import sqlite3
 import logging
 import hashlib
-import difflib
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple, Set
+from typing import Dict, List, Any, Optional, Tuple
 from tqdm import tqdm
 from dataclasses import dataclass, asdict
 from collections import defaultdict, Counter

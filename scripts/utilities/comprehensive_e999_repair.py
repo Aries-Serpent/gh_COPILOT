@@ -6,7 +6,6 @@
 import os
 import re
 from pathlib import Path
-import logging
 
 def fix_comprehensive_remaining_violations_processor():
     """Fix all syntax errors in comprehensive_remaining_violations_processor.py"""
@@ -23,12 +22,13 @@ def fix_comprehensive_remaining_violations_processor():
         # Fix pattern: }}}""
         # This appears in f-strings that have extra braces and quotes
         fixes = [
-            ('f"session_{self.session_id}}}""', 'f"session_{self.session_id}"'),
-            ('{self.session_id}}}"', '{self.session_id}"'),
-            ('{self.external_backup_root}}}"', '{self.external_backup_root}"'),
+            ("f\"session_{self.session_id}}}\"\"", "f\"session_{self.session_id}\""),
+            ("{self.session_id}}}\"", "{self.session_id}\""),
+            ("{self.external_backup_root}}}\"", "{self.external_backup_root}\""),
             (
-    '{self.success_target}}% (
-    Comprehensive Standard)}"', '{self.success_target}% (Comprehensive Standard)"'),
+                "{self.success_target}}% (Comprehensive Standard)}\"",
+                "{self.success_target}% (Comprehensive Standard)\"",
+            ),
         ]
 
         for old, new in fixes:
@@ -69,11 +69,17 @@ def fix_all_unterminated_strings():
     import subprocess
     try:
         result = subprocess.run(
-            ["python", "-m", "flake8", "--select=E999", ".", "--format=%(
-    path)s:%(row)d:%(col)d: %(code)s %(text)s"],
+            [
+                "python",
+                "-m",
+                "flake8",
+                "--select=E999",
+                ".",
+                "--format=%(path)s:%(row)d:%(col)d: %(code)s %(text)s",
+            ],
             cwd=workspace,
             capture_output=True,
-            text=True
+            text=True,
         )
 
         error_files = set()
@@ -157,8 +163,11 @@ if __name__ == "__main__":
     final_count = check_e999_count()
     print(f"# # 🔍 Final E999 errors: {final_count}")
 
-    eliminated = max(
-    0, initial_count - final_count) if initial_count > 0 and final_count >= 0 else 0
+    eliminated = (
+        max(0, initial_count - final_count)
+        if initial_count > 0 and final_count >= 0
+        else 0
+    )
 
     print(f"\n# # 📊 FINAL RESULTS:")
     print(f"# # 🔧 Files processed: {fixes_applied}")

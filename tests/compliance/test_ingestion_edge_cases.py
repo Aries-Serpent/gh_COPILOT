@@ -6,7 +6,7 @@ import os
 import sqlite3
 from pathlib import Path
 import sys
-import pytest
+from pytest import fail, skip
 
 # Add scripts to path to avoid import issues
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
@@ -19,11 +19,11 @@ def _load_ingest_module():
     """Dynamically load the ingestion module."""
     ingest_path = Path("scripts/ingest_test_and_lint_results.py")
     if not ingest_path.exists():
-        pytest.skip(f"Ingestion module not found: {ingest_path}")
+        skip(f"Ingestion module not found: {ingest_path}")
     
     spec = importlib.util.spec_from_file_location("ingest_mod", ingest_path)
     if spec is None or spec.loader is None:
-        pytest.skip("Could not load ingestion module")
+        skip("Could not load ingestion module")
     
     ingest_mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(ingest_mod)
@@ -58,7 +58,7 @@ def test_ingestion_graceful_when_reports_missing(tmp_path, monkeypatch):
     try:
         ingest_mod.ingest()
     except Exception as e:
-        pytest.fail(f"Ingestion should handle missing files gracefully: {e}")
+        fail(f"Ingestion should handle missing files gracefully: {e}")
     
     # Verify database still exists and wasn't corrupted
     assert db_path.exists()
@@ -97,7 +97,7 @@ def test_ingestion_with_zero_tests_and_missing_ruff(tmp_path, monkeypatch):
     try:
         ingest_mod.ingest()
     except Exception as e:
-        pytest.fail(f"Ingestion should handle zero tests gracefully: {e}")
+        fail(f"Ingestion should handle zero tests gracefully: {e}")
     
     # Verify we can still access the database
     conn = sqlite3.connect(str(db_path))
@@ -135,7 +135,7 @@ def test_ingestion_with_malformed_json(tmp_path, monkeypatch):
     try:
         ingest_mod.ingest()
     except json.JSONDecodeError:
-        pytest.fail("Ingestion should handle malformed JSON gracefully")
+        fail("Ingestion should handle malformed JSON gracefully")
     except Exception:
         # Other exceptions might be acceptable depending on implementation
         pass
@@ -159,7 +159,7 @@ def test_ingestion_with_empty_json_files(tmp_path, monkeypatch):
     try:
         ingest_mod.ingest()
     except Exception as e:
-        pytest.fail(f"Ingestion should handle empty JSON: {e}")
+        fail(f"Ingestion should handle empty JSON: {e}")
 
 
 def test_database_auto_creation_during_ingestion(tmp_path, monkeypatch):
@@ -191,7 +191,7 @@ def test_database_auto_creation_during_ingestion(tmp_path, monkeypatch):
         # Database should now exist
         assert db_path.exists(), "Ingestion should auto-create database"
     except Exception as e:
-        pytest.fail(f"Ingestion should auto-create database: {e}")
+        fail(f"Ingestion should auto-create database: {e}")
 
 
 def test_ingestion_triggers_compliance_update(tmp_path, monkeypatch):

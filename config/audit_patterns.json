@@ -1,0 +1,12 @@
+{
+  "placeholder_patterns": [
+    "TODO",
+    "FIXME",
+    "pass\\b",
+    "NotImplementedError",
+    "placeholder",
+    "HACK",
+    "BUG",
+    "XXX"
+  ]
+}

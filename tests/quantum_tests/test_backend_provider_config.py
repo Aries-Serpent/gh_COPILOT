@@ -25,7 +25,7 @@ def test_env_var_defaults_to_simulator(monkeypatch):
     monkeypatch.delenv("QUANTUM_USE_HARDWARE", raising=False)
     monkeypatch.setattr(backend_provider, "IBMProvider", lambda: DummyProvider())
     backend = backend_provider.get_backend()
-    from qiskit import Aer as _Aer
+    from qiskit_aer import Aer as _Aer
 
-    assert backend == _Aer.get_backend("qasm_simulator")
+    assert backend.name == _Aer.get_backend("qasm_simulator").name
 

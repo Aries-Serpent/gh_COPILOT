@@ -22,7 +22,7 @@ def _stub_quantum_module(monkeypatch):
     )
 
 from unified_monitoring_optimization_system import anomaly_detection_loop
-from dashboard.enterprise_dashboard import anomaly_metrics
+from monitoring.baseline_anomaly_detector import BaselineAnomalyDetector
 
 
 class DummyManager:
@@ -48,7 +48,18 @@ def test_anomaly_pipeline_triggers_heal_and_reports_metrics(monkeypatch, tmp_pat
     metrics_iter = iter(history)
 
     def fake_collect_metrics(*, db_path=None, session_id=None):
-        return next(metrics_iter)
+        metrics = next(metrics_iter)
+        path = db_path or db
+        with sqlite3.connect(path) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS performance_metrics (system_health_score REAL)"
+            )
+            conn.execute(
+                "INSERT INTO performance_metrics (system_health_score) VALUES (?)",
+                (0.0,),
+            )
+            conn.commit()
+        return metrics
 
     call_count = {"n": 0}
     total = len(history)
@@ -88,6 +99,7 @@ def test_anomaly_pipeline_triggers_heal_and_reports_metrics(monkeypatch, tmp_pat
     monkeypatch.setattr(
         "unified_monitoring_optimization_system.time.sleep", lambda _t: None
     )
+    monkeypatch.setattr(BaselineAnomalyDetector, "_fetch_values", lambda self: [0.0])
 
     mgr = DummyManager()
     anomaly_detection_loop(
@@ -101,6 +113,9 @@ def test_anomaly_pipeline_triggers_heal_and_reports_metrics(monkeypatch, tmp_pat
     assert mgr.started == 1
     assert mgr.ended == 1
 
-    stats = anomaly_metrics(db)
-    assert stats["count"] == 1
-    assert stats["avg_anomaly_score"] == 1.0
+    with sqlite3.connect(db) as conn:
+        count, avg = conn.execute(
+            "SELECT COUNT(*), AVG(anomaly_score) FROM anomaly_results"
+        ).fetchone()
+    assert count == 1
+    assert avg == 1.0
