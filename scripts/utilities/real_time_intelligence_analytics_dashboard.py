@@ -22,7 +22,6 @@ import os
 import json
 import time
 import sqlite3
-import asyncio
 import logging
 import hashlib
 import threading
@@ -39,9 +38,7 @@ from tqdm import tqdm
 
 # Real-time streaming imports
 try:
-    import websockets
-    import asyncio
-
+    import websockets  # noqa: F401
     WEBSOCKETS_AVAILABLE = True
 except ImportError:
     WEBSOCKETS_AVAILABLE = False
@@ -49,8 +46,7 @@ except ImportError:
 
 # Visualization imports
 try:
-    import matplotlib.pyplot as plt
-
+    import matplotlib.pyplot as plt  # noqa: F401
     MATPLOTLIB_AVAILABLE = True
 except ImportError:
     MATPLOTLIB_AVAILABLE = False

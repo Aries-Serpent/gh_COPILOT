@@ -37,7 +37,7 @@ def main() -> int:
 
     ensure_codex_log_tracked()
 
-    commands = [["ruff", "check", "."], ["pytest"]]
+    commands = [["ruff", "check", "."], ["pyright"], ["pytest", "-q"]]
 
     for cmd in commands:
         result = subprocess.run(cmd)
