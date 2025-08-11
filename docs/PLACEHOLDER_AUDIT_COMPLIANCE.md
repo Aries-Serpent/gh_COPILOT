@@ -6,7 +6,7 @@ This guide outlines the procedure for running the placeholder audit and verifyin
 
 1. Activate the project virtual environment.
 2. Execute `python -m scripts.code_placeholder_audit --workspace-path <path> --analytics-db databases/analytics.db --production-db databases/production.db --dashboard-dir dashboard/compliance`.
-3. The script scans for TODO, FIXME, and related markers. Findings are written to `analytics.db` and summarized under `dashboard/compliance`.
+3. The script scans for TODO, FIXME, and related markers. Findings are written to `databases/analytics.db` and summarized under `dashboard/compliance`.
 
 ## Reviewing Results
 

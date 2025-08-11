@@ -85,11 +85,6 @@
     },
     "analytics.db": {
       "exists": true,
-      "tables": 18,
-      "size": 16617472
-    },
-    "analytics_collector.db": {
-      "exists": true,
       "tables": 25,
       "size": 16646144
     },
