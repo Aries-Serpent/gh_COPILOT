@@ -405,6 +405,41 @@ def _ensure_placeholder_tables(conn: sqlite3.Connection) -> None:
         )
         """
     )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS placeholder_tasks (
+            file_path TEXT,
+            line_number INTEGER,
+            pattern TEXT,
+            context TEXT,
+            suggestion TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            author TEXT,
+            resolved BOOLEAN DEFAULT 0,
+            resolved_timestamp DATETIME,
+            resolved_by TEXT,
+            status TEXT DEFAULT 'open'
+        )
+        """
+    )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS todo_fixme_tracking (
+            file_path TEXT,
+            line_number INTEGER,
+            placeholder_type TEXT,
+            context TEXT,
+            suggestion TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            author TEXT,
+            resolved BOOLEAN DEFAULT 0,
+            resolved_timestamp DATETIME,
+            resolved_by TEXT,
+            status TEXT DEFAULT 'open',
+            removal_id INTEGER
+        )
+        """
+    )
 
 
 _snapshot_recorded = False
@@ -626,31 +661,57 @@ def log_findings(
             """
         )
         result_keys = {(r["file"], r["line"], r["pattern"], r["context"]) for r in results}
+        author = os.getenv("GH_COPILOT_USER", getpass.getuser())
         cur = conn.execute(
             "SELECT rowid, file_path, line_number, placeholder_type, context FROM todo_fixme_tracking WHERE resolved=0"
         )
-        author = os.getenv("GH_COPILOT_USER", getpass.getuser())
         for rowid, fpath, line, ptype, ctx in cur.fetchall():
             if (fpath, line, ptype, ctx) not in result_keys:
                 conn.execute(
                     "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?, resolved_by=?, status='resolved' WHERE rowid=?",
-                    (
-                        datetime.now().isoformat(),
-                        author,
-                        rowid,
-                    ),
+                    (datetime.now().isoformat(), author, rowid),
+                )
+        cur = conn.execute(
+            "SELECT rowid, file_path, line_number, pattern, context FROM placeholder_tasks WHERE resolved=0"
+        )
+        for rowid, fpath, line, ptype, ctx in cur.fetchall():
+            if (fpath, line, ptype, ctx) not in result_keys:
+                conn.execute(
+                    "UPDATE placeholder_tasks SET resolved=1, resolved_timestamp=?, resolved_by=?, status='resolved' WHERE rowid=?",
+                    (datetime.now().isoformat(), author, rowid),
                 )
         if auto_remove_resolved:
             conn.execute("DELETE FROM todo_fixme_tracking WHERE resolved=1")
+            conn.execute("DELETE FROM placeholder_tasks WHERE resolved=1")
         if not update_resolutions:
             for row in results:
                 key = (row["file"], row["line"], row["pattern"], row["context"])
+                cur = conn.execute(
+                    "SELECT 1 FROM placeholder_tasks WHERE file_path=? AND line_number=? AND pattern=? AND context=? AND resolved=0",
+                    key,
+                )
+                if not cur.fetchone():
+                    conn.execute(
+                        """
+                        INSERT INTO placeholder_tasks (
+                            file_path, line_number, pattern, context, suggestion,
+                            timestamp, author, status
+                        ) VALUES (?, ?, ?, ?, '', ?, ?, 'open')
+                        """,
+                        (
+                            row["file"],
+                            row["line"],
+                            row["pattern"],
+                            row["context"],
+                            datetime.now().isoformat(),
+                            author,
+                        ),
+                    )
                 cur = conn.execute(
                     "SELECT 1 FROM todo_fixme_tracking WHERE file_path=? AND line_number=? AND placeholder_type=? AND context=? AND resolved=0",
                     key,
                 )
                 if not cur.fetchone():
-                    author = os.getenv("GH_COPILOT_USER", getpass.getuser())
                     values = (
                         row["file"],
                         row["line"],
@@ -775,27 +836,27 @@ def update_dashboard(
         open_count = 0
         resolved = 0
         with sqlite3.connect(analytics_db) as conn:
-            # Gather open/resolved counts from both tracking tables
-            for table, col in (
-                ("todo_fixme_tracking", "placeholder_type"),
-                ("placeholder_tasks", "pattern"),
-            ):
-                try:
-                    cur = conn.execute(
-                        f"SELECT status, COUNT(*) FROM {table} GROUP BY status"
-                    )
-                    for status, cnt in cur.fetchall():
-                        if status == "open":
-                            open_count += cnt
-                        elif status == "resolved":
-                            resolved += cnt
-                    cur = conn.execute(
-                        f"SELECT {col}, COUNT(*) FROM {table} WHERE status='open' GROUP BY {col}"
-                    )
-                    for ptype, cnt in cur.fetchall():
-                        placeholder_counts[ptype] = placeholder_counts.get(ptype, 0) + cnt
-                except sqlite3.Error:
-                    continue
+            tables = []
+            if conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='placeholder_tasks'"
+            ).fetchone():
+                tables.append(("placeholder_tasks", "pattern"))
+            else:
+                tables.append(("todo_fixme_tracking", "placeholder_type"))
+            for table, col in tables:
+                cur = conn.execute(
+                    f"SELECT status, COUNT(*) FROM {table} GROUP BY status"
+                )
+                for status, cnt in cur.fetchall():
+                    if status == "open":
+                        open_count += cnt
+                    elif status == "resolved":
+                        resolved += cnt
+                cur = conn.execute(
+                    f"SELECT {col}, COUNT(*) FROM {table} WHERE status='open' GROUP BY {col}"
+                )
+                for ptype, cnt in cur.fetchall():
+                    placeholder_counts[ptype] = placeholder_counts.get(ptype, 0) + cnt
             try:
                 cur = conn.execute(
                     "SELECT COUNT(*) FROM corrections WHERE rationale='Auto placeholder cleanup'"
@@ -866,6 +927,29 @@ def update_dashboard(
         "timestamp": data["timestamp"],
     }
     metrics_path.write_text(json.dumps(metrics_payload, indent=2), encoding="utf-8")
+
+    # Expose counts and history for dashboard widgets
+    counts_payload = {
+        "open": open_count,
+        "resolved": resolved,
+        "timestamp": data["timestamp"],
+    }
+    (dashboard_dir / "placeholder_counts.json").write_text(
+        json.dumps(counts_payload, indent=2), encoding="utf-8"
+    )
+    history: List[Dict[str, int]] = []
+    if analytics_db.exists():
+        with sqlite3.connect(analytics_db) as conn:
+            cur = conn.execute(
+                "SELECT timestamp, open_count, resolved_count FROM placeholder_audit_snapshots ORDER BY timestamp"
+            )
+            history = [
+                {"timestamp": row[0], "open_count": row[1], "resolved_count": row[2]}
+                for row in cur.fetchall()
+            ]
+    (dashboard_dir / "placeholder_history.json").write_text(
+        json.dumps({"history": history}, indent=2), encoding="utf-8"
+    )
 
 
 def export_resolved_placeholders(analytics_db: Path, dashboard_dir: Path) -> None:
