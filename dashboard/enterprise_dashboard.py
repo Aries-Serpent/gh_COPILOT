@@ -9,11 +9,13 @@ from monitoring import BaselineAnomalyDetector
 try:  # pragma: no cover - Flask is optional for tests
     from flask import jsonify, render_template
 except Exception:  # pragma: no cover - provide fallbacks
+
     def jsonify(obj: Any) -> Any:  # type: ignore[override]
         return obj
 
     def render_template(*args: Any, **kwargs: Any) -> str:  # type: ignore[override]
         return ""
+
 
 try:  # pragma: no cover - dashboard features are optional in tests
     from .integrated_dashboard import (
@@ -26,6 +28,7 @@ try:  # pragma: no cover - dashboard features are optional in tests
         METRICS_FILE as _METRICS_FILE,
     )
 except Exception:  # pragma: no cover - provide fallbacks
+
     class _DummyApp:
         view_functions: Dict[str, Callable[..., Any]] = {}
 
@@ -54,19 +57,24 @@ except Exception:  # pragma: no cover - provide fallbacks
 try:  # pragma: no cover - optional dependency
     from unified_monitoring_optimization_system import get_anomaly_summary
 except Exception:  # pragma: no cover
+
     def get_anomaly_summary(*args: Any, **kwargs: Any) -> Dict[str, Any]:  # type: ignore[override]
         return {}
+
+
 try:  # pragma: no cover - optional dependency
     from scripts.compliance.update_compliance_metrics import (
         update_compliance_metrics,
         fetch_recent_compliance,
     )
 except Exception:  # pragma: no cover
+
     def update_compliance_metrics(*args: Any, **kwargs: Any) -> None:  # type: ignore[override]
         return None
 
     def fetch_recent_compliance(*args: Any, **kwargs: Any) -> Dict[str, Any]:  # type: ignore[override]
         return {}
+
 
 ANALYTICS_DB = Path("databases/analytics.db")
 MONITORING_DB = Path("databases/monitoring.db")
@@ -106,9 +114,7 @@ def session_lifecycle_stats(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
             count, avg, success = cur.fetchone()
             stats["count"] = int(count or 0)
             stats["avg_duration"] = float(avg or 0.0)
-            stats["success_rate"] = (
-                float(success or 0) / stats["count"] if stats["count"] else 0.0
-            )
+            stats["success_rate"] = float(success or 0) / stats["count"] if stats["count"] else 0.0
             cur = conn.execute(
                 "SELECT duration_seconds, status, zero_byte_violations FROM session_lifecycle ORDER BY end_ts DESC LIMIT 1",
             )
@@ -159,10 +165,7 @@ def _load_corrections(limit: int = 10) -> List[Dict[str, Any]]:
                 "SELECT timestamp, path, status FROM correction_logs ORDER BY timestamp DESC LIMIT ?",
                 (limit,),
             )
-            rows = [
-                {"timestamp": r[0], "path": r[1], "status": r[2]}
-                for r in cur.fetchall()
-            ]
+            rows = [{"timestamp": r[0], "path": r[1], "status": r[2]} for r in cur.fetchall()]
     return rows
 
 
@@ -176,9 +179,7 @@ def _load_audit_results(limit: int = 50) -> List[Dict[str, Any]]:
                 "GROUP BY placeholder_type ORDER BY COUNT(*) DESC LIMIT ?",
                 (limit,),
             )
-            rows = [
-                {"placeholder_type": r[0], "count": r[1]} for r in cur.fetchall()
-            ]
+            rows = [{"placeholder_type": r[0], "count": r[1]} for r in cur.fetchall()]
     return rows
 
 
@@ -214,7 +215,7 @@ def _load_placeholder_history(limit: int = 50) -> List[Dict[str, Any]]:
             try:
                 cur = conn.execute(
                     "SELECT timestamp, open_count, resolved_count "
-                    "FROM placeholder_audit_snapshots ORDER BY timestamp LIMIT ?",
+                    "FROM placeholder_audit_snapshots ORDER BY timestamp DESC LIMIT ?",
                     (limit,),
                 )
                 rows = [
@@ -225,15 +226,20 @@ def _load_placeholder_history(limit: int = 50) -> List[Dict[str, Any]]:
                     }
                     for r in cur.fetchall()
                 ]
+                rows.reverse()
             except sqlite3.Error:
                 pass
     return rows
 
 
-def _load_placeholder_audit(limit: int = 50) -> Dict[str, List[Dict[str, Any]]]:
-    """Return placeholder snapshot history and unresolved placeholders."""
+def _load_placeholder_audit(limit: int = 50) -> Dict[str, Any]:
+    """Return placeholder trend history, totals and unresolved placeholders."""
 
     history: List[Dict[str, Any]] = _load_placeholder_history(limit)
+    totals = {
+        "open": history[-1]["open"] if history else 0,
+        "resolved": history[-1]["resolved"] if history else 0,
+    }
     unresolved: List[Dict[str, Any]] = []
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
@@ -253,7 +259,7 @@ def _load_placeholder_audit(limit: int = 50) -> Dict[str, List[Dict[str, Any]]]:
                 ]
             except sqlite3.Error:
                 pass
-    return {"history": history, "unresolved": unresolved}
+    return {"history": history, "totals": totals, "unresolved": unresolved}
 
 
 @app.route("/api/placeholder_audit")
@@ -313,4 +319,3 @@ __all__ = [
     "_load_corrections",
     "load_code_quality_metrics",
 ]
-
