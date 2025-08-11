@@ -271,4 +271,5 @@ def test_placeholder_tasks_logged(tmp_path, monkeypatch):
         row = conn.execute("SELECT file_path, line_number FROM placeholder_tasks").fetchone()
         metrics_rows = conn.execute("SELECT COUNT(*) FROM placeholder_metrics").fetchone()[0]
     assert row == (str(src), 1)
+    # only one metrics row should exist per audit
     assert metrics_rows == 1
