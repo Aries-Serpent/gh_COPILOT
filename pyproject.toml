@@ -37,6 +37,7 @@ extend-exclude = [
     "misc",
     "scripts/enterprise/*",
     "scripts/optimization/*",
+    "scripts/utilities/*",
     "scripts/quantum_placeholders/*",
     "copilot_qiskit_stubs/*",
     "db_tools/*",
@@ -73,6 +74,5 @@ exclude = [
     "copilot_qiskit_stubs/*",
     "db_tools/*",
     "enterprise_modules/*",
-    "quantum/*",
     "quantum_optimizer.py",
 ]
