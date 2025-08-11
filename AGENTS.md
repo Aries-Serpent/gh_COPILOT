@@ -17,6 +17,10 @@ Ensure the development environment is correctly configured **before** making any
   ```bash
   grep -R "pattern" . | /usr/local/bin/clw
   ```
+* **Safe `rg` wrapper**: Search the repository with column limits and skip heavy directories.
+  ```bash
+  ./tools/safe_rg.sh "except\s*:"
+  ```
 * **Python & Tools**: Use **Python 3.8+** (already provided in Codex). The setup will install necessary system packages (development headers, build tools, SQLite, etc.) and Python packages as specified by the project. Do **not** install additional packages beyond those listed in `requirements.txt` (and optional `requirements-web.txt`, `requirements-ml.txt`, etc.). **Only use** the dependencies declared by the project. If you believe a new package is required, **do not install it yourself** – instead, mention the need in the PR description for maintainers.
 * **Virtual Environment**: Always activate the Python virtual environment after running setup. For example, use `source .venv/bin/activate` to ensure you’re using the project’s isolated environment and packages.
 * **Git LFS Pre-commit Hook**: Install `tools/pre-commit-lfs.sh` as a local pre-commit hook (e.g., `cp tools/pre-commit-lfs.sh .git/hooks/pre-commit-lfs && chmod +x .git/hooks/pre-commit-lfs`) and run it before committing to verify all `.db` files are tracked by Git LFS.
