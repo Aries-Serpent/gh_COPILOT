@@ -277,9 +277,27 @@ def corrections_stream() -> Response:
     return Response(generate(), mimetype="text/event-stream")
 
 
+@app.route("/ws/corrections")
+def corrections_ws() -> Any:
+    """WebSocket endpoint for streaming corrections with SSE fallback."""
+    ws = request.environ.get("wsgi.websocket")
+    if ws is not None:
+        interval = int(request.args.get("interval", "5"))
+        while True:
+            payload = json.dumps(_load_corrections())
+            try:
+                ws.send(payload)
+            except Exception:
+                break
+            time.sleep(interval)
+        return ""
+    return corrections_stream()
+
+
 app.view_functions["dashboard.metrics"] = metrics
 app.view_functions["dashboard.metrics_stream"] = metrics_stream
 app.view_functions["dashboard.corrections_stream"] = corrections_stream
+app.view_functions["dashboard.corrections_ws"] = corrections_ws
 
 
 def _load_placeholder_history(limit: int = 50) -> List[Dict[str, Any]]:
