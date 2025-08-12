@@ -116,6 +116,23 @@ def test_rollback_records_session(tmp_path: Path, monkeypatch) -> None:
     assert row == 1
 
 
+def test_rollback_db_records_session(tmp_path: Path, monkeypatch) -> None:
+    db = tmp_path / "doc.db"
+    backup = tmp_path / "doc.bak"
+    analytics = tmp_path / "analytics.db"
+    db.write_text("data")
+    backup.write_text("backup")
+    import scripts.database.documentation_db_analyzer as mod
+
+    monkeypatch.setattr(mod, "ANALYTICS_DB", analytics)
+    monkeypatch.setattr(mod, "REPORTS_DIR", tmp_path / "reports")
+    mod.rollback_db(db, backup)
+    assert (tmp_path / "reports" / "correction_sessions.csv").exists()
+    with sqlite3.connect(analytics) as conn:
+        row = conn.execute("SELECT COUNT(*) FROM correction_sessions").fetchone()[0]
+    assert row == 1
+
+
 def test_summarize_and_rollback_logging(tmp_path: Path) -> None:
     analytics_dir = tmp_path / "databases"
     analytics_dir.mkdir()

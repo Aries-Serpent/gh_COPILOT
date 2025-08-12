@@ -153,6 +153,8 @@ def rollback_db(db: Path, backup: Path | None = None) -> None:
             table="doc_analysis",
             db_path=ANALYTICS_DB,
         )
+        _record_correction_session("rollback", ANALYTICS_DB)
+        _write_session_reports(ANALYTICS_DB, REPORTS_DIR)
 
 
 CLEANUP_SQL = "DELETE FROM enterprise_documentation WHERE doc_type='BACKUP_LOG' OR source_path LIKE '%backup%'"
