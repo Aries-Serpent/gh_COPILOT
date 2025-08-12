@@ -16,10 +16,17 @@ from types import SimpleNamespace
 
 from enterprise_modules.compliance import (
     enforce_anti_recursion,
-    pid_recursion_guard,
     validate_enterprise_operation,
-    pid_recursion_guard,
 )
+
+try:  # pragma: no cover - optional import for environments without full compliance module
+    from enterprise_modules.compliance import pid_recursion_guard  # type: ignore
+    _PID_GUARD_AVAILABLE = True
+except Exception:  # pragma: no cover - fallback to no-op decorator
+    _PID_GUARD_AVAILABLE = False
+
+    def pid_recursion_guard(func):
+        return func
 from template_engine.learning_templates import get_dataset_sources
 
 from secondary_copilot_validator import SecondaryCopilotValidator
@@ -28,6 +35,8 @@ from utils.log_utils import log_event
 from .cross_database_sync_logger import _table_exists, log_sync_operation
 from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
+
+__all__ = ["ingest_documentation", "pid_recursion_guard"]
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)

@@ -37,21 +37,19 @@ extend-exclude = [
     "misc",
     "scripts/enterprise/*",
     "scripts/optimization/*",
-    "scripts/utilities/*",
     "scripts/quantum_placeholders/*",
     "copilot_qiskit_stubs/*",
     "db_tools/*",
     "enterprise_modules/*",
     "quantum_optimizer.py",
-    "scripts/utilities/comprehensive_e999_repair.py",
-    "scripts/utilities/phase6_comprehensive_elimination_system.py",
-    "scripts/utilities/phase8_final_cleanup_specialist.py",
-    "scripts/utilities/phase9_ultimate_violation_eliminator.py",
-    "scripts/utilities/phase10_precision_violation_eliminator.py",
-    "scripts/utilities/main.py",
     "databases/*.db",
     "*.log",
     "recovered_files_*",
+]
+
+extend-include = [
+    "quantum/",
+    "scripts/utilities/",
 ]
 
 [tool.ruff.lint]

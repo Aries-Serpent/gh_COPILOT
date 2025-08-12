@@ -53,10 +53,10 @@ class _TqdmStub:
 
 sys.modules.setdefault("tqdm", types.SimpleNamespace(tqdm=_TqdmStub))
 
+from monitoring.unified_monitoring_optimization_system import detect_anomalies
 from unified_monitoring_optimization_system import (
     push_metrics,
     train_anomaly_model,
-    detect_anomalies,
     get_anomaly_summary,
 )
 

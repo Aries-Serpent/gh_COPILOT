@@ -168,8 +168,10 @@ class Phase8FinalCleanupSpecialist:
                 indent = len(line) - len(line.lstrip())
                 base_indent = ' ' * indent
                 continuation_indent = ' ' * (indent + 4)
-                return f"{parts[0]} and \
-                    \\\n{continuation_indent}" + f" and \\\n{continuation_indent}".join(parts[1:])
+                return (
+                    f"{parts[0]} and\n{continuation_indent}"
+                    + f" and\n{continuation_indent}".join(parts[1:])
+                )
 
         # Strategy 2: Break at commas in function calls
         if '(' in line and ')' in line and ',' in line:
@@ -190,10 +192,12 @@ class Phase8FinalCleanupSpecialist:
                         indent = len(before_func)
                         param_indent = ' ' * (indent + len(func_name) + 1)
 
-                        broken_params = f"\n{param_indent}".join(param_list)
+                        broken_params = ("\n" + param_indent).join(param_list)
                         return (
-                            f"{before_func}{func_name}(\n"
-                            f"{param_indent}{broken_params}\n"
+                            f"{before_func}{func_name}("
+                            "\n"
+                            f"{param_indent}{broken_params}"
+                            "\n"
                             f"{' ' * indent}){after_func}"
                         )
 
@@ -203,8 +207,10 @@ class Phase8FinalCleanupSpecialist:
             if len(parts) >= 2:
                 indent = len(line) - len(line.lstrip())
                 continuation_indent = ' ' * (indent + 4)
-                return f"{parts[0]} + \
-                    \\\n{continuation_indent}" + f" + \\\n{continuation_indent}".join(parts[1:])
+                return (
+                    f"{parts[0]} +\n{continuation_indent}"
+                    + f" +\n{continuation_indent}".join(parts[1:])
+                )
 
         # Strategy 4: Break at logical points in conditionals
         if (' or ' in line or ' and ' in line) and 'if ' in line:
@@ -222,7 +228,7 @@ class Phase8FinalCleanupSpecialist:
                     parts = condition.split(' and ')
                     indent = len(before_if) + len(if_keyword)
                     continuation_indent = ' ' * (indent + 4)
-                    broken_condition = f" and \\\n{continuation_indent}".join(parts)
+                    broken_condition = (" and\n" + continuation_indent).join(parts)
                     return f"{before_if}{if_keyword}{broken_condition}{colon}{after_if}"
 
         return line  # Return original if no breaking strategy worked
@@ -450,9 +456,14 @@ class Phase8FinalCleanupSpecialist:
             target_violations > 0 else 0
 
         print(f"   📈 Elimination Rate: {elimination_rate:.1f}%")
-        print(f"   # # 🎯 Status: {'EXCEPTIONAL SUCCESS' if \
-            elimination_rate > 50 else 'SIGNIFICANT PROGR \
-                ESS' if elimination_rate > 25 else 'MODERATE PROGRESS'}")
+        status = (
+            "EXCEPTIONAL SUCCESS"
+            if elimination_rate > 50
+            else "SIGNIFICANT PROGRESS"
+            if elimination_rate > 25
+            else "MODERATE PROGRESS"
+        )
+        print(f"   # # 🎯 Status: {status}")
 
         # Save detailed report
         report_file = f"phase8_final_cleanup_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
@@ -478,7 +489,7 @@ def main():
     specialist = Phase8FinalCleanupSpecialist()
     results = specialist.execute_final_cleanup()
 
-    print(f"\n# # ✅ PHASE 8 FINAL CLEANUP COMPLETED")
+    print("\n# # ✅ PHASE 8 FINAL CLEANUP COMPLETED")
     print(f"Total Violations Eliminated: {results['total_violations_eliminated']}")
     print(f"Files Processed: {results['files_processed']}")
 

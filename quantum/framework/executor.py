@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import os
 from typing import Any
 
-from .backend import QuantumBackend, SimulatorBackend, get_backend
+from .backend import QuantumBackend, SimulatorBackend
+from quantum.providers import get_provider
 
 
 class QuantumExecutor:
@@ -12,12 +14,20 @@ class QuantumExecutor:
     hardware backend is unavailable or raises an error during execution.
     """
 
-    def __init__(self, backend: QuantumBackend | None = None, *, token: str | None = None) -> None:
-        if backend is None:
-            self.backend, self.use_hardware = get_backend(token)
-        else:
+    def __init__(self, backend: QuantumBackend | None = None, *, provider: str | None = None) -> None:
+        if backend is not None:
             self.backend = backend
             self.use_hardware = not isinstance(backend, SimulatorBackend)
+            return
+
+        provider_name = provider or os.getenv("QUANTUM_PROVIDER", "simulator")
+        prov = get_provider(provider_name)
+        if not prov.is_available():
+            prov = get_provider("simulator")
+            self.use_hardware = False
+        else:
+            self.use_hardware = provider_name != "simulator"
+        self.backend = prov.get_backend()
 
     def run(self, circuit: Any, **kwargs: Any) -> Any:
         """Execute ``circuit`` using the configured backend."""

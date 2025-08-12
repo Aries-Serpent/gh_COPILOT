@@ -463,8 +463,12 @@ class Phase10PrecisionViolationEliminator:
             100 if target_violations > 0 else 0
 
         print(f"   📈 Elimination Rate: {elimination_rate:.1f}%")
-        print(f"   # # 🎯 Status: {'PRECISION SUCCESS' if \
-             elimination_rate > 60 else 'SIGNIFICANT PROGRESS'}")
+        status = (
+            "PRECISION SUCCESS"
+            if elimination_rate > 60
+            else "SIGNIFICANT PROGRESS"
+        )
+        print(f"   # # 🎯 Status: {status}")
 
         # Save detailed report
         report_file = f"phase10_precision_elimination_ \

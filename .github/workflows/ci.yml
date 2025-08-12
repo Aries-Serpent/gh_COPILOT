@@ -36,8 +36,18 @@ jobs:
           echo "VIRTUAL_ENV=${{ github.workspace }}/.venv" >> $GITHUB_ENV
           echo "PATH=${{ github.workspace }}/.venv/bin:$PATH" >> $GITHUB_ENV
 
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
       - name: Install lint dependencies
-        run: pip install flake8 ruff==0.12.8 pyright
+        run: pip install flake8 ruff==0.12.8
+
+      - name: Install Pyright
+        run: npm install pyright
 
       - name: Verify Ruff version
         run: |
@@ -62,7 +72,7 @@ jobs:
         run: flake8 --config=.flake8 ${{ steps.changed.outputs.added_modified }}
 
       - name: Run pyright
-        run: pyright
+        run: npx pyright
 
       - name: Run combined checks
         env:

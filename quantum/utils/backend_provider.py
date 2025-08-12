@@ -7,9 +7,17 @@ import os
 from typing import Optional
 
 try:  # pragma: no cover - optional dependency
+    import qiskit  # noqa: F401
+except Exception as exc:  # pragma: no cover - qiskit may be missing
+    raise ImportError(
+        "qiskit is required; install qiskit==0.44.0"
+    ) from exc
+
+try:  # pragma: no cover - optional dependency
     from qiskit_aer import Aer
-except Exception:  # pragma: no cover - qiskit may be missing
+except Exception as exc:  # pragma: no cover - qiskit or Aer may be missing
     Aer = None
+    _AER_IMPORT_ERROR = exc
 
 try:  # pragma: no cover - optional dependency
     from qiskit_ibm_provider import IBMProvider
@@ -53,16 +61,11 @@ def get_backend(
 
     if Aer is None:
         raise ImportError(
-            "qiskit-aer is required; install qiskit==1.4.2"
-        )
+            "qiskit and qiskit-aer are required; install qiskit==0.44.0 and qiskit-aer==0.17.1"
+        ) from _AER_IMPORT_ERROR
 
     if use_hardware is None:
         use_hardware = os.getenv("QUANTUM_USE_HARDWARE", "0") == "1"
-
-    if Aer is None:
-        raise ImportError(
-            "qiskit-aer is required; install qiskit==1.4.2 and qiskit-aer==0.17.1"
-        )
 
     if use_hardware and IBMProvider is not None:
         try:  # pragma: no cover - requires network credentials

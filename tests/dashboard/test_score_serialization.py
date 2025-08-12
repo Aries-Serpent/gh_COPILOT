@@ -1,4 +1,3 @@
-import json
 import sqlite3
 
 from pytest import approx
@@ -11,19 +10,19 @@ import dashboard.app  # noqa: F401
 def _prepare_metrics(tmp_path, monkeypatch):
     metrics_file = tmp_path / "metrics.json"
     metrics_file.write_text(
-        json.dumps(
-            {
-                "metrics": {
-                    "compliance_score": 84.0,
-                    "code_quality_score": 82.5,
-                    "composite_score": 82.5,
-                    "score_breakdown": {
-                        "placeholder_score": 70.0,
-                        "lint_score": 95.0,
-                        "test_score": 80.0,
-                    },
-                }
-            }
+        (
+            "{\n"
+            "    \"metrics\": {\n"
+            "        \"compliance_score\": 84.0,\n"
+            "        \"code_quality_score\": 82.5,\n"
+            "        \"composite_score\": 82.5,\n"
+            "        \"score_breakdown\": {\n"
+            "            \"placeholder_score\": 70.0,\n"
+            "            \"lint_score\": 95.0,\n"
+            "            \"test_score\": 80.0\n"
+            "        }\n"
+            "    }\n"
+            "}\n"
         ),
         encoding="utf-8",
     )

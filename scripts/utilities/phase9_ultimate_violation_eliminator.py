@@ -449,28 +449,38 @@ class Phase9UltimateViolationEliminator:
                         before = line[:func_match.start()]
                         after = line[func_match.end():]
 
-                        broken_params = f",\n{cont_indent}".join(param_list)
-                        return f"{before}{func_name}( \
-                            \n{cont_indent}{broken_params}\n{base_indent}){after}"
+                        broken_params = (",\n" + cont_indent).join(param_list)
+                        return (
+                            f"{before}{func_name}("
+                            "\n"
+                            f"{cont_indent}{broken_params}"
+                            "\n"
+                            f"{base_indent}){after}"
+                        )
 
         # Strategy 2: String concatenation
         if ' + ' in line and ('"' in line or "'" in line) and len(line) > 100:
             parts = line.split(' + ')
             if len(parts) > 1:
-                return f"{parts[0]} + \\\n{cont_indent}" + f" + \\\n{cont_indent}".join(parts[1:])
+                return (
+                    f"{parts[0]} +\n{cont_indent}"
+                    + f" +\n{cont_indent}".join(parts[1:])
+                )
 
         # Strategy 3: Logical operators
         if ' and ' in line and len(line) > 100:
             parts = line.split(' and ')
             if len(parts) > 1:
-                return f"{parts[0]} and \
-                    \\\n{cont_indent}" + f" and \\\n{cont_indent}".join(parts[1:])
+                return (
+                    f"{parts[0]} and\n{cont_indent}"
+                    + f" and\n{cont_indent}".join(parts[1:])
+                )
 
         # Strategy 4: Dictionary/list literals
         if ('{' in line or '[' in line) and len(line) > 100:
             # Break after commas in data structures
             if ', ' in line:
-                return line.replace(', ', f',\n{cont_indent}')
+                return line.replace(', ', ",\n" + cont_indent)
 
         return original_line
 
@@ -504,9 +514,14 @@ class Phase9UltimateViolationEliminator:
             target_violations > 0 else 0
 
         print(f"   📈 Elimination Rate: {elimination_rate:.1f}%")
-        print(f"   # # 🎯 Status: {'ULTIMATE SUCCESS' if \
-            elimination_rate > 70 else 'EXCEPTIONAL SUCCES \
-                S' if elimination_rate > 50 else 'SIGNIFICANT PROGRESS'}")
+        status = (
+            "ULTIMATE SUCCESS"
+            if elimination_rate > 70
+            else "EXCEPTIONAL SUCCESS"
+            if elimination_rate > 50
+            else "SIGNIFICANT PROGRESS"
+        )
+        print(f"   # # 🎯 Status: {status}")
 
         # Save detailed report
         report_file = \
@@ -533,7 +548,7 @@ def main():
     eliminator = Phase9UltimateViolationEliminator()
     results = eliminator.execute_ultimate_elimination()
 
-    print(f"\n# # ✅ PHASE 9 ULTIMATE ELIMINATION COMPLETED")
+    print("\n# # ✅ PHASE 9 ULTIMATE ELIMINATION COMPLETED")
     print(f"Total Violations Eliminated: {results['total_violations_eliminated']}")
     print(f"Files Processed: {results['files_processed']}")
 

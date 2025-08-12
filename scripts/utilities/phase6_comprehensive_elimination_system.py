@@ -150,13 +150,14 @@ class Phase6ComprehensiveEliminationSystem:
         # Generate comprehensive report
         self.generate_comprehensive_report(final_results)
 
-        logger.info("="*80)
+        logger.info("=" * 80)
         logger.info(f"🏆 PHASE 6 COMPREHENSIVE ELIMINATION: {success_status}")
         logger.info(
-    f"# # # 📊 Overall Rate: {overall_rate:.1f}% ({total_eliminated}/{total_targeted})")
+            f"# # # 📊 Overall Rate: {overall_rate:.1f}% ({total_eliminated}/{total_targeted})"
+        )
         logger.info(f"📁 Files Modified: {len(files_modified)}")
         logger.info(f"⏱️ Duration: {processing_duration:.1f}s")
-        logger.info("="*80)
+        logger.info("=" * 80)
 
         return final_results
 
@@ -357,7 +358,8 @@ class W293Whitespacedominator:
         elimination_rate = (eliminated_count / initial_count * 100) if initial_count > 0 else 0
 
         logger.info(
-    f"🧹 W293 Dominator: {eliminated_count}/{initial_count} cleaned ({elimination_rate:.1f}%)")
+            f"🧹 W293 Dominator: {eliminated_count}/{initial_count} cleaned ({elimination_rate:.1f}%)"
+        )
 
         return ViolationMetrics(
             category=self.category,
@@ -474,7 +476,8 @@ class F821TypeHintResolver:
         elimination_rate = (eliminated_count / initial_count * 100) if initial_count > 0 else 0
 
         logger.info(
-    f"# # # 🔍 F821 Resolver: {eliminated_count}/{initial_count} resolved ({elimination_rate:.1f}%)")
+            f"# # # 🔍 F821 Resolver: {eliminated_count}/{initial_count} resolved ({elimination_rate:.1f}%)"
+        )
 
         return ViolationMetrics(
             category=self.category,
@@ -551,7 +554,8 @@ class F821TypeHintResolver:
                         f.write(modified_content)
 
                     logger.info(
-    f"# # # 🔍 Added type imports to {file_path}: {', '.join(needed_imports)}")
+                        f"# # # 🔍 Added type imports to {file_path}: {', '.join(needed_imports)}"
+                    )
                     return True
 
         except Exception as e:
@@ -639,7 +643,8 @@ class E501LineOptimizer:
         elimination_rate = (eliminated_count / initial_count * 100) if initial_count > 0 else 0
 
         logger.info(
-    f"📏 E501 Optimizer: {eliminated_count}/{initial_count} optimized ({elimination_rate:.1f}%)")
+            f"📏 E501 Optimizer: {eliminated_count}/{initial_count} optimized ({elimination_rate:.1f}%)"
+        )
 
         return ViolationMetrics(
             category=self.category,
@@ -760,8 +765,12 @@ class E501LineOptimizer:
                     parts = func_call.split(',')
                     if len(parts) > 1:
                         indent = len(line) - len(line.lstrip())
-                        broken = parts[0] + ',\n' + \
-        ' ' * (indent + 4) + ',\n'.join(p.strip() for p in parts[1:])
+                        broken = (
+                            parts[0]
+                            + ",\n"
+                            + " " * (indent + 4)
+                            + ",\n".join(p.strip() for p in parts[1:])
+                        )
                         return line.replace(func_call, broken)
 
         return line
@@ -784,7 +793,9 @@ class E501LineOptimizer:
             if len(parts) > 1:
                 indent = len(line) - len(line.lstrip())
                 return ' +\n'.join(
-    f"{' ' * indent if i == 0 else ' ' * (indent + 4)}{part}" for i, part in enumerate(parts))
+                    f"{' ' * indent if i == 0 else ' ' * (indent + 4)}{part}"
+                    for i, part in enumerate(parts)
+                )
 
         return line
 
@@ -799,9 +810,13 @@ class E501LineOptimizer:
                 if ',' in args:
                     arg_list = [arg.strip() for arg in args.split(',')]
                     indent = len(line) - len(line.lstrip())
-                    broken_args = ',\n'.join(f"{' ' * (indent + 4)}{arg}" for arg in arg_list)
+                    broken_args = ',\n'.join(
+                        f"{' ' * (indent + 4)}{arg}" for arg in arg_list
+                    )
                     return line.replace(
-    f"{func_name}({args})", f"{func_name}(\n{broken_args}\n{' ' * indent})")
+                        f"{func_name}({args})",
+                        f"{func_name}(\n{broken_args}\n{' ' * indent})"
+                    )
 
         return line
 

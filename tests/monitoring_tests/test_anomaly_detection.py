@@ -5,7 +5,7 @@ from src.monitoring.anomaly import detect_anomalies, train_baseline_models
 from src.monitoring.anomaly_detector import detect_anomalies as db_detect_anomalies
 from src.monitoring.anomaly_detector import train_models as db_train_models
 
-import unified_monitoring_optimization_system as umos
+import monitoring.unified_monitoring_optimization_system as umos
 
 
 def _data_dir() -> Path:

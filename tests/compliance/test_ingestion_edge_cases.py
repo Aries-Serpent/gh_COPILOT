@@ -5,11 +5,7 @@ import json
 import os
 import sqlite3
 from pathlib import Path
-import sys
 from pytest import fail, skip
-
-# Add scripts to path to avoid import issues
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 # We'll need to import the ingestion module dynamically to avoid path issues
 import importlib.util
