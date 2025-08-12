@@ -49,6 +49,12 @@ def test_progress_and_requirement_mapping_logged(tmp_path: Path) -> None:
     phases = {e.get("phase") for e in events if e.get("event") == "integration_progress"}
     assert phases == {"template_selection", "token_replacement", "file_write"}
 
+    tpl_evt = next(e for e in events if e.get("event") == "template_selected")
+    assert tpl_evt["requirement_map"]["REQ-1"].startswith("print")
+
+    token_evt = next(e for e in events if e.get("event") == "tokens_replaced")
+    assert token_evt["requirement_map"]["REQ-1"].startswith("print")
+
     mapping_event = next(e for e in events if e.get("event") == "requirement_mapping")
     assert mapping_event["mapping"]["REQ-1"]["path"] == str(path)
 
