@@ -24,6 +24,9 @@ from unified_monitoring_optimization_system import (
     train_anomaly_model,  # noqa: F401 - re-exported for tests
 )
 
+# Exported public helpers
+__all__ = ["anomaly_detection_loop", "detect_anomalies"]
+
 # re-exported for tests that patch these callables
 collect_metrics = _collect_metrics
 auto_heal_session = _auto_heal_session
@@ -80,4 +83,3 @@ def anomaly_detection_loop(
             time.sleep(interval)
 
 
-__all__ = ["anomaly_detection_loop", "detect_anomalies"]

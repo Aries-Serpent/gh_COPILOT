@@ -5,6 +5,7 @@ from src.monitoring.anomaly import detect_anomalies, train_baseline_models
 from src.monitoring.anomaly_detector import detect_anomalies as db_detect_anomalies
 from src.monitoring.anomaly_detector import train_models as db_train_models
 
+from monitoring import anomaly_detection_loop
 import monitoring.unified_monitoring_optimization_system as umos
 
 
@@ -77,7 +78,7 @@ def test_anomaly_loop_triggers_auto_heal(tmp_path, monkeypatch):
     def collector(*, db_path=None):
         return {"cpu": 999.0, "memory": 999.0}
 
-    umos.anomaly_detection_loop(
+    anomaly_detection_loop(
         interval=0,
         iterations=1,
         db_path=db_file,
