@@ -2,6 +2,17 @@
 
 This project uses **git-safe-add-commit** utilities to automatically track large or binary files with Git LFS.
 
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Staged ZIP file] --> B{git-safe-add-commit}
+    B -->|ALLOW_AUTOLFS=1| C[Track with Git LFS]
+    C --> D[Commit pointer]
+    D --> E[Push uploads LFS object]
+    B -->|ALLOW_AUTOLFS!=1| F[Abort commit]
+```
+
 ## Python Utility
 
 Run `tools/git_safe_add_commit.py` instead of `git commit` to scan staged files. When `ALLOW_AUTOLFS=1` is set, binary files or files larger than the configured threshold are automatically tracked using Git LFS. The script installs Git LFS if necessary, updates `.gitattributes`, and re-stages the files before committing. Use `-h/--help` to view all options.
