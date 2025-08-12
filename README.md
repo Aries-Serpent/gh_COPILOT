@@ -1428,3 +1428,16 @@ See [Continuous Improvement Roadmap](docs/continuous_improvement_roadmap.md),
 [Stakeholder Roadmap](documentation/continuous_improvement_roadmap.md) and
 [Project Roadmap](documentation/ROADMAP.md) for detailed milestones and
 status tracking.
+
+## gh_copilot skeleton
+
+The `src/gh_copilot` package provides a minimal database-first service with a FastAPI app and Typer CLI.
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -e .
+gh-copilot migrate
+gh-copilot seed-models
+gh-copilot compute-score --lint 0.9 --tests 0.8 --placeholders 0.95 --sessions 1.0
+gh-copilot serve  # http://127.0.0.1:8000/docs
+```
