@@ -1,0 +1,61 @@
+name: LFS ZIP Guard
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-lfs-zip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (without LFS content)
+        uses: actions/checkout@v4
+        with:
+          lfs: false
+          fetch-depth: 0
+
+      - name: Ensure Git LFS available
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! git lfs version >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y git-lfs
+          fi
+          git lfs install --skip-repo
+
+      - name: Validate that ZIP files are tracked by LFS
+        shell: bash
+        run: |
+          set -euo pipefail
+          git ls-files '*.zip' > all_zips.txt || true
+          git lfs ls-files > lfs_files.txt || true
+          awk '{print $3}' lfs_files.txt | sort -u > lfs_paths.txt
+          sort -u all_zips.txt > all_zips_sorted.txt || true
+          comm -23 all_zips_sorted.txt lfs_paths.txt > bad_zips.txt || true
+          if [[ -s bad_zips.txt ]]; then
+            echo "::error title=ZIP files not tracked by LFS::The following ZIP files are not tracked by Git LFS:";
+            sed 's/^/ - /' bad_zips.txt
+            echo ""
+            echo "To fix:"
+            echo "  git lfs track \"*.zip\""
+            echo "  git add .gitattributes $(cat bad_zips.txt)"
+            echo "  git rm --cached $(cat bad_zips.txt)"
+            echo "  git add $(cat bad_zips.txt)"
+            echo "  git commit -m \"Track ZIPs with Git LFS\""
+            exit 1
+          else
+            echo "All ZIP files are properly tracked by LFS."
+          fi
+
+      - name: Optional — verify LFS pointers resolvable
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git lfs pull
+          git lfs fsck

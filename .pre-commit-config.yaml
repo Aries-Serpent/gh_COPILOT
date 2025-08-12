@@ -1,4 +1,13 @@
+minimum_pre_commit_version: '3.0.0'
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-added-large-files
+        args: ["--maxkb=10000"]
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.5.6
     hooks:
@@ -18,3 +27,69 @@ repos:
         language: system
         pass_filenames: false
         files: ^docs/
+      - id: require-git-lfs
+        name: Require Git LFS available
+        language: system
+        entry: bash -lc 'git lfs version >/dev/null 2>&1 || { echo "git-lfs not installed — install from https://git-lfs.com"; exit 1; }'
+        pass_filenames: false
+        stages: [commit]
+      - id: enforce-zip-lfs
+        name: Enforce Git LFS for ZIP files (*.zip)
+        language: system
+        pass_filenames: false
+        stages: [commit]
+        entry: >-
+          bash -lc '
+          set -euo pipefail;
+          mapfile -t files < <(git diff --cached --name-only --diff-filter=ACMR | grep -Ei "\\.zip$" || true);
+          [[ ${#files[@]} -eq 0 ]] && exit 0;
+          err=0;
+          for f in "${files[@]}"; do
+            out=$(git check-attr filter -- "$f" 2>/dev/null || true);
+            if [[ "$out" != *": lfs" ]]; then
+              echo "ZIP not LFS-tracked: $f";
+              err=1;
+            fi;
+          done;
+          if ((err)); then
+            echo "\nFix:";
+            echo "  git lfs track \"*.zip\"";
+            echo "  git add .gitattributes ${files[@]}";
+            echo "  git rm --cached ${files[@]} && git add ${files[@]}";
+            echo "  git commit -m \"Track ZIPs with Git LFS\"";
+            exit 1;
+          fi'
+      - id: enforce-archives-lfs
+        name: Enforce Git LFS for common archives (tar.gz, 7z, rar, jar, war, ear, nupkg, apk, ipa, cab, iso)
+        language: system
+        pass_filenames: false
+        stages: [commit]
+        entry: >-
+          bash -lc '
+          set -euo pipefail;
+          exts="(tar|tgz|tar\.gz|tbz2|tar\.bz2|txz|tar\.xz|tzst|tar\.zst|7z|rar|jar|war|ear|nupkg|apk|ipa|cab|iso)";
+          mapfile -t files < <(git diff --cached --name-only --diff-filter=ACMR | grep -E "\\.(${exts})$" || true);
+          [[ ${#files[@]} -eq 0 ]] && exit 0;
+          err=0;
+          for f in "${files[@]}"; do
+            out=$(git check-attr filter -- "$f" 2>/dev/null || true);
+            if [[ "$out" != *": lfs" ]]; then
+              echo "Archive not LFS-tracked: $f";
+              err=1;
+            fi;
+          done;
+          if ((err)); then
+            echo "\nFix: add patterns to .gitattributes and re-stage the files, e.g.:";
+            echo "  *.tar.gz filter=lfs diff=lfs merge=lfs -text";
+            echo "  *.7z     filter=lfs diff=lfs merge=lfs -text";
+            echo "  *.rar    filter=lfs diff=lfs merge=lfs -text";
+            echo "  *.jar    filter=lfs diff=lfs merge=lfs -text";
+            echo "...";
+            exit 1;
+          fi'
+      - id: lfs-fsck-on-push
+        name: LFS integrity check before push (git lfs fsck)
+        language: system
+        pass_filenames: false
+        stages: [push]
+        entry: bash -lc 'git lfs fsck'
