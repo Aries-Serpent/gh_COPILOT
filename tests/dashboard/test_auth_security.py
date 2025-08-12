@@ -7,6 +7,11 @@ from src.dashboard import auth
 from src.dashboard.api import logs as logs_api
 
 
+@pytest.fixture(autouse=True)
+def _mock_mfa(monkeypatch):
+    monkeypatch.setattr(auth, "_check_mfa", lambda *_: None)
+
+
 @pytest.fixture()
 def manager() -> auth.SessionManager:
     return auth.SessionManager.create(max_attempts=3)
