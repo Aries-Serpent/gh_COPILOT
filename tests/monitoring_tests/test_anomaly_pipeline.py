@@ -21,7 +21,7 @@ def _stub_quantum_module(monkeypatch):
         SimpleNamespace(quantum_score_stub=_stub_score),
     )
 
-from monitoring.unified_monitoring_optimization_system import anomaly_detection_loop
+from monitoring import anomaly_detection_loop
 from monitoring.baseline_anomaly_detector import BaselineAnomalyDetector
 
 

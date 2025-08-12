@@ -3,7 +3,7 @@ import sqlite3
 
 import pytest
 
-from monitoring.unified_monitoring_optimization_system import detect_anomalies
+from monitoring import detect_anomalies
 from unified_monitoring_optimization_system import (
     _ensure_table,
     push_metrics,
