@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 
 from src.dashboard.auth import SessionManager
+from src.dashboard import auth
 
 
 def create_app() -> Flask:
@@ -32,6 +33,7 @@ def create_app() -> Flask:
 
 def test_auth_end_to_end(monkeypatch):
     monkeypatch.setenv("DASHBOARD_AUTH_TOKEN", "secret")
+    monkeypatch.setattr(auth, "_check_mfa", lambda *_: None)
     app = create_app()
     client = app.test_client()
 

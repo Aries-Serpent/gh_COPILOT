@@ -3,6 +3,11 @@ import pytest
 from src.dashboard import auth
 
 
+@pytest.fixture(autouse=True)
+def _mock_mfa(monkeypatch):
+    monkeypatch.setattr(auth, "_check_mfa", lambda *_: None)
+
+
 @pytest.fixture()
 def manager():
     return auth.SessionManager.create()

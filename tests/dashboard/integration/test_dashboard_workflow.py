@@ -5,6 +5,7 @@ from pathlib import Path
 from flask import Flask, jsonify, request
 
 from src.dashboard.auth import SessionManager
+from src.dashboard import auth
 from dashboard import compliance_metrics_updater as cmu
 
 
@@ -32,6 +33,7 @@ def create_app(summary_path: Path) -> Flask:
 
 def test_dashboard_workflow(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setenv("DASHBOARD_AUTH_TOKEN", "secret")
+    monkeypatch.setattr(auth, "_check_mfa", lambda *_: None)
     summary = tmp_path / "correction_summary.json"
     summary.write_text(json.dumps({"corrections": [{"file_path": "file.py"}]}))
 
