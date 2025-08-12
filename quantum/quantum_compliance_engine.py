@@ -147,6 +147,7 @@ class QuantumComplianceEngine:
         )
         logger.info("Target: %s | Score: %.4f", target, score)
         suggestions = self._cognitive_learning_fetch(patterns)
+        files_to_validate = [str(target)]
         if suggestions:
             logger.info("Comparable scripts: %s", suggestions)
             paths = [str(target)] + suggestions
