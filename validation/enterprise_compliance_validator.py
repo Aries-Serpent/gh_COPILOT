@@ -31,10 +31,16 @@ class EnterpriseComplianceValidator:
         )
         return cur.fetchone() is not None
 
-    def _fetch_latest(self, cur: sqlite3.Cursor, table: str, columns: str) -> Tuple[int, ...]:
+    def _fetch_latest(
+        self,
+        cur: sqlite3.Cursor,
+        table: str,
+        columns: str,
+        order_by: str = "rowid",
+    ) -> Tuple[int, ...]:
         try:
             cur.execute(
-                f"SELECT {columns} FROM {table} ORDER BY 1 DESC LIMIT 1"
+                f"SELECT {columns} FROM {table} ORDER BY {order_by} DESC LIMIT 1"
             )
             row = cur.fetchone()
             if row:
@@ -77,11 +83,15 @@ class EnterpriseComplianceValidator:
             cur = conn.cursor()
 
             # lint issues from ruff_issue_log
-            lint, = self._fetch_latest(cur, "ruff_issue_log", "issues")
+            lint, = self._fetch_latest(
+                cur, "ruff_issue_log", "issues", order_by="run_timestamp"
+            )
             metrics["lint_issues"] = lint
 
             # test results from test_run_stats
-            passed, total = self._fetch_latest(cur, "test_run_stats", "passed,total")
+            passed, total = self._fetch_latest(
+                cur, "test_run_stats", "passed,total", order_by="run_timestamp"
+            )
             metrics["tests_passed"] = passed
             metrics["tests_failed"] = max(0, total - passed)
 
