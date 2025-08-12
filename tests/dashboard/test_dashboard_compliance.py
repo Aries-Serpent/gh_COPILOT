@@ -5,15 +5,20 @@ import types
 
 def test_dashboard_compliance_endpoint(tmp_path, monkeypatch):
     stub = types.ModuleType("monitoring")
+
     class DummyDetector:
         threshold = 0.0
+
         def __init__(self, db_path=None):
             pass
+
         def zscores(self):
             return []
+
         def detect(self):
             return []
-    stub.BaselineAnomalyDetector = DummyDetector
+
+    setattr(stub, "BaselineAnomalyDetector", DummyDetector)
     sys.modules["monitoring"] = stub
 
     import dashboard.enterprise_dashboard as ed
@@ -41,3 +46,4 @@ def test_dashboard_compliance_endpoint(tmp_path, monkeypatch):
     data = resp.get_json()
     assert data["placeholders_open"] == 1
     assert any(e["summary"] == "fixed file" for e in data["audit_log"])
+    assert any(entry["file_path"] == "a.py" for entry in data["todo_entries"])

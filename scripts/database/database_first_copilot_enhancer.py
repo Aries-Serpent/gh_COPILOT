@@ -48,8 +48,8 @@ class DatabaseFirstCopilotEnhancer:
             if self.production_db.exists():
                 validate_enterprise_operation(str(self.production_db))
                 try:
-                    validate_enterprise_operation(str(self.production_db))
                     with sqlite3.connect(self.production_db) as conn:
+                        validate_enterprise_operation(str(self.production_db))
                         conn.execute(
                             "CREATE TABLE IF NOT EXISTS templates (name TEXT PRIMARY KEY, template_content TEXT)"
                         )
@@ -104,6 +104,7 @@ class DatabaseFirstCopilotEnhancer:
             objective, production_db=self.production_db, analytics_db=self.analytics_db
         )
         results: List[Tuple[str, float]] = []
+        validate_enterprise_operation(str(self.production_db))
         with sqlite3.connect(self.production_db) as conn:
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS similarity_scores (objective TEXT, template_id INTEGER, score REAL)"
@@ -133,16 +134,18 @@ class DatabaseFirstCopilotEnhancer:
         """Return confidence based on highest similarity score."""
         if not solutions:
             return 0.0
-        max_score = max(score for _code, score in solutions)
-        return float(max(0.0, min(1.0, max_score)))
+        total = sum(score for _code, score in solutions)
+        if total <= 0:
+            return 0.0
+        top = max(score for _code, score in solutions)
+        return float(max(0.0, min(1.0, top / total)))
 
     def query_before_filesystem(self, objective: str) -> Dict[str, Any]:
         """Query database before using filesystem templates."""
         scored = self._query_database_solutions(objective)
-        solutions = [code for code, _ in scored]
+        codes = [code for code, _ in scored]
         template = self._find_template_matches(objective)
         adapted = self._adapt_to_current_environment(template)
-        codes = [code for code, _ in solutions]
         return {
             "database_solutions": codes,
             "template_code": adapted,

@@ -7,7 +7,6 @@ import sqlite3
 import threading
 from typing import Any, Callable, Dict, List
 import queue
-import threading
 
 from monitoring import BaselineAnomalyDetector
 
@@ -48,6 +47,7 @@ try:  # pragma: no cover - dashboard features are optional in tests
     _load_metrics = cast(Any, _real_load_metrics)
     get_rollback_logs = cast(Any, _real_get_rollback_logs)
     _load_sync_events = cast(Any, _real_load_sync_events)
+    _compliance_payload = cast(Any, _real_compliance_payload)
     _load_compliance_payload = cast(Any, _real_load_compliance_payload)
 except Exception:  # pragma: no cover - provide fallbacks
 
@@ -83,8 +83,8 @@ try:  # pragma: no cover - optional dependency
     from unified_monitoring_optimization_system import get_anomaly_summary
 except Exception:  # pragma: no cover
 
-    def get_anomaly_summary(*args: Any, **kwargs: Any) -> Dict[str, Any]:  # type: ignore[override]
-        return {}
+    def get_anomaly_summary(*, limit: int = 10, db_path: Path | None = None) -> List[Dict[str, float]]:  # type: ignore[override]
+        return []
 
 
 try:  # pragma: no cover - optional dependency
@@ -193,6 +193,7 @@ def dashboard_compliance_view() -> str:
         placeholders=data.get("placeholders_open", 0),
         last_resolved=data.get("last_resolved", ""),
         audit_logs=data.get("audit_log", []),
+        todo_entries=data.get("todo_entries", []),
     )
 
 
