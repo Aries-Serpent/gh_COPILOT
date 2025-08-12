@@ -48,8 +48,8 @@ class DatabaseFirstCopilotEnhancer:
             if self.production_db.exists():
                 validate_enterprise_operation(str(self.production_db))
                 try:
-                    validate_enterprise_operation(str(self.production_db))
                     with sqlite3.connect(self.production_db) as conn:
+                        validate_enterprise_operation(str(self.production_db))
                         conn.execute(
                             "CREATE TABLE IF NOT EXISTS templates (name TEXT PRIMARY KEY, template_content TEXT)"
                         )
@@ -104,7 +104,9 @@ class DatabaseFirstCopilotEnhancer:
             objective, production_db=self.production_db, analytics_db=self.analytics_db
         )
         results: List[Tuple[str, float]] = []
+        validate_enterprise_operation(str(self.production_db))
         with sqlite3.connect(self.production_db) as conn:
+            validate_enterprise_operation(str(self.production_db))
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS similarity_scores (objective TEXT, template_id INTEGER, score REAL)"
             )
@@ -172,7 +174,6 @@ class DatabaseFirstCopilotEnhancer:
     def query_before_filesystem(self, objective: str) -> Dict[str, Any]:
         """Query database before using filesystem templates."""
         scored = self._query_database_solutions(objective)
-        solutions = [code for code, _ in scored]
         template = self._find_template_matches(objective)
         adapted = self._adapt_to_current_environment(template)
         return {
@@ -199,6 +200,7 @@ class DatabaseFirstCopilotEnhancer:
         self.logger.info("Generated code for %s in %.2fs", objective, duration)
         validate_enterprise_operation(str(self.production_db))
         with sqlite3.connect(self.production_db) as conn:
+            validate_enterprise_operation(str(self.production_db))
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS generated_solutions (objective TEXT, template_name TEXT, code TEXT)"
             )
@@ -207,5 +209,15 @@ class DatabaseFirstCopilotEnhancer:
                 (objective, template_name, code),
             )
             conn.commit()
-        self._log_duration(objective, duration)
+        validate_enterprise_operation(str(self.analytics_db))
+        with sqlite3.connect(self.analytics_db) as conn:
+            validate_enterprise_operation(str(self.analytics_db))
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS generation_log (objective TEXT, duration REAL, ts TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO generation_log (objective, duration, ts) VALUES (?,?,?)",
+                (objective, duration, datetime.utcnow().isoformat()),
+            )
+            conn.commit()
         return code
