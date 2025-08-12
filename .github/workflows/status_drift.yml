@@ -2,8 +2,17 @@ name: docs status drift
 
 on:
   push:
-    branches: [main]
+    paths:
+      - 'docs/task_stubs.md'
+      - 'docs/status_index.json'
+      - 'scripts/docs_status_reconciler.py'
+      - '.github/workflows/status_drift.yml'
   pull_request:
+    paths:
+      - 'docs/task_stubs.md'
+      - 'docs/status_index.json'
+      - 'scripts/docs_status_reconciler.py'
+      - '.github/workflows/status_drift.yml'
 
 jobs:
   check:
