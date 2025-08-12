@@ -2,7 +2,7 @@
 
 from qiskit import QuantumCircuit
 
-from quantum.utils.backend_provider import get_backend
+from ghc_quantum.utils.backend_provider import get_backend
 
 
 def test_backend_provider_simulator() -> None:

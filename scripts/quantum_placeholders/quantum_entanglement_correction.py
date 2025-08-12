@@ -9,8 +9,8 @@ PLACEHOLDER_ONLY = True
 
 from typing import Dict
 
-from quantum.utils.backend_provider import get_backend
-from quantum.utils.audit_log import log_quantum_audit
+from ghc_quantum.utils.backend_provider import get_backend
+from ghc_quantum.utils.audit_log import log_quantum_audit
 from . import ensure_not_production
 
 try:  # pragma: no cover - optional dependency

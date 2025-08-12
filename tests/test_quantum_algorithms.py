@@ -1,4 +1,4 @@
-from quantum.quantum_integration_orchestrator import QuantumIntegrationOrchestrator
+from ghc_quantum.quantum_integration_orchestrator import QuantumIntegrationOrchestrator
 
 
 def test_orchestrator_lists_algorithms() -> None:

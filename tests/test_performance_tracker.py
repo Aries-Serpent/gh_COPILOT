@@ -2,7 +2,7 @@
 import sqlite3
 from pathlib import Path
 
-from monitoring.performance_tracker import benchmark_queries, ensure_table, record_error, track_query_time
+from ghc_monitoring.performance_tracker import benchmark_queries, ensure_table, record_error, track_query_time
 
 
 def _prepare_db(tmp_path: Path) -> Path:

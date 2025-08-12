@@ -4,7 +4,7 @@ import os
 from typing import Any
 
 from .backend import QuantumBackend, SimulatorBackend
-from quantum.providers import get_provider
+from ghc_quantum.providers import get_provider
 
 
 class QuantumExecutor:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Wrapper for :mod:`quantum.quantum_database_search` utilities."""
+"""Wrapper for :mod:`ghc_quantum.quantum_database_search` utilities."""
 
 from utils.cross_platform_paths import verify_environment_variables
 
@@ -14,28 +14,28 @@ __all__ = [
 
 def quantum_search_sql(*args, **kwargs):
     """Lazy import and execute ``quantum_search_sql``."""
-    from quantum.quantum_database_search import quantum_search_sql as _func
+    from ghc_quantum.quantum_database_search import quantum_search_sql as _func
 
     return _func(*args, **kwargs)
 
 
 def quantum_search_nosql(*args, **kwargs):
     """Lazy import and execute ``quantum_search_nosql``."""
-    from quantum.quantum_database_search import quantum_search_nosql as _func
+    from ghc_quantum.quantum_database_search import quantum_search_nosql as _func
 
     return _func(*args, **kwargs)
 
 
 def quantum_search_hybrid(*args, **kwargs):
     """Lazy import and execute ``quantum_search_hybrid``."""
-    from quantum.quantum_database_search import quantum_search_hybrid as _func
+    from ghc_quantum.quantum_database_search import quantum_search_hybrid as _func
 
     return _func(*args, **kwargs)
 
 
 def quantum_secure_search(*args, **kwargs):
     """Lazy import and execute ``quantum_secure_search``."""
-    from quantum.quantum_database_search import quantum_secure_search as _func
+    from ghc_quantum.quantum_database_search import quantum_secure_search as _func
 
     return _func(*args, **kwargs)
 
@@ -43,7 +43,7 @@ def quantum_secure_search(*args, **kwargs):
 def cli() -> None:
     """Run :mod:`quantum.quantum_database_search` CLI after environment check."""
     verify_environment_variables()
-    from quantum.quantum_database_search import main
+    from ghc_quantum.quantum_database_search import main
 
     main()
 

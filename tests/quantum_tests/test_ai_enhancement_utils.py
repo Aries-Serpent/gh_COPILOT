@@ -1,6 +1,6 @@
 """Tests for the quantum.ai_enhancement subpackage."""
 
-from quantum.ai_enhancement import (
+from ghc_quantum.ai_enhancement import (
     cognitive_computing,
     ecosystem_integration,
     maintenance,

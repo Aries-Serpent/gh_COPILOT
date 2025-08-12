@@ -10,7 +10,7 @@ sys.modules["unified_monitoring_optimization_system"] = types.SimpleNamespace(
     collect_metrics=lambda: {},
 )
 sys.modules["quantum"] = types.ModuleType("quantum")
-sys.modules["quantum.benchmarking"] = types.ModuleType("quantum.benchmarking")
+sys.modules["ghc_quantum.benchmarking"] = types.ModuleType("ghc_quantum.benchmarking")
 sys.modules["physics_optimization_engine"] = types.ModuleType("physics_optimization_engine")
 sys.modules[
     "scripts.optimization.physics_optimization_engine"

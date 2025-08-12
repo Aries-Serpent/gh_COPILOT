@@ -1,7 +1,7 @@
 import pytest
 
-from quantum.algorithms import hardware_aware
-from quantum.utils import backend_provider
+from ghc_quantum.algorithms import hardware_aware
+from ghc_quantum.utils import backend_provider
 
 
 @pytest.mark.skipif(backend_provider.Aer is None, reason="Qiskit not available")

@@ -3,7 +3,7 @@
 
 from qiskit import QuantumCircuit
 
-from quantum.ibm_backend import init_ibm_backend
+from ghc_quantum.ibm_backend import init_ibm_backend
 
 
 def main() -> None:

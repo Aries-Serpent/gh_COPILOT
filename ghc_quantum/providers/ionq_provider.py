@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from .base import BackendProvider
-from quantum.framework.backend import QuantumBackend
+from ghc_quantum.framework.backend import QuantumBackend
 
 
 class IonQProvider(BackendProvider):

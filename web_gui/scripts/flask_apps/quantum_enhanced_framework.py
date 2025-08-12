@@ -37,7 +37,7 @@ __all__ = ["QuantumEnhancedFramework", "quantum_bp"]
 class QuantumEnhancedFramework:
     """Interface layer between the web GUI and quantum modules.
 
-    The class attempts to import quantum modules lazily. If imports fail (for
+    The class attempts to import ghc_quantum modules lazily. If imports fail (for
     example, when optional quantum libraries such as Qiskit are not installed),
     the class exposes graceful fallbacks that return deterministic placeholder
     values instead of raising ImportError.
@@ -56,7 +56,7 @@ class QuantumEnhancedFramework:
 
         try:
             orchestrator_mod = importlib.import_module(
-                "quantum.quantum_integration_orchestrator"
+                "ghc_quantum.quantum_integration_orchestrator"
             )
             orchestrator_cls = getattr(
                 orchestrator_mod, "QuantumIntegrationOrchestrator"
@@ -76,7 +76,7 @@ class QuantumEnhancedFramework:
         """Import quantum scoring utilities when present."""
 
         try:
-            optimizer_mod = importlib.import_module("quantum.quantum_optimizer")
+            optimizer_mod = importlib.import_module("ghc_quantum.quantum_optimizer")
             self._score_templates = getattr(optimizer_mod, "score_templates")
             self.logger.debug("Quantum optimizer utilities loaded")
         except Exception as exc:  # pragma: no cover - import side effects

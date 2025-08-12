@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from monitoring.health_monitor import check_alerts, quantum_hook as health_quantum_hook
-from monitoring.performance_tracker import (
+from ghc_monitoring.health_monitor import check_alerts, quantum_hook as health_quantum_hook
+from ghc_monitoring.performance_tracker import (
     track_query_time,
     record_error,
     quantum_hook as perf_quantum_hook,

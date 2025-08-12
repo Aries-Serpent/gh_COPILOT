@@ -2,7 +2,7 @@
 
 import pytest
 
-from quantum.advanced_quantum_algorithms import (
+from ghc_quantum.advanced_quantum_algorithms import (
     QISKIT_AVAILABLE,
     grover_search_qiskit,
     phase_estimation_qiskit,

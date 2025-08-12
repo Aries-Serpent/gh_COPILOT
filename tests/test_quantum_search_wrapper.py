@@ -2,7 +2,7 @@ import sqlite3
 import sys
 from pathlib import Path
 
-from quantum.quantum_database_search import (
+from ghc_quantum.quantum_database_search import (
     quantum_search_hybrid,
     quantum_search_nosql,
     quantum_search_sql,
@@ -53,7 +53,7 @@ def test_cli_hybrid_modes(monkeypatch, tmp_path: Path, capsys):
             "SELECT name FROM items",
         ],
     )
-    from quantum.quantum_database_search import main as cli_main
+    from ghc_quantum.quantum_database_search import main as cli_main
 
     cli_main()
     sql_out = capsys.readouterr().out

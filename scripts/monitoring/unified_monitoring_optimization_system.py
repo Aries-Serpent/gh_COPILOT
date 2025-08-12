@@ -18,7 +18,7 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-from monitoring.health_monitor import gather_metrics
+from ghc_monitoring.health_monitor import gather_metrics
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}

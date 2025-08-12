@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from quantum.optimizers import quantum_optimizer as qo
-from quantum.optimizers.quantum_optimizer import QuantumOptimizer
+from ghc_quantum.optimizers import quantum_optimizer as qo
+from ghc_quantum.optimizers.quantum_optimizer import QuantumOptimizer
 
 
 def objective(x: np.ndarray) -> float:

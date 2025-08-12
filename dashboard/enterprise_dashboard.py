@@ -5,11 +5,10 @@ import time
 from pathlib import Path
 import sqlite3
 import threading
-import asyncio
 from typing import Any, Callable, Dict, List
 import queue
 
-from monitoring import BaselineAnomalyDetector
+from ghc_monitoring import BaselineAnomalyDetector
 
 try:  # pragma: no cover - Flask is optional for tests
     from flask import jsonify, render_template, Response, request

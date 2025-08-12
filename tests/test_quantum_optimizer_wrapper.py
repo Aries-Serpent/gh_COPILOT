@@ -1,6 +1,6 @@
 import numpy as np
 
-from quantum.optimizers.quantum_optimizer import QuantumOptimizer
+from ghc_quantum.optimizers.quantum_optimizer import QuantumOptimizer
 
 
 def objective(x: np.ndarray) -> float:

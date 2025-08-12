@@ -4,7 +4,7 @@ import sqlite3
 
 import pytest
 
-from quantum.algorithms.database_search import QuantumDatabaseSearch
+from ghc_quantum.algorithms.database_search import QuantumDatabaseSearch
 
 
 class DummyBackend:

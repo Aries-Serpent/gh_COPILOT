@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Tests for :mod:`monitoring.log_error_notifier`."""
+"""Tests for :mod:`ghc_monitoring.log_error_notifier`."""
 
 import sqlite3
 from pathlib import Path
 
-import monitoring.log_error_notifier as notifier
+import ghc_monitoring.log_error_notifier as notifier
 
 
 def _prepare_db(tmp_path: Path) -> Path:

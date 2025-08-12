@@ -1,5 +1,5 @@
-from quantum.framework import SimulatorBackend, QuantumExecutor, run_with_fallback
-from quantum.models import ParityModel
+from ghc_quantum.framework import SimulatorBackend, QuantumExecutor, run_with_fallback
+from ghc_quantum.models import ParityModel
 
 
 def test_run_with_fallback_handles_failure():

@@ -4,7 +4,7 @@ import pytest
 
 pytest.importorskip("qiskit")
 
-from quantum.utils import backend_provider
+from ghc_quantum.utils import backend_provider
 
 
 def test_simulator_backend_available():

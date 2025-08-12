@@ -1,7 +1,7 @@
 import pytest
 
-from quantum.orchestration.executor import QuantumExecutor
-from quantum.orchestration import executor as qexec
+from ghc_quantum.orchestration.executor import QuantumExecutor
+from ghc_quantum.orchestration import executor as qexec
 
 
 @pytest.mark.skipif(

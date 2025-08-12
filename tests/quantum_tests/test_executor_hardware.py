@@ -1,8 +1,8 @@
 import pytest
-from quantum.orchestration import executor as qexec
-from quantum.orchestration.executor import QuantumExecutor
-from quantum.orchestration.registry import register_algorithm
-from quantum.algorithms.base import QuantumAlgorithmBase
+from ghc_quantum.orchestration import executor as qexec
+from ghc_quantum.orchestration.executor import QuantumExecutor
+from ghc_quantum.orchestration.registry import register_algorithm
+from ghc_quantum.algorithms.base import QuantumAlgorithmBase
 
 
 class DummyAlgo(QuantumAlgorithmBase):

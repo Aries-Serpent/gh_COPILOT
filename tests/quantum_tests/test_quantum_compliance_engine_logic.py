@@ -5,8 +5,8 @@ from pathlib import Path
 import sqlite3
 import pytest
 
-from quantum.quantum_compliance_engine import QuantumComplianceEngine
-from quantum import quantum_compliance_engine as qce_module
+from ghc_quantum.quantum_compliance_engine import QuantumComplianceEngine
+from ghc_quantum import quantum_compliance_engine as qce_module
 
 
 @pytest.fixture(autouse=True)

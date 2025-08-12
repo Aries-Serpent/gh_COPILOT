@@ -4,7 +4,7 @@ import sqlite3
 import tempfile
 from pathlib import Path
 
-from quantum.algorithms.database_search import QuantumDatabaseSearch
+from ghc_quantum.algorithms.database_search import QuantumDatabaseSearch
 
 
 def create_test_db(path: Path) -> None:

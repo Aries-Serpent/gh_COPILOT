@@ -1,4 +1,4 @@
-from quantum.optimizers.quantum_optimizer import QuantumOptimizer
+from ghc_quantum.optimizers.quantum_optimizer import QuantumOptimizer
 
 
 class _DummyHardwareBackend:
@@ -24,7 +24,7 @@ class _DummySimulatorBackend:
 def test_backend_selection_hardware(monkeypatch):
     backend = _DummyHardwareBackend()
     monkeypatch.setattr(
-        "quantum.optimizers.quantum_optimizer.get_backend",
+        "ghc_quantum.optimizers.quantum_optimizer.get_backend",
         lambda name, use_hardware: backend,
     )
     opt = QuantumOptimizer(lambda x: 0, [(0, 1)], use_hardware=True)
@@ -36,7 +36,7 @@ def test_backend_selection_hardware(monkeypatch):
 def test_backend_selection_simulator(monkeypatch):
     simulator = _DummySimulatorBackend()
     monkeypatch.setattr(
-        "quantum.optimizers.quantum_optimizer.get_backend",
+        "ghc_quantum.optimizers.quantum_optimizer.get_backend",
         lambda name, use_hardware: simulator,
     )
     opt = QuantumOptimizer(lambda x: 0, [(0, 1)], use_hardware=True)

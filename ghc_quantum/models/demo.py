@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from quantum.framework.circuit import QuantumCircuit
+from ghc_quantum.framework.circuit import QuantumCircuit
 from .base import QuantumModel
 
 

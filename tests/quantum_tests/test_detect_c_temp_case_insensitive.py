@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 
-from quantum.optimizers import quantum_optimizer as qo
+from ghc_quantum.optimizers import quantum_optimizer as qo
 
 
 @pytest.mark.parametrize("workspace", [

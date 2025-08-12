@@ -161,7 +161,7 @@ def test_placeholder_audit_module(tmp_path: Path) -> None:
 def test_quantum_compliance_engine(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     import importlib
-    import quantum.quantum_compliance_engine as qce
+    import ghc_quantum.quantum_compliance_engine as qce
 
     importlib.reload(qce)
     engine = qce.QuantumComplianceEngine(tmp_path)

@@ -6,8 +6,8 @@ import sqlite3
 import threading
 import time
 
-from monitoring.log_error_notifier import schedule_log_monitoring
-from monitoring.performance_tracker import (
+from ghc_monitoring.log_error_notifier import schedule_log_monitoring
+from ghc_monitoring.performance_tracker import (
     schedule_metrics_push,
     track_query_time,
 )

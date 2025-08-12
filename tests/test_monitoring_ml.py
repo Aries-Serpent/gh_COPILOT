@@ -55,7 +55,7 @@ class _TqdmStub:
 
 sys.modules.setdefault("tqdm", types.SimpleNamespace(tqdm=_TqdmStub))
 
-from monitoring import detect_anomalies
+from ghc_monitoring import detect_anomalies
 from unified_monitoring_optimization_system import (
     push_metrics,
     train_anomaly_model,

@@ -1,7 +1,7 @@
 from pathlib import Path
 import sqlite3
 
-from monitoring.baseline_anomaly_detector import BaselineAnomalyDetector
+from ghc_monitoring.baseline_anomaly_detector import BaselineAnomalyDetector
 
 
 def _create_db(db_path: Path) -> None:

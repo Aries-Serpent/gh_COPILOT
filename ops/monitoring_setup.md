@@ -13,7 +13,7 @@ alerts when failures occur.
 
 ## Health Checks
 
-Run `monitoring.service_health.run_health_checks` to poll the endpoints. Each
+Run `ghc_monitoring.service_health.run_health_checks` to poll the endpoints. Each
 result is stored in the `service_uptime` table of `analytics.db` for uptime
 analysis.
 
@@ -29,7 +29,7 @@ To verify alerts, simulate a failure:
 
 ```bash
 python - <<'PY'
-from monitoring.service_health import check_service
+from ghc_monitoring.service_health import check_service
 from web_gui.monitoring.alerting.notification_engine import NOTIFICATION_LOG, EMAIL_LOG, SMS_LOG
 check_service("sync_engine", "http://localhost:9/health")
 print(NOTIFICATION_LOG[-1])

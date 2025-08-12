@@ -1,10 +1,10 @@
-from quantum.quantum_compliance_engine import QuantumComplianceEngine
+from ghc_quantum.quantum_compliance_engine import QuantumComplianceEngine
 import pytest
 
 
 def test_ml_pattern_recognition(tmp_path, monkeypatch):
     monkeypatch.setattr(
-        "quantum.quantum_compliance_engine.validate_no_recursive_folders", lambda: None
+        "ghc_quantum.quantum_compliance_engine.validate_no_recursive_folders", lambda: None
     )
     target = tmp_path / "sample.txt"
     target.write_text("quantum compliance pattern pattern analysis quantum compliance")
@@ -20,7 +20,7 @@ def test_ml_pattern_recognition(tmp_path, monkeypatch):
 
 def test_score_uses_ml_when_no_patterns(tmp_path, monkeypatch):
     monkeypatch.setattr(
-        "quantum.quantum_compliance_engine.validate_no_recursive_folders", lambda: None
+        "ghc_quantum.quantum_compliance_engine.validate_no_recursive_folders", lambda: None
     )
     target = tmp_path / "sample.txt"
     target.write_text("quantum compliance pattern pattern analysis quantum")

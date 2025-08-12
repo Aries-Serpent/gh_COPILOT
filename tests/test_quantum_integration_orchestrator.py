@@ -30,7 +30,7 @@ def test_backend_initialization(monkeypatch):
     backend = object()
     provider_mock = MagicMock()
     provider_mock.return_value.get_backend.return_value = backend
-    monkeypatch.setattr("quantum.ibm_backend.IBMProvider", provider_mock)
+    monkeypatch.setattr("ghc_quantum.ibm_backend.IBMProvider", provider_mock)
     monkeypatch.setenv("QISKIT_IBM_TOKEN", "token")
     util = qio.EnterpriseUtility(use_hardware=True)
     assert util.use_hardware

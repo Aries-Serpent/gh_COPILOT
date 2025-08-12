@@ -10,8 +10,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from quantum.orchestration.executor import QuantumExecutor
-from quantum.orchestration.registry import get_global_registry
+from ghc_quantum.orchestration.executor import QuantumExecutor
+from ghc_quantum.orchestration.registry import get_global_registry
 
 
 class QuantumIntegrationOrchestrator:

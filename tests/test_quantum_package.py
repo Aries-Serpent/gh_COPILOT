@@ -6,14 +6,14 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from quantum.algorithms.base import QuantumAlgorithmBase
-from quantum.algorithms.expansion import QuantumLibraryExpansion
-from quantum.algorithms.functional import QuantumFunctional
-from quantum.algorithms.clustering import QuantumClustering
-from quantum.orchestration.registry import QuantumAlgorithmRegistry, get_global_registry
-from quantum.orchestration.executor import QuantumExecutor
-from quantum.utils.quantum_math import QuantumMath
-from quantum.utils.optimization import PerformanceOptimizer
+from ghc_quantum.algorithms.base import QuantumAlgorithmBase
+from ghc_quantum.algorithms.expansion import QuantumLibraryExpansion
+from ghc_quantum.algorithms.functional import QuantumFunctional
+from ghc_quantum.algorithms.clustering import QuantumClustering
+from ghc_quantum.orchestration.registry import QuantumAlgorithmRegistry, get_global_registry
+from ghc_quantum.orchestration.executor import QuantumExecutor
+from ghc_quantum.utils.quantum_math import QuantumMath
+from ghc_quantum.utils.optimization import PerformanceOptimizer
 
 
 class MockQuantumAlgorithm(QuantumAlgorithmBase):
@@ -65,7 +65,7 @@ class TestQuantumLibraryExpansion:
         expansion = QuantumLibraryExpansion()
         assert expansion.get_algorithm_name() == "Quantum Library Expansion"
 
-    @patch("quantum.algorithms.expansion.AerSimulator")
+    @patch("ghc_quantum.algorithms.expansion.AerSimulator")
     def test_grover_demo(self, mock_simulator):
         """Test Grover demonstration"""
         # Mock the quantum simulator
@@ -89,7 +89,7 @@ class TestQuantumFunctional:
         functional = QuantumFunctional()
         assert functional.get_algorithm_name() == "Quantum Functional Algorithms"
 
-    @patch("quantum.algorithms.functional.AerSimulator")
+    @patch("ghc_quantum.algorithms.functional.AerSimulator")
     def test_grover_search(self, mock_simulator):
         """Test Grover search algorithm"""
         # Mock the quantum simulator

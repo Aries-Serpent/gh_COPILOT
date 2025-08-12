@@ -1,7 +1,7 @@
 import numpy as np
 
-from quantum.optimizers.quantum_optimizer import QuantumOptimizer
-from quantum.optimizers import quantum_optimizer as qo
+from ghc_quantum.optimizers.quantum_optimizer import QuantumOptimizer
+from ghc_quantum.optimizers import quantum_optimizer as qo
 
 
 def test_run_falls_back_when_hardware_unavailable(monkeypatch):

@@ -42,7 +42,7 @@ def test_backup_and_restore(tmp_path, monkeypatch):
 
 
 def test_quantum_helpers(tmp_path, monkeypatch):
-    q_db = tmp_path / "quantum.db"
+    q_db = tmp_path / "ghc_quantum.db"
     _create_temp_db(q_db)
     monkeypatch.setitem(environment_migration.SUPPORTED_DATABASES, "quantum", q_db)
 

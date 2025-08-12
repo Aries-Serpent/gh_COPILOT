@@ -2,7 +2,7 @@
 """Utility wrappers for quantum functional algorithms."""
 from __future__ import annotations
 
-from quantum.algorithms.functional import QuantumFunctional
+from ghc_quantum.algorithms.functional import QuantumFunctional
 
 __all__ = [
     "run_grover_search",

@@ -21,8 +21,8 @@ def _stub_quantum_module(monkeypatch):
         SimpleNamespace(quantum_score_stub=_stub_score),
     )
 
-from monitoring import anomaly_detection_loop
-from monitoring.baseline_anomaly_detector import BaselineAnomalyDetector
+from ghc_monitoring import anomaly_detection_loop
+from ghc_monitoring.baseline_anomaly_detector import BaselineAnomalyDetector
 
 
 class DummyManager:
@@ -91,13 +91,13 @@ def test_anomaly_pipeline_triggers_heal_and_reports_metrics(monkeypatch, tmp_pat
         return [dict(metrics, anomaly_score=1.0, composite_score=1.0)]
 
     monkeypatch.setattr(
-        "monitoring.unified_monitoring_optimization_system.collect_metrics", fake_collect_metrics
+        "ghc_monitoring.unified_monitoring_optimization_system.collect_metrics", fake_collect_metrics
     )
     monkeypatch.setattr(
-        "monitoring.unified_monitoring_optimization_system.detect_anomalies", fake_detect
+        "ghc_monitoring.unified_monitoring_optimization_system.detect_anomalies", fake_detect
     )
     monkeypatch.setattr(
-        "monitoring.unified_monitoring_optimization_system.time.sleep", lambda _t: None
+        "ghc_monitoring.unified_monitoring_optimization_system.time.sleep", lambda _t: None
     )
     monkeypatch.setattr(BaselineAnomalyDetector, "_fetch_values", lambda self: [0.0])
 

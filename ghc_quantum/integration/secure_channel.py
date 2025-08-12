@@ -1,6 +1,6 @@
 """Integration utilities for quantum-encrypted communication."""
 
-from quantum.algorithms import QuantumEncryptedCommunication
+from ghc_quantum.algorithms import QuantumEncryptedCommunication
 from secondary_copilot_validator import SecondaryCopilotValidator
 
 

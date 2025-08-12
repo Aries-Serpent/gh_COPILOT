@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from quantum.orchestration.executor import QuantumExecutor
+from ghc_quantum.orchestration.executor import QuantumExecutor
 
 
 def main() -> None:

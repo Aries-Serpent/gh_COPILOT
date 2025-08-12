@@ -24,11 +24,11 @@ import numpy as np
 from sklearn.cluster import KMeans
 from tqdm import tqdm
 
-from quantum.advanced_quantum_algorithms import (
+from ghc_quantum.advanced_quantum_algorithms import (
     grover_search_qiskit,
     phase_estimation_qiskit,
 )
-from quantum.utils.backend_provider import get_backend
+from ghc_quantum.utils.backend_provider import get_backend
 
 ANALYTICS_DB = Path("databases/analytics.db")
 

@@ -13,7 +13,7 @@ from typing import List, Tuple
 from template_engine.auto_generator import TemplateAutoGenerator
 
 try:
-    from quantum.orchestration.executor import QuantumExecutor
+    from ghc_quantum.orchestration.executor import QuantumExecutor
 except Exception:  # pragma: no cover - optional quantum deps
     QuantumExecutor = None
 

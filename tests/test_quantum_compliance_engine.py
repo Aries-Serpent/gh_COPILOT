@@ -31,8 +31,8 @@ quantum_pkg = ModuleType("quantum")
 quantum_pkg.__path__ = [str(Path(__file__).resolve().parents[1] / "quantum")]
 sys.modules["quantum"] = quantum_pkg
 
-utils_pkg = ModuleType("quantum.utils")
-backend_provider = ModuleType("quantum.utils.backend_provider")
+utils_pkg = ModuleType("ghc_quantum.utils")
+backend_provider = ModuleType("ghc_quantum.utils.backend_provider")
 
 
 def get_backend(*args, **kwargs):
@@ -41,11 +41,11 @@ def get_backend(*args, **kwargs):
 
 backend_provider.get_backend = get_backend
 utils_pkg.backend_provider = backend_provider
-sys.modules["quantum.utils"] = utils_pkg
-sys.modules["quantum.utils.backend_provider"] = backend_provider
+sys.modules["ghc_quantum.utils"] = utils_pkg
+sys.modules["ghc_quantum.utils.backend_provider"] = backend_provider
 
 spec = util.spec_from_file_location(
-    "quantum.quantum_compliance_engine",
+    "ghc_quantum.quantum_compliance_engine",
     Path(__file__).resolve().parents[1] / "quantum" / "quantum_compliance_engine.py",
 )
 qce = util.module_from_spec(spec)

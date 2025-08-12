@@ -5,7 +5,7 @@ import logging
 from typing import Any, Dict, List
 
 
-from quantum.quantum_optimization import EnterpriseUtility
+from ghc_quantum.quantum_optimization import EnterpriseUtility
 
 
 class DummyTqdm:
@@ -41,8 +41,8 @@ def test_progress_logging(monkeypatch, caplog):
         bars.append(bar)
         return bar
 
-    monkeypatch.setattr("quantum.quantum_optimization.tqdm", dummy_tqdm)
-    monkeypatch.setattr("quantum.quantum_optimization.os.getpid", lambda: 1234)
+    monkeypatch.setattr("ghc_quantum.quantum_optimization.tqdm", dummy_tqdm)
+    monkeypatch.setattr("ghc_quantum.quantum_optimization.os.getpid", lambda: 1234)
 
     util = EnterpriseUtility()
 

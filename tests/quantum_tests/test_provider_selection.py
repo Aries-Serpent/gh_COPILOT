@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from quantum.framework import QuantumExecutor, SimulatorBackend
-from quantum.providers import ibm_provider
-from quantum.framework.backend import QuantumBackend
+from ghc_quantum.framework import QuantumExecutor, SimulatorBackend
+from ghc_quantum.providers import ibm_provider
+from ghc_quantum.framework.backend import QuantumBackend
 
 
 class _DummyBackend(QuantumBackend):

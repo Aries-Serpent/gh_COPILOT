@@ -3,7 +3,7 @@ import pytest
 pytest.importorskip("qiskit")
 pytest.importorskip("numpy")
 
-from quantum.integration import QuantumSecureChannel
+from ghc_quantum.integration import QuantumSecureChannel
 
 
 def test_round_trip_default_key():

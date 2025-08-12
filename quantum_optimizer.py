@@ -11,10 +11,10 @@ from utils.cross_platform_paths import CrossPlatformPathManager
 import os
 from pathlib import Path
 from utils.lessons_learned_integrator import fetch_lessons_by_tag
-from quantum.utils.backend_provider import get_backend
+from ghc_quantum.utils.backend_provider import get_backend
 
 from tqdm import tqdm
-from quantum.algorithms.base import TEXT_INDICATORS
+from ghc_quantum.algorithms.base import TEXT_INDICATORS
 
 logger = logging.getLogger(__name__)
 

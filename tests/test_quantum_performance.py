@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 import pytest
-from quantum import benchmarking
+from ghc_quantum import benchmarking
 
 
 def test_load_metrics_roundtrip() -> None:

@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 
-from quantum.ibm_backend import init_ibm_backend
+from ghc_quantum.ibm_backend import init_ibm_backend
 
 
 def test_init_backend_success(monkeypatch):
@@ -9,12 +9,12 @@ def test_init_backend_success(monkeypatch):
     provider.return_value.get_backend.return_value = backend
     monkeypatch.setenv("QISKIT_IBM_TOKEN", "token")
     monkeypatch.setenv("IBM_BACKEND", "backend")
-    monkeypatch.setattr("quantum.ibm_backend.IBMProvider", provider)
+    monkeypatch.setattr("ghc_quantum.ibm_backend.IBMProvider", provider)
     def _stub_get_backend_backend(name):
         return backend
 
     monkeypatch.setattr(
-        "quantum.ibm_backend.Aer", MagicMock(get_backend=_stub_get_backend_backend)
+        "ghc_quantum.ibm_backend.Aer", MagicMock(get_backend=_stub_get_backend_backend)
     )
     result, use_hw = init_ibm_backend()
     assert result is backend
@@ -28,7 +28,7 @@ def test_init_backend_no_token(monkeypatch):
         return simulator
 
     monkeypatch.setattr(
-        "quantum.ibm_backend.Aer", MagicMock(get_backend=_stub_get_backend_simulator)
+        "ghc_quantum.ibm_backend.Aer", MagicMock(get_backend=_stub_get_backend_simulator)
     )
     result, use_hw = init_ibm_backend()
     assert result is simulator

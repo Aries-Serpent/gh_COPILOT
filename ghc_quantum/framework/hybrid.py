@@ -39,7 +39,7 @@ def run_with_fallback(
     Returns
     -------
     Any
-        Result from quantum execution or classical fallback.
+        Result from ghc_quantum execution or classical fallback.
     """
 
     exec_ = executor or QuantumExecutor()
