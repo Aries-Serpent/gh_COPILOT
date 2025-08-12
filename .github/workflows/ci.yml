@@ -36,6 +36,9 @@ jobs:
           echo "VIRTUAL_ENV=${{ github.workspace }}/.venv" >> $GITHUB_ENV
           echo "PATH=${{ github.workspace }}/.venv/bin:$PATH" >> $GITHUB_ENV
 
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
       - uses: actions/setup-node@v3
         with:
           node-version: '20'
