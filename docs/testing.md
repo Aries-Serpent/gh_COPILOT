@@ -9,8 +9,9 @@ pytest tests/integration
 ```
 
 Compliance dashboards and monitoring hooks have dedicated regression
-tests under `tests/dashboard/` and `tests/monitoring/` to ensure score
-serialization and alerting remain stable.
+tests under `tests/dashboard/` and `tests/monitoring_tests/` to ensure score
+serialization and alerting remain stable. Quantum features are covered under
+`tests/quantum_tests/`.
 
 ## Safe Pytest Runner
 
