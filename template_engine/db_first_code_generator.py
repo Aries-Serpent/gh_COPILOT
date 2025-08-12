@@ -407,6 +407,17 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 template = self.generate(objective)
             _log_event(
                 {
+                    "event": "template_selected",
+                    "objective": objective,
+                    "template_snippet": template[:100],
+                    "requirement_map": {objective: template[:100]},
+                },
+                table="generator_events",
+                db_path=self.analytics_db,
+                test_mode=False,
+            )
+            _log_event(
+                {
                     "event": "integration_progress",
                     "phase": "template_selection",
                     "objective": objective,
@@ -418,7 +429,12 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 test_mode=False,
             )
             bar.update(1)
-            bar.set_postfix({"phase": "template_selection"})
+            bar.set_postfix(
+                {
+                    "phase": "template_selection",
+                    "eta": f"{bar.format_dict.get('remaining', 0):.1f}s",
+                }
+            )
 
             # Phase 2: token replacement
             stub = apply_tokens(
@@ -434,6 +450,17 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
             )
             _log_event(
                 {
+                    "event": "tokens_replaced",
+                    "objective": objective,
+                    "code_snippet": stub[:100],
+                    "requirement_map": {objective: stub[:100]},
+                },
+                table="generator_events",
+                db_path=self.analytics_db,
+                test_mode=False,
+            )
+            _log_event(
+                {
                     "event": "integration_progress",
                     "phase": "token_replacement",
                     "objective": objective,
@@ -445,7 +472,12 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 test_mode=False,
             )
             bar.update(1)
-            bar.set_postfix({"phase": "token_replacement"})
+            bar.set_postfix(
+                {
+                    "phase": "token_replacement",
+                    "eta": f"{bar.format_dict.get('remaining', 0):.1f}s",
+                }
+            )
 
             # Phase 3: file write
             path = Path(f"{objective}.py")
@@ -549,6 +581,12 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 test_mode=False,
             )
             bar.update(1)
+            bar.set_postfix(
+                {
+                    "phase": "file_write",
+                    "eta": f"{bar.format_dict.get('remaining', 0):.1f}s",
+                }
+            )
 
         return path
 
