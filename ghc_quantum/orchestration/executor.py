@@ -22,7 +22,7 @@ except Exception:  # pragma: no cover - optional dependency
     IBMProvider = None  # type: ignore  # noqa: F401
     HAS_IBM_PROVIDER = False
 
-from quantum.ibm_backend import init_ibm_backend
+from ghc_quantum.ibm_backend import init_ibm_backend
 
 from .registry import get_global_registry
 

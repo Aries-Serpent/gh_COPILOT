@@ -15,7 +15,7 @@ from pathlib import Path
 from time import perf_counter
 from typing import Iterable
 
-from monitoring.performance_tracker import benchmark_queries
+from ghc_monitoring.performance_tracker import benchmark_queries
 from db_tools.database_first_utils import ensure_db_reference
 from enterprise_modules.compliance import validate_enterprise_operation
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator

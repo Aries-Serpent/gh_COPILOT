@@ -2,11 +2,11 @@ import builtins
 import sqlite3
 from pathlib import Path
 
-from quantum.orchestration.executor import QuantumExecutor
-from quantum.orchestration import executor as qexec
-from quantum.orchestration.registry import register_algorithm
-from quantum.algorithms.base import QuantumAlgorithmBase
-from quantum.quantum_database_search import quantum_search_sql
+from ghc_quantum.orchestration.executor import QuantumExecutor
+from ghc_quantum.orchestration import executor as qexec
+from ghc_quantum.orchestration.registry import register_algorithm
+from ghc_quantum.algorithms.base import QuantumAlgorithmBase
+from ghc_quantum.quantum_database_search import quantum_search_sql
 
 
 class DummyAlgo(QuantumAlgorithmBase):

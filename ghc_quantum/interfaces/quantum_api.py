@@ -11,8 +11,8 @@ operation.
 
 from typing import Any, Dict
 
-from quantum.framework import QuantumExecutor
-from quantum.framework.circuit import QuantumCircuit
+from ghc_quantum.framework import QuantumExecutor
+from ghc_quantum.framework.circuit import QuantumCircuit
 
 
 def execute_quantum_task(task: Dict[str, Any]) -> Dict[str, Any]:

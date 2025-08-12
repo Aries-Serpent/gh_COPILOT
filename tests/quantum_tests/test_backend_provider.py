@@ -1,6 +1,6 @@
 import pytest
 
-from quantum.utils import backend_provider
+from ghc_quantum.utils import backend_provider
 
 
 class DummyBackend:

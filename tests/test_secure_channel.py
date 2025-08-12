@@ -7,7 +7,7 @@ quantum_pkg = ModuleType("quantum")
 quantum_pkg.__path__ = [str(Path(__file__).resolve().parents[1] / "quantum")]
 sys.modules["quantum"] = quantum_pkg
 
-algorithms_pkg = ModuleType("quantum.algorithms")
+algorithms_pkg = ModuleType("ghc_quantum.algorithms")
 
 
 class DummyQEC:
@@ -22,10 +22,10 @@ class DummyQEC:
 
 
 algorithms_pkg.QuantumEncryptedCommunication = DummyQEC
-sys.modules["quantum.algorithms"] = algorithms_pkg
+sys.modules["ghc_quantum.algorithms"] = algorithms_pkg
 
 spec = util.spec_from_file_location(
-    "quantum.integration.secure_channel",
+    "ghc_quantum.integration.secure_channel",
     Path(__file__).resolve().parents[1] / "quantum" / "integration" / "secure_channel.py",
 )
 qs = util.module_from_spec(spec)

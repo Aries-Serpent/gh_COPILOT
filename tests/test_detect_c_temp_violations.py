@@ -32,18 +32,18 @@ sys.modules.setdefault("qiskit", types.ModuleType("qiskit"))
 quantum_pkg = types.ModuleType("quantum")
 quantum_pkg.__path__ = [str(Path(__file__).resolve().parents[1] / "quantum")]
 sys.modules["quantum"] = quantum_pkg
-quantum_utils_pkg = types.ModuleType("quantum.utils")
+quantum_utils_pkg = types.ModuleType("ghc_quantum.utils")
 quantum_utils_pkg.__path__ = []
-sys.modules["quantum.utils"] = quantum_utils_pkg
-backend_provider_stub = types.ModuleType("quantum.utils.backend_provider")
+sys.modules["ghc_quantum.utils"] = quantum_utils_pkg
+backend_provider_stub = types.ModuleType("ghc_quantum.utils.backend_provider")
 backend_provider_stub.get_backend = lambda *args, **kwargs: None
-sys.modules["quantum.utils.backend_provider"] = backend_provider_stub
-algorithms_pkg = types.ModuleType("quantum.algorithms")
-algorithms_base = types.ModuleType("quantum.algorithms.base")
+sys.modules["ghc_quantum.utils.backend_provider"] = backend_provider_stub
+algorithms_pkg = types.ModuleType("ghc_quantum.algorithms")
+algorithms_base = types.ModuleType("ghc_quantum.algorithms.base")
 algorithms_base.TEXT_INDICATORS = {"progress": ""}
-sys.modules["quantum.algorithms"] = algorithms_pkg
-sys.modules["quantum.algorithms.base"] = algorithms_base
-qo = importlib.import_module("quantum.optimizers.quantum_optimizer")
+sys.modules["ghc_quantum.algorithms"] = algorithms_pkg
+sys.modules["ghc_quantum.algorithms.base"] = algorithms_base
+qo = importlib.import_module("ghc_quantum.optimizers.quantum_optimizer")
 
 
 def test_detect_c_temp_violations_docstring():

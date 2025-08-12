@@ -11,7 +11,7 @@ def test_import_has_no_logging_side_effect(tmp_path):
     original_handlers = root_logger.handlers.copy()
     original_level = root_logger.level
 
-    module_name = "quantum.quantum_compliance_engine"
+    module_name = "ghc_quantum.quantum_compliance_engine"
     sys.modules.pop(module_name, None)
     importlib.import_module(module_name)
 

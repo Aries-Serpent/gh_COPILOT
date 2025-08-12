@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from math import pi
 
-from quantum.utils.backend_provider import get_backend
+from ghc_quantum.utils.backend_provider import get_backend
 
 try:  # pragma: no cover - optional dependency
     from qiskit import QuantumCircuit, transpile

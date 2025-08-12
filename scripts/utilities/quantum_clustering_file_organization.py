@@ -18,7 +18,7 @@ while maintaining backward compatibility.
 import sys
 
 # Import from new modular package
-from quantum.algorithms.clustering import QuantumClustering, main
+from ghc_quantum.algorithms.clustering import QuantumClustering, main
 
 # Provide legacy alias for tests
 EnterpriseUtility = QuantumClustering

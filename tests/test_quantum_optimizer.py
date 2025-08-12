@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from unittest.mock import patch
 
-from quantum.optimizers.quantum_optimizer import QuantumOptimizer
+from ghc_quantum.optimizers.quantum_optimizer import QuantumOptimizer
 
 pytestmark = pytest.mark.timeout(60)
 
@@ -19,7 +19,7 @@ def test_simulated_annealing_runs():
 
 def test_set_backend_fallback(monkeypatch):
     monkeypatch.setattr(
-        "quantum.optimizers.quantum_optimizer.init_ibm_backend",
+        "ghc_quantum.optimizers.quantum_optimizer.init_ibm_backend",
         lambda **_: (object(), False),
         raising=False,
     )
@@ -32,7 +32,7 @@ def test_set_backend_fallback(monkeypatch):
 def test_set_backend_hardware(monkeypatch):
     backend = object()
     monkeypatch.setattr(
-        "quantum.optimizers.quantum_optimizer.init_ibm_backend",
+        "ghc_quantum.optimizers.quantum_optimizer.init_ibm_backend",
         lambda **_: (backend, True),
     )
     opt = QuantumOptimizer(lambda x: 0, [(0, 1)], use_hardware=True)
@@ -70,7 +70,7 @@ def test_simulated_annealing_uses_progress_bar():
         return np.sum((x - 1) ** 2)
 
     optimizer = QuantumOptimizer(obj, [(-2, 2), (-2, 2)], method="simulated_annealing")
-    with patch("quantum.optimizers.quantum_optimizer.tqdm") as mock_tqdm:
+    with patch("ghc_quantum.optimizers.quantum_optimizer.tqdm") as mock_tqdm:
         mock_tqdm.side_effect = lambda *args, **kwargs: args[0]
         optimizer.run(x0=np.array([0.0, 0.0]), max_iter=5)
         assert mock_tqdm.called
@@ -92,7 +92,7 @@ def test_basin_hopping_fallback_uses_progress_bar():
             raise ImportError
         return real_import(name, *args, **kwargs)
 
-    with patch("quantum.optimizers.quantum_optimizer.tqdm") as mock_tqdm, patch(
+    with patch("ghc_quantum.optimizers.quantum_optimizer.tqdm") as mock_tqdm, patch(
         "builtins.__import__", side_effect=fake_import
     ):
         mock_tqdm.side_effect = lambda *args, **kwargs: args[0]

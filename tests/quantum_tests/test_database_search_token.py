@@ -1,6 +1,6 @@
 import sqlite3
 
-from quantum import quantum_database_search as qdb
+from ghc_quantum import quantum_database_search as qdb
 
 
 class DummyCircuit:

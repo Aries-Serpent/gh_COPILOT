@@ -11,15 +11,15 @@ import pytest
 _quantum_pkg = types.ModuleType("quantum")
 sys.modules.setdefault("quantum", _quantum_pkg)
 _ibm_spec = importlib.util.spec_from_file_location(
-    "quantum.ibm_backend", Path(__file__).resolve().parents[1] / "quantum/ibm_backend.py"
+    "ghc_quantum.ibm_backend", Path(__file__).resolve().parents[1] / "quantum/ibm_backend.py"
 )
 _ibm = importlib.util.module_from_spec(_ibm_spec)
 _ibm_spec.loader.exec_module(_ibm)  # type: ignore[assignment]
-sys.modules["quantum.ibm_backend"] = _ibm
+sys.modules["ghc_quantum.ibm_backend"] = _ibm
 _quantum_pkg.ibm_backend = _ibm
 
 _spec = importlib.util.spec_from_file_location(
-    "quantum.optimizers.quantum_optimizer",
+    "ghc_quantum.optimizers.quantum_optimizer",
     Path(__file__).resolve().parents[1] / "quantum/optimizers/quantum_optimizer.py",
 )
 _module = importlib.util.module_from_spec(_spec)

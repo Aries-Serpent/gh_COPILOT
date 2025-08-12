@@ -3,8 +3,8 @@ from pathlib import Path
 
 import numpy as np
 
-from quantum.quantum_database_search import quantum_search_hybrid, quantum_search_sql
-from quantum.optimizers.quantum_optimizer import QuantumOptimizer
+from ghc_quantum.quantum_database_search import quantum_search_hybrid, quantum_search_sql
+from ghc_quantum.optimizers.quantum_optimizer import QuantumOptimizer
 
 
 def _setup_db(path: Path) -> None:

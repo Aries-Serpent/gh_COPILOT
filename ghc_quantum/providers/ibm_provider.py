@@ -7,7 +7,7 @@ import warnings
 from typing import Any
 
 from .base import BackendProvider
-from quantum.framework.backend import QuantumBackend, SimulatorBackend
+from ghc_quantum.framework.backend import QuantumBackend, SimulatorBackend
 
 try:  # pragma: no cover - optional dependency
     from qiskit_ibm_provider import IBMProvider  # type: ignore

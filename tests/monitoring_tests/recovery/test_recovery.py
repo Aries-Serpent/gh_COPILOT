@@ -1,6 +1,6 @@
 import sqlite3
 
-from monitoring.recovery import recover_system
+from ghc_monitoring.recovery import recover_system
 
 
 def test_recovers_db_disconnect(tmp_path):

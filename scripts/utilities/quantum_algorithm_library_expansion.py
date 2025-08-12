@@ -15,7 +15,7 @@ while maintaining backward compatibility.
 import sys
 
 # Import from new modular package
-from quantum.algorithms.expansion import QuantumLibraryExpansion as ModularQuantumLibraryExpansion, TEXT_INDICATORS
+from ghc_quantum.algorithms.expansion import QuantumLibraryExpansion as ModularQuantumLibraryExpansion, TEXT_INDICATORS
 
 # For backward compatibility, alias the new class
 EnterpriseUtility = ModularQuantumLibraryExpansion

@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from quantum.framework import QuantumExecutor, SimulatorBackend
-from quantum.providers import ibm_provider
-from quantum.models import QuantumModel
+from ghc_quantum.framework import QuantumExecutor, SimulatorBackend
+from ghc_quantum.providers import ibm_provider
+from ghc_quantum.models import QuantumModel
 
 try:  # pragma: no cover - optional demo model
-    from quantum.models import DemoModel
+    from ghc_quantum.models import DemoModel
 except Exception:  # noqa: BLE001 - broad for optional import
     DemoModel = None
 import pytest

@@ -2,8 +2,8 @@ import json
 import sqlite3
 from pathlib import Path
 
-from quantum.algorithms import QuantumEncryptedCommunication
-from quantum.quantum_database_search import quantum_secure_search
+from ghc_quantum.algorithms import QuantumEncryptedCommunication
+from ghc_quantum.quantum_database_search import quantum_secure_search
 
 
 def test_encryption_round_trip():

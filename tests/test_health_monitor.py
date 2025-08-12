@@ -2,7 +2,7 @@
 import sqlite3
 from pathlib import Path
 
-from monitoring.health_monitor import (
+from ghc_monitoring.health_monitor import (
     ensure_table,
     record_system_health,
     recent_average,

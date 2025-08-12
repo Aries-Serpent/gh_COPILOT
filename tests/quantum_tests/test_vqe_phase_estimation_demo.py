@@ -2,8 +2,8 @@
 
 import pytest
 
-from quantum.algorithms import phase_estimation_demo, vqe_demo
-from quantum.utils import backend_provider
+from ghc_quantum.algorithms import phase_estimation_demo, vqe_demo
+from ghc_quantum.utils import backend_provider
 
 
 class _FailingProvider:

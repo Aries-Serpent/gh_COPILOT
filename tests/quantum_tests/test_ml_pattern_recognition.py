@@ -1,4 +1,4 @@
-from quantum.ml_pattern_recognition import PatternRecognizer, load_production_data
+from ghc_quantum.ml_pattern_recognition import PatternRecognizer, load_production_data
 import pytest
 import sqlite3
 

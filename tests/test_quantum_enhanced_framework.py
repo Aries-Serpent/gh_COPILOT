@@ -29,7 +29,7 @@ def test_execute_with_fallback_uses_classical_when_disabled() -> None:
 
 
 def test_execute_with_fallback_handles_quantum_errors() -> None:
-    """Errors from quantum path should trigger classical fallback."""
+    """Errors from ghc_quantum path should trigger classical fallback."""
 
     framework = QuantumEnhancedFramework()
     framework.quantum_enabled = True

@@ -1,4 +1,4 @@
-from quantum.quantum_compliance_engine import QISKIT_AVAILABLE
+from ghc_quantum.quantum_compliance_engine import QISKIT_AVAILABLE
 from security.compliance_checker import ComplianceChecker
 
 

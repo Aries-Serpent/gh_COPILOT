@@ -3,8 +3,8 @@
 import pytest
 from qiskit_machine_learning.neural_networks import EstimatorQNN
 
-from quantum import benchmarking as benchmarking_module
-from quantum.benchmarking import benchmark_physics_engine, benchmark_qnn, load_metrics
+from ghc_quantum import benchmarking as benchmarking_module
+from ghc_quantum.benchmarking import benchmark_physics_engine, benchmark_qnn, load_metrics
 
 
 def test_load_metrics():

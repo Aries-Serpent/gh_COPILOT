@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Union
 
 from utils.log_utils import _log_event
-from quantum.algorithms import QuantumEncryptedCommunication
+from ghc_quantum.algorithms import QuantumEncryptedCommunication
 
 logger = logging.getLogger(__name__)
 DEFAULT_DB_PATH = Path(os.environ.get("QUANTUM_DB_PATH", "databases/quantum.db"))

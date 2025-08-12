@@ -2,7 +2,7 @@
 
 from ml_pattern_recognition import PatternRecognizer
 from utils.lessons_learned_integrator import fetch_lessons_by_tag
-from quantum.ml_pattern_recognition import (
+from ghc_quantum.ml_pattern_recognition import (
     PatternRecognizer as QuantumPatternRecognizer,
     load_production_data,
 )

@@ -5,7 +5,7 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
-from monitoring import compliance_monitor
+from ghc_monitoring import compliance_monitor
 from notifications import email, webhook
 
 

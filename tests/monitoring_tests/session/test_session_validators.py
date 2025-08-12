@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from monitoring.session_validators import (
+from ghc_monitoring.session_validators import (
     find_open_handles,
     log_is_complete,
     validate_session,

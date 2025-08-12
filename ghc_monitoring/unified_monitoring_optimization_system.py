@@ -1,10 +1,10 @@
 """Lightweight re-exports for monitoring utilities.
 
 This module exposes the anomaly detection helpers from
-``unified_monitoring_optimization_system`` inside the ``monitoring`` package.
+``unified_monitoring_optimization_system`` inside the ``ghc_monitoring`` package.
 It provides a thin wrapper around :func:`detect_anomalies` and
 :func:`anomaly_detection_loop` so consumers can import them using
-``from monitoring.unified_monitoring_optimization_system import ...``.
+``from ghc_monitoring.unified_monitoring_optimization_system import ...``.
 
 Only the two public helpers are exported via ``__all__``; other functions are
 re-exported solely for test purposes.

@@ -11,7 +11,7 @@ import logging
 
 import numpy as np
 from tqdm import tqdm
-from quantum.algorithms.base import TEXT_INDICATORS
+from ghc_quantum.algorithms.base import TEXT_INDICATORS
 
 try:  # pragma: no cover - import check
     from qiskit import Aer
@@ -29,7 +29,7 @@ except Exception:  # pragma: no cover - qiskit optional
     QISKIT_AVAILABLE = False
     Aer = Estimator = SparsePauliOp = TwoLocal = QAOA = VQE = COBYLA = None  # type: ignore
 
-from quantum.utils.backend_provider import get_backend
+from ghc_quantum.utils.backend_provider import get_backend
 
 
 def _log_violation(path: str) -> None:

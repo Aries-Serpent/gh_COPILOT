@@ -1,6 +1,6 @@
 # Monitoring Utilities
 
-The `monitoring` directory contains scripts for system health tracking and
+The `ghc_monitoring` directory contains scripts for system health tracking and
 continuous operation.
 
 - `continuous_operation_monitor.py` – logs uptime, load, and memory statistics to
@@ -47,8 +47,8 @@ background thread and writes to the database at regular intervals:
 from pathlib import Path
 import threading
 
-from monitoring.log_error_notifier import schedule_log_monitoring
-from monitoring.performance_tracker import schedule_metrics_push
+from ghc_monitoring.log_error_notifier import schedule_log_monitoring
+from ghc_monitoring.performance_tracker import schedule_metrics_push
 
 stop = threading.Event()
 schedule_log_monitoring([Path("app.log")], interval=60, stop_event=stop)
