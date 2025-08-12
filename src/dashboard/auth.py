@@ -46,31 +46,30 @@ def _check_rate_limit(identifier: str = "global", limit: int = 5, window: int = 
     events.append(now)
     _RATE_LIMIT[identifier] = events
 
+# Multi-factor authentication via TOTP
+try:  # pragma: no cover - optional dependency
+    import pyotp  # type: ignore
+except Exception:  # pragma: no cover - optional dependency
+    pyotp = None  # type: ignore
 
-def _check_mfa(token: str | None) -> None:
-    """Validate a user-provided TOTP code.
 
-    Parameters
-    ----------
-    token:
-        The one-time password supplied by the user.  The secret used to
-        validate the token is read from ``DASHBOARD_MFA_SECRET``.
+def _check_mfa(token: str) -> None:
+    """Validate a one-time token against the configured MFA secret.
+
+    The secret is read from the ``DASHBOARD_MFA_SECRET`` environment
+    variable. When the secret is not set, MFA checks are skipped. If the
+    ``pyotp`` package is unavailable while a secret is configured, a
+    ``RuntimeError`` is raised to highlight the missing dependency.
     """
-
-    if token is None:
-        raise ValueError("MFA token required")
 
     secret = os.environ.get("DASHBOARD_MFA_SECRET")
     if not secret:
-        raise ValueError("MFA secret not configured")
-
-    try:  # pragma: no cover - optional dependency
-        import pyotp
-    except Exception as exc:  # pragma: no cover - dependency issue
-        raise ValueError("pyotp library is required for MFA") from exc
-
+        return
+    _check_rate_limit("mfa")
+    if pyotp is None:
+        raise RuntimeError("pyotp package required for MFA")
     totp = pyotp.TOTP(secret)
-    if not totp.verify(token):
+    if not totp.verify(token, valid_window=1):
         raise ValueError("Invalid MFA token")
 
 
@@ -93,8 +92,8 @@ class SessionManager:
             session_timeout=session_timeout,
         )
 
-    def start_session(self, token: str, mfa_token: str | None = None) -> str:
-        """Start a session if both auth token and MFA code are valid."""
+    def start_session(self, token: str, mfa_token: str) -> str:
+        """Start a session if both the token and MFA code are valid."""
 
         _check_rate_limit("start_session")
         now = time.time()
@@ -107,9 +106,9 @@ class SessionManager:
                 self.lock_until = now + 60
                 raise ValueError("Too many failed attempts")
             raise ValueError("Invalid token")
+        _check_mfa(mfa_token)
         self.failed_attempts = 0
         self.lock_until = 0
-        _check_mfa(mfa_token)
         session_id = str(uuid.uuid4())
         csrf_token = secrets.token_hex(16)
         self.active_sessions[session_id] = _Session(

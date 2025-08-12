@@ -3,6 +3,10 @@ import time
 from pathlib import Path
 
 from flask import Flask, jsonify, request
+import pytest
+
+pytest.importorskip("pyotp")
+import pyotp
 
 from src.dashboard.auth import SessionManager
 from src.dashboard import auth
@@ -16,7 +20,8 @@ def create_app(summary_path: Path) -> Flask:
     @app.post("/login")
     def login() -> any:
         token = request.json.get("token", "")
-        session = manager.start_session(token)
+        mfa = request.json.get("mfa", "")
+        session = manager.start_session(token, mfa)
         return jsonify({"session": session})
 
     @app.get("/corrections")
@@ -32,8 +37,9 @@ def create_app(summary_path: Path) -> Flask:
 
 
 def test_dashboard_workflow(monkeypatch, tmp_path: Path) -> None:
+    secret = pyotp.random_base32()
     monkeypatch.setenv("DASHBOARD_AUTH_TOKEN", "secret")
-    monkeypatch.setattr(auth, "_check_mfa", lambda *_: None)
+    monkeypatch.setenv("DASHBOARD_MFA_SECRET", secret)
     summary = tmp_path / "correction_summary.json"
     summary.write_text(json.dumps({"corrections": [{"file_path": "file.py"}]}))
 
@@ -46,7 +52,9 @@ def test_dashboard_workflow(monkeypatch, tmp_path: Path) -> None:
     app = create_app(summary)
     client = app.test_client()
 
-    login_resp = client.post("/login", json={"token": "secret"})
+    login_resp = client.post(
+        "/login", json={"token": "secret", "mfa": pyotp.TOTP(secret).now()}
+    )
     assert login_resp.status_code == 200
     session_id = login_resp.get_json()["session"]
 
