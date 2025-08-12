@@ -48,8 +48,8 @@ extend-exclude = [
 ]
 
 extend-include = [
-    "quantum",
-    "scripts/utilities",
+    "quantum/",
+    "scripts/utilities/",
 ]
 
 [tool.ruff.lint]
