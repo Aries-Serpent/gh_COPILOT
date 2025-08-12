@@ -25,8 +25,9 @@ class IonQProvider(BackendProvider):
         self._backend: "QuantumBackend" | None = None
 
     def is_available(self) -> bool:
-        api_key = os.getenv("IONQ_API_KEY")
-        return _IonQProvider is not None and api_key is not None
+        """Return ``True`` when the IonQ SDK and credentials are present."""
+
+        return _IonQProvider is not None and bool(os.getenv("IONQ_API_KEY"))
 
     def _build_backend(self) -> "QuantumBackend":
         api_key = os.getenv("IONQ_API_KEY")
