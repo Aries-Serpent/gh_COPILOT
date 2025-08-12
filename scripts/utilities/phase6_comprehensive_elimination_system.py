@@ -793,7 +793,9 @@ class E501LineOptimizer:
             if len(parts) > 1:
                 indent = len(line) - len(line.lstrip())
                 return ' +\n'.join(
-    f"{' ' * indent if i == 0 else ' ' * (indent + 4)}{part}" for i, part in enumerate(parts))
+                    f"{' ' * indent if i == 0 else ' ' * (indent + 4)}{part}"
+                    for i, part in enumerate(parts)
+                )
 
         return line
 
@@ -808,9 +810,13 @@ class E501LineOptimizer:
                 if ',' in args:
                     arg_list = [arg.strip() for arg in args.split(',')]
                     indent = len(line) - len(line.lstrip())
-                    broken_args = ',\n'.join(f"{' ' * (indent + 4)}{arg}" for arg in arg_list)
+                    broken_args = ',\n'.join(
+                        f"{' ' * (indent + 4)}{arg}" for arg in arg_list
+                    )
                     return line.replace(
-    f"{func_name}({args})", f"{func_name}(\n{broken_args}\n{' ' * indent})")
+                        f"{func_name}({args})",
+                        f"{func_name}(\n{broken_args}\n{' ' * indent})"
+                    )
 
         return line
 
