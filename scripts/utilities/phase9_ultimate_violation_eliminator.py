@@ -504,9 +504,14 @@ class Phase9UltimateViolationEliminator:
             target_violations > 0 else 0
 
         print(f"   📈 Elimination Rate: {elimination_rate:.1f}%")
-        print(f"   # # 🎯 Status: {'ULTIMATE SUCCESS' if \
-            elimination_rate > 70 else 'EXCEPTIONAL SUCCES \
-                S' if elimination_rate > 50 else 'SIGNIFICANT PROGRESS'}")
+        status = (
+            "ULTIMATE SUCCESS"
+            if elimination_rate > 70
+            else "EXCEPTIONAL SUCCESS"
+            if elimination_rate > 50
+            else "SIGNIFICANT PROGRESS"
+        )
+        print(f"   # # 🎯 Status: {status}")
 
         # Save detailed report
         report_file = \

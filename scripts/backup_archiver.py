@@ -15,7 +15,6 @@ from enterprise_modules.compliance import (
     enforce_anti_recursion,
     pid_recursion_guard,
     validate_enterprise_operation,
-    pid_recursion_guard,
 )
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.validation_utils import anti_recursion_guard
