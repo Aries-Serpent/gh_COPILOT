@@ -7,6 +7,12 @@ line entry point.  Usage:
 python quantum_integration_orchestrator.py --provider <simulator|ibm|ionq|dwave>
 ```
 
+The entry point delegates backend construction to
+`quantum.providers.get_provider`.  Lightweight stubs in
+`quantum.providers.backends` (`IBMBackend`, `IonQBackend`, `DWaveBackend`)
+mirror vendor behaviour so the orchestration flow can be tested without
+installing hardware SDKs.
+
 ## Configuration
 
 Each provider relies on an environment token.  When the token is missing the

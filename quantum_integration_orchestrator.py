@@ -22,17 +22,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    from quantum.providers.dwave_provider import DWaveProvider
-    from quantum.providers.ibm_provider import IBMBackendProvider
-    from quantum.providers.ionq_provider import IonQProvider
-    from quantum.providers.simulator import SimulatorProvider
+    from quantum.providers import get_provider
 
-    provider_map = {
-        "simulator": SimulatorProvider(),
-        "ibm": IBMBackendProvider(),
-        "ionq": IonQProvider(),
-        "dwave": DWaveProvider(),
-    }
+    provider = get_provider(args.provider)
     token_env = {
         "ibm": "QISKIT_IBM_TOKEN",
         "ionq": "IONQ_API_KEY",
@@ -43,7 +35,7 @@ def main(argv: list[str] | None = None) -> int:
         if not os.getenv(env):
             parser.error(f"--provider {args.provider} requires {env} to be set")
 
-    backend = provider_map[args.provider].get_backend()
+    backend = provider.get_backend()
     util = EnterpriseUtility(backend=backend)
     success = util.execute_utility()
     return 0 if success else 1
