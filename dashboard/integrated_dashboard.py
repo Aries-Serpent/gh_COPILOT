@@ -23,6 +23,7 @@ from database_first_synchronization_engine import list_events
 from enterprise_modules.compliance import (
     calculate_compliance_score,
     get_latest_compliance_score,
+    validate_enterprise_operation,
 )
 from utils.validation_utils import calculate_composite_compliance_score
 from web_gui import middleware, security
@@ -196,6 +197,48 @@ def get_rollback_logs(limit: int = 10) -> list[dict[str, Any]]:
     except sqlite3.Error:
         pass
     return records
+
+
+def _compliance_payload() -> dict[str, Any]:
+    payload = {"metrics": _load_metrics(), "rollbacks": get_rollback_logs()}
+    payload["open_placeholders"] = 0
+    payload["todo_entries"] = []
+    payload["code_audit_log"] = []
+    payload["last_resolved"] = ""
+    if ANALYTICS_DB.exists():
+        validate_enterprise_operation(str(ANALYTICS_DB))
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            conn.row_factory = sqlite3.Row
+            try:
+                cur = conn.execute(
+                    "SELECT file_path, line_number, placeholder_type FROM todo_fixme_tracking WHERE status='open'"
+                )
+                rows = cur.fetchall()
+                payload["open_placeholders"] = len(rows)
+                payload["todo_entries"] = [
+                    {
+                        "file_path": r["file_path"],
+                        "line_number": r["line_number"],
+                        "placeholder_type": r["placeholder_type"],
+                    }
+                    for r in rows
+                ]
+                ts_row = conn.execute(
+                    "SELECT MAX(resolved_timestamp) FROM todo_fixme_tracking WHERE status='resolved'"
+                ).fetchone()
+                payload["last_resolved"] = ts_row[0] if ts_row and ts_row[0] else ""
+            except sqlite3.Error:
+                pass
+            try:
+                cur = conn.execute(
+                    "SELECT ts, summary FROM code_audit_log ORDER BY ts DESC LIMIT 10"
+                )
+                payload["code_audit_log"] = [
+                    {"ts": r[0], "summary": r[1]} for r in cur.fetchall()
+                ]
+            except sqlite3.Error:
+                pass
+    return payload
 
 
 def _load_sync_events(limit: int = 10) -> list[dict[str, Any]]:
@@ -375,7 +418,7 @@ def quantum_dashboard_view() -> str:
 
 @_dashboard.get("/dashboard/compliance")
 def dashboard_compliance() -> Any:
-    return jsonify({"metrics": _load_metrics(), "rollbacks": get_rollback_logs()})
+    return jsonify(_compliance_payload())
 
 
 @_dashboard.get("/dashboard/rollback")
