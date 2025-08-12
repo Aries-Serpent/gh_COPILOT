@@ -10,13 +10,22 @@ authors = [{name = "gh_COPILOT Team"}]
 requires-python = ">=3.8"
 dependencies = [
     "PyPDF2==3.0.1",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.23",
+    "pydantic>=2.6",
+    "typer[all]>=0.12",
 ]
 
 [project.scripts]
 final-enterprise-orchestrator = "copilot.orchestrators.final_enterprise_orchestrator:main"
 unified-deployment-orchestrator = "copilot.orchestrators.unified_deployment_orchestrator:main"
+gh-copilot = "gh_copilot.cli:app"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
+where = ["src"]
 exclude = ["scripts.quantum_placeholders"]
 
 [tool.ruff]

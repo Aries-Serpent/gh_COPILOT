@@ -18,6 +18,15 @@ archive/*.tar
 archive/*.tar.gz
 *.bak
 *.tmp
+# Additional tooling caches
+.dist/
+.build/
+.mypy_cache/
+.pyright/
+.ruff_cache/
+# Project artifacts
+artifacts/
+*.ndjson
 # Test artifacts
 tmp/
 # Git LFS temporary files
