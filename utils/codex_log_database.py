@@ -33,19 +33,30 @@ TABLE = "codex_session_log"
 
 
 def _ensure_db(db_path: Path) -> None:
-    db_path.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(db_path) as conn:
-        conn.execute(
-            f"""
-            CREATE TABLE IF NOT EXISTS {TABLE} (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                session_id TEXT,
-                timestamp TEXT NOT NULL,
-                action TEXT NOT NULL,
-                statement TEXT
-            );
-            """
-        )
+    """Ensure the Codex log database and table exist.
+
+    Raises:
+        RuntimeError: If the database cannot be created or initialised.
+    """
+
+    try:
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(db_path) as conn:
+            conn.execute(
+                f"""
+                CREATE TABLE IF NOT EXISTS {TABLE} (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    session_id TEXT,
+                    timestamp TEXT NOT NULL,
+                    action TEXT NOT NULL,
+                    statement TEXT
+                );
+                """
+            )
+    except (OSError, sqlite3.DatabaseError) as exc:
+        raise RuntimeError(
+            f"Failed to initialise Codex log database at {db_path}: {exc}"
+        ) from exc
 
 
 @anti_recursion_guard
@@ -58,14 +69,18 @@ def log_codex_event(
 ) -> None:
     """Log a Codex action and associated statement."""
 
-    _ensure_db(db_path)
-    ts = datetime.utcnow().isoformat()
-    with sqlite3.connect(db_path) as conn:
-        conn.execute(
-            f"INSERT INTO {TABLE} (session_id, timestamp, action, statement) VALUES (?, ?, ?, ?)",
-            (session_id, ts, action, statement),
-        )
-        count = conn.execute(f"SELECT COUNT(*) FROM {TABLE}").fetchone()[0]
+    try:
+        _ensure_db(db_path)
+        ts = datetime.utcnow().isoformat()
+        with sqlite3.connect(db_path) as conn:
+            conn.execute(
+                f"INSERT INTO {TABLE} (session_id, timestamp, action, statement) VALUES (?, ?, ?, ?)",
+                (session_id, ts, action, statement),
+            )
+            count = conn.execute(f"SELECT COUNT(*) FROM {TABLE}").fetchone()[0]
+    except sqlite3.DatabaseError as exc:  # pragma: no cover - defensive
+        raise RuntimeError(f"Failed to log Codex event: {exc}") from exc
+
     log_message("codex_log_db", f"Logged action '{action}' (total records: {count})")
 
 
@@ -74,15 +89,19 @@ def fetch_codex_events(
 ) -> List[Dict[str, str]]:
     """Return codex log entries optionally filtered by session."""
 
-    _ensure_db(db_path)
-    query = f"SELECT session_id, timestamp, action, statement FROM {TABLE}"
-    params: List[str] = []
-    if session_id is not None:
-        query += " WHERE session_id = ?"
-        params.append(session_id)
-    with sqlite3.connect(db_path) as conn:
-        conn.row_factory = sqlite3.Row
-        rows = conn.execute(query, params).fetchall()
+    try:
+        _ensure_db(db_path)
+        query = f"SELECT session_id, timestamp, action, statement FROM {TABLE}"
+        params: List[str] = []
+        if session_id is not None:
+            query += " WHERE session_id = ?"
+            params.append(session_id)
+        with sqlite3.connect(db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(query, params).fetchall()
+    except sqlite3.DatabaseError as exc:  # pragma: no cover - defensive
+        raise RuntimeError(f"Failed to fetch Codex events: {exc}") from exc
+
     return [dict(r) for r in rows]
 
 

@@ -107,6 +107,7 @@ class SessionManager:
                 self.lock_until = now + 60
                 raise ValueError("Too many failed attempts")
             raise ValueError("Invalid token")
+        _check_mfa(mfa_token)
         self.failed_attempts = 0
         self.lock_until = 0
         _check_mfa(mfa_token)
