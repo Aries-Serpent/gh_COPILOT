@@ -1,81 +1,33 @@
 [build-system]
-requires = ["setuptools>=65", "wheel"]
+requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "copilot"
-version = "0.1.0"
-description = "Reusable modules and orchestrators for gh_COPILOT"
-authors = [{name = "gh_COPILOT Team"}]
-requires-python = ">=3.8"
+name = "gh-copilot"
+version = "0.0.1"
+description = "gh_COPILOT DB-first skeleton (DAO, FastAPI, Typer, migrations)"
+authors = [{name="Aries Serpent", email="devnull@example.com"}]
+requires-python = ">=3.11"
 dependencies = [
-    "PyPDF2==3.0.1",
+  "fastapi>=0.110",
+  "uvicorn[standard]>=0.23",
+  "pydantic>=2.6",
+  "typer[all]>=0.12",
 ]
 
 [project.scripts]
-final-enterprise-orchestrator = "copilot.orchestrators.final_enterprise_orchestrator:main"
-unified-deployment-orchestrator = "copilot.orchestrators.unified_deployment_orchestrator:main"
-
-[tool.setuptools.packages.find]
-exclude = ["scripts.quantum_placeholders"]
+gh-copilot = "gh_copilot.cli:app"
 
 [tool.ruff]
-target-version = "py38"
-line-length = 120
+line-length = 100
+select = ["E","F","I","UP","B","COM","Q","RUF"]
+ignore = ["E501"]
 
-extend-exclude = [
-    ".git",
-    "__pycache__",
-    "archive",
-    "archives",
-    "build",
-    "builds",
-    "deployment/deployment_package_*/*",
-    "deployment_package_*",
-    "databases/*.db",
-    "*.log",
-    "misc",
-    "scripts/enterprise/*",
-    "scripts/optimization/*",
-    "scripts/quantum_placeholders/*",
-    "copilot_qiskit_stubs/*",
-    "db_tools/*",
-    "enterprise_modules/*",
-    "quantum_optimizer.py",
-    "databases/*.db",
-    "*.log",
-    "recovered_files_*",
-]
+[tool.pyright]
+include = ["src"]
+pythonVersion = "3.11"
+typeCheckingMode = "standard"
 
-extend-include = [
-    "quantum/",
-    "scripts/utilities/",
-]
+[tool.setuptools.packages.find]
+where = ["src"]
 
-[tool.ruff.lint]
-select = ["E", "F", "I"]
-extend-ignore = ["F541", "F841"]
-ignore = ["I001", "E402", "E501"]
-
-[tool.flake8]
-max-line-length = 120
-extend-ignore = ["E203", "W503"]
-exclude = [
-    ".git",
-    "__pycache__",
-    "archive",
-    "archives",
-    "build",
-    "builds",
-    "deployment/deployment_package_*/*",
-    "deployment_package_*",
-    "databases/*.db",
-    "*.log",
-    "scripts/enterprise/*",
-    "scripts/optimization/*",
-    "scripts/quantum_placeholders/*",
-    "copilot_qiskit_stubs/*",
-    "db_tools/*",
-    "enterprise_modules/*",
-    "quantum_optimizer.py",
-]

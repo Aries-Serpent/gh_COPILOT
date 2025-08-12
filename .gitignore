@@ -1,36 +1,17 @@
-/logs/human_logs
-databases/enterprise_assets.db
-/databases/*.db-shm
-/databases/*.db-wal
-.venv/
-# Python bytecode
+# Python
 __pycache__/
 *.pyc
-target/
-Cargo.lock
+.venv/
 
-# Ignore runtime logs
-logs/**
-# Backup archives
-archive/*.7z
-archive/*.zip
-archive/*.tar
-archive/*.tar.gz
-*.bak
-*.tmp
-# Test artifacts
-tmp/
-# Git LFS temporary files
-*.lfs.tmp
-*.lfs.lock
+# Local DB / artifacts
+*.db
+artifacts/
+*.ndjson
 
-databases/analytics.db
-databases/*.db
-!databases/codex_log.db
-!databases/codex_session_logs.db
-!databases/codex_logs.db
-databases/*.zip
-analytics.db
-database_cleanup.log
-artifacts/logs/
-.coverage*
+# Build
+.dist/
+.build/
+.mypy_cache/
+.pyright/
+.ruff_cache/
+
