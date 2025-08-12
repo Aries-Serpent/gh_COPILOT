@@ -1,166 +1,223 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail
-IFS=$'\n\t'
+set -euo pipefail
 
-# ==== Config (patterns fixed by requirement) ====
-INCLUDE_PATTERNS="*.zip,*.db"
+# Git LFS — Full History Migration (ZIP & DB)
+# Rewrites all refs so *.zip and *.db are stored as Git LFS pointers.
+# Creates a pre-migration tag + bundle for rollback, verifies results,
+# and (optionally) force-pushes with --force-with-lease upon explicit consent.
 
-# ==== Helpers ====
-die() { echo "ERROR: $*" >&2; exit 1; }
+############################################
+# Config
+############################################
+INCLUDE_PATTERNS="${INCLUDE_PATTERNS:-*.zip,*.db}"  # fixed scope per requirement
+REMOTE="${REMOTE:-origin}"                           # override with REMOTE=upstream ./script.sh
+ART_DIR_REL=".git/lfs-migration"                    # artifacts inside repo
+CONSENT_WORD="${CONSENT_WORD:-CONFIRM}"             # change if you prefer another consent token
+
+############################################
+# Helpers
+############################################
+die()  { echo "ERROR: $*" >&2; exit 1; }
 note() { echo "[INFO] $*"; }
 warn() { echo "[WARN] $*" >&2; }
+ts()   { date +"%Y%m%d%H%M%S"; }
 
-require_cmd() {
+need() {
   command -v "$1" >/dev/null 2>&1 || die "Missing required command: $1"
 }
 
-timestamp() { date +"%Y%m%d%H%M%S"; }
-
 repo_root() {
-  git rev-parse --show-toplevel 2>/dev/null || die "Not inside a Git repo."
+  git rev-parse --show-toplevel 2>/dev/null || die "Not inside a Git repository"
 }
 
-# ==== Preflight ====
-require_cmd git
-require_cmd git-lfs
+symbolic_success_check() {
+  # Symbolic condition (documentation only)
+  # Success S = T ∧ M ∧ V ∧ P ∧ B, where:
+  # T: .gitattributes tracks *.zip, *.db
+  # M: git lfs migrate import completed across --everything
+  # V: Verification: lfs ls-files and lfs fsck pass
+  # P: Rewritten refs pushed w/ --force-with-lease (after consent)
+  # B: Backup tag + bundle created before rewrite
+  :
+}
 
-note "git: $(git --version)"
-note "git-lfs: $(git lfs version || true)"
+############################################
+# Preflight
+############################################
+need git
+need git-lfs
+
+note "git version     : $(git --version)"
+note "git-lfs version : $(git lfs version || true)"
 
 ROOT="$(repo_root)"
 cd "$ROOT"
 
-# Working tree must be clean
+# Ensure clean working tree
 if ! git diff --quiet || ! git diff --cached --quiet; then
-  die "Working tree is not clean. Commit or stash changes first."
+  die "Working tree not clean. Commit/stash changes and retry."
 fi
 
-# Identify remote & default branch
-REMOTE="${REMOTE:-origin}"
+# Remote + default branch detection
 if ! git remote get-url "$REMOTE" >/dev/null 2>&1; then
-  die "Remote '$REMOTE' not found. Set REMOTE env var or add a remote named 'origin'."
+  die "Remote '$REMOTE' not found. Specify REMOTE=<name> or create a remote named 'origin'."
 fi
 REMOTE_URL="$(git remote get-url "$REMOTE")"
-DEFAULT_BRANCH="$(git symbolic-ref --short refs/remotes/$REMOTE/HEAD 2>/dev/null | sed "s#^$REMOTE/##" || true)"
-if [[ -z "${DEFAULT_BRANCH}" ]]; then
-  # Fallback to current branch
+DEFAULT_BRANCH="$(git symbolic-ref --short "refs/remotes/$REMOTE/HEAD" 2>/dev/null | sed "s#^$REMOTE/##" || true)"
+if [[ -z "$DEFAULT_BRANCH" ]]; then
   DEFAULT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 fi
 
-note "Repository root: $ROOT"
-note "Remote: $REMOTE ($REMOTE_URL)"
-note "Default branch: $DEFAULT_BRANCH"
+note "Repository root  : $ROOT"
+note "Remote           : $REMOTE ($REMOTE_URL)"
+note "Default branch   : $DEFAULT_BRANCH"
+note "Include patterns : $INCLUDE_PATTERNS"
 
-# Paths
-ART_DIR="$ROOT/.git/lfs-migration"
+############################################
+# Artifact paths
+############################################
+ART_DIR="$ROOT/$ART_DIR_REL"
 mkdir -p "$ART_DIR"
 PLAN_LOG="$ART_DIR/plan.log"
 INFO_LOG="$ART_DIR/info.log"
 MIGRATE_LOG="$ART_DIR/migrate.log"
+LSFILES_LOG="$ART_DIR/ls-files.txt"
 
-# Tag & bundle (pre-migration)
-TAG="pre-lfs-migration-$(timestamp)"
+TAG="pre-lfs-migration-$(ts)"
 BUNDLE="../$(basename "$ROOT")-pre-lfs.bundle"
 
-# Record plan
+############################################
+# Record Plan
+############################################
 {
   echo "Plan @ $(date -Iseconds)"
-  echo " - Include patterns: $INCLUDE_PATTERNS"
   echo " - Remote: $REMOTE ($REMOTE_URL)"
   echo " - Default branch: $DEFAULT_BRANCH"
-  echo " - Tag to create: $TAG"
+  echo " - Include: $INCLUDE_PATTERNS"
+  echo " - Pre-migration tag: $TAG"
   echo " - Bundle path: $BUNDLE"
+  echo " - Artifacts dir: $ART_DIR_REL"
 } | tee "$PLAN_LOG"
 
-# Ensure LFS installed and tracking rules exist
+############################################
+# Ensure LFS filters + tracking rules
+############################################
 note "Installing/updating Git LFS filters…"
 git lfs install
 
 ATTR_CHANGED=0
-if ! grep -qE '^\*\.zip\b' .gitattributes 2>/dev/null; then
+touch .gitattributes
+
+# Ensure exactly one rule per pattern (idempotent)
+if ! grep -qE '^\*\.zip\b.*filter=lfs' .gitattributes; then
   echo '*.zip filter=lfs diff=lfs merge=lfs -text' >> .gitattributes
   ATTR_CHANGED=1
 fi
-if ! grep -qE '^\*\.db\b' .gitattributes 2>/dev/null; then
+if ! grep -qE '^\*\.db\b.*filter=lfs' .gitattributes; then
   echo '*.db  filter=lfs diff=lfs merge=lfs -text' >> .gitattributes
   ATTR_CHANGED=1
 fi
+
 if [[ $ATTR_CHANGED -eq 1 ]]; then
   git add .gitattributes
   git commit -m "chore(lfs): track *.zip and *.db via Git LFS"
-  note ".gitattributes updated and committed."
+  note ".gitattributes updated."
 else
-  note ".gitattributes already tracks *.zip and *.db"
+  note ".gitattributes already tracks patterns."
 fi
 
-# Create pre-migration tag and bundle for rollback
+############################################
+# Safety: pre-migration tag + bundle
+############################################
 note "Creating pre-migration tag: $TAG"
 git tag "$TAG"
 
-note "Creating pre-migration bundle at: $BUNDLE"
+note "Creating pre-migration bundle: $BUNDLE"
 git bundle create "$BUNDLE" --all
 
-# Dry information (no rewrite)
-note "Collecting migrate info (no rewrite)…"
+############################################
+# Dry Info (no rewrite)
+############################################
+note "Collecting migrate info across all refs…"
 git lfs migrate info --everything | tee "$INFO_LOG"
 
-# Perform migration (history rewrite across all refs)
-note "Running full history migration to LFS… this may take a while."
+############################################
+# Full History Migration
+############################################
+note "Running full history migration to LFS for: $INCLUDE_PATTERNS"
 # shellcheck disable=SC2086
 git lfs migrate import --everything --include="$INCLUDE_PATTERNS" | tee "$MIGRATE_LOG"
 
+############################################
 # Verification
-note "Verifying LFS pointers exist for target patterns…"
-git lfs ls-files | tee "$ART_DIR/ls-files.txt" >/dev/null
-if ! grep -E '\.(zip|db)$' "$ART_DIR/ls-files.txt" >/dev/null; then
-  warn "No *.zip/*.db files appear in git lfs ls-files output. Check patterns or repository contents."
+############################################
+note "Verifying LFS pointers for target extensions…"
+git lfs ls-files | tee "$LSFILES_LOG" >/dev/null || true
+if ! grep -E '\.(zip|db)$' "$LSFILES_LOG" >/dev/null 2>&1; then
+  warn "No *.zip/*.db appear in 'git lfs ls-files'. If your repo truly contains none, this is OK."
 fi
 
-note "Running git lfs fsck…"
+note "Running 'git lfs fsck'…"
 git lfs fsck
 
-# Show push plan
+############################################
+# Push Plan + Consent Gate
+############################################
 note "Push plan:"
-echo "  - Push all branches: git push $REMOTE --all --force-with-lease"
-echo "  - Push all tags:     git push $REMOTE --tags --force-with-lease"
+echo "  - Branches: git push $REMOTE --all --force-with-lease"
+echo "  - Tags    : git push $REMOTE --tags --force-with-lease"
 
-# Consent gate
 echo
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-echo "Type CONFIRM to push rewritten history with --force-with-lease, or anything"
-echo "else to ABORT now. Your pre-migration backup is: $BUNDLE ; tag: $TAG"
+echo "Type $CONSENT_WORD to push rewritten history with --force-with-lease,"
+echo "or press <Enter> (or anything else) to ABORT now."
+echo "Backup bundle: $BUNDLE"
+echo "Tag          : $TAG"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-read -r ANSWER
-if [[ "$ANSWER" != "CONFIRM" ]]; then
-  echo "ABORTED by user. To rollback later, see instructions below."
+read -r ANSWER || true
+if [[ "${ANSWER:-}" != "$CONSENT_WORD" ]]; then
+  echo "ABORTED by user before push."
   echo
-  echo "Rollback (from bundle):"
+  echo "Rollback (from bundle) if ever needed:"
   echo "  mkdir ../restore && cd ../restore"
   echo "  git clone \"$BUNDLE\" restored-repo"
   echo "  cd restored-repo && git remote add origin \"$REMOTE_URL\""
-  echo "  # Coordinate with your team before force-pushing the pre-migration state."
+  echo "  # Coordinate before force-pushing the pre-migration state."
   exit 0
 fi
 
-# Push rewritten refs
-note "Pushing all branches with --force-with-lease…"
+############################################
+# Force-with-lease Push (branches + tags)
+############################################
+note "Pushing all branches…"
 git push "$REMOTE" --all --force-with-lease
-note "Pushing all tags with --force-with-lease…"
+note "Pushing all tags…"
 git push "$REMOTE" --tags --force-with-lease
 
-# Post-migration checklist
+############################################
+# Post-Migration Checklist
+############################################
 cat <<'POST'
 ===============================================================================
 Post-Migration Checklist
-1) Protect branches: verify branch protections after rewrite.
+1) Branch protections:
+   - Re-validate protected-branch rules after rewrite.
+
 2) Fresh clone test (recommended):
      GIT_LFS_SKIP_SMUDGE=1 git clone --filter=blob:none <repo-url> test-clone
      cd test-clone && git lfs pull
-3) Verify LFS content availability:
+
+3) Validate LFS content availability:
      git lfs ls-files | wc -l
      git lfs fsck
-4) Inform collaborators to rebase or reclone due to history rewrite.
-5) Keep backup bundle safe: ../<repo-name>-pre-lfs.bundle
+
+4) Team coordination:
+   - Inform collaborators they must rebase or reclone due to history rewrite.
+
+5) Keep backups:
+   - Preserve bundle and tag:
+       Bundle: ../<repo-name>-pre-lfs.bundle
+       Tag   : pre-lfs-migration-YYYYMMDDHHMMSS
 ===============================================================================
 POST
 
