@@ -48,6 +48,7 @@ class DatabaseFirstCopilotEnhancer:
             if self.production_db.exists():
                 validate_enterprise_operation(str(self.production_db))
                 try:
+                    validate_enterprise_operation(str(self.production_db))
                     with sqlite3.connect(self.production_db) as conn:
                         conn.execute(
                             "CREATE TABLE IF NOT EXISTS templates (name TEXT PRIMARY KEY, template_content TEXT)"
@@ -94,7 +95,7 @@ class DatabaseFirstCopilotEnhancer:
         return engine
 
     def _query_database_solutions(self, objective: str) -> List[Tuple[str, float]]:
-        """Return code snippets with similarity scores ranked by relevance."""
+        """Return code snippets and scores ranked by similarity to ``objective``."""
         if not self.production_db.exists():
             return []
         validate_enterprise_operation(str(self.production_db))
@@ -102,7 +103,7 @@ class DatabaseFirstCopilotEnhancer:
         scores: List[Tuple[int, float]] = compute_similarity_scores(
             objective, production_db=self.production_db, analytics_db=self.analytics_db
         )
-        ranked: List[Tuple[str, float]] = []
+        results: List[Tuple[str, float]] = []
         with sqlite3.connect(self.production_db) as conn:
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS similarity_scores (objective TEXT, template_id INTEGER, score REAL)"
@@ -118,8 +119,8 @@ class DatabaseFirstCopilotEnhancer:
                     "SELECT template_code FROM code_templates WHERE id=?", (tid,)
                 ).fetchone()
                 if row:
-                    ranked.append((row[0], score))
-        return ranked
+                    results.append((row[0], score))
+        return results
 
     def _find_template_matches(self, objective: str) -> str:
         return self.template_engine(objective)
@@ -129,21 +130,23 @@ class DatabaseFirstCopilotEnhancer:
         return template.replace("{workspace}", str(self.workspace))
 
     def _calculate_confidence(self, solutions: List[Tuple[str, float]]) -> float:
+        """Return confidence based on highest similarity score."""
         if not solutions:
             return 0.0
-        top_score = max(score for _, score in solutions)
-        return min(1.0, float(top_score))
+        max_score = max(score for _code, score in solutions)
+        return float(max(0.0, min(1.0, max_score)))
 
     def query_before_filesystem(self, objective: str) -> Dict[str, Any]:
         """Query database before using filesystem templates."""
-        solutions = self._query_database_solutions(objective)
+        scored = self._query_database_solutions(objective)
+        solutions = [code for code, _ in scored]
         template = self._find_template_matches(objective)
         adapted = self._adapt_to_current_environment(template)
         codes = [code for code, _ in solutions]
         return {
             "database_solutions": codes,
             "template_code": adapted,
-            "confidence_score": self._calculate_confidence(solutions),
+            "confidence_score": self._calculate_confidence(scored),
             "integration_ready": True,
         }
 

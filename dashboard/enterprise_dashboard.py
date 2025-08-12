@@ -4,6 +4,7 @@ import json
 import time
 from pathlib import Path
 import sqlite3
+import threading
 from typing import Any, Callable, Dict, List
 import queue
 import threading
@@ -42,11 +43,12 @@ try:  # pragma: no cover - dashboard features are optional in tests
         _load_sync_events as _real_load_sync_events,
         _compliance_payload as _real_compliance_payload,
         METRICS_FILE as _METRICS_FILE,
+        _load_compliance_payload as _real_load_compliance_payload,
     )
     _load_metrics = cast(Any, _real_load_metrics)
     get_rollback_logs = cast(Any, _real_get_rollback_logs)
     _load_sync_events = cast(Any, _real_load_sync_events)
-    _compliance_payload = cast(Any, _real_compliance_payload)
+    _load_compliance_payload = cast(Any, _real_load_compliance_payload)
 except Exception:  # pragma: no cover - provide fallbacks
 
     class _DummyApp:
@@ -182,16 +184,15 @@ def load_code_quality_metrics(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
     return metrics
 
 
-@app.route("/dashboard/compliance")
-def dashboard_compliance() -> str:
+@app.route("/dashboard/compliance/view")
+def dashboard_compliance_view() -> str:
     """Render compliance metrics from analytics.db."""
-    data = _compliance_payload()
+    data = _load_compliance_payload()
     return render_template(
         "compliance.html",
-        placeholders=data.get("open_placeholders", 0),
+        placeholders=data.get("placeholders_open", 0),
         last_resolved=data.get("last_resolved", ""),
-        audit_logs=data.get("code_audit_log", []),
-        todo_entries=data.get("todo_entries", []),
+        audit_logs=data.get("audit_log", []),
     )
 
 
