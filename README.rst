@@ -629,6 +629,27 @@ The script rebuilds `.gitattributes` from `gitattributes_template`, adds any
 missing patterns for session archives and `binary_extensions`, and should be run
 before committing policy changes.
 
+Troubleshooting Git LFS pointer errors
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If `git` reports::
+
+   Encountered N files that should have been pointers, but weren't
+
+some binaries were committed without Git LFS. Recover by migrating the files and
+retrofitting LFS tracking:
+
+1. ``git lfs migrate import --yes --no-rewrite <path-to-zip>``
+2. ``git push``
+3. ``git gc --prune=now``
+4. ``git lfs track "*.zip"`` and ``git add .gitattributes``
+5. ``git rm --cached <file>.zip && git add <file>.zip``
+6. ``git commit -m "fix: track zip via Git LFS"``
+
+Verify with ``git lfs ls-files`` or ``git lfs status``. See GitHub's
+`LFS configuration guide <https://docs.github.com/en/github/managing-large-files/configuring-git-large-file-storage>`_
+for additional details.
+
 Docker Usage
 ^^^^^^^^^^^^
 

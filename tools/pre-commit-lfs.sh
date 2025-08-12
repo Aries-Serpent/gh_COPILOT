@@ -36,4 +36,25 @@ if [ -n "$untracked_db_files" ]; then
   exit 1
 fi
 
+# Collect staged .zip files
+staged_zip_files=$(git diff --cached --name-only -- '*.zip')
+
+# Verify each staged .zip file is managed by Git LFS
+for f in $staged_zip_files; do
+  if ! git lfs ls-files | grep -Fq " $f"; then
+    echo "Error: $f is a .zip file not tracked by Git LFS" >&2
+    echo "Run 'git lfs track \"*.zip\"' and re-add the file." >&2
+    exit 1
+  fi
+done
+
+# Check for untracked .zip files in working tree
+untracked_zip_files=$(git ls-files --others --exclude-standard '*.zip')
+if [ -n "$untracked_zip_files" ]; then
+  echo "Error: Untracked .zip file(s) found:" >&2
+  echo "$untracked_zip_files" >&2
+  echo "Ensure they are added and tracked by Git LFS." >&2
+  exit 1
+fi
+
 exit 0
