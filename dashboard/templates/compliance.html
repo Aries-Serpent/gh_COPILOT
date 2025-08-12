@@ -7,6 +7,15 @@
 <h1>Compliance Overview</h1>
 <p>Open placeholders: {{ placeholders }}</p>
 <p>Last resolved: {{ last_resolved or 'N/A' }}</p>
+<h2>Open Placeholder Entries</h2>
+<ul>
+    {% for item in todo_entries %}
+    <li>{{ item.file_path }}:{{ item.line_number }} - {{ item.placeholder_type }}</li>
+    {% endfor %}
+    {% if not todo_entries %}
+    <li>No open placeholders</li>
+    {% endif %}
+</ul>
 <h2>Recent Audit Logs</h2>
 <ul>
     {% for log in audit_logs %}

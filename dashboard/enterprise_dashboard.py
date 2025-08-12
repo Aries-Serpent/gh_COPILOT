@@ -4,13 +4,11 @@ import json
 import time
 from pathlib import Path
 import sqlite3
-import threading
-import asyncio
 from typing import Any, Callable, Dict, List
 import queue
+import threading
 
 from monitoring import BaselineAnomalyDetector
-from enterprise_modules.compliance import validate_enterprise_operation
 
 try:  # pragma: no cover - Flask is optional for tests
     from flask import jsonify, render_template, Response, request
@@ -42,11 +40,13 @@ try:  # pragma: no cover - dashboard features are optional in tests
         _load_metrics as _real_load_metrics,
         get_rollback_logs as _real_get_rollback_logs,
         _load_sync_events as _real_load_sync_events,
+        _compliance_payload as _real_compliance_payload,
         METRICS_FILE as _METRICS_FILE,
     )
     _load_metrics = cast(Any, _real_load_metrics)
     get_rollback_logs = cast(Any, _real_get_rollback_logs)
     _load_sync_events = cast(Any, _real_load_sync_events)
+    _compliance_payload = cast(Any, _real_compliance_payload)
 except Exception:  # pragma: no cover - provide fallbacks
 
     class _DummyApp:
@@ -72,6 +72,9 @@ except Exception:  # pragma: no cover - provide fallbacks
 
     def _load_sync_events(*args: Any, **kwargs: Any):  # type: ignore[override]
         return []
+
+    def _compliance_payload(*args: Any, **kwargs: Any) -> Dict[str, Any]:  # type: ignore[override]
+        return {}
 
     _METRICS_FILE = Path("metrics.json")
 try:  # pragma: no cover - optional dependency
@@ -182,36 +185,19 @@ def load_code_quality_metrics(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
 @app.route("/dashboard/compliance")
 def dashboard_compliance() -> str:
     """Render compliance metrics from analytics.db."""
-    placeholder_count = 0
-    last_resolved = ""
-    audit_logs: List[Dict[str, Any]] = []
-    if ANALYTICS_DB.exists():
-        validate_enterprise_operation(str(ANALYTICS_DB))
-        with sqlite3.connect(ANALYTICS_DB) as conn:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS todo_fixme_tracking (status TEXT, resolved_timestamp TEXT)"
-            )
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS code_audit_log (summary TEXT, ts TEXT)"
-            )
-            cur = conn.execute(
-                "SELECT COUNT(*), MAX(resolved_timestamp) FROM todo_fixme_tracking WHERE status='open'"
-            )
-            count, ts = cur.fetchone()
-            placeholder_count = int(count or 0)
-            last_resolved = ts or ""
-            audit_logs = [
-                {"ts": r[0], "summary": r[1]}
-                for r in conn.execute(
-                    "SELECT ts, summary FROM code_audit_log ORDER BY ts DESC LIMIT 10"
-                ).fetchall()
-            ]
+    data = _compliance_payload()
     return render_template(
         "compliance.html",
-        placeholders=placeholder_count,
-        last_resolved=last_resolved,
-        audit_logs=audit_logs,
+        placeholders=data.get("open_placeholders", 0),
+        last_resolved=data.get("last_resolved", ""),
+        audit_logs=data.get("code_audit_log", []),
+        todo_entries=data.get("todo_entries", []),
     )
+
+
+@app.route("/api/dashboard/compliance")
+def dashboard_compliance_api() -> Any:
+    return jsonify(_compliance_payload())
 
 
 @app.route("/anomalies")
