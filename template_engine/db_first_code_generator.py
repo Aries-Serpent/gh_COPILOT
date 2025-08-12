@@ -418,6 +418,7 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 test_mode=False,
             )
             bar.update(1)
+            bar.set_postfix({"phase": "template_selection"})
 
             # Phase 2: token replacement
             stub = apply_tokens(
@@ -444,6 +445,7 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 test_mode=False,
             )
             bar.update(1)
+            bar.set_postfix({"phase": "token_replacement"})
 
             # Phase 3: file write
             path = Path(f"{objective}.py")
@@ -477,6 +479,7 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                         "event": "integration_ready_generated",
                         "objective": objective,
                         "path": str(path),
+                        "requirement_map": {objective: str(path)},
                     },
                     table="generator_events",
                     db_path=self.analytics_db,
@@ -497,9 +500,12 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 _log_event(
                     {
                         "event": "requirement_mapping",
-                        "requirement_id": objective,
-                        "generated_path": str(path),
-                        "code_snippet": stub[:100],
+                        "mapping": {
+                            objective: {
+                                "path": str(path),
+                                "code_snippet": stub[:100],
+                            }
+                        },
                     },
                     table="generator_events",
                     db_path=self.analytics_db,
