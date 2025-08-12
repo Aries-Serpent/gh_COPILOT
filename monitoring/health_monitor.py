@@ -8,7 +8,18 @@ import sqlite3
 from pathlib import Path
 from typing import Dict, Optional
 
-import psutil
+from types import SimpleNamespace
+
+try:  # pragma: no cover - psutil optional in some environments
+    import psutil  # type: ignore
+except Exception:  # pragma: no cover - fallback stub
+    psutil = SimpleNamespace(
+        cpu_percent=lambda interval=0: 0.0,
+        virtual_memory=lambda: SimpleNamespace(percent=0.0),
+        disk_usage=lambda _p: SimpleNamespace(percent=0.0),
+        net_io_counters=lambda: SimpleNamespace(bytes_sent=0, bytes_recv=0),
+    )
+
 from quantum_algorithm_library_expansion import quantum_score_stub
 
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))

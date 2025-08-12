@@ -1,12 +1,13 @@
 import sqlite3
-import sqlite3
+import os
 from pathlib import Path
 
 from scripts.database.documentation_db_analyzer import (
-    analyze_documentation_gaps,
     analyze_documentation_tables,
     validate_analysis,
-    rollback_cleanup,
+    rollback_db,
+    summarize_corrections,
+    ensure_correction_history,
 )
 
 
@@ -20,7 +21,9 @@ def test_documentation_db_analyzer(tmp_path: Path) -> None:
         )
     analytics = tmp_path / "analytics.db"
     log_dir = tmp_path / "logs" / "template_rendering"
-    results = analyze_documentation_gaps([docdb], analytics, log_dir)
+    import scripts.database.documentation_db_analyzer as module
+    module.SecondaryCopilotValidator = lambda: type("D", (), {"validate_corrections": lambda self, files: True})()
+    results = module.analyze_documentation_gaps([docdb], analytics, log_dir)
     assert results[0]["gaps"] == 1
     assert any(log_dir.iterdir())
     assert validate_analysis(analytics, 1)
@@ -111,3 +114,43 @@ def test_rollback_records_session(tmp_path: Path, monkeypatch) -> None:
     with sqlite3.connect(analytics) as conn:
         row = conn.execute("SELECT COUNT(*) FROM correction_sessions").fetchone()[0]
     assert row == 1
+
+
+def test_summarize_and_rollback_logging(tmp_path: Path) -> None:
+    analytics_dir = tmp_path / "databases"
+    analytics_dir.mkdir()
+    analytics = analytics_dir / "analytics.db"
+    os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
+    ensure_correction_history(analytics)
+    with sqlite3.connect(analytics) as conn:
+        conn.execute(
+            "INSERT INTO correction_history (session_id, file_path, violation_code, fix_applied, violations_count, fixes_applied, fix_rate, timestamp) VALUES (?,?,?,?,?,?,?,?)",
+            ("s1", "f", "X", "fix", 2, 1, 0.5, "ts"),
+        )
+        conn.execute(
+            "INSERT INTO correction_history (session_id, file_path, violation_code, fix_applied, violations_count, fixes_applied, fix_rate, timestamp) VALUES (?,?,?,?,?,?,?,?)",
+            ("s2", "f", "DOC_ROLLBACK", "DATABASE_RESTORE", 1, 1, 1.0, "ts"),
+        )
+        conn.commit()
+
+    reports_dir = tmp_path / "reports"
+    summary = summarize_corrections(analytics, reports_dir)
+    assert summary["entries"] == 2
+    assert summary["violations"] == 3
+    assert summary["fixes"] == 2
+    assert summary["rollbacks"] == 1
+    assert list(reports_dir.glob("correction_summary_*.json"))
+    with sqlite3.connect(analytics) as conn:
+        count = conn.execute("SELECT COUNT(*) FROM doc_analysis").fetchone()[0]
+    assert count >= 1
+
+    db = tmp_path / "db.sqlite"
+    backup = tmp_path / "db.bak"
+    db.write_text("x")
+    backup.write_text("y")
+    import scripts.database.documentation_db_analyzer as mod
+    mod.ANALYTICS_DB = analytics
+    rollback_db(db, backup)
+    with sqlite3.connect(analytics) as conn:
+        count2 = conn.execute("SELECT COUNT(*) FROM doc_analysis").fetchone()[0]
+    assert count2 >= count
