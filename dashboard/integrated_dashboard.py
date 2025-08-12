@@ -206,7 +206,9 @@ def _load_compliance_payload() -> dict[str, Any]:
         "rollbacks": get_rollback_logs(),
         "placeholders_open": 0,
         "audit_log": [],
+        "audit_count": 0,
         "last_resolved": "",
+        "todo_entries": [],
     }
     if ANALYTICS_DB.exists():
         try:
@@ -219,14 +221,27 @@ def _load_compliance_payload() -> dict[str, Any]:
                 payload["placeholders_open"] = int(count or 0)
                 payload["last_resolved"] = ts or ""
                 cur = conn.execute(
+                    "SELECT file_path, line_number, placeholder_type FROM todo_fixme_tracking WHERE status='open' LIMIT 20"
+                )
+                payload["todo_entries"] = [
+                    {"file_path": r[0], "line_number": r[1], "placeholder_type": r[2]}
+                    for r in cur.fetchall()
+                ]
+                cur = conn.execute(
                     "SELECT ts, summary FROM code_audit_log ORDER BY ts DESC LIMIT 10"
                 )
+                rows = cur.fetchall()
                 payload["audit_log"] = [
-                    {"ts": row[0], "summary": row[1]} for row in cur.fetchall()
+                    {"ts": row[0], "summary": row[1]} for row in rows
                 ]
+                payload["audit_count"] = len(rows)
         except sqlite3.Error:
             pass
     return payload
+
+
+# Alias for external imports
+_compliance_payload = _load_compliance_payload
 
 def _load_sync_events(limit: int = 10) -> list[dict[str, Any]]:
     try:

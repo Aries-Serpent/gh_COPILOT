@@ -26,6 +26,10 @@ def test_similarity_ranking_and_confidence(tmp_path: Path, monkeypatch) -> None:
     codes = [c.strip() for c in res["database_solutions"]]
     assert codes == ['print("hello world")', 'print("bye world")']
     assert 0.0 < res["confidence_score"] <= 1.0
+    scores = compute_similarity_scores("hello world", production_db=prod, analytics_db=analytics)
+    total = sum(s for _, s in scores)
+    top = max(s for _, s in scores)
+    assert res["confidence_score"] == pytest.approx(top / total)
     with sqlite3.connect(prod) as conn:
         rows = conn.execute("SELECT COUNT(*) FROM similarity_scores").fetchone()[0]
     assert rows > 0

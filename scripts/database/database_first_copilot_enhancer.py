@@ -135,8 +135,11 @@ class DatabaseFirstCopilotEnhancer:
         """Return confidence based on highest similarity score."""
         if not solutions:
             return 0.0
-        max_score = max(score for _code, score in solutions)
-        return float(max(0.0, min(1.0, max_score)))
+        total = sum(score for _code, score in solutions)
+        if total <= 0:
+            return 0.0
+        top = max(score for _code, score in solutions)
+        return float(max(0.0, min(1.0, top / total)))
 
     def _map_objective_to_template_name(self, objective: str) -> str:
         """Return the template name associated with ``objective``."""
@@ -174,6 +177,7 @@ class DatabaseFirstCopilotEnhancer:
     def query_before_filesystem(self, objective: str) -> Dict[str, Any]:
         """Query database before using filesystem templates."""
         scored = self._query_database_solutions(objective)
+        codes = [code for code, _ in scored]
         template = self._find_template_matches(objective)
         adapted = self._adapt_to_current_environment(template)
         return {
