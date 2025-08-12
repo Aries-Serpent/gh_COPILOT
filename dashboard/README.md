@@ -142,7 +142,7 @@ immediately.
 | `/api/health`             | System health check API                                                          |
 | `/metrics_stream`         | Server-Sent Events stream of live metrics                                       |
 | `/corrections_stream`     | SSE stream of recent correction logs                                            |
-| `/ws/corrections`         | WebSocket stream of correction logs (SSE fallback)                              |
+| `/ws/corrections`         | WebSocket broadcast of correction logs (same data as `/corrections_stream`)     |
 | `/dashboard/compliance`   | Returns compliance metrics, rollback and audit trail as JSON                     |
 | `/overview`               | Consolidated dashboard with metrics, rollbacks, sync events, and audit results   |
 #### Example `/dashboard/compliance` Response
