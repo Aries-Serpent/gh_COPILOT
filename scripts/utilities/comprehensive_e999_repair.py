@@ -113,7 +113,16 @@ def fix_all_unterminated_strings():
                     content = re.sub(r'(\{[^}]+)\}\}"', r'\1}"', content)
 
                     # Remove Unicode emojis
-                    unicode_chars = ['# # ✅', '# # 🔄', '# # 🛠', '# # 🔧', '# # 📊', '# # ⚠️', '# # 🚀', '# # 🔍']
+                    unicode_chars = [
+                        "# # ✅",
+                        "# # 🔄",
+                        "# # 🛠",
+                        "# # 🔧",
+                        "# # 📊",
+                        "# # ⚠️",
+                        "# # 🚀",
+                        "# # 🔍",
+                    ]
                     for char in unicode_chars:
                         content = content.replace(char, f'# {char}')
 
