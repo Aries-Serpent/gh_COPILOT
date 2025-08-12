@@ -46,6 +46,7 @@ class DatabaseFirstCopilotEnhancer:
         def load_db_templates() -> dict[str, str]:
             templates: dict[str, str] = {}
             if self.production_db.exists():
+                validate_enterprise_operation(str(self.production_db))
                 try:
                     with sqlite3.connect(self.production_db) as conn:
                         conn.execute(
@@ -61,6 +62,7 @@ class DatabaseFirstCopilotEnhancer:
             templates: dict[str, str] = {}
             tpl_dir = self.workspace / "templates"
             if tpl_dir.exists():
+                validate_enterprise_operation(str(tpl_dir))
                 for path in tpl_dir.glob("*.tmpl"):
                     try:
                         templates[path.stem] = path.read_text(encoding="utf-8")
@@ -91,8 +93,8 @@ class DatabaseFirstCopilotEnhancer:
 
         return engine
 
-    def _query_database_solutions(self, objective: str) -> List[str]:
-        """Return code snippets ranked by similarity to ``objective``."""
+    def _query_database_solutions(self, objective: str) -> List[Tuple[str, float]]:
+        """Return code snippets with similarity scores ranked by relevance."""
         if not self.production_db.exists():
             return []
         validate_enterprise_operation(str(self.production_db))
@@ -100,7 +102,7 @@ class DatabaseFirstCopilotEnhancer:
         scores: List[Tuple[int, float]] = compute_similarity_scores(
             objective, production_db=self.production_db, analytics_db=self.analytics_db
         )
-        results: List[str] = []
+        ranked: List[Tuple[str, float]] = []
         with sqlite3.connect(self.production_db) as conn:
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS similarity_scores (objective TEXT, template_id INTEGER, score REAL)"
@@ -111,13 +113,13 @@ class DatabaseFirstCopilotEnhancer:
                     (objective, tid, score),
                 )
             conn.commit()
-            for tid, _ in sorted(scores, key=lambda s: s[1], reverse=True):
+            for tid, score in sorted(scores, key=lambda s: s[1], reverse=True):
                 row = conn.execute(
                     "SELECT template_code FROM code_templates WHERE id=?", (tid,)
                 ).fetchone()
                 if row:
-                    results.append(row[0])
-        return results
+                    ranked.append((row[0], score))
+        return ranked
 
     def _find_template_matches(self, objective: str) -> str:
         return self.template_engine(objective)
@@ -126,19 +128,20 @@ class DatabaseFirstCopilotEnhancer:
         """Inject environment specific values into ``template``."""
         return template.replace("{workspace}", str(self.workspace))
 
-    def _calculate_confidence(self, solutions: List[str]) -> float:
+    def _calculate_confidence(self, solutions: List[Tuple[str, float]]) -> float:
         if not solutions:
             return 0.0
-        # simplistic confidence based on number of solutions
-        return min(1.0, len(solutions) / 5)
+        top_score = max(score for _, score in solutions)
+        return min(1.0, float(top_score))
 
     def query_before_filesystem(self, objective: str) -> Dict[str, Any]:
         """Query database before using filesystem templates."""
         solutions = self._query_database_solutions(objective)
         template = self._find_template_matches(objective)
         adapted = self._adapt_to_current_environment(template)
+        codes = [code for code, _ in solutions]
         return {
-            "database_solutions": solutions,
+            "database_solutions": codes,
             "template_code": adapted,
             "confidence_score": self._calculate_confidence(solutions),
             "integration_ready": True,
