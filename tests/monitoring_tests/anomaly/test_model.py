@@ -1,4 +1,7 @@
-from src.monitoring.anomaly import StatisticalAnomalyDetector
+import sys
+
+sys.modules.pop("monitoring", None)
+from monitoring.anomaly import StatisticalAnomalyDetector
 
 
 def test_detects_synthetic_anomaly():

@@ -26,6 +26,7 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["copilot", "monitoring"]
 exclude = ["scripts.quantum_placeholders"]
 
 [tool.ruff]
