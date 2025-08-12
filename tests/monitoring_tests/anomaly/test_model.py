@@ -1,11 +1,4 @@
-import sys
-from pathlib import Path
-
-# Ensure repository root is on the import path to avoid conflicts with external
-# packages named `monitoring`.
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-
-from monitoring.anomaly import StatisticalAnomalyDetector
+from src.monitoring.anomaly import StatisticalAnomalyDetector
 
 
 def test_detects_synthetic_anomaly():

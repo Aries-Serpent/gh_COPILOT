@@ -74,20 +74,45 @@ def reconcile_once(db_paths: Sequence[Path]) -> None:
 
     source_rows = set(states[0].rows)
     for state, conn in zip(states[1:], connections[1:]):
+        existing_map = {(r[0], r[4]): r for r in state.rows}
         missing = source_rows.difference(state.rows)
-        if missing:
-            log_enterprise_operation(
-                "drift_detected",
-                "WARNING",
-                f"{len(missing)} rows missing in {state.path}",
-            )
+        if not missing:
+            continue
+        log_enterprise_operation(
+            "drift_detected",
+            "WARNING",
+            f"{len(missing)} rows missing in {state.path}",
+        )
+        try:
+            conn.execute("BEGIN")
             for row in missing:
+                op, status, start_time, duration, ts = row
+                existing = existing_map.get((op, ts))
+                if existing and existing != row:
+                    log_enterprise_operation(
+                        "row_conflict",
+                        "ERROR",
+                        f"conflict for {op} at {state.path}",
+                    )
+                    raise ValueError("conflicting row")
+                log_enterprise_operation(
+                    "row_diff",
+                    "INFO",
+                    f"inserting {row} into {state.path}",
+                )
                 conn.execute(
-                    "INSERT INTO cross_database_sync_operations (operation, status, start_time, duration, timestamp)"
-                    " VALUES (?, ?, ?, ?, ?)",
+                    "INSERT INTO cross_database_sync_operations (operation, status, start_time, duration, timestamp) "
+                    "VALUES (?, ?, ?, ?, ?)",
                     row,
                 )
             conn.commit()
+        except Exception:
+            conn.rollback()
+            log_enterprise_operation(
+                "reconcile_rollback",
+                "ERROR",
+                f"rolled back reconciliation for {state.path}",
+            )
 
     for conn in connections:
         conn.close()
