@@ -520,7 +520,26 @@ def calculate_placeholder_density(db: Path, workspace: Path) -> float:
             "INSERT INTO placeholder_density (ts, density) VALUES (?, ?)",
             (datetime.utcnow().isoformat(), density),
         )
+        # Mirror density to todo_fixme_tracking for historical tracking
+        conn.execute(
+            "DELETE FROM todo_fixme_tracking WHERE file_path='__metrics__' AND placeholder_type='density'",
+        )
+        conn.execute(
+            """
+            INSERT INTO todo_fixme_tracking (
+                file_path, line_number, placeholder_type, context, timestamp, status
+            ) VALUES (?, ?, ?, ?, ?, 'open')
+            """,
+            (
+                "__metrics__",
+                0,
+                "density",
+                f"{density}",
+                datetime.utcnow().isoformat(),
+            ),
+        )
         conn.commit()
+    push_metrics({"placeholder_density": density}, db_path=db)
     if density > 5:
         logging.warning("Placeholder density %.2f exceeds threshold", density)
     return density
