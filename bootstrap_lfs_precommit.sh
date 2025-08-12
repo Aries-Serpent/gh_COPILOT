@@ -6,6 +6,7 @@
 # Options: BOOTSTRAP_NO_RUN=1   # skip pre-commit run --all-files
 #          DRY_RUN=1            # show actions without changing repo
 #          FORCE_COMMIT=1       # commit .gitattributes changes even if no files changed
+
 set -euo pipefail
 
 # -------------- sanity checks --------------
@@ -17,6 +18,17 @@ fi
 has() { command -v "$1" >/dev/null 2>&1; }
 
 if ! has git; then echo "❌ git not found on PATH" >&2; exit 1; fi
+
+# Ensure Git LFS is installed
+if ! has git-lfs; then
+  echo "Installing git-lfs..."
+  if has apt-get; then
+    apt-get update >/dev/null 2>&1 && apt-get install -y git-lfs >/dev/null 2>&1
+  else
+    echo "Warning: unable to install git-lfs automatically." >&2
+  fi
+fi
+
 if ! has git-lfs; then echo "❌ git-lfs not found — install Git LFS first" >&2; exit 1; fi
 
 # -------------- config --------------
@@ -62,7 +74,35 @@ append_gitattributes_block() {
   fi
   if (( need_block )); then
     info "Applying LFS archive rules to .gitattributes"
-    run "cat >> '$ATTR_FILE' <<'EOF'\n$marker_begin\n# ZIP (case-insensitive)\n*.[zZ][iI][pP] filter=lfs diff=lfs merge=lfs -text\n\n# TAR family\n*.tar        filter=lfs diff=lfs merge=lfs -text\n*.tgz        filter=lfs diff=lfs merge=lfs -text\n*.tar.gz     filter=lfs diff=lfs merge=lfs -text\n*.tbz2       filter=lfs diff=lfs merge=lfs -text\n*.tar.bz2    filter=lfs diff=lfs merge=lfs -text\n*.txz        filter=lfs diff=lfs merge=lfs -text\n*.tar.xz     filter=lfs diff=lfs merge=lfs -text\n*.tzst       filter=lfs diff=lfs merge=lfs -text\n*.tar.zst    filter=lfs diff=lfs merge=lfs -text\n\n# Other archive/container formats\n*.7z         filter=lfs diff=lfs merge=lfs -text\n*.rar        filter=lfs diff=lfs merge=lfs -text\n*.jar        filter=lfs diff=lfs merge=lfs -text\n*.war        filter=lfs diff=lfs merge=lfs -text\n*.ear        filter=lfs diff=lfs merge=lfs -text\n*.apk        filter=lfs diff=lfs merge=lfs -text\n*.ipa        filter=lfs diff=lfs merge=lfs -text\n*.nupkg      filter=lfs diff=lfs merge=lfs -text\n*.cab        filter=lfs diff=lfs merge=lfs -text\n*.iso        filter=lfs diff=lfs merge=lfs -text\n$marker_end\nEOF"
+    run "cat >> '$ATTR_FILE' <<'EOF'
+$marker_begin
+# ZIP (case-insensitive)
+*.[zZ][iI][pP] filter=lfs diff=lfs merge=lfs -text
+
+# TAR family
+*.tar        filter=lfs diff=lfs merge=lfs -text
+*.tgz        filter=lfs diff=lfs merge=lfs -text
+*.tar.gz     filter=lfs diff=lfs merge=lfs -text
+*.tbz2       filter=lfs diff=lfs merge=lfs -text
+*.tar.bz2    filter=lfs diff=lfs merge=lfs -text
+*.txz        filter=lfs diff=lfs merge=lfs -text
+*.tar.xz     filter=lfs diff=lfs merge=lfs -text
+*.tzst       filter=lfs diff=lfs merge=lfs -text
+*.tar.zst    filter=lfs diff=lfs merge=lfs -text
+
+# Other archive/container formats
+*.7z         filter=lfs diff=lfs merge=lfs -text
+*.rar        filter=lfs diff=lfs merge=lfs -text
+*.jar        filter=lfs diff=lfs merge=lfs -text
+*.war        filter=lfs diff=lfs merge=lfs -text
+*.ear        filter=lfs diff=lfs merge=lfs -text
+*.apk        filter=lfs diff=lfs merge=lfs -text
+*.ipa        filter=lfs diff=lfs merge=lfs -text
+*.nupkg      filter=lfs diff=lfs merge=lfs -text
+*.cab        filter=lfs diff=lfs merge=lfs -text
+*.iso        filter=lfs diff=lfs merge=lfs -text
+$marker_end
+EOF"
   else
     info ".gitattributes already contains LFS archive block"
   fi
@@ -74,7 +114,32 @@ ensure_precommit_config() {
     return
   fi
   info "Writing minimal .pre-commit-config.yaml (LFS + hygiene)"
-  run "cat > '$PRECOMMIT_FILE' <<'YAML'\nminimum_pre_commit_version: '3.0.0'\nrepos:\n  - repo: https://github.com/pre-commit/pre-commit-hooks\n    rev: v4.6.0\n    hooks:\n      - id: check-merge-conflict\n      - id: end-of-file-fixer\n      - id: trailing-whitespace\n      - id: check-added-large-files\n        args: ['--maxkb=10000']\n  - repo: local\n    hooks:\n      - id: enforce-zip-lfs\n        name: Enforce Git LFS for ZIP files (*.zip)\n        language: system\n        pass_filenames: false\n        stages: [commit]\n        entry: >-\n          bash -lc 'set -euo pipefail;\n          mapfile -t files < <(git diff --cached --name-only --diff-filter=ACMR | grep -Ei "\\.zip$" || true);\n          [[ ${#files[@]} -eq 0 ]] && exit 0; err=0;\n          for f in "${files[@]}"; do out=$(git check-attr filter -- "$f" 2>/dev/null || true);\n            if [[ "$out" != *": lfs" ]]; then echo "ZIP not LFS-tracked: $f"; err=1; fi; done;\n          ((err)) && exit 1 || exit 0'\nYAML"
+  run "cat > '$PRECOMMIT_FILE' <<'YAML'
+minimum_pre_commit_version: '3.0.0'
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-added-large-files
+        args: ['--maxkb=10000']
+  - repo: local
+    hooks:
+      - id: enforce-zip-lfs
+        name: Enforce Git LFS for ZIP files (*.zip)
+        language: system
+        pass_filenames: false
+        stages: [commit]
+        entry: >-
+          bash -lc 'set -euo pipefail;
+          mapfile -t files < <(git diff --cached --name-only --diff-filter=ACMR | grep -Ei \"\\.zip$\" || true);
+          [[ \${#files[@]} -eq 0 ]] && exit 0; err=0;
+          for f in \"\${files[@]}\"; do out=\$(git check-attr filter -- \"\$f\" 2>/dev/null || true);
+            if [[ \"\$out\" != *\": lfs\" ]]; then echo \"ZIP not LFS-tracked: \$f\"; err=1; fi; done;
+          ((err)) && exit 1 || exit 0'
+YAML"
 }
 
 restage_archives_to_lfs() {
@@ -119,16 +184,28 @@ fi
 
 # Ensure pre-commit is installed
 if ! has pre-commit; then
-  info "Installing pre-commit (pipx or pip --user)"
+  echo "Installing pre-commit..."
   if has pipx; then
-    run pipx install pre-commit || true
+    pipx install pre-commit >/dev/null 2>&1 || true
+  elif has pip; then
+    pip install pre-commit >/dev/null 2>&1 || true
+  else
+    echo "Warning: no installer available for pre-commit." >&2
   fi
-  if ! has pre-commit; then
-    run python3 -m pip install --user pre-commit
-    if [[ ":${PATH}:" != *":${HOME}/.local/bin:"* ]] && [[ -d "${HOME}/.local/bin" ]]; then
-      export PATH="${HOME}/.local/bin:${PATH}"
-    fi
-  fi
+fi
+
+# Verify pre-commit installation succeeded
+if ! has pre-commit; then
+  echo "Error: pre-commit is required but could not be installed." >&2
+  exit 1
+fi
+
+# Initialize Git LFS and pre-commit hooks if available
+if has git-lfs; then
+  git lfs install --local >/dev/null 2>&1 || true
+fi
+if has pre-commit; then
+  pre-commit install --install-hooks >/dev/null 2>&1 || true
 fi
 
 # Ensure a config exists, then install hooks
@@ -141,7 +218,7 @@ run pre-commit install --hook-type pre-push
 if [[ "${BOOTSTRAP_NO_RUN:-0}" != "1" ]]; then
   info "Running pre-commit on all files (first run may take a while)"
   run pre-commit run --all-files || {
-    echo "\n⚠️  Pre-commit reported issues. Fix them and re-run your commit." >&2
+    echo -e "\n⚠️  Pre-commit reported issues. Fix them and re-run your commit." >&2
     exit 1
   }
 fi
