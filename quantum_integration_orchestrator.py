@@ -12,20 +12,39 @@ from scripts.automation.quantum_integration_orchestrator import EnterpriseUtilit
 
 @pid_recursion_guard
 def main(argv: list[str] | None = None) -> int:
-    """Run the orchestrator with optional hardware support."""
+    """Run the orchestrator selecting provider backends."""
     parser = argparse.ArgumentParser(description="Quantum Integration Orchestrator")
-    parser.add_argument("--hardware", action="store_true", help="Use IBM Quantum hardware backend")
     parser.add_argument(
-        "--backend",
-        default=os.getenv("IBM_BACKEND", "ibmq_qasm_simulator"),
-        help="Backend name to use",
+        "--provider",
+        choices=["simulator", "ibm", "ionq", "dwave"],
+        default="simulator",
+        help="Quantum provider to use",
     )
     args = parser.parse_args(argv)
 
-    if args.hardware and not os.getenv("QISKIT_IBM_TOKEN"):
-        parser.error("--hardware requires QISKIT_IBM_TOKEN to be set")
+    from quantum.providers.dwave_provider import DWaveProvider
+    from quantum.providers.ibm_provider import IBMBackendProvider
+    from quantum.providers.ionq_provider import IonQProvider
+    from quantum.providers.simulator import SimulatorProvider
 
-    util = EnterpriseUtility(use_hardware=args.hardware, backend_name=args.backend)
+    provider_map = {
+        "simulator": SimulatorProvider(),
+        "ibm": IBMBackendProvider(),
+        "ionq": IonQProvider(),
+        "dwave": DWaveProvider(),
+    }
+    token_env = {
+        "ibm": "QISKIT_IBM_TOKEN",
+        "ionq": "IONQ_API_KEY",
+        "dwave": "DWAVE_API_TOKEN",
+    }
+    if args.provider != "simulator":
+        env = token_env[args.provider]
+        if not os.getenv(env):
+            parser.error(f"--provider {args.provider} requires {env} to be set")
+
+    backend = provider_map[args.provider].get_backend()
+    util = EnterpriseUtility(backend=backend)
     success = util.execute_utility()
     return 0 if success else 1
 

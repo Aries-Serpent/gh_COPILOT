@@ -30,7 +30,7 @@ Combined checks: run `python scripts/run_checks.py` to execute `ruff` and `pytes
 Tests: run `pytest` before committing. Current repository tests report multiple failures.
 Lint: run `ruff check .` before committing.
 Compliance: run `python secondary_copilot_validator.py --validate` after critical changes to enforce dual-copilot and EnterpriseComplianceValidator checks.
-Docs: run `python scripts/docs_status_reconciler.py` to refresh `docs/task_stubs.md` and `docs/status_index.json` before committing documentation changes.
+Docs: run `python scripts/docs_status_reconciler.py` to refresh `docs/task_stubs.md` and `docs/status_index.json` before committing documentation changes. This step is required after any documentation edit.
 CI: pipeline pins Ruff, enforces a 90% test pass rate, and fails if coverage regresses relative to `main`.
 Quantum modules default to simulation but can target IBM hardware when `QISKIT_IBM_TOKEN` and `IBM_BACKEND` are set. See `docs/QUANTUM_PLACEHOLDERS.md <docs/QUANTUM_PLACEHOLDERS.md>`_ and `docs/PHASE5_TASKS_STARTED.md <docs/PHASE5_TASKS_STARTED.md>`_ for progress details. Module completion status is tracked in `docs/STUB_MODULE_STATUS.md <docs/STUB_MODULE_STATUS.md>`_. Compliance auditing is enforced via `EnterpriseComplianceValidator`, and composite scores combine lint, test, and placeholder metrics stored in `analytics.db`.
 Integration plan: `docs/quantum_integration_plan.md <docs/quantum_integration_plan.md>`_ outlines staged hardware enablement while current builds remain simulator-only.
