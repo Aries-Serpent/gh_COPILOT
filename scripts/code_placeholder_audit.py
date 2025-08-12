@@ -40,9 +40,9 @@ try:
     from template_engine.template_placeholder_remover import remove_unused_placeholders
 except ModuleNotFoundError:
 
-    def remove_unused_placeholders(text: str, *args, **kwargs) -> str:  # type: ignore[no-redef]
-        """Return text unchanged when placeholder remover is unavailable."""
-        return text
+    def remove_unused_placeholders(template: str, *args, **kwargs) -> str:  # type: ignore[no-redef]
+        """Return template unchanged when placeholder remover is unavailable."""
+        return template
 
 
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
@@ -499,6 +499,31 @@ def snapshot_placeholder_counts(db: Path) -> Tuple[int, int]:
             cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'")
             resolved_count = int(cur.fetchone()[0])
         return open_count, resolved_count
+
+
+def calculate_placeholder_density(db: Path, workspace: Path) -> float:
+    """Return open placeholders per 1000 lines of code."""
+    open_count, _ = snapshot_placeholder_counts(db)
+    loc = 0
+    for path in workspace.rglob("*.py"):
+        try:
+            loc += sum(1 for _ in path.open("r", encoding="utf-8"))
+        except OSError:
+            continue
+    density = (open_count / loc * 1000) if loc else 0.0
+    with sqlite3.connect(db) as conn:
+        _ensure_placeholder_tables(conn)
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS placeholder_density (ts TEXT, density REAL)"
+        )
+        conn.execute(
+            "INSERT INTO placeholder_density (ts, density) VALUES (?, ?)",
+            (datetime.utcnow().isoformat(), density),
+        )
+        conn.commit()
+    if density > 5:
+        logging.warning("Placeholder density %.2f exceeds threshold", density)
+    return density
 
 
 def get_latest_placeholder_snapshot(

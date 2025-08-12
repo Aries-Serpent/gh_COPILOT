@@ -21,6 +21,7 @@ from secondary_copilot_validator import SecondaryCopilotValidator
 
 logger = logging.getLogger(__name__)
 ANALYTICS_DB = DEFAULT_ANALYTICS_DB
+REPORTS_DIR = Path("reports")
 
 CORRECTION_SQL = """
 CREATE TABLE IF NOT EXISTS correction_history (
@@ -36,6 +37,14 @@ CREATE TABLE IF NOT EXISTS correction_history (
 );
 """
 
+CORRECTION_SESSIONS_SQL = """
+CREATE TABLE IF NOT EXISTS correction_sessions (
+    session_id TEXT,
+    action TEXT,
+    timestamp TEXT
+);
+"""
+
 
 def ensure_correction_history(db_path: Path) -> None:
     """Create ``correction_history`` table if needed."""
@@ -43,6 +52,44 @@ def ensure_correction_history(db_path: Path) -> None:
     with sqlite3.connect(db_path) as conn:
         conn.executescript(CORRECTION_SQL)
         conn.commit()
+
+
+def _record_correction_session(action: str, db_path: Path) -> str:
+    """Log a correction session action and return session id."""
+    session_id = f"session_{datetime.utcnow().isoformat()}"
+    with sqlite3.connect(db_path) as conn:
+        conn.executescript(CORRECTION_SESSIONS_SQL)
+        conn.execute(
+            "INSERT INTO correction_sessions (session_id, action, timestamp) VALUES (?,?,?)",
+            (session_id, action, datetime.utcnow().isoformat()),
+        )
+        conn.commit()
+    _log_event({"session_id": session_id, "action": action}, table="correction_sessions", db_path=db_path)
+    return session_id
+
+
+def _write_session_reports(db_path: Path, reports_dir: Path = REPORTS_DIR) -> None:
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(db_path) as conn:
+        rows = conn.execute(
+            "SELECT session_id, action, timestamp FROM correction_sessions"
+        ).fetchall()
+    if not rows:
+        return
+    csv_path = reports_dir / "correction_sessions.csv"
+    json_path = reports_dir / "correction_sessions.json"
+    csv_lines = ["session_id,action,timestamp"] + ["%s,%s,%s" % tuple(r) for r in rows]
+    csv_path.write_text("\n".join(csv_lines), encoding="utf-8")
+    json_path.write_text(
+        json.dumps(
+            [
+                {"session_id": r[0], "action": r[1], "timestamp": r[2]}
+                for r in rows
+            ],
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
 
 
 def _log_corrections(items: list[tuple[str, str]]) -> None:
@@ -378,6 +425,8 @@ def rollback_cleanup(db_path: Path, backup_path: Path) -> bool:
         table="doc_analysis",
         db_path=ANALYTICS_DB,
     )
+    _record_correction_session("rollback", ANALYTICS_DB)
+    _write_session_reports(ANALYTICS_DB, REPORTS_DIR)
     ensure_correction_history(ANALYTICS_DB)
     with sqlite3.connect(ANALYTICS_DB) as conn:
         conn.execute(
