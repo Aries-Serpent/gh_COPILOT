@@ -11,23 +11,44 @@ try:  # Optional dependency on requests
 except Exception:  # pragma: no cover - missing optional deps
     pass
 
-from .baseline_anomaly_detector import BaselineAnomalyDetector
-from .health_monitor import record_system_health
-from .performance_tracker import track_query_time, push_metrics
-from .compliance_monitor import check_compliance
-from .log_error_notifier import monitor_logs
-from .unified_monitoring_optimization_system import (
-    anomaly_detection_loop,
-    detect_anomalies,
-)
+from .baseline_anomaly_detector import BaselineAnomalyDetector  # noqa: F401
 
-__all__ += [
-    "BaselineAnomalyDetector",
-    "record_system_health",
-    "track_query_time",
-    "push_metrics",
-    "check_compliance",
-    "monitor_logs",
-    "anomaly_detection_loop",
-    "detect_anomalies",
-]
+__all__.append("BaselineAnomalyDetector")
+
+try:  # Optional dependency on psutil via health_monitor
+    from .health_monitor import record_system_health  # noqa: F401
+
+    __all__.append("record_system_health")
+except Exception:  # pragma: no cover - missing optional deps
+    pass
+
+try:  # Optional dependency on numpy via performance_tracker
+    from .performance_tracker import track_query_time, push_metrics  # noqa: F401
+
+    __all__ += ["track_query_time", "push_metrics"]
+except Exception:  # pragma: no cover - missing optional deps
+    pass
+
+try:
+    from .compliance_monitor import check_compliance  # noqa: F401
+
+    __all__.append("check_compliance")
+except Exception:  # pragma: no cover - missing optional deps
+    pass
+
+try:
+    from .log_error_notifier import monitor_logs  # noqa: F401
+
+    __all__.append("monitor_logs")
+except Exception:  # pragma: no cover - missing optional deps
+    pass
+
+try:
+    from .unified_monitoring_optimization_system import (
+        anomaly_detection_loop,
+        detect_anomalies,
+    )  # noqa: F401
+
+    __all__ += ["anomaly_detection_loop", "detect_anomalies"]
+except Exception:  # pragma: no cover - missing optional deps
+    pass
