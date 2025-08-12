@@ -27,6 +27,23 @@ engine = SyncEngine()
 await engine.open_websocket(os.environ["SYNC_ENGINE_WS_URL"], apply_callback)
 ```
 
+## Watching Multiple Database Pairs
+
+For lightweight setups you can use `scripts/database/watch_sync_pairs.py` to
+monitor and synchronize multiple database pairs without the full engine:
+
+```bash
+python scripts/database/watch_sync_pairs.py /data/a1.db:/data/b1.db /data/a2.db:/data/b2.db --interval 5
+```
+
+### Scheduling Example
+
+To run the watcher every hour via `cron`:
+
+```cron
+0 * * * * python /opt/gh_COPILOT/scripts/database/watch_sync_pairs.py /data/a.db:/data/b.db >> /var/log/watch_sync.log 2>&1
+```
+
 
 ## Conflict Policies
 The synchronization engine supports pluggable conflict resolution. Use the
