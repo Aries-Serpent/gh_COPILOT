@@ -30,6 +30,13 @@ verifies restore operations; misconfigured paths abort with an error.
    placed in `archive/` at the repository root.
 4. Backups remain stored within `$GH_COPILOT_BACKUP_ROOT` by default.
 
+### Recommended Frequency
+
+Run automated backups at least once per day and retain the most recent
+five archives. The `schedule_backups()` helper respects the
+`GH_COPILOT_MAX_BACKUPS` environment variable so older archives are
+pruned automatically.
+
 ## Programmatic Backups
 
 The `create_external_backup()` helper ensures backups are written outside
@@ -52,3 +59,15 @@ create_external_backup(source, "invalid", backup_dir=Path("disaster_recovery"))
 ```
 
 For more details on advanced options and restoration procedures, see the documentation in `disaster_recovery/`.
+
+## Restore Drills
+
+Regular restore drills validate that backups are usable. To perform a
+drill:
+
+1. Create a backup using `schedule_backups()`.
+2. Run `restore_backup()` on the generated file.
+3. Confirm a `restore_success` event is logged in `analytics.db` and the
+   file is copied to the workspace.
+
+Conduct these drills quarterly to ensure operational readiness.

@@ -1,4 +1,7 @@
-from unified_disaster_recovery_system import UnifiedDisasterRecoverySystem
+from unified_disaster_recovery_system import (
+    UnifiedDisasterRecoverySystem,
+    restore_backup,
+)
 import hashlib
 
 
@@ -57,3 +60,22 @@ def test_backup_invocation_on_core_databases(tmp_path, monkeypatch):
     system = UnifiedDisasterRecoverySystem(str(workspace))
     backup_file = system.schedule_backups()
     assert calls and backup_file.exists()
+
+
+def test_restore_rejects_untrusted_path(tmp_path, monkeypatch, caplog):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    backup_root = tmp_path / "backup"
+    backup_root.mkdir()
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+
+    bad_backup = tmp_path / "bad.bak"
+    bad_backup.write_text("bad")
+    bad_backup.with_suffix(bad_backup.suffix + ".sha256").write_text(
+        hashlib.sha256(bad_backup.read_bytes()).hexdigest()
+    )
+
+    with caplog.at_level("ERROR"):
+        assert not restore_backup(bad_backup)
+        assert "outside backup root" in caplog.text
