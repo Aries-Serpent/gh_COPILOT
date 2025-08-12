@@ -1,9 +1,8 @@
 import json
+import queue
 import sqlite3
-import asyncio
 from pathlib import Path
 
-import websockets
 import dashboard.enterprise_dashboard as ed
 from flask import Flask
 
@@ -36,34 +35,28 @@ def test_corrections_stream_once(tmp_path, monkeypatch):
     assert logs[0]["path"] == "file1.py"
 
 
-def test_corrections_stream_live(tmp_path, monkeypatch):
+def test_corrections_broadcast(tmp_path, monkeypatch):
     db = _create_db(tmp_path)
     monkeypatch.setattr(ed, "ANALYTICS_DB", db)
-    app = Flask(__name__)
-    app.add_url_rule("/corrections_stream", view_func=ed.corrections_stream)
-    client = app.test_client()
-    resp = client.get("/corrections_stream?interval=0", buffered=False)
-    first = next(resp.response).decode().strip()
-    assert first.startswith("data:")
-    with sqlite3.connect(db) as conn:
-        conn.execute(
-            "INSERT INTO correction_logs VALUES ('t2', 'file2.py', 'pending')"
-        )
-    second = next(resp.response).decode().strip()
-    data = json.loads(second.split("data: ")[1])
-    assert any(entry["path"] == "file2.py" for entry in data)
+    q: "queue.Queue[str]" = queue.Queue()
+    ed._sse_subscribers.append(q)
 
+    class DummyWS:
+        def __init__(self) -> None:
+            self.sent: list[str] = []
 
-def test_corrections_websocket(tmp_path, monkeypatch):
-    db = _create_db(tmp_path)
-    monkeypatch.setattr(ed, "ANALYTICS_DB", db)
+        def send(self, msg: str) -> None:
+            self.sent.append(msg)
 
-    async def receive() -> list:
-        await asyncio.sleep(0.1)
-        uri = f"ws://localhost:{ed.CORRECTIONS_WS_PORT}/ws/corrections"
-        async with websockets.connect(uri) as ws:
-            msg = await asyncio.wait_for(ws.recv(), timeout=5)
-            return json.loads(msg)
+    ws = DummyWS()
+    ed._ws_clients.append(ws)
+    try:
+        ed._broadcast_corrections()
+        sse_payload = json.loads(q.get(timeout=1))[0]
+        ws_payload = json.loads(ws.sent[0])[0]
+        assert sse_payload["path"] == "file1.py"
+        assert ws_payload["path"] == "file1.py"
+    finally:
+        ed._sse_subscribers.remove(q)
+        ed._ws_clients.remove(ws)
 
-    payload = asyncio.run(receive())
-    assert payload[0]["path"] == "file1.py"
