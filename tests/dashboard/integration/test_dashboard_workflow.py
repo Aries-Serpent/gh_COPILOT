@@ -9,6 +9,7 @@ pytest.importorskip("pyotp")
 import pyotp
 
 from src.dashboard.auth import SessionManager
+from src.dashboard import auth
 from dashboard import compliance_metrics_updater as cmu
 
 

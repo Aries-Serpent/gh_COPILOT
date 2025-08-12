@@ -6,6 +6,7 @@ pytest.importorskip("pyotp")
 import pyotp
 
 from src.dashboard.auth import SessionManager
+from src.dashboard import auth
 
 
 def create_app() -> Flask:
