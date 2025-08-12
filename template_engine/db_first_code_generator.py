@@ -398,87 +398,151 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
         """Generate production-ready code stub and log analytics."""
         validate_no_recursive_folders()
 
-        # Use the best available template then replace tokens
-        template = self.select_best_template(objective)
-        if not template:
-            template = self.generate(objective)
-
-        stub = apply_tokens(
-            template,
-            {
-                "production": self.production_db,
-                "template_doc": self.documentation_db,
-                "analytics": self.analytics_db,
-            },
-        )
-        stub = remove_unused_tokens(
-            stub, production_db=self.production_db, analytics_db=self.analytics_db
-        )
-
-        path = Path(f"{objective}.py")
-        tmp_path = path.with_suffix(path.suffix + ".tmp")
-
-        try:
-            with sqlite3.connect(self.production_db) as conn:
-                conn.execute("BEGIN")
-                tmp_path.write_text(stub)
-                file_hash = hashlib.sha256(stub.encode()).hexdigest()
-                ts = datetime.utcnow().isoformat()
-                conn.execute(
-                    "CREATE TABLE IF NOT EXISTS script_tracking (file_path TEXT, file_hash TEXT, last_modified TEXT)"
-                )
-                conn.execute(
-                    "INSERT INTO script_tracking (file_path, file_hash, last_modified) VALUES (?, ?, ?)",
-                    (str(path), file_hash, ts),
-                )
-                conn.execute(
-                    "CREATE TABLE IF NOT EXISTS enhanced_script_tracking (script_path TEXT, script_content TEXT, script_hash TEXT, script_type TEXT, functionality_category TEXT)"
-                )
-                conn.execute(
-                    "INSERT INTO enhanced_script_tracking (script_path, script_content, script_hash, script_type, functionality_category) VALUES (?, ?, ?, 'python', 'generated')",
-                    (str(path), stub, file_hash),
-                )
-                tmp_path.replace(path)
-                conn.commit()
-
+        phases = ["template_selection", "token_replacement", "file_write"]
+        total = len(phases)
+        with tqdm(total=total, desc="IntegrationReady", unit="phase") as bar:
+            # Phase 1: template selection
+            template = self.select_best_template(objective)
+            if not template:
+                template = self.generate(objective)
             _log_event(
-                {"event": "integration_ready_generated", "objective": objective, "path": str(path)},
+                {
+                    "event": "integration_progress",
+                    "phase": "template_selection",
+                    "objective": objective,
+                    "step": 1,
+                    "total": total,
+                },
                 table="generator_events",
                 db_path=self.analytics_db,
                 test_mode=False,
+            )
+            bar.update(1)
+
+            # Phase 2: token replacement
+            stub = apply_tokens(
+                template,
+                {
+                    "production": self.production_db,
+                    "template_doc": self.documentation_db,
+                    "analytics": self.analytics_db,
+                },
+            )
+            stub = remove_unused_tokens(
+                stub, production_db=self.production_db, analytics_db=self.analytics_db
             )
             _log_event(
                 {
-                    "event": "code_generated",
-                    "doc_id": objective,
-                    "path": str(path),
-                    "asset_type": "code_stub",
-                    "compliance_score": 1.0,
+                    "event": "integration_progress",
+                    "phase": "token_replacement",
+                    "objective": objective,
+                    "step": 2,
+                    "total": total,
                 },
-                table="correction_logs",
-                db_path=self.analytics_db,
-                test_mode=False,
-            )
-            secondary_copilot_validator.run_flake8([str(path)])
-        except Exception as exc:  # pragma: no cover - error handling
-            if "conn" in locals():
-                conn.rollback()
-            if tmp_path.exists():
-                tmp_path.unlink()
-            _log_event(
-                {"event": "integration_ready_failed", "objective": objective, "error": str(exc)},
                 table="generator_events",
                 db_path=self.analytics_db,
-                level=logging.ERROR,
                 test_mode=False,
             )
+            bar.update(1)
+
+            # Phase 3: file write
+            path = Path(f"{objective}.py")
+            tmp_path = path.with_suffix(path.suffix + ".tmp")
+
+            try:
+                with sqlite3.connect(self.production_db) as conn:
+                    conn.execute("BEGIN")
+                    tmp_path.write_text(stub)
+                    file_hash = hashlib.sha256(stub.encode()).hexdigest()
+                    ts = datetime.utcnow().isoformat()
+                    conn.execute(
+                        "CREATE TABLE IF NOT EXISTS script_tracking (file_path TEXT, file_hash TEXT, last_modified TEXT)"
+                    )
+                    conn.execute(
+                        "INSERT INTO script_tracking (file_path, file_hash, last_modified) VALUES (?, ?, ?)",
+                        (str(path), file_hash, ts),
+                    )
+                    conn.execute(
+                        "CREATE TABLE IF NOT EXISTS enhanced_script_tracking (script_path TEXT, script_content TEXT, script_hash TEXT, script_type TEXT, functionality_category TEXT)"
+                    )
+                    conn.execute(
+                        "INSERT INTO enhanced_script_tracking (script_path, script_content, script_hash, script_type, functionality_category) VALUES (?, ?, ?, 'python', 'generated')",
+                        (str(path), stub, file_hash),
+                    )
+                    tmp_path.replace(path)
+                    conn.commit()
+
+                _log_event(
+                    {
+                        "event": "integration_ready_generated",
+                        "objective": objective,
+                        "path": str(path),
+                    },
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                    test_mode=False,
+                )
+                _log_event(
+                    {
+                        "event": "code_generated",
+                        "doc_id": objective,
+                        "path": str(path),
+                        "asset_type": "code_stub",
+                        "compliance_score": 1.0,
+                    },
+                    table="correction_logs",
+                    db_path=self.analytics_db,
+                    test_mode=False,
+                )
+                _log_event(
+                    {
+                        "event": "requirement_mapping",
+                        "requirement_id": objective,
+                        "generated_path": str(path),
+                        "code_snippet": stub[:100],
+                    },
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                    test_mode=False,
+                )
+                secondary_copilot_validator.run_flake8([str(path)])
+            except Exception as exc:  # pragma: no cover - error handling
+                if "conn" in locals():
+                    conn.rollback()
+                if tmp_path.exists():
+                    tmp_path.unlink()
+                _log_event(
+                    {
+                        "event": "integration_ready_failed",
+                        "objective": objective,
+                        "error": str(exc),
+                    },
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                    level=logging.ERROR,
+                    test_mode=False,
+                )
+                _log_event(
+                    {"event": "integration_ready_rollback", "target": str(path)},
+                    table="rollback_logs",
+                    db_path=self.analytics_db,
+                    test_mode=False,
+                )
+                raise
+
             _log_event(
-                {"event": "integration_ready_rollback", "target": str(path)},
-                table="rollback_logs",
+                {
+                    "event": "integration_progress",
+                    "phase": "file_write",
+                    "objective": objective,
+                    "step": 3,
+                    "total": total,
+                },
+                table="generator_events",
                 db_path=self.analytics_db,
                 test_mode=False,
             )
-            raise
+            bar.update(1)
 
         return path
 
