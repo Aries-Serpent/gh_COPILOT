@@ -46,11 +46,32 @@ def _check_rate_limit(identifier: str = "global", limit: int = 5, window: int = 
     events.append(now)
     _RATE_LIMIT[identifier] = events
 
-# TODO: integrate multi-factor authentication mechanisms
 
-def _check_mfa() -> None:
-    """Placeholder for future multi-factor authentication logic."""
-    pass
+def _check_mfa(token: str | None) -> None:
+    """Validate a user-provided TOTP code.
+
+    Parameters
+    ----------
+    token:
+        The one-time password supplied by the user.  The secret used to
+        validate the token is read from ``DASHBOARD_MFA_SECRET``.
+    """
+
+    if token is None:
+        raise ValueError("MFA token required")
+
+    secret = os.environ.get("DASHBOARD_MFA_SECRET")
+    if not secret:
+        raise ValueError("MFA secret not configured")
+
+    try:  # pragma: no cover - optional dependency
+        import pyotp
+    except Exception as exc:  # pragma: no cover - dependency issue
+        raise ValueError("pyotp library is required for MFA") from exc
+
+    totp = pyotp.TOTP(secret)
+    if not totp.verify(token):
+        raise ValueError("Invalid MFA token")
 
 
 @dataclass
@@ -72,8 +93,8 @@ class SessionManager:
             session_timeout=session_timeout,
         )
 
-    def start_session(self, token: str) -> str:
-        """Start a session if the token matches the expected value."""
+    def start_session(self, token: str, mfa_token: str | None = None) -> str:
+        """Start a session if both auth token and MFA code are valid."""
 
         _check_rate_limit("start_session")
         now = time.time()
@@ -86,9 +107,10 @@ class SessionManager:
                 self.lock_until = now + 60
                 raise ValueError("Too many failed attempts")
             raise ValueError("Invalid token")
+        _check_mfa(mfa_token)
         self.failed_attempts = 0
         self.lock_until = 0
-        _check_mfa()
+        _check_mfa(mfa_token)
         session_id = str(uuid.uuid4())
         csrf_token = secrets.token_hex(16)
         self.active_sessions[session_id] = _Session(

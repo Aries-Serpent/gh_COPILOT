@@ -17,8 +17,8 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterable
 import sqlite3
 
-from src.monitoring import anomaly
-from src.session import validators
+from monitoring import anomaly
+from session import validators
 
 
 def recover_system(

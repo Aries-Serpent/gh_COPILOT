@@ -4,9 +4,16 @@
 **Generation Date:** August 2, 2025
 **Validation ID:** LLI_VAL_20250802_033003
 **Process ID:** 8260
-**Codebase Version:** v4.0 Enterprise  
+**Codebase Version:** v4.0 Enterprise
 
 ---
+
+## Recent Lessons Learned Updates
+
+- **Healing Queue Initialization:** Startup now creates and seeds the `healing_queue` table in the autonomous monitoring system to avoid missing-table errors.
+- **Audit Logs Table:** Added `audit_logs` table and logging for each audit phase in the enterprise audit deployment system.
+- **Test Package Resolution:** Configured `pytest` to include the repository root on `sys.path`, preventing imports from external `monitoring` packages. Guarded optional monitoring dependencies so tests run without third-party modules like `psutil` or `numpy`.
+- **Syntax Fixer Import:** Introduced explicit `json` import and safer config handling in the comprehensive syntax fixer script; execution confirms no `NameError`.
 
 ## 📊 EXECUTIVE SUMMARY
 

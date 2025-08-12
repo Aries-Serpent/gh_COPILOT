@@ -6,11 +6,14 @@ from __future__ import annotations
 import logging
 import os
 import sqlite3
-from difflib import SequenceMatcher
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 from tqdm import tqdm
+
+from enterprise_modules.compliance import validate_enterprise_operation
+from template_engine.objective_similarity_scorer import compute_similarity_scores
 
 
 class DatabaseFirstCopilotEnhancer:
@@ -19,6 +22,7 @@ class DatabaseFirstCopilotEnhancer:
     def __init__(self, workspace_path: str = ".") -> None:
         self.workspace = Path(workspace_path)
         self.production_db = self.workspace / "databases" / "production.db"
+        self.analytics_db = self.workspace / "databases" / "analytics.db"
         self.logger = logging.getLogger(self.__class__.__name__)
         self.template_engine = self._initialize_template_engine()
         self._validate_environment_compliance()
@@ -42,7 +46,9 @@ class DatabaseFirstCopilotEnhancer:
         def load_db_templates() -> dict[str, str]:
             templates: dict[str, str] = {}
             if self.production_db.exists():
+                validate_enterprise_operation(str(self.production_db))
                 try:
+                    validate_enterprise_operation(str(self.production_db))
                     with sqlite3.connect(self.production_db) as conn:
                         conn.execute(
                             "CREATE TABLE IF NOT EXISTS templates (name TEXT PRIMARY KEY, template_content TEXT)"
@@ -57,6 +63,7 @@ class DatabaseFirstCopilotEnhancer:
             templates: dict[str, str] = {}
             tpl_dir = self.workspace / "templates"
             if tpl_dir.exists():
+                validate_enterprise_operation(str(tpl_dir))
                 for path in tpl_dir.glob("*.tmpl"):
                     try:
                         templates[path.stem] = path.read_text(encoding="utf-8")
@@ -87,21 +94,33 @@ class DatabaseFirstCopilotEnhancer:
 
         return engine
 
-    def _query_database_solutions(self, objective: str) -> List[str]:
-        """Return code snippets matching ``objective`` from ``production.db``."""
+    def _query_database_solutions(self, objective: str) -> List[Tuple[str, float]]:
+        """Return code snippets and scores ranked by similarity to ``objective``."""
         if not self.production_db.exists():
             return []
+        validate_enterprise_operation(str(self.production_db))
+        validate_enterprise_operation(str(self.analytics_db))
+        scores: List[Tuple[int, float]] = compute_similarity_scores(
+            objective, production_db=self.production_db, analytics_db=self.analytics_db
+        )
+        results: List[Tuple[str, float]] = []
         with sqlite3.connect(self.production_db) as conn:
-            cur = conn.cursor()
-            cur.execute("CREATE TABLE IF NOT EXISTS solutions (objective TEXT, code TEXT)")
-            cur.execute("SELECT objective, code FROM solutions")
-            matches: List[tuple[float, str]] = []
-            for obj, code in cur.fetchall():
-                score = SequenceMatcher(None, objective, obj).ratio()
-                if score >= 0.5:
-                    matches.append((score, code))
-            matches.sort(key=lambda x: x[0], reverse=True)
-            return [code for _, code in matches]
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS similarity_scores (objective TEXT, template_id INTEGER, score REAL)"
+            )
+            for tid, score in scores:
+                conn.execute(
+                    "INSERT INTO similarity_scores (objective, template_id, score) VALUES (?,?,?)",
+                    (objective, tid, score),
+                )
+            conn.commit()
+            for tid, score in sorted(scores, key=lambda s: s[1], reverse=True):
+                row = conn.execute(
+                    "SELECT template_code FROM code_templates WHERE id=?", (tid,)
+                ).fetchone()
+                if row:
+                    results.append((row[0], score))
+        return results
 
     def _find_template_matches(self, objective: str) -> str:
         return self.template_engine(objective)
@@ -110,21 +129,24 @@ class DatabaseFirstCopilotEnhancer:
         """Inject environment specific values into ``template``."""
         return template.replace("{workspace}", str(self.workspace))
 
-    def _calculate_confidence(self, solutions: List[str]) -> float:
+    def _calculate_confidence(self, solutions: List[Tuple[str, float]]) -> float:
+        """Return confidence based on highest similarity score."""
         if not solutions:
             return 0.0
-        # simplistic confidence based on number of solutions
-        return min(1.0, len(solutions) / 5)
+        max_score = max(score for _code, score in solutions)
+        return float(max(0.0, min(1.0, max_score)))
 
     def query_before_filesystem(self, objective: str) -> Dict[str, Any]:
         """Query database before using filesystem templates."""
-        solutions = self._query_database_solutions(objective)
+        scored = self._query_database_solutions(objective)
+        solutions = [code for code, _ in scored]
         template = self._find_template_matches(objective)
         adapted = self._adapt_to_current_environment(template)
+        codes = [code for code, _ in solutions]
         return {
-            "database_solutions": solutions,
+            "database_solutions": codes,
             "template_code": adapted,
-            "confidence_score": self._calculate_confidence(solutions),
+            "confidence_score": self._calculate_confidence(scored),
             "integration_ready": True,
         }
 
@@ -136,6 +158,27 @@ class DatabaseFirstCopilotEnhancer:
             bar.update(1)
             code = result["template_code"]
             bar.update(1)
-        duration = bar.format_dict.get("elapsed", 0)
+        duration = float(bar.format_dict.get("elapsed", 0))
         self.logger.info("Generated code for %s in %.2fs", objective, duration)
+        template_name = objective
+        validate_enterprise_operation(str(self.production_db))
+        with sqlite3.connect(self.production_db) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS generated_solutions (objective TEXT, template_name TEXT, code TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO generated_solutions (objective, template_name, code) VALUES (?,?,?)",
+                (objective, template_name, code),
+            )
+            conn.commit()
+        validate_enterprise_operation(str(self.analytics_db))
+        with sqlite3.connect(self.analytics_db) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS generation_log (objective TEXT, duration REAL, ts TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO generation_log (objective, duration, ts) VALUES (?,?,?)",
+                (objective, duration, datetime.utcnow().isoformat()),
+            )
+            conn.commit()
         return code

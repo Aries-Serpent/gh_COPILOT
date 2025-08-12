@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 import os
 import shutil
-import sqlite3
 from datetime import datetime
 from pathlib import Path
 
@@ -140,16 +139,22 @@ class EnterpriseUtility:
             )
             try:
                 backup_file = schedule_backups()
-                self.compliance_logger.log("session_backup", path=str(backup_file))
-                with sqlite3.connect(self.analytics_db) as conn:
-                    cur = conn.execute(
-                        "SELECT 1 FROM event_log WHERE description=?",
-                        ("session_backup",),
+                backup_root = Path(
+                    os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_COPILOT_Backups")
+                ).resolve()
+                if backup_root in backup_file.parents:
+                    self.compliance_logger.log(
+                        "session_backup", path=str(backup_file)
                     )
-                    if cur.fetchone() is None:
-                        self.logger.error(
-                            "[ERROR] session_backup log missing for %s", backup_file
-                        )
+                else:
+                    self.logger.error(
+                        "[ERROR] backup outside root: %s", backup_file
+                    )
+                    self.compliance_logger.log(
+                        "session_backup_failed",
+                        path=str(backup_file),
+                        reason="outside_root",
+                    )
             except Exception as exc:  # pragma: no cover - logging only
                 self.logger.error("[ERROR] backup scheduling failed: %s", exc)
             self._clear_pid()

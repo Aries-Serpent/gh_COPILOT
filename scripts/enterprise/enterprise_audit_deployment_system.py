@@ -10,17 +10,13 @@ Status: PRODUCTION DEPLOYMENT READY
 Requirements: Database storage for all logs, scripts, templates
 """
 
-import os
-import sys
 import json
 import sqlite3
-import time
 import logging
 import hashlib
-import shutil
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, Any
 
 # Text-based indicators (NO Unicode emojis - emoji-free requirement)
 TEXT_INDICATORS = {
@@ -165,7 +161,19 @@ class EnterpriseAuditDeploymentSystem:
                     deployment_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
             """)
-            
+
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS audit_logs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    component TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    details TEXT
+                )
+                """
+            )
+
             conn.commit()
         
         self.log_to_database("SUCCESS", f"{TEXT_INDICATORS['database']} All databases initialized successfully", "DATABASE")
@@ -201,16 +209,23 @@ class EnterpriseAuditDeploymentSystem:
                 
                 audit_result = audit_function()
                 audit_results['audit_categories'][category_name] = audit_result
-                
-                # Store in audit database
+
+                # Store in audit database and audit log
                 self._store_audit_result(audit_results['audit_id'], category_name, audit_result)
-                
+                self._insert_audit_log(
+                    category_name,
+                    audit_result.get('status', 'UNKNOWN'),
+                    audit_result.get('findings', '')
+                )
+
                 total_score += audit_result.get('compliance_score', 0.0)
                 completed_audits += 1
-                
-                self.log_to_database("SUCCESS", 
-                    f"{TEXT_INDICATORS['audit']} {category_name}: {audit_result['compliance_score']:.1f}%", 
-                    "AUDIT")
+
+                self.log_to_database(
+                    "SUCCESS",
+                    f"{TEXT_INDICATORS['audit']} {category_name}: {audit_result['compliance_score']:.1f}%",
+                    "AUDIT",
+                )
                 
             except Exception as e:
                 error_msg = f"Audit error in {category_name}: {e}"
@@ -220,6 +235,8 @@ class EnterpriseAuditDeploymentSystem:
                     'status': 'FAILED',
                     'error': str(e)
                 }
+                # Record failure details in audit log table
+                self._insert_audit_log(category_name, 'FAILED', str(e))
         
         # Calculate overall compliance
         if completed_audits > 0:
@@ -550,7 +567,23 @@ class EnterpriseAuditDeploymentSystem:
                 
         except Exception as e:
             self.log_to_database("ERROR", f"Audit storage error: {e}", "DATABASE")
-    
+        
+    def _insert_audit_log(self, component: str, status: str, details: str = "") -> None:
+        """Insert a log entry for each audit component"""
+        try:
+            with sqlite3.connect(str(self.audit_db)) as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    INSERT INTO audit_logs (component, status, details)
+                    VALUES (?, ?, ?)
+                    """,
+                    (component, status, details),
+                )
+                conn.commit()
+        except Exception as e:
+            self.log_to_database("ERROR", f"Audit log error: {e}", "DATABASE")
+
     def execute_production_deployment(self, audit_results: Dict[str, Any]) -> Dict[str, Any]:
         """Execute production deployment based on audit results"""
         self.log_to_database("INFO", f"{TEXT_INDICATORS['deploy']} Starting Production Deployment", "DEPLOYMENT")

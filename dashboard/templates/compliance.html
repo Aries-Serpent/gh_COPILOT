@@ -1,42 +1,30 @@
-<!doctype html>
 <html>
 <head>
-    <title>Compliance Metrics</title>
+    <title>Compliance Overview</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script>
-        // Pull metrics from /api/compliance_scores and populate tooltip titles
-        function loadCompliance() {
-            fetch('/api/compliance_scores').then(r => r.json()).then(data => {
-                const scores = data.scores || [];
-                if (!scores.length) return;
-                const latest = scores[0];
-                const ts = latest.timestamp;
-                const composite = document.getElementById('composite');
-                composite.textContent = latest.composite;
-                composite.title = `Definition: composite compliance score. Units: points. Cadence: periodic. Last update: ${ts}`;
-                const lint = document.getElementById('lint_score');
-                lint.textContent = latest.lint_score;
-                lint.title = `Definition: percentage of files passing lint checks. Units: percent. Cadence: periodic. Last update: ${ts}`;
-                const test = document.getElementById('test_score');
-                test.textContent = latest.test_score;
-                test.title = `Definition: percentage of tests passing. Units: percent. Cadence: periodic. Last update: ${ts}`;
-                const placeholder = document.getElementById('placeholder_score');
-                placeholder.textContent = latest.placeholder_score;
-                placeholder.title = `Definition: progress removing placeholders. Units: percent. Cadence: periodic. Last update: ${ts}`;
-            });
-        }
-        document.addEventListener('DOMContentLoaded', loadCompliance);
-    </script>
 </head>
 <body>
-<h1>Compliance Metrics</h1>
-<table>
-    <tr><th>Metric</th><th>Value</th></tr>
-    <tr><td>Composite</td><td id="composite" title="Definition: composite compliance score. Units: points. Cadence: periodic. Last update: unknown">--</td></tr>
-    <tr><td>Lint Score</td><td id="lint_score" title="Definition: percentage of files passing lint checks. Units: percent. Cadence: periodic. Last update: unknown">--</td></tr>
-    <tr><td>Test Score</td><td id="test_score" title="Definition: percentage of tests passing. Units: percent. Cadence: periodic. Last update: unknown">--</td></tr>
-    <tr><td>Placeholder Score</td><td id="placeholder_score" title="Definition: progress removing placeholders. Units: percent. Cadence: periodic. Last update: unknown">--</td></tr>
-</table>
+<h1>Compliance Overview</h1>
+<p>Open placeholders: {{ placeholders }}</p>
+<p>Last resolved: {{ last_resolved or 'N/A' }}</p>
+<h2>Open Placeholder Entries</h2>
+<ul>
+    {% for item in todo_entries %}
+    <li>{{ item.file_path }}:{{ item.line_number }} - {{ item.placeholder_type }}</li>
+    {% endfor %}
+    {% if not todo_entries %}
+    <li>No open placeholders</li>
+    {% endif %}
+</ul>
+<h2>Recent Audit Logs</h2>
+<ul>
+    {% for log in audit_logs %}
+    <li>{{ log.ts }} - {{ log.summary }}</li>
+    {% endfor %}
+    {% if not audit_logs %}
+    <li>No recent audit logs</li>
+    {% endif %}
+</ul>
 {% include 'footer.html' %}
 </body>
 </html>

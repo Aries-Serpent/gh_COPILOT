@@ -10,7 +10,7 @@ try:  # pragma: no cover - optional dependency
     import qiskit  # noqa: F401
 except Exception as exc:  # pragma: no cover - qiskit may be missing
     raise ImportError(
-        "qiskit is required; install qiskit==0.44.0"
+        "qiskit is required; install qiskit>=0.44.1 (or later)"
     ) from exc
 
 try:  # pragma: no cover - optional dependency
@@ -61,7 +61,7 @@ def get_backend(
 
     if Aer is None:
         raise ImportError(
-            "qiskit and qiskit-aer are required; install qiskit==0.44.0 and qiskit-aer==0.17.1"
+            "qiskit and qiskit-aer are required; install qiskit>=0.44.1 (or later) and qiskit-aer==0.17.1"
         ) from _AER_IMPORT_ERROR
 
     if use_hardware is None:

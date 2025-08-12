@@ -12,6 +12,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional, Tuple
+import argparse
 
 from tqdm import tqdm
 
@@ -21,6 +22,7 @@ from secondary_copilot_validator import SecondaryCopilotValidator
 
 logger = logging.getLogger(__name__)
 ANALYTICS_DB = DEFAULT_ANALYTICS_DB
+REPORTS_DIR = Path("reports")
 
 CORRECTION_SQL = """
 CREATE TABLE IF NOT EXISTS correction_history (
@@ -36,6 +38,14 @@ CREATE TABLE IF NOT EXISTS correction_history (
 );
 """
 
+CORRECTION_SESSIONS_SQL = """
+CREATE TABLE IF NOT EXISTS correction_sessions (
+    session_id TEXT,
+    action TEXT,
+    timestamp TEXT
+);
+"""
+
 
 def ensure_correction_history(db_path: Path) -> None:
     """Create ``correction_history`` table if needed."""
@@ -43,6 +53,44 @@ def ensure_correction_history(db_path: Path) -> None:
     with sqlite3.connect(db_path) as conn:
         conn.executescript(CORRECTION_SQL)
         conn.commit()
+
+
+def _record_correction_session(action: str, db_path: Path) -> str:
+    """Log a correction session action and return session id."""
+    session_id = f"session_{datetime.utcnow().isoformat()}"
+    with sqlite3.connect(db_path) as conn:
+        conn.executescript(CORRECTION_SESSIONS_SQL)
+        conn.execute(
+            "INSERT INTO correction_sessions (session_id, action, timestamp) VALUES (?,?,?)",
+            (session_id, action, datetime.utcnow().isoformat()),
+        )
+        conn.commit()
+    _log_event({"session_id": session_id, "action": action}, table="correction_sessions", db_path=db_path)
+    return session_id
+
+
+def _write_session_reports(db_path: Path, reports_dir: Path = REPORTS_DIR) -> None:
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(db_path) as conn:
+        rows = conn.execute(
+            "SELECT session_id, action, timestamp FROM correction_sessions"
+        ).fetchall()
+    if not rows:
+        return
+    csv_path = reports_dir / "correction_sessions.csv"
+    json_path = reports_dir / "correction_sessions.json"
+    csv_lines = ["session_id,action,timestamp"] + ["%s,%s,%s" % tuple(r) for r in rows]
+    csv_path.write_text("\n".join(csv_lines), encoding="utf-8")
+    json_path.write_text(
+        json.dumps(
+            [
+                {"session_id": r[0], "action": r[1], "timestamp": r[2]}
+                for r in rows
+            ],
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
 
 
 def _log_corrections(items: list[tuple[str, str]]) -> None:
@@ -358,6 +406,37 @@ def _log_report(report: dict) -> None:
         logger.debug("analytics log failed: %s", exc)
 
 
+def summarize_corrections(db_path: Path = ANALYTICS_DB, reports_dir: Path = REPORTS_DIR) -> dict[str, float]:
+    """Aggregate correction history statistics and write a JSON report."""
+
+    ensure_correction_history(db_path)
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT COUNT(*), COALESCE(SUM(violations_count),0), COALESCE(SUM(fixes_applied),0),"
+            " SUM(CASE WHEN violation_code='DOC_ROLLBACK' OR fix_applied='DATABASE_RESTORE' THEN 1 ELSE 0 END)"
+            " FROM correction_history"
+        )
+        entries, violations, fixes, rollbacks = cur.fetchone()
+
+    success_rate = float(fixes) / float(violations) if violations else 0.0
+    summary = {
+        "entries": entries,
+        "violations": violations,
+        "fixes": fixes,
+        "success_rate": success_rate,
+        "rollbacks": rollbacks,
+    }
+
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    report_path = reports_dir / f"correction_summary_{ts}.json"
+    report_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+
+    _log_event({"action": "summary", **summary}, table="doc_analysis", db_path=db_path)
+    return summary
+
+
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
     elapsed = time.time() - start_time
     if current_progress > 0:
@@ -378,6 +457,8 @@ def rollback_cleanup(db_path: Path, backup_path: Path) -> bool:
         table="doc_analysis",
         db_path=ANALYTICS_DB,
     )
+    _record_correction_session("rollback", ANALYTICS_DB)
+    _write_session_reports(ANALYTICS_DB, REPORTS_DIR)
     ensure_correction_history(ANALYTICS_DB)
     with sqlite3.connect(ANALYTICS_DB) as conn:
         conn.execute(
@@ -425,6 +506,19 @@ def restore_entries(db_path: Path, backup_path: Path) -> None:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--summarize-corrections",
+        action="store_true",
+        help="Generate correction history summary report",
+    )
+    args = parser.parse_args()
+
+    if args.summarize_corrections:
+        summary = summarize_corrections(ANALYTICS_DB, REPORTS_DIR)
+        logger.info("Summary generated: %s", summary)
+        return
+
     repo_root = Path(__file__).resolve().parents[1]
     db_path = repo_root / "archives" / "documentation.db"
     start_ts = time.time()

@@ -44,7 +44,7 @@ This module is designed to meet enterprise auditability and compliance standards
 - **Correction Log UI:** Vue component (`web/dashboard/components/CorrectionLog.vue`) fetches
   `/corrections/logs` and supports client-side filtering and pagination. Real-time
   updates arrive via `/ws/corrections` with automatic SSE fallback handled by
-  `dashboard/static/js/corrections_ws.js`.
+  `dashboard/static/js/corrections_ws_listener.js`.
 - **Data Sources:** `production.db`, `analytics.db`, `monitoring.db`
 - **Primary Endpoints:** `/`, `/database`, `/backup`, `/migration`, `/deployment`, `/api/scripts`, `/api/health`, `/metrics_stream`, `/corrections_stream`, `/ws/corrections`, `/dashboard/compliance`
 - **Session Logging:** All actions are recorded in `production.db` and mirrored in `analytics.db`
@@ -127,6 +127,13 @@ Server-Sent Events (SSE). Metrics and correction logs are retrieved from
 rollback and violation logs so operators can react to compliance issues
 immediately.
 
+### Real-Time Corrections
+
+`CorrectionLog.vue` relies on `dashboard/static/js/corrections_ws_listener.js`
+to stream updates from `/ws/corrections`. If the WebSocket connection fails,
+the listener automatically falls back to Server-Sent Events from
+`/corrections_stream`, ensuring the log remains current.
+
 ---
 
 ## ENDPOINTS
@@ -142,7 +149,7 @@ immediately.
 | `/api/health`             | System health check API                                                          |
 | `/metrics_stream`         | Server-Sent Events stream of live metrics                                       |
 | `/corrections_stream`     | SSE stream of recent correction logs                                            |
-| `/ws/corrections`         | WebSocket stream of correction logs (SSE fallback)                              |
+| `/ws/corrections`         | WebSocket broadcast of correction logs (same data as `/corrections_stream`)     |
 | `/dashboard/compliance`   | Returns compliance metrics, rollback and audit trail as JSON                     |
 | `/overview`               | Consolidated dashboard with metrics, rollbacks, sync events, and audit results   |
 #### Example `/dashboard/compliance` Response

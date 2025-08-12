@@ -31,24 +31,31 @@ from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
 from collections import defaultdict, deque
 import uuid
+import importlib.util
 
 # Essential imports for intelligence framework
 import numpy as np
 from tqdm import tqdm
 
-# Real-time streaming imports
-try:
+# Conditional imports
+if importlib.util.find_spec("websockets") is not None:
     import websockets  # noqa: F401
     WEBSOCKETS_AVAILABLE = True
-except ImportError:
+else:
     WEBSOCKETS_AVAILABLE = False
     print("⚠️  websockets not available - using polling for real-time updates")
 
-# Visualization imports
-try:
+if importlib.util.find_spec("asyncio") is not None:
+    import asyncio  # noqa: F401
+    ASYNCIO_AVAILABLE = True
+else:
+    ASYNCIO_AVAILABLE = False
+    print("⚠️  asyncio not available - asynchronous features disabled")
+
+if importlib.util.find_spec("matplotlib") is not None:
     import matplotlib.pyplot as plt  # noqa: F401
     MATPLOTLIB_AVAILABLE = True
-except ImportError:
+else:
     MATPLOTLIB_AVAILABLE = False
     print("⚠️  matplotlib not available - charts will be text-based")
 

@@ -8,6 +8,7 @@ Date: July 14, 2025
 Status: PRODUCTION READY
 """
 
+import os
 import sys
 import json
 import sqlite3
@@ -27,9 +28,12 @@ from scripts.monitoring.unified_monitoring_optimization_system import (
 class AutonomousMonitoringSystem:
     """Simplified autonomous monitoring and self-healing system"""
 
-    def __init__(self, workspace_path: str = "."):
-        self.workspace_path = Path(workspace_path)
-        self.production_db = self.workspace_path / "production.db"
+    def __init__(self, workspace_path: str = ""):
+        # Resolve workspace from argument or environment
+        self.workspace_path = Path(
+            workspace_path or os.getenv("GH_COPILOT_WORKSPACE", ".")
+        )
+        self.production_db = self.workspace_path / "databases" / "production.db"
         self.monitoring_active = False
         self.healing_active = False
 
@@ -46,6 +50,9 @@ class AutonomousMonitoringSystem:
             "script_count": 1000,
         }
 
+        # Ensure healing queue table exists before threads start
+        self._ensure_healing_queue_table()
+
         self.logger.info("[MONITOR] Autonomous Monitoring System Initialized")
 
     def setup_logging(self):
@@ -57,6 +64,53 @@ class AutonomousMonitoringSystem:
             handlers=[logging.FileHandler("autonomous_monitoring.log"), logging.StreamHandler(sys.stdout)],
         )
         self.logger = logging.getLogger("AutonomousMonitoring")
+
+    def _ensure_healing_queue_table(self) -> None:
+        """Create healing_queue table and seed placeholder if empty."""
+        try:
+            with sqlite3.connect(str(self.production_db)) as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS healing_queue (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        anomaly_type TEXT NOT NULL,
+                        healing_action TEXT NOT NULL,
+                        priority INTEGER DEFAULT 5,
+                        status TEXT DEFAULT 'PENDING',
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        executed_at DATETIME,
+                        execution_result TEXT
+                    )
+                    """
+                )
+
+                # Ensure required columns exist for legacy schemas
+                cursor.execute("PRAGMA table_info(healing_queue)")
+                columns = {row[1] for row in cursor.fetchall()}
+                if "executed_at" not in columns:
+                    cursor.execute(
+                        "ALTER TABLE healing_queue ADD COLUMN executed_at DATETIME"
+                    )
+                if "execution_result" not in columns:
+                    cursor.execute(
+                        "ALTER TABLE healing_queue ADD COLUMN execution_result TEXT"
+                    )
+
+                cursor.execute("SELECT COUNT(*) FROM healing_queue")
+                if cursor.fetchone()[0] == 0:
+                    cursor.execute(
+                        """
+                        INSERT INTO healing_queue (anomaly_type, healing_action, priority, status)
+                        VALUES ('INIT', 'SYSTEM_CHECK', 10, 'COMPLETED')
+                        """
+                    )
+
+                conn.commit()
+        except Exception as e:
+            logging.getLogger("AutonomousMonitoring").error(
+                f"[HEALING] Initialization error: {e}"
+            )
 
     def start_continuous_monitoring(self):
         """Start continuous monitoring and self-healing"""

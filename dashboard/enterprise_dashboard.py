@@ -5,8 +5,9 @@ import time
 from pathlib import Path
 import sqlite3
 import threading
-import asyncio
 from typing import Any, Callable, Dict, List
+import queue
+import threading
 
 from monitoring import BaselineAnomalyDetector
 
@@ -25,20 +26,29 @@ except Exception:  # pragma: no cover - provide fallbacks
 
     class _Request:
         args: Dict[str, Any] = {}
+        environ: Dict[str, Any] = {}
 
     request = _Request()  # type: ignore[assignment]
 
 
 try:  # pragma: no cover - dashboard features are optional in tests
+    from typing import Any, cast
+
     from .integrated_dashboard import (
         app,
         _dashboard as dashboard_bp,
         create_app,
-        _load_metrics,
-        get_rollback_logs,
-        _load_sync_events,
+        _load_metrics as _real_load_metrics,
+        get_rollback_logs as _real_get_rollback_logs,
+        _load_sync_events as _real_load_sync_events,
+        _compliance_payload as _real_compliance_payload,
         METRICS_FILE as _METRICS_FILE,
+        _load_compliance_payload as _real_load_compliance_payload,
     )
+    _load_metrics = cast(Any, _real_load_metrics)
+    get_rollback_logs = cast(Any, _real_get_rollback_logs)
+    _load_sync_events = cast(Any, _real_load_sync_events)
+    _load_compliance_payload = cast(Any, _real_load_compliance_payload)
 except Exception:  # pragma: no cover - provide fallbacks
 
     class _DummyApp:
@@ -56,14 +66,17 @@ except Exception:  # pragma: no cover - provide fallbacks
     def create_app(*args: Any, **kwargs: Any) -> Any:  # type: ignore[override]
         return app
 
-    def _load_metrics() -> Dict[str, Any]:  # type: ignore[override]
+    def _load_metrics(*args: Any, **kwargs: Any):  # type: ignore[override]
         return {}
 
-    def get_rollback_logs() -> List[Dict[str, Any]]:  # type: ignore[override]
+    def get_rollback_logs(*args: Any, **kwargs: Any):  # type: ignore[override]
         return []
 
-    def _load_sync_events() -> List[Dict[str, Any]]:  # type: ignore[override]
+    def _load_sync_events(*args: Any, **kwargs: Any):  # type: ignore[override]
         return []
+
+    def _compliance_payload(*args: Any, **kwargs: Any) -> Dict[str, Any]:  # type: ignore[override]
+        return {}
 
     _METRICS_FILE = Path("metrics.json")
 try:  # pragma: no cover - optional dependency
@@ -81,11 +94,11 @@ try:  # pragma: no cover - optional dependency
     )
 except Exception:  # pragma: no cover
 
-    def update_compliance_metrics(*args: Any, **kwargs: Any) -> None:  # type: ignore[override]
-        return None
+    def update_compliance_metrics(*args: Any, **kwargs: Any) -> float:  # type: ignore[override]
+        return 0.0
 
-    def fetch_recent_compliance(*args: Any, **kwargs: Any) -> Dict[str, Any]:  # type: ignore[override]
-        return {}
+    def fetch_recent_compliance(*args: Any, **kwargs: Any) -> List[Dict[str, float]]:  # type: ignore[override]
+        return []
 
 
 ANALYTICS_DB = Path("databases/analytics.db")
@@ -171,8 +184,25 @@ def load_code_quality_metrics(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
     return metrics
 
 
+@app.route("/dashboard/compliance/view")
+def dashboard_compliance_view() -> str:
+    """Render compliance metrics from analytics.db."""
+    data = _load_compliance_payload()
+    return render_template(
+        "compliance.html",
+        placeholders=data.get("placeholders_open", 0),
+        last_resolved=data.get("last_resolved", ""),
+        audit_logs=data.get("audit_log", []),
+    )
+
+
+@app.route("/api/dashboard/compliance")
+def dashboard_compliance_api() -> Any:
+    return jsonify(_compliance_payload())
+
+
 @app.route("/anomalies")
-def anomalies() -> Dict[str, list]:
+def anomalies() -> Dict[str, Any]:
     """Expose recent anomaly summaries."""
 
     return {"anomalies": get_anomaly_summary(db_path=ANALYTICS_DB)}
@@ -191,36 +221,45 @@ def _load_corrections(limit: int = 10) -> List[Dict[str, Any]]:
     return rows
 
 
-_ws_server_started = False
+_sse_subscribers: list["queue.Queue[str]"] = []
+_ws_clients: list[Any] = []
+_last_corrections_payload = ""
+_broadcast_thread_started = False
 
 
-def _run_corrections_ws_server() -> None:
-    """Start a background WebSocket server for corrections."""
-    global _ws_server_started
-    if _ws_server_started:
+def _broadcast_corrections(payload: str | None = None) -> None:
+    """Broadcast ``payload`` to SSE and WebSocket clients."""
+    global _last_corrections_payload
+    if payload is None:
+        payload = json.dumps(_load_corrections())
+    if payload == _last_corrections_payload:
         return
-    try:  # pragma: no cover - optional dependency
-        import websockets
-    except Exception:  # pragma: no cover - quietly skip if missing
-        return
-
-    async def handler(ws):
+    _last_corrections_payload = payload
+    for q in list(_sse_subscribers):
         try:
-            while True:
-                await ws.send(json.dumps(_load_corrections()))
-                await asyncio.sleep(5)
-        except websockets.ConnectionClosed:  # pragma: no cover - network errors
-            pass
-
-    async def main() -> None:
-        async with websockets.serve(handler, "localhost", CORRECTIONS_WS_PORT):
-            await asyncio.Event().wait()
-
-    threading.Thread(target=lambda: asyncio.run(main()), daemon=True).start()
-    _ws_server_started = True
+            q.put_nowait(payload)
+        except Exception:
+            _sse_subscribers.remove(q)
+    for ws in list(_ws_clients):
+        try:
+            ws.send(payload)
+        except Exception:
+            _ws_clients.remove(ws)
 
 
-_run_corrections_ws_server()
+def _corrections_broadcast_loop(interval: int = 5) -> None:
+    """Periodically load corrections and broadcast to subscribers."""
+    while True:
+        _broadcast_corrections()
+        time.sleep(interval)
+
+
+def _ensure_corrections_thread() -> None:
+    """Start the corrections broadcast thread if not already running."""
+    global _broadcast_thread_started
+    if not _broadcast_thread_started:
+        threading.Thread(target=_corrections_broadcast_loop, daemon=True).start()
+        _broadcast_thread_started = True
 
 
 def _load_audit_results(limit: int = 50) -> List[Dict[str, Any]]:
@@ -299,34 +338,42 @@ def metrics_stream() -> Response:
 def corrections_stream() -> Response:
     """Stream recent correction logs via SSE."""
     once = request.args.get("once") == "1"
-    interval = int(request.args.get("interval", "5"))
+    if once:
+        payload = json.dumps(_load_corrections())
+        def generate_once() -> Any:
+            yield f"data: {payload}\n\n"
+        return Response(generate_once(), mimetype="text/event-stream")
 
     def generate() -> Any:
-        while True:
-            payload = json.dumps(_load_corrections())
-            yield f"data: {payload}\n\n"
-            if once:
-                break
-            time.sleep(interval)
+        q: "queue.Queue[str]" = queue.Queue()
+        _sse_subscribers.append(q)
+        _ensure_corrections_thread()
+        try:
+            while True:
+                data = q.get()
+                yield f"data: {data}\n\n"
+        finally:
+            _sse_subscribers.remove(q)
 
     return Response(generate(), mimetype="text/event-stream")
 
 
 @app.route("/ws/corrections")
 def corrections_ws() -> Any:
-    """WebSocket endpoint for streaming corrections with SSE fallback."""
+    """WebSocket endpoint for correction broadcasts with SSE fallback."""
     ws = request.environ.get("wsgi.websocket")
-    if ws is not None:
-        interval = int(request.args.get("interval", "5"))
+    if ws is None:
+        return corrections_stream()
+    _ws_clients.append(ws)
+    _ensure_corrections_thread()
+    try:
         while True:
-            payload = json.dumps(_load_corrections())
-            try:
-                ws.send(payload)
-            except Exception:
+            if ws.receive() is None:
                 break
-            time.sleep(interval)
-        return ""
-    return corrections_stream()
+    finally:
+        if ws in _ws_clients:
+            _ws_clients.remove(ws)
+    return ""
 
 
 app.view_functions["dashboard.metrics"] = metrics
@@ -423,7 +470,7 @@ def index() -> str:
 @app.route("/api/refresh_compliance", methods=["POST"])  # trigger composite score recompute
 def refresh_compliance() -> Any:  # pragma: no cover
     score = update_compliance_metrics()
-    return jsonify({"status": "ok", "composite_score": round(score, 2)})
+    return jsonify({"status": "ok", "composite_score": round(score or 0.0, 2)})
 
 
 @app.route("/api/compliance_scores")
