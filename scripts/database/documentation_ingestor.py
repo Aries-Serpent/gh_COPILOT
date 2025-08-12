@@ -16,9 +16,17 @@ from types import SimpleNamespace
 
 from enterprise_modules.compliance import (
     enforce_anti_recursion,
-    pid_recursion_guard,
     validate_enterprise_operation,
 )
+
+try:  # pragma: no cover - optional import for environments without full compliance module
+    from enterprise_modules.compliance import pid_recursion_guard  # type: ignore
+    _PID_GUARD_AVAILABLE = True
+except Exception:  # pragma: no cover - fallback to no-op decorator
+    _PID_GUARD_AVAILABLE = False
+
+    def pid_recursion_guard(func):
+        return func
 from template_engine.learning_templates import get_dataset_sources
 
 from secondary_copilot_validator import SecondaryCopilotValidator

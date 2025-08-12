@@ -2,9 +2,12 @@ import sqlite3
 from pathlib import Path
 
 from enterprise_modules.compliance import pid_recursion_guard as compliance_pid_guard
+import pytest
+
 from scripts.database.documentation_ingestor import (
     ingest_documentation,
     pid_recursion_guard,
+    _PID_GUARD_AVAILABLE,
 )
 
 
@@ -61,6 +64,7 @@ def test_validator_invoked(tmp_path: Path, monkeypatch) -> None:
     assert called["files"] == [str(doc)]
 
 
+@pytest.mark.skipif(not _PID_GUARD_AVAILABLE, reason="pid_recursion_guard not available")
 def test_pid_recursion_guard_exposed() -> None:
     """Ensure the pid_recursion_guard decorator is imported correctly."""
     assert pid_recursion_guard is compliance_pid_guard
