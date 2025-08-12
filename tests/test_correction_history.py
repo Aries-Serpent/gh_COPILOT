@@ -21,22 +21,46 @@ def test_correction_history_records(tmp_path, monkeypatch):
     dest_db = db_dir / "analytics.db"
     shutil.copy(src_db, dest_db)
 
-    migration_sql = (repo_root / "databases" / "migrations" / "add_correction_history.sql").read_text()
+    from scripts.database.documentation_db_analyzer import ensure_correction_history
     with sqlite3.connect(dest_db) as conn:
         conn.execute("DROP TABLE IF EXISTS correction_history")
-        conn.execute("ALTER TABLE violations ADD COLUMN session_id TEXT")
-        conn.executescript(migration_sql)
-        try:
-            conn.execute("ALTER TABLE violations ADD COLUMN session_id TEXT")
-        except sqlite3.OperationalError:
-            pass
+    ensure_correction_history(dest_db)
+    with sqlite3.connect(dest_db) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS violations (
+                id INTEGER PRIMARY KEY,
+                file_path TEXT,
+                line_number INTEGER,
+                column_number INTEGER,
+                error_code TEXT,
+                message TEXT,
+                session_id TEXT
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS compliance_sessions (
+                session_id TEXT,
+                workspace_path TEXT,
+                start_time TEXT,
+                end_time TEXT,
+                files_processed INTEGER,
+                violations_found INTEGER,
+                violations_fixed INTEGER,
+                success_rate REAL,
+                status TEXT
+            )
+            """
+        )
 
     # prepare file with trailing whitespace violation
     test_file = workspace / "example.py"
     test_file.write_text("print('hi') \n")
 
     corrector = DatabaseFirstFlake8Corrector(workspace_path=str(workspace))
-    corrector.analytics_db = str(dest_db)
+    corrector.analytics_db = str(dest_db)  # type: ignore[assignment]
     corrector.correction_patterns["W293"] = CorrectionPattern(
         pattern_id="test",
         error_code="W293",

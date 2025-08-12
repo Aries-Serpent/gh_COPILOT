@@ -43,8 +43,10 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
         push_metrics=dummy_push,
         EnterpriseUtility=DummyEnterpriseUtility,
     )
+    stub_quantum = types.SimpleNamespace(quantum_score_stub=lambda x: 0.0)
     monkeypatch.setitem(sys.modules, "scripts.correction_logger_and_rollback", stub_corr)
     monkeypatch.setitem(sys.modules, "unified_monitoring_optimization_system", stub_monitor)
+    monkeypatch.setitem(sys.modules, "quantum_algorithm_library_expansion", stub_quantum)
     logging.getLogger().handlers.clear()
     module = importlib.import_module("dashboard.compliance_metrics_updater")
     importlib.reload(module)

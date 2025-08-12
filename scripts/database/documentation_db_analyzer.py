@@ -12,6 +12,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional, Tuple
+import argparse
 
 from tqdm import tqdm
 
@@ -405,6 +406,37 @@ def _log_report(report: dict) -> None:
         logger.debug("analytics log failed: %s", exc)
 
 
+def summarize_corrections(db_path: Path = ANALYTICS_DB, reports_dir: Path = REPORTS_DIR) -> dict[str, float]:
+    """Aggregate correction history statistics and write a JSON report."""
+
+    ensure_correction_history(db_path)
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT COUNT(*), COALESCE(SUM(violations_count),0), COALESCE(SUM(fixes_applied),0),"
+            " SUM(CASE WHEN violation_code='DOC_ROLLBACK' OR fix_applied='DATABASE_RESTORE' THEN 1 ELSE 0 END)"
+            " FROM correction_history"
+        )
+        entries, violations, fixes, rollbacks = cur.fetchone()
+
+    success_rate = float(fixes) / float(violations) if violations else 0.0
+    summary = {
+        "entries": entries,
+        "violations": violations,
+        "fixes": fixes,
+        "success_rate": success_rate,
+        "rollbacks": rollbacks,
+    }
+
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    report_path = reports_dir / f"correction_summary_{ts}.json"
+    report_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+
+    _log_event({"action": "summary", **summary}, table="doc_analysis", db_path=db_path)
+    return summary
+
+
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
     elapsed = time.time() - start_time
     if current_progress > 0:
@@ -474,6 +506,19 @@ def restore_entries(db_path: Path, backup_path: Path) -> None:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--summarize-corrections",
+        action="store_true",
+        help="Generate correction history summary report",
+    )
+    args = parser.parse_args()
+
+    if args.summarize_corrections:
+        summary = summarize_corrections(ANALYTICS_DB, REPORTS_DIR)
+        logger.info("Summary generated: %s", summary)
+        return
+
     repo_root = Path(__file__).resolve().parents[1]
     db_path = repo_root / "archives" / "documentation.db"
     start_ts = time.time()

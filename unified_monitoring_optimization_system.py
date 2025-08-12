@@ -22,16 +22,29 @@ import logging
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, TYPE_CHECKING
+from typing import Dict, Iterable, List, Optional, TYPE_CHECKING, Any
 
-import psutil
-from sklearn.ensemble import IsolationForest
+from types import SimpleNamespace
+
+try:  # pragma: no cover - optional dependency
+    import psutil  # type: ignore
+except Exception:  # pragma: no cover - provide stub
+    psutil = SimpleNamespace(
+        cpu_percent=lambda interval=0: 0.0,
+        virtual_memory=lambda: SimpleNamespace(percent=0.0),
+        disk_usage=lambda _p: SimpleNamespace(percent=0.0),
+        net_io_counters=lambda: SimpleNamespace(bytes_sent=0, bytes_recv=0),
+    )
+try:  # pragma: no cover - optional ML dependency
+    from sklearn.ensemble import IsolationForest  # type: ignore
+except Exception:  # pragma: no cover - stub when sklearn missing
+    IsolationForest = None  # type: ignore[assignment]
 try:  # pragma: no cover - optional dependency chain
     from scripts.monitoring.unified_monitoring_optimization_system import (
-        EnterpriseUtility,
+        EnterpriseUtility,  # type: ignore
     )
 except Exception:  # pragma: no cover - provide stub when deps missing
-    class EnterpriseUtility:  # type: ignore
+    class EnterpriseUtility:  # type: ignore[empty-body]
         """Fallback stub used when the monitoring utilities are unavailable."""
 
         pass
@@ -204,7 +217,7 @@ def collect_metrics(
 
 def _train_isolation_forest(
     data: List[List[float]], *, contamination: float
-) -> IsolationForest:
+) -> Any:
     """Train an :class:`IsolationForest` on ``data``.
 
     Parameters
@@ -220,6 +233,8 @@ def _train_isolation_forest(
         Fitted model ready for anomaly scoring.
     """
 
+    if IsolationForest is None:
+        return None
     model = IsolationForest(contamination=contamination, random_state=42)
     model.fit(data)
     return model
