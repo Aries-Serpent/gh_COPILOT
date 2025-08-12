@@ -16,6 +16,7 @@
  </template>
 
 <script>
+import { startCorrectionsListener } from '../../../dashboard/static/js/corrections_ws_listener.js';
 export default {
   name: 'CorrectionLog',
   data() {
@@ -58,17 +59,13 @@ export default {
           this.logs = d;
         });
     },
-    handleUpdate(e) {
-      this.logs = e.detail;
-      this.page = 1;
-    },
   },
   created() {
     this.fetchLogs();
-    window.addEventListener('corrections-update', this.handleUpdate);
-  },
-  beforeDestroy() {
-    window.removeEventListener('corrections-update', this.handleUpdate);
+    startCorrectionsListener((data) => {
+      this.logs = this.logs.concat(data);
+      this.page = this.totalPages;
+    });
   },
 };
 </script>
