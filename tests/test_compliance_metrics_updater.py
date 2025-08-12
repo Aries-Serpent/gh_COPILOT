@@ -185,7 +185,14 @@ def test_correction_summary_ingestion(tmp_path, monkeypatch):
         validate_enterprise_operation=lambda *a, **k: None,
         _log_rollback=lambda *a, **k: None,
     )
+    stub_monitor = types.SimpleNamespace(
+        EnterpriseUtility=lambda: None,
+        push_metrics=lambda *a, **k: None,
+    )
+    stub_quantum = types.SimpleNamespace(quantum_score_stub=lambda x: 0.0)
     monkeypatch.setitem(sys.modules, "scripts.correction_logger_and_rollback", stub)
+    monkeypatch.setitem(sys.modules, "unified_monitoring_optimization_system", stub_monitor)
+    monkeypatch.setitem(sys.modules, "quantum_algorithm_library_expansion", stub_quantum)
     logging.getLogger().handlers.clear()
     module = importlib.import_module("dashboard.compliance_metrics_updater")
     importlib.reload(module)

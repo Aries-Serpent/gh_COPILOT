@@ -48,8 +48,8 @@ class DatabaseFirstCopilotEnhancer:
             if self.production_db.exists():
                 validate_enterprise_operation(str(self.production_db))
                 try:
-                    validate_enterprise_operation(str(self.production_db))
                     with sqlite3.connect(self.production_db) as conn:
+                        validate_enterprise_operation(str(self.production_db))
                         conn.execute(
                             "CREATE TABLE IF NOT EXISTS templates (name TEXT PRIMARY KEY, template_content TEXT)"
                         )
@@ -104,7 +104,9 @@ class DatabaseFirstCopilotEnhancer:
             objective, production_db=self.production_db, analytics_db=self.analytics_db
         )
         results: List[Tuple[str, float]] = []
+        validate_enterprise_operation(str(self.production_db))
         with sqlite3.connect(self.production_db) as conn:
+            validate_enterprise_operation(str(self.production_db))
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS similarity_scores (objective TEXT, template_id INTEGER, score REAL)"
             )
@@ -133,18 +135,53 @@ class DatabaseFirstCopilotEnhancer:
         """Return confidence based on highest similarity score."""
         if not solutions:
             return 0.0
-        max_score = max(score for _code, score in solutions)
-        return float(max(0.0, min(1.0, max_score)))
+        total = sum(score for _code, score in solutions)
+        if total <= 0:
+            return 0.0
+        top = max(score for _code, score in solutions)
+        return float(max(0.0, min(1.0, top / total)))
+
+    def _map_objective_to_template_name(self, objective: str) -> str:
+        """Return the template name associated with ``objective``."""
+        mapping = {
+            "greet": "greet",
+        }
+        return mapping.get(objective, objective)
+
+    def _log_progress(self, objective: str, step: int, total: int) -> None:
+        """Log progress for dashboard metrics."""
+        validate_enterprise_operation(str(self.analytics_db))
+        with sqlite3.connect(self.analytics_db) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS generation_progress (objective TEXT, step INTEGER, total INTEGER, ts TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO generation_progress (objective, step, total, ts) VALUES (?,?,?,?)",
+                (objective, step, total, datetime.utcnow().isoformat()),
+            )
+            conn.commit()
+
+    def _log_duration(self, objective: str, duration: float) -> None:
+        """Log generation duration."""
+        validate_enterprise_operation(str(self.analytics_db))
+        with sqlite3.connect(self.analytics_db) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS generation_log (objective TEXT, duration REAL, ts TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO generation_log (objective, duration, ts) VALUES (?,?,?)",
+                (objective, duration, datetime.utcnow().isoformat()),
+            )
+            conn.commit()
 
     def query_before_filesystem(self, objective: str) -> Dict[str, Any]:
         """Query database before using filesystem templates."""
         scored = self._query_database_solutions(objective)
-        solutions = [code for code, _ in scored]
+        codes = [code for code, _ in scored]
         template = self._find_template_matches(objective)
         adapted = self._adapt_to_current_environment(template)
-        codes = [code for code, _ in solutions]
         return {
-            "database_solutions": codes,
+            "database_solutions": solutions,
             "template_code": adapted,
             "confidence_score": self._calculate_confidence(scored),
             "integration_ready": True,
@@ -152,17 +189,22 @@ class DatabaseFirstCopilotEnhancer:
 
     def generate_integration_ready_code(self, objective: str) -> str:
         """Generate code using progress indicators."""
+        template_name = self._map_objective_to_template_name(objective)
         with tqdm(total=3, desc="generate", unit="step") as bar:
             bar.update(1)
-            result = self.query_before_filesystem(objective)
+            self._log_progress(objective, 1, 3)
+            self.query_before_filesystem(objective)
             bar.update(1)
-            code = result["template_code"]
+            self._log_progress(objective, 2, 3)
+            template = self.template_engine(template_name)
+            code = self._adapt_to_current_environment(template)
             bar.update(1)
+            self._log_progress(objective, 3, 3)
         duration = float(bar.format_dict.get("elapsed", 0))
         self.logger.info("Generated code for %s in %.2fs", objective, duration)
-        template_name = objective
         validate_enterprise_operation(str(self.production_db))
         with sqlite3.connect(self.production_db) as conn:
+            validate_enterprise_operation(str(self.production_db))
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS generated_solutions (objective TEXT, template_name TEXT, code TEXT)"
             )
@@ -173,6 +215,7 @@ class DatabaseFirstCopilotEnhancer:
             conn.commit()
         validate_enterprise_operation(str(self.analytics_db))
         with sqlite3.connect(self.analytics_db) as conn:
+            validate_enterprise_operation(str(self.analytics_db))
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS generation_log (objective TEXT, duration REAL, ts TEXT)"
             )
