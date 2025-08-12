@@ -16,6 +16,10 @@ from .health_monitor import record_system_health
 from .performance_tracker import track_query_time, push_metrics
 from .compliance_monitor import check_compliance
 from .log_error_notifier import monitor_logs
+from .unified_monitoring_optimization_system import (
+    anomaly_detection_loop,
+    detect_anomalies,
+)
 
 __all__ += [
     "BaselineAnomalyDetector",
@@ -24,4 +28,6 @@ __all__ += [
     "push_metrics",
     "check_compliance",
     "monitor_logs",
+    "anomaly_detection_loop",
+    "detect_anomalies",
 ]

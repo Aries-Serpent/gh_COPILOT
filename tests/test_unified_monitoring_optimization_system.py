@@ -33,7 +33,7 @@ def _stub_quantum_module(monkeypatch):
 
 quantum_score_stub = _stub_score
 
-from monitoring.unified_monitoring_optimization_system import detect_anomalies
+from monitoring import detect_anomalies
 from unified_monitoring_optimization_system import (
     push_metrics,
     auto_heal_session,
