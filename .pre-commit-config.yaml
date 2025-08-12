@@ -10,3 +10,11 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies: ["pydantic>=2.6"]
+  - repo: local
+    hooks:
+      - id: docs-status-reconciler
+        name: docs-status-reconciler
+        entry: python scripts/docs_status_reconciler.py
+        language: system
+        pass_filenames: false
+        files: ^docs/

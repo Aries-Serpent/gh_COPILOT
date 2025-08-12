@@ -13,6 +13,7 @@ _PROVIDERS: Dict[str, str] = {
     "ibm": "quantum.providers.ibm_provider.IBMBackendProvider",
     "ionq": "quantum.providers.ionq_provider.IonQProvider",
     "rigetti": "quantum.providers.rigetti_provider.RigettiProvider",
+    "dwave": "quantum.providers.dwave_provider.DWaveProvider",
 }
 
 

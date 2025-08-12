@@ -18,6 +18,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Tuple
 
+from quantum.framework.backend import QuantumBackend
+
 from tqdm import tqdm
 
 from advanced_qubo_optimization import solve_qubo_bruteforce
@@ -50,16 +52,17 @@ class EnterpriseUtility:
         self,
         workspace_path: str | None = None,
         *,
+        backend: "QuantumBackend" | None = None,
         use_hardware: bool = False,
         backend_name: str = "ibmq_qasm_simulator",
     ):
         env_default = os.getenv("GH_COPILOT_WORKSPACE")
         self.workspace_path = Path(workspace_path or env_default or Path.cwd())
         self.logger = logging.getLogger(__name__)
-        self.use_hardware = use_hardware
+        self.backend = backend
+        self.use_hardware = use_hardware or backend is not None
         self.backend_name = backend_name
-        self.backend = None
-        if self.use_hardware:
+        if self.use_hardware and self.backend is None:
             self._init_backend()
 
     def _init_backend(self) -> None:
