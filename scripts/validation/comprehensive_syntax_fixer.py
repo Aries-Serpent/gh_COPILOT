@@ -5,7 +5,7 @@ Simple placeholder script that parses configuration and outputs loaded keys.
 """
 
 import argparse
-import json
+import json  # Required for configuration parsing
 from pathlib import Path
 
 
@@ -16,8 +16,8 @@ def load_config(path: Path) -> dict:
     try:
         with path.open("r", encoding="utf-8") as f:
             return json.load(f)
-    except json.JSONDecodeError as exc:
-        print(f"[ERROR] Invalid JSON in {path}: {exc}")
+    except (json.JSONDecodeError, OSError) as exc:
+        print(f"[ERROR] Failed to read {path}: {exc}")
         return {}
 
 

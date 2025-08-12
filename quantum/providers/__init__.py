@@ -10,9 +10,9 @@ from __future__ import annotations
 from typing import Dict
 
 from .base import BackendProvider
-from .ibm import IBMBackendProvider
-from .ionq import IonQProvider
-from .rigetti import RigettiProvider
+from .ibm_provider import IBMBackendProvider
+from .ionq_provider import IonQProvider
+from .rigetti_provider import RigettiProvider
 from .simulator import SimulatorProvider
 
 # Mapping of provider names to their classes. Additional providers can be added

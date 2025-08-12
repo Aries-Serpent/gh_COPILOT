@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from quantum.framework import QuantumExecutor, SimulatorBackend
-from quantum.providers import ibm as ibm_provider
+from quantum.providers import ibm_provider
 from quantum.models import QuantumModel
 
 try:  # pragma: no cover - optional demo model
