@@ -1,13 +1,29 @@
 from __future__ import annotations
 
 import sqlite3
+import sys
+import types
+from importlib import util
 from pathlib import Path
 
 import pytest
 
-from validation.enterprise_compliance_validator import (
-    EnterpriseComplianceValidator,
-)
+# Load the module directly to avoid executing ``validation.__init__`` which has
+# heavy dependencies not required for these tests.
+MODULE_PATH = Path(__file__).resolve().parents[2] / "validation" / "enterprise_compliance_validator.py"
+spec = util.spec_from_file_location("validation.enterprise_compliance_validator", MODULE_PATH)
+validator_module = util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(validator_module)
+EnterpriseComplianceValidator = validator_module.EnterpriseComplianceValidator
+
+# Provide a lightweight ``validation`` package so modules importing
+# ``validation.enterprise_compliance_validator`` resolve to our loaded module.
+validation_pkg = types.ModuleType("validation")
+validation_pkg.enterprise_compliance_validator = validator_module
+sys.modules.setdefault("validation", validation_pkg)
+sys.modules.setdefault("validation.enterprise_compliance_validator", validator_module)
+
 import secondary_copilot_validator as wrapper
 
 
@@ -84,13 +100,34 @@ def test_fetch_latest_order_by(tmp_path: Path) -> None:
     db = tmp_path / "analytics.db"
     with sqlite3.connect(db) as conn:
         cur = conn.cursor()
-        cur.execute("CREATE TABLE sample(id INTEGER PRIMARY KEY, value INTEGER)")
-        cur.executemany("INSERT INTO sample(value) VALUES (?)", [(1,), (2,)])
-        cur.execute("CREATE TABLE sample_ts(ts INTEGER, value INTEGER)")
+        # Table where a manual ``id`` column does not align with ``rowid``
+        cur.execute("CREATE TABLE sample(id INTEGER, value INTEGER)")
         cur.executemany(
-            "INSERT INTO sample_ts(ts, value) VALUES (?, ?)", [(1, 1), (2, 2)]
+            "INSERT INTO sample(id, value) VALUES (?, ?)", [(2, 10), (1, 20)]
+        )
+
+        # Table with separate timestamp column inserted out of order
+        cur.execute(
+            "CREATE TABLE sample_ts(id INTEGER PRIMARY KEY, ts INTEGER, value INTEGER)"
+        )
+        cur.executemany(
+            "INSERT INTO sample_ts(id, ts, value) VALUES (?, ?, ?)",
+            [(1, 2, 100), (2, 1, 200)],
         )
         validator = EnterpriseComplianceValidator(db)
-        assert validator._fetch_latest(cur, "sample", "value") == (2,)
-        assert validator._fetch_latest(cur, "sample_ts", "value", order_by="ts") == (2,)
+
+        # Default ordering uses rowid (insertion order)
+        assert validator._fetch_latest(cur, "sample", "value") == (20,)
+        # Ordering by primary key retrieves the highest id regardless of insertion order
+        assert (
+            validator._fetch_latest(cur, "sample", "value", order_by="id") == (10,)
+        )
+
+        # Without specifying, rowid returns the last inserted timestamp value
+        assert validator._fetch_latest(cur, "sample_ts", "value") == (200,)
+        # Using the timestamp column retrieves the logically latest row
+        assert (
+            validator._fetch_latest(cur, "sample_ts", "value", order_by="ts")
+            == (100,)
+        )
 

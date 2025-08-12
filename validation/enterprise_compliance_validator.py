@@ -38,6 +38,20 @@ class EnterpriseComplianceValidator:
         columns: str,
         order_by: str = "rowid",
     ) -> Tuple[int, ...]:
+        """Return the latest row from ``table`` ordered by ``order_by``.
+
+        Parameters
+        ----------
+        cur:
+            Active database cursor.
+        table:
+            Name of the table to query.
+        columns:
+            Comma-separated list of columns to select.
+        order_by:
+            Column used to determine recency. Defaults to ``rowid`` so that
+            tables without an explicit timestamp can still be queried safely.
+        """
         try:
             cur.execute(
                 f"SELECT {columns} FROM {table} ORDER BY {order_by} DESC LIMIT 1"
