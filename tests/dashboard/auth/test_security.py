@@ -11,7 +11,7 @@ def manager():
 
 def test_verify_token_and_session(monkeypatch, manager):
     monkeypatch.setenv("DASHBOARD_AUTH_TOKEN", "secret")
-    session = manager.start_session("secret")
+    session = manager.start_session("secret", "")
     assert auth.verify_token_and_session("secret", session, manager)
     assert not auth.verify_token_and_session("wrong", session, manager)
     assert not auth.verify_token_and_session("secret", "bad", manager)
@@ -20,9 +20,9 @@ def test_verify_token_and_session(monkeypatch, manager):
 def test_rate_limit(monkeypatch, manager):
     monkeypatch.setenv("DASHBOARD_AUTH_TOKEN", "secret")
     for _ in range(5):
-        manager.start_session("secret")
+        manager.start_session("secret", "")
     with pytest.raises(ValueError):
-        manager.start_session("secret")
+        manager.start_session("secret", "")
 
 
 def test_refresh_invalid_session(monkeypatch, manager):

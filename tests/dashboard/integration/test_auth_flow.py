@@ -1,5 +1,10 @@
 from flask import Flask, jsonify, request
 
+import pytest
+
+pytest.importorskip("pyotp")
+import pyotp
+
 from src.dashboard.auth import SessionManager
 
 
@@ -10,7 +15,8 @@ def create_app() -> Flask:
     @app.post("/login")
     def login() -> any:
         token = request.json.get("token", "")
-        session = manager.start_session(token)
+        mfa = request.json.get("mfa", "")
+        session = manager.start_session(token, mfa)
         return jsonify({"session": session})
 
     @app.get("/protected")
@@ -31,11 +37,15 @@ def create_app() -> Flask:
 
 
 def test_auth_end_to_end(monkeypatch):
+    secret = pyotp.random_base32()
     monkeypatch.setenv("DASHBOARD_AUTH_TOKEN", "secret")
+    monkeypatch.setenv("DASHBOARD_MFA_SECRET", secret)
     app = create_app()
     client = app.test_client()
 
-    login_resp = client.post("/login", json={"token": "secret"})
+    login_resp = client.post(
+        "/login", json={"token": "secret", "mfa": pyotp.TOTP(secret).now()}
+    )
     assert login_resp.status_code == 200
     session = login_resp.get_json()["session"]
 

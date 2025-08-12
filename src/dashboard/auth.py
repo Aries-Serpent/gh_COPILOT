@@ -46,11 +46,31 @@ def _check_rate_limit(identifier: str = "global", limit: int = 5, window: int = 
     events.append(now)
     _RATE_LIMIT[identifier] = events
 
-# TODO: integrate multi-factor authentication mechanisms
+# Multi-factor authentication via TOTP
+try:  # pragma: no cover - optional dependency
+    import pyotp  # type: ignore
+except Exception:  # pragma: no cover - optional dependency
+    pyotp = None  # type: ignore
 
-def _check_mfa() -> None:
-    """Placeholder for future multi-factor authentication logic."""
-    pass
+
+def _check_mfa(token: str) -> None:
+    """Validate a one-time token against the configured MFA secret.
+
+    The secret is read from the ``DASHBOARD_MFA_SECRET`` environment
+    variable. When the secret is not set, MFA checks are skipped. If the
+    ``pyotp`` package is unavailable while a secret is configured, a
+    ``RuntimeError`` is raised to highlight the missing dependency.
+    """
+
+    secret = os.environ.get("DASHBOARD_MFA_SECRET")
+    if not secret:
+        return
+    _check_rate_limit("mfa")
+    if pyotp is None:
+        raise RuntimeError("pyotp package required for MFA")
+    totp = pyotp.TOTP(secret)
+    if not totp.verify(token, valid_window=1):
+        raise ValueError("Invalid MFA token")
 
 
 @dataclass
@@ -72,8 +92,8 @@ class SessionManager:
             session_timeout=session_timeout,
         )
 
-    def start_session(self, token: str) -> str:
-        """Start a session if the token matches the expected value."""
+    def start_session(self, token: str, mfa_token: str) -> str:
+        """Start a session if both the token and MFA code are valid."""
 
         _check_rate_limit("start_session")
         now = time.time()
@@ -86,9 +106,9 @@ class SessionManager:
                 self.lock_until = now + 60
                 raise ValueError("Too many failed attempts")
             raise ValueError("Invalid token")
+        _check_mfa(mfa_token)
         self.failed_attempts = 0
         self.lock_until = 0
-        _check_mfa()
         session_id = str(uuid.uuid4())
         csrf_token = secrets.token_hex(16)
         self.active_sessions[session_id] = _Session(
