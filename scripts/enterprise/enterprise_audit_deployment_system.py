@@ -235,6 +235,8 @@ class EnterpriseAuditDeploymentSystem:
                     'status': 'FAILED',
                     'error': str(e)
                 }
+                # Record failure details in audit log table
+                self._insert_audit_log(category_name, 'FAILED', str(e))
         
         # Calculate overall compliance
         if completed_audits > 0:
