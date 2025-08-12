@@ -40,7 +40,7 @@ class SecondaryCopilotValidator:
             self.metrics["duration"] = time.perf_counter() - start
             self.metrics["returncode"] = -1
             self.metrics["stderr"] = "flake8 executable not found"
-            self.logger.error("flake8 executable not found", extra=None)
+            self.logger.error("flake8 executable not found")
             return False
         self.metrics["duration"] = time.perf_counter() - start
         self.metrics["returncode"] = result.returncode
