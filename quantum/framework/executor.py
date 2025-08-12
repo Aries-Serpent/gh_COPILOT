@@ -20,6 +20,11 @@ class QuantumExecutor:
             self.use_hardware = not isinstance(backend, SimulatorBackend)
             return
 
+        if os.getenv("ENABLE_QUANTUM_PROVIDERS", "1") != "1":
+            self.backend = SimulatorBackend()
+            self.use_hardware = False
+            return
+
         provider_name = provider or os.getenv("QUANTUM_PROVIDER", "simulator")
         prov = get_provider(provider_name)
         if not prov.is_available():

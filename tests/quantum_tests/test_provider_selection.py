@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from quantum.framework import QuantumExecutor, SimulatorBackend
-from quantum.providers import ibm as ibm_provider
+from quantum.providers import ibm_provider
 from quantum.framework.backend import QuantumBackend
 
 
@@ -42,4 +42,14 @@ def test_ibm_selected_when_available(monkeypatch):
     exec_ = QuantumExecutor()
     assert isinstance(exec_.backend, _DummyBackend)
     assert exec_.use_hardware is True
+
+
+def test_feature_flag_disables_providers(monkeypatch):
+    monkeypatch.setenv("QUANTUM_PROVIDER", "ibm")
+    monkeypatch.setenv("ENABLE_QUANTUM_PROVIDERS", "0")
+    monkeypatch.setattr(ibm_provider.IBMBackendProvider, "is_available", lambda self: True)
+    monkeypatch.setattr(ibm_provider.IBMBackendProvider, "get_backend", lambda self: _DummyBackend())
+    exec_ = QuantumExecutor()
+    assert isinstance(exec_.backend, SimulatorBackend)
+    assert exec_.use_hardware is False
 
