@@ -23,6 +23,8 @@ from secondary_copilot_validator import (
     run_dual_copilot_validation,
 )
 
+__all__ = ["archive_backups", "pid_recursion_guard"]
+
 _RECURSION_CTX = SimpleNamespace()
 
 @pid_recursion_guard
