@@ -135,6 +135,21 @@
             if(payload.rollbacks){
                 updateRollbacks(payload.rollbacks);
             }
+            if(payload.placeholders_open !== undefined){
+                document.getElementById('compliance_open_placeholders').textContent = payload.placeholders_open;
+            }
+            if(payload.last_resolved !== undefined){
+                document.getElementById('compliance_last_resolved').textContent = payload.last_resolved;
+            }
+            if(payload.audit_log){
+                const list = document.getElementById('audit_log_entries');
+                list.innerHTML = '';
+                payload.audit_log.forEach(e => {
+                    const li = document.createElement('li');
+                    li.textContent = e.ts + ' - ' + e.summary;
+                    list.appendChild(li);
+                });
+            }
         }
         function loadComplianceChart(){
             fetch('/api/compliance_scores').then(r=>r.json()).then(data => {
@@ -295,6 +310,17 @@
 <ul id="corrections">
 {% for corr in corrections %}
     <li>{{ corr.timestamp }} - {{ corr.path }} ({{ corr.status }})</li>
+{% endfor %}
+</ul>
+
+<h2>Open Placeholders</h2>
+<div id="compliance_open_placeholders">{{ compliance.placeholders_open }}</div>
+<div>Last resolved: <span id="compliance_last_resolved">{{ compliance.last_resolved }}</span></div>
+
+<h2>Recent Audit Events</h2>
+<ul id="audit_log_entries">
+{% for entry in compliance.audit_log %}
+    <li>{{ entry.ts }} - {{ entry.summary }}</li>
 {% endfor %}
 </ul>
 

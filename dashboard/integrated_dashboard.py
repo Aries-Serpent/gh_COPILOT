@@ -23,6 +23,7 @@ from database_first_synchronization_engine import list_events
 from enterprise_modules.compliance import (
     calculate_compliance_score,
     get_latest_compliance_score,
+    validate_enterprise_operation,
 )
 from utils.validation_utils import calculate_composite_compliance_score
 from web_gui import middleware, security
@@ -198,6 +199,35 @@ def get_rollback_logs(limit: int = 10) -> list[dict[str, Any]]:
     return records
 
 
+def _load_compliance_payload() -> dict[str, Any]:
+    """Aggregate compliance metrics, placeholder counts, and audit log entries."""
+    payload: dict[str, Any] = {
+        "metrics": _load_metrics(),
+        "rollbacks": get_rollback_logs(),
+        "placeholders_open": 0,
+        "audit_log": [],
+        "last_resolved": "",
+    }
+    if ANALYTICS_DB.exists():
+        try:
+            validate_enterprise_operation(str(ANALYTICS_DB))
+            with sqlite3.connect(ANALYTICS_DB) as conn:
+                cur = conn.execute(
+                    "SELECT COUNT(*), MAX(resolved_timestamp) FROM todo_fixme_tracking WHERE status='open'"
+                )
+                count, ts = cur.fetchone()
+                payload["placeholders_open"] = int(count or 0)
+                payload["last_resolved"] = ts or ""
+                cur = conn.execute(
+                    "SELECT ts, summary FROM code_audit_log ORDER BY ts DESC LIMIT 10"
+                )
+                payload["audit_log"] = [
+                    {"ts": row[0], "summary": row[1]} for row in cur.fetchall()
+                ]
+        except sqlite3.Error:
+            pass
+    return payload
+
 def _load_sync_events(limit: int = 10) -> list[dict[str, Any]]:
     try:
         return list_events(ANALYTICS_DB, limit)
@@ -233,12 +263,14 @@ def _load_corrections() -> dict[str, Any]:
 
 @_dashboard.get("/")
 def index() -> str:
+    compliance = _load_compliance_payload()
     return render_template(
         "dashboard.html",
-        metrics=_load_metrics(),
-        rollbacks=get_rollback_logs(),
+        metrics=compliance["metrics"],
+        rollbacks=compliance["rollbacks"],
         sync_events=_load_sync_events(),
         audit_results=_load_audit_results(),
+        compliance=compliance,
     )
 
 
@@ -375,7 +407,7 @@ def quantum_dashboard_view() -> str:
 
 @_dashboard.get("/dashboard/compliance")
 def dashboard_compliance() -> Any:
-    return jsonify({"metrics": _load_metrics(), "rollbacks": get_rollback_logs()})
+    return jsonify(_load_compliance_payload())
 
 
 @_dashboard.get("/dashboard/rollback")
