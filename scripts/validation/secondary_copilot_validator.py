@@ -34,7 +34,14 @@ class SecondaryCopilotValidator:
         cmd = ["flake8", *files]
         self.logger.info("Running secondary flake8 validation", extra=None)
         start = time.perf_counter()
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True)
+        except FileNotFoundError:
+            self.metrics["duration"] = time.perf_counter() - start
+            self.metrics["returncode"] = -1
+            self.metrics["stderr"] = "flake8 executable not found"
+            self.logger.error("flake8 executable not found")
+            return False
         self.metrics["duration"] = time.perf_counter() - start
         self.metrics["returncode"] = result.returncode
         self.metrics["stdout"] = result.stdout
