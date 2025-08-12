@@ -199,47 +199,34 @@ def get_rollback_logs(limit: int = 10) -> list[dict[str, Any]]:
     return records
 
 
-def _compliance_payload() -> dict[str, Any]:
-    payload = {"metrics": _load_metrics(), "rollbacks": get_rollback_logs()}
-    payload["open_placeholders"] = 0
-    payload["todo_entries"] = []
-    payload["code_audit_log"] = []
-    payload["last_resolved"] = ""
+def _load_compliance_payload() -> dict[str, Any]:
+    """Aggregate compliance metrics, placeholder counts, and audit log entries."""
+    payload: dict[str, Any] = {
+        "metrics": _load_metrics(),
+        "rollbacks": get_rollback_logs(),
+        "placeholders_open": 0,
+        "audit_log": [],
+        "last_resolved": "",
+    }
     if ANALYTICS_DB.exists():
-        validate_enterprise_operation(str(ANALYTICS_DB))
-        with sqlite3.connect(ANALYTICS_DB) as conn:
-            conn.row_factory = sqlite3.Row
-            try:
+        try:
+            validate_enterprise_operation(str(ANALYTICS_DB))
+            with sqlite3.connect(ANALYTICS_DB) as conn:
                 cur = conn.execute(
-                    "SELECT file_path, line_number, placeholder_type FROM todo_fixme_tracking WHERE status='open'"
+                    "SELECT COUNT(*), MAX(resolved_timestamp) FROM todo_fixme_tracking WHERE status='open'"
                 )
-                rows = cur.fetchall()
-                payload["open_placeholders"] = len(rows)
-                payload["todo_entries"] = [
-                    {
-                        "file_path": r["file_path"],
-                        "line_number": r["line_number"],
-                        "placeholder_type": r["placeholder_type"],
-                    }
-                    for r in rows
-                ]
-                ts_row = conn.execute(
-                    "SELECT MAX(resolved_timestamp) FROM todo_fixme_tracking WHERE status='resolved'"
-                ).fetchone()
-                payload["last_resolved"] = ts_row[0] if ts_row and ts_row[0] else ""
-            except sqlite3.Error:
-                pass
-            try:
+                count, ts = cur.fetchone()
+                payload["placeholders_open"] = int(count or 0)
+                payload["last_resolved"] = ts or ""
                 cur = conn.execute(
                     "SELECT ts, summary FROM code_audit_log ORDER BY ts DESC LIMIT 10"
                 )
-                payload["code_audit_log"] = [
-                    {"ts": r[0], "summary": r[1]} for r in cur.fetchall()
+                payload["audit_log"] = [
+                    {"ts": row[0], "summary": row[1]} for row in cur.fetchall()
                 ]
-            except sqlite3.Error:
-                pass
+        except sqlite3.Error:
+            pass
     return payload
-
 
 def _load_sync_events(limit: int = 10) -> list[dict[str, Any]]:
     try:
@@ -276,12 +263,14 @@ def _load_corrections() -> dict[str, Any]:
 
 @_dashboard.get("/")
 def index() -> str:
+    compliance = _load_compliance_payload()
     return render_template(
         "dashboard.html",
-        metrics=_load_metrics(),
-        rollbacks=get_rollback_logs(),
+        metrics=compliance["metrics"],
+        rollbacks=compliance["rollbacks"],
         sync_events=_load_sync_events(),
         audit_results=_load_audit_results(),
+        compliance=compliance,
     )
 
 
@@ -418,7 +407,7 @@ def quantum_dashboard_view() -> str:
 
 @_dashboard.get("/dashboard/compliance")
 def dashboard_compliance() -> Any:
-    return jsonify(_compliance_payload())
+    return jsonify(_load_compliance_payload())
 
 
 @_dashboard.get("/dashboard/rollback")
