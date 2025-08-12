@@ -6,7 +6,11 @@
 <body>
 <h1>Compliance Overview</h1>
 <p>Open placeholders: {{ placeholders }}</p>
-<p>Last resolved: {{ last_resolved or 'N/A' }}</p>
+{% if last_resolved %}
+<p>Last placeholder resolved at: {{ last_resolved }}</p>
+{% else %}
+<p>Last placeholder resolved at: N/A</p>
+{% endif %}
 <h2>Open Placeholder Entries</h2>
 <ul>
     {% for item in todo_entries %}

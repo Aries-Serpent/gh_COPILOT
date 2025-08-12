@@ -3,7 +3,6 @@ from pathlib import Path
 import sqlite3
 import pytest
 
-from template_engine.objective_similarity_scorer import compute_similarity_scores
 from scripts.database.database_first_copilot_enhancer import DatabaseFirstCopilotEnhancer
 
 
@@ -24,9 +23,13 @@ def test_similarity_ranking_and_confidence(tmp_path: Path, monkeypatch) -> None:
     )
     enhancer = DatabaseFirstCopilotEnhancer(workspace_path=str(tmp_path))
     res = enhancer.query_before_filesystem("hello world")
-    assert res["database_solutions"]
-    assert res["database_solutions"][0].strip() == 'print("hello world")'
+    codes = [c.strip() for c in res["database_solutions"]]
+    assert codes == ['print("hello world")', 'print("bye world")']
     assert 0.0 < res["confidence_score"] <= 1.0
+    scores = compute_similarity_scores("hello world", production_db=prod, analytics_db=analytics)
+    total = sum(s for _, s in scores)
+    top = max(s for _, s in scores)
+    assert res["confidence_score"] == pytest.approx(top / total)
     with sqlite3.connect(prod) as conn:
         rows = conn.execute("SELECT COUNT(*) FROM similarity_scores").fetchone()[0]
     assert rows > 0
@@ -71,19 +74,30 @@ def test_generate_integration_ready_code_logs(monkeypatch, tmp_path: Path) -> No
         "scripts.database.database_first_copilot_enhancer.validate_enterprise_operation",
         fake_validate,
     )
+    tpl_dir = tmp_path / "templates"
+    tpl_dir.mkdir()
+    (tpl_dir / "greet.tmpl").write_text("print('hi')", encoding="utf-8")
     enhancer = DatabaseFirstCopilotEnhancer(workspace_path=str(tmp_path))
     code = enhancer.generate_integration_ready_code("greet")
     assert isinstance(code, str)
     with sqlite3.connect(prod) as conn:
         row = conn.execute(
-            "SELECT code FROM generated_solutions WHERE objective=?", ("greet",)
+            "SELECT template_name, code FROM generated_solutions WHERE objective=?",
+            ("greet",),
         ).fetchone()
-    assert row is not None
+    assert row == ("greet", "print('hi')")
     with sqlite3.connect(analytics) as conn:
-        row = conn.execute(
+        duration = conn.execute(
             "SELECT duration FROM generation_log WHERE objective=?", ("greet",)
         ).fetchone()
-    assert row is not None
+        steps = [
+            r[0]
+            for r in conn.execute(
+                "SELECT step FROM generation_progress WHERE objective=? ORDER BY step", ("greet",)
+            ).fetchall()
+        ]
+    assert duration is not None
+    assert steps == [1, 2, 3]
     assert str(prod) in calls and str(analytics) in calls
 
 

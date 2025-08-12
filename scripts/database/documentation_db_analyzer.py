@@ -19,6 +19,7 @@ from tqdm import tqdm
 from template_engine.placeholder_utils import DEFAULT_ANALYTICS_DB
 from utils.log_utils import _log_event
 from secondary_copilot_validator import SecondaryCopilotValidator
+from enterprise_modules.compliance import validate_enterprise_operation
 
 logger = logging.getLogger(__name__)
 ANALYTICS_DB = DEFAULT_ANALYTICS_DB
@@ -153,6 +154,8 @@ def rollback_db(db: Path, backup: Path | None = None) -> None:
             table="doc_analysis",
             db_path=ANALYTICS_DB,
         )
+        _record_correction_session("rollback", ANALYTICS_DB)
+        _write_session_reports(ANALYTICS_DB, REPORTS_DIR)
 
 
 CLEANUP_SQL = "DELETE FROM enterprise_documentation WHERE doc_type='BACKUP_LOG' OR source_path LIKE '%backup%'"
@@ -409,6 +412,7 @@ def _log_report(report: dict) -> None:
 def summarize_corrections(db_path: Path = ANALYTICS_DB, reports_dir: Path = REPORTS_DIR) -> dict[str, float]:
     """Aggregate correction history statistics and write a JSON report."""
 
+    validate_enterprise_operation(str(db_path))
     ensure_correction_history(db_path)
     with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
@@ -431,6 +435,7 @@ def summarize_corrections(db_path: Path = ANALYTICS_DB, reports_dir: Path = REPO
     reports_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     report_path = reports_dir / f"correction_summary_{ts}.json"
+    validate_enterprise_operation(str(report_path))
     report_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
 
     _log_event({"action": "summary", **summary}, table="doc_analysis", db_path=db_path)
