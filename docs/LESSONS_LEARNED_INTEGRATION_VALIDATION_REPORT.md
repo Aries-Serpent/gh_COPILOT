@@ -11,9 +11,9 @@
 ## Recent Lessons Learned Updates
 
 - **Healing Queue Initialization:** Startup now creates and seeds the `healing_queue` table in the autonomous monitoring system to avoid missing-table errors.
-- **Audit Logs Table:** Added `audit_logs` table and logging for each audit phase in the enterprise audit deployment system.
-- **Test Package Resolution:** Configured `pytest` to include the repository root on `sys.path`, preventing imports from external `monitoring` packages.
-- **Syntax Fixer Import:** Introduced explicit `json` import and safer config handling in the comprehensive syntax fixer script.
+- **Audit Logs Table:** Added `audit_logs` table and ensured every audit phase—including failures—records entries.
+- **Test Package Resolution:** Explicitly inserted the repository root into `sys.path`, avoiding conflicts with external `monitoring` packages.
+- **Syntax Fixer Import:** Introduced explicit `json` import and improved error handling in the comprehensive syntax fixer script.
 
 ## 📊 EXECUTIVE SUMMARY
 

@@ -16,8 +16,8 @@ def load_config(path: Path) -> dict:
     try:
         with path.open("r", encoding="utf-8") as f:
             return json.load(f)
-    except json.JSONDecodeError as exc:
-        print(f"[ERROR] Invalid JSON in {path}: {exc}")
+    except (json.JSONDecodeError, OSError) as exc:
+        print(f"[ERROR] Failed to read {path}: {exc}")
         return {}
 
 
