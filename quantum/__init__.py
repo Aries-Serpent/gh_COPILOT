@@ -8,11 +8,6 @@ and orchestration capabilities while maintaining backward compatibility.
 
 from . import benchmarking, quantum_optimization
 from .optimizers.quantum_optimizer import QuantumOptimizer
-from .quantum_database_search import (
-    quantum_search_hybrid,
-    quantum_search_nosql,
-    quantum_search_sql,
-)
 
 # Import new modular components
 from .algorithms.base import QuantumAlgorithmBase
@@ -38,7 +33,4 @@ __all__ = [
     "QuantumExecutor",
     "QuantumIntegrationOrchestrator",
     "QuantumOptimizer",
-    "quantum_search_sql",
-    "quantum_search_nosql",
-    "quantum_search_hybrid",
 ]
