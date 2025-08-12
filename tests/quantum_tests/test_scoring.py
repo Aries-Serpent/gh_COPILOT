@@ -21,7 +21,9 @@ def test_quantum_text_score_qiskit(tmp_path, monkeypatch):
     qal.ANALYTICS_DB = db
     db.touch()
     qal.QISKIT_AVAILABLE = True
-    monkeypatch.setattr(qal, "get_backend", lambda use_hardware=None: _DummyBackend())
+    monkeypatch.setattr(
+        qal, "get_backend", lambda backend_name, use_hardware=None: _DummyBackend()
+    )
     score = qal.quantum_text_score("hello")
     assert 0 <= score <= 1
     with sqlite3.connect(db) as conn:
@@ -48,7 +50,7 @@ def test_quantum_text_score_use_hardware_flag(tmp_path, monkeypatch):
     qal.QISKIT_AVAILABLE = True
     called = {}
 
-    def _fake_backend(use_hardware=None):
+    def _fake_backend(backend_name, use_hardware=None):
         called["flag"] = use_hardware
         return _DummyBackend()
 
@@ -66,7 +68,9 @@ def test_quantum_text_score_backend_none_fallback(tmp_path, monkeypatch):
     qal.ANALYTICS_DB = db
     db.touch()
     qal.QISKIT_AVAILABLE = True
-    monkeypatch.setattr(qal, "get_backend", lambda use_hardware=None: None)
+    monkeypatch.setattr(
+        qal, "get_backend", lambda backend_name, use_hardware=None: None
+    )
     score = qal.quantum_text_score("hi", use_hardware=True)
     assert 0 <= score <= 1
     with sqlite3.connect(db) as conn:

@@ -31,10 +31,12 @@ class _IForestStub:
 
 
 sklearn_stub = types.SimpleNamespace(
-    ensemble=types.SimpleNamespace(IsolationForest=_IForestStub)
+    ensemble=types.SimpleNamespace(IsolationForest=_IForestStub),
+    cluster=types.SimpleNamespace(KMeans=lambda *args, **kwargs: None),
 )
 sys.modules.setdefault("sklearn", sklearn_stub)
 sys.modules.setdefault("sklearn.ensemble", sklearn_stub.ensemble)
+sys.modules.setdefault("sklearn.cluster", sklearn_stub.cluster)
 
 
 class _TqdmStub:
@@ -53,7 +55,7 @@ class _TqdmStub:
 
 sys.modules.setdefault("tqdm", types.SimpleNamespace(tqdm=_TqdmStub))
 
-from monitoring.unified_monitoring_optimization_system import detect_anomalies
+from monitoring import detect_anomalies
 from unified_monitoring_optimization_system import (
     push_metrics,
     train_anomaly_model,
