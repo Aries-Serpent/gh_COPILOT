@@ -450,9 +450,14 @@ class Phase8FinalCleanupSpecialist:
             target_violations > 0 else 0
 
         print(f"   📈 Elimination Rate: {elimination_rate:.1f}%")
-        print(f"   # # 🎯 Status: {'EXCEPTIONAL SUCCESS' if \
-            elimination_rate > 50 else 'SIGNIFICANT PROGR \
-                ESS' if elimination_rate > 25 else 'MODERATE PROGRESS'}")
+        status = (
+            "EXCEPTIONAL SUCCESS"
+            if elimination_rate > 50
+            else "SIGNIFICANT PROGRESS"
+            if elimination_rate > 25
+            else "MODERATE PROGRESS"
+        )
+        print(f"   # # 🎯 Status: {status}")
 
         # Save detailed report
         report_file = f"phase8_final_cleanup_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"

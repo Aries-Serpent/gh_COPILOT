@@ -7,9 +7,19 @@ import websockets
 import dashboard.enterprise_dashboard as ed
 from flask import Flask
 
-@pytest.fixture
-def client():
-    return app.test_client()
+
+def _create_db(tmp_path: Path) -> Path:
+    db = tmp_path / "analytics.db"
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            "CREATE TABLE correction_logs(timestamp TEXT, path TEXT, status TEXT)"
+        )
+        conn.execute(
+            "INSERT INTO correction_logs VALUES (?,?,?)",
+            ("2024-01-01", "file1.py", "pending"),
+        )
+        conn.commit()
+    return db
 
 
 def test_corrections_stream_once(tmp_path, monkeypatch):
