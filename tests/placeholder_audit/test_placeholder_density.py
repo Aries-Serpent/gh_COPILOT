@@ -1,16 +1,18 @@
 import sqlite3
 import sys
 import types
-from pathlib import Path
+
+push_calls = []
 
 sys.modules.setdefault(
-    "dashboard.compliance_metrics_updater", types.SimpleNamespace(ComplianceMetricsUpdater=None)
+    "dashboard.compliance_metrics_updater",
+    types.SimpleNamespace(ComplianceMetricsUpdater=None),
 )
 sys.modules.setdefault(
     "unified_monitoring_optimization_system",
     types.SimpleNamespace(
         EnterpriseUtility=None,
-        push_metrics=lambda *a, **k: None,
+        push_metrics=lambda metrics, **_k: push_calls.append(metrics),
         collect_metrics=lambda *a, **k: None,
     ),
 )
@@ -40,5 +42,10 @@ def test_placeholder_density_alert(tmp_path, caplog):
     assert any("Placeholder density" in r.message for r in caplog.records)
     with sqlite3.connect(db) as conn:
         val = conn.execute("SELECT density FROM placeholder_density").fetchone()[0]
+        ctx = conn.execute(
+            "SELECT context FROM todo_fixme_tracking WHERE placeholder_type='density'",
+        ).fetchone()[0]
     assert val == density
+    assert float(ctx) == density
+    assert push_calls and push_calls[0]["placeholder_density"] == density
 
