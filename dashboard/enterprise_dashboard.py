@@ -184,6 +184,49 @@ def load_code_quality_metrics(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
     return metrics
 
 
+@app.route("/dashboard/compliance")
+def dashboard_compliance() -> str:
+    """Render compliance information directly from ``analytics.db``."""
+    placeholders = 0
+    last_resolved = ""
+    todo_entries: List[Dict[str, Any]] = []
+    audit_logs: List[Dict[str, Any]] = []
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            cur = conn.execute(
+                "SELECT file_path, line_number, placeholder_type FROM todo_fixme_tracking WHERE status='open'"
+            )
+            todo_entries = [
+                {
+                    "file_path": r[0],
+                    "line_number": int(r[1]),
+                    "placeholder_type": r[2],
+                }
+                for r in cur.fetchall()
+            ]
+            placeholders = len(todo_entries)
+            cur = conn.execute(
+                "SELECT resolved_timestamp FROM todo_fixme_tracking "
+                "WHERE resolved_timestamp IS NOT NULL ORDER BY resolved_timestamp DESC LIMIT 1"
+            )
+            row = cur.fetchone()
+            if row and row[0]:
+                last_resolved = str(row[0])
+            cur = conn.execute(
+                "SELECT summary, ts FROM code_audit_log ORDER BY ts DESC LIMIT 20"
+            )
+            audit_logs = [
+                {"summary": r[0], "ts": r[1]} for r in cur.fetchall()
+            ]
+    return render_template(
+        "compliance.html",
+        placeholders=placeholders,
+        last_resolved=last_resolved,
+        todo_entries=todo_entries,
+        audit_logs=audit_logs,
+    )
+
+
 @app.route("/dashboard/compliance/view")
 def dashboard_compliance_view() -> str:
     """Render compliance metrics from analytics.db."""
