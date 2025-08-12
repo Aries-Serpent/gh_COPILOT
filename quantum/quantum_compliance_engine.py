@@ -120,8 +120,6 @@ class QuantumComplianceEngine:
                 patterns = self._ml_pattern_recognition(target)
             pattern_matches = self._multi_pattern_match(target, patterns)
             pbar.update(30)
-            if not self.validator.validate_corrections(list(pattern_matches.keys())):
-                logger.error("Secondary validation failed for pattern matches.")
 
             pbar.set_description("Applying Modular Weighting")
             weighted_score = self._apply_modular_weighting(pattern_matches, modular_weights)
@@ -147,14 +145,14 @@ class QuantumComplianceEngine:
         )
         logger.info("Target: %s | Score: %.4f", target, score)
         suggestions = self._cognitive_learning_fetch(patterns)
+        files_to_validate = [str(target)]
         if suggestions:
             logger.info("Comparable scripts: %s", suggestions)
-            if not self.validator.validate_corrections(suggestions):
-                logger.error("Secondary validation failed for cognitive suggestions.")
+            files_to_validate.extend(suggestions)
+        if not self.validator.validate_corrections(files_to_validate):
+            logger.error("Secondary validation failed for target or comparable scripts.")
         if score < threshold:
             logger.error("Quantum compliance score below threshold.")
-        if not self.validator.validate_corrections([f"{score:.4f}"]):
-            logger.error("Secondary validation failed for computed score.")
         self.status = "COMPLETED"
         return score
 
