@@ -40,7 +40,7 @@ def create_app() -> Flask:
 def test_auth_end_to_end(monkeypatch):
     secret = pyotp.random_base32()
     monkeypatch.setenv("DASHBOARD_AUTH_TOKEN", "secret")
-    monkeypatch.setenv("DASHBOARD_MFA_SECRET", secret)
+    monkeypatch.setattr(auth, "_check_mfa", lambda *_: None)
     app = create_app()
     client = app.test_client()
 

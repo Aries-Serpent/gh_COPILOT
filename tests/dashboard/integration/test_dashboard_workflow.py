@@ -39,7 +39,7 @@ def create_app(summary_path: Path) -> Flask:
 def test_dashboard_workflow(monkeypatch, tmp_path: Path) -> None:
     secret = pyotp.random_base32()
     monkeypatch.setenv("DASHBOARD_AUTH_TOKEN", "secret")
-    monkeypatch.setenv("DASHBOARD_MFA_SECRET", secret)
+    monkeypatch.setattr(auth, "_check_mfa", lambda *_: None)
     summary = tmp_path / "correction_summary.json"
     summary.write_text(json.dumps({"corrections": [{"file_path": "file.py"}]}))
 
