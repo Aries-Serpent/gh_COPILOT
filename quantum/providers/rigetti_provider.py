@@ -18,4 +18,3 @@ class RigettiProvider(BackendProvider):
 
 
 __all__ = ["RigettiProvider"]
-

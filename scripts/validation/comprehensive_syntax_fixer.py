@@ -5,7 +5,7 @@ Simple placeholder script that parses configuration and outputs loaded keys.
 """
 
 import argparse
-import json
+import json  # Required for configuration parsing
 from pathlib import Path
 
 

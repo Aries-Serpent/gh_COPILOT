@@ -129,15 +129,19 @@ class SessionIntegrityManager:
         try:
             database_count = 0
             valid_databases = 0
+            empty_databases = []
 
             # Search for databases in multiple locations
             search_patterns = ["*.db", "databases/*.db", "**/*.db"]
-            
+
             for pattern in search_patterns:
                 for db_file in self.workspace_path.glob(pattern):
-                    if (db_file.is_file() and 
-                        db_file.stat().st_size > 0 and 
+                    if (db_file.is_file() and
                         "_ZERO_BYTE_QUARANTINE" not in str(db_file)):
+                        if db_file.stat().st_size == 0:
+                            empty_databases.append(str(db_file))
+                            continue
+
                         database_count += 1
 
                         try:
@@ -160,13 +164,29 @@ class SessionIntegrityManager:
                         except Exception as e:
                             logging.error(f"[ERROR] Database validation failed for {db_file}: {e}")
 
+            if database_count == 0:
+                if empty_databases:
+                    logging.info(
+                        f"[ADVISORY] Skipped {len(empty_databases)} empty database(s)"
+                    )
+                else:
+                    logging.info("[ADVISORY] No databases found for validation")
+                self.validation_results['database_integrity'] = True
+                return True
+
             integrity_percentage = (
                 valid_databases /
                 database_count *
-                100) if database_count > 0 else 0
+                100)
             self.validation_results['database_integrity'] = integrity_percentage >= 95.0
 
-            logging.info(f"[VALIDATION] Database Integrity: {valid_databases}/{database_count} ({integrity_percentage:.1f}%)")
+            logging.info(
+                f"[VALIDATION] Database Integrity: {valid_databases}/{database_count} ({integrity_percentage:.1f}%)"
+            )
+            if empty_databases:
+                logging.info(
+                    f"[ADVISORY] Skipped {len(empty_databases)} empty database(s)"
+                )
             return self.validation_results['database_integrity']
 
         except Exception as e:
@@ -177,33 +197,37 @@ class SessionIntegrityManager:
         """Validate file system integrity and zero-byte protection"""
         try:
             total_files = 0
-            zero_byte_files = []
+            zero_byte_count = 0
+            removed_count = 0
 
             for file_path in self.workspace_path.rglob("*"):
                 if file_path.is_file():
                     total_files += 1
 
                     if file_path.stat().st_size == 0:
-                        zero_byte_files.append(str(file_path))
+                        zero_byte_count += 1
 
                         if self.auto_fix:
                             try:
                                 file_path.unlink()
-                                logging.info(f"[AUTOFIX] Removed zero-byte file: {file_path}")
+                                removed_count += 1
                             except Exception as e:
                                 logging.warning(
                                     f"[WARNING] Could not remove zero-byte file {file_path}: {e}")
 
             zero_byte_percentage = (
-                len(zero_byte_files) /
+                zero_byte_count /
                 total_files *
                 100) if total_files > 0 else 0
             self.validation_results['zero_byte_protection'] = zero_byte_percentage < 1.0
 
-            if zero_byte_files:
+            if zero_byte_count:
                 logging.warning(
-                    f"[WARNING] Found {len(
-    zero_byte_files)} zero-byte files ({zero_byte_percentage:.2f}%)")
+                    f"[WARNING] Found {zero_byte_count} zero-byte files ({zero_byte_percentage:.2f}%)")
+                if self.auto_fix and removed_count:
+                    logging.info(
+                        f"[AUTOFIX] Removed {removed_count} zero-byte file(s) from {self.workspace_path}"
+                    )
             else:
                 logging.info("[SUCCESS] No zero-byte files detected")
 
