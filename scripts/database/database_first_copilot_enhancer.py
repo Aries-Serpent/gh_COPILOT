@@ -46,6 +46,7 @@ class DatabaseFirstCopilotEnhancer:
         def load_db_templates() -> dict[str, str]:
             templates: dict[str, str] = {}
             if self.production_db.exists():
+                validate_enterprise_operation(str(self.production_db))
                 try:
                     validate_enterprise_operation(str(self.production_db))
                     with sqlite3.connect(self.production_db) as conn:
@@ -141,8 +142,9 @@ class DatabaseFirstCopilotEnhancer:
         solutions = [code for code, _ in scored]
         template = self._find_template_matches(objective)
         adapted = self._adapt_to_current_environment(template)
+        codes = [code for code, _ in solutions]
         return {
-            "database_solutions": solutions,
+            "database_solutions": codes,
             "template_code": adapted,
             "confidence_score": self._calculate_confidence(scored),
             "integration_ready": True,

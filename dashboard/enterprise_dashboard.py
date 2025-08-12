@@ -7,6 +7,7 @@ import sqlite3
 import threading
 from typing import Any, Callable, Dict, List
 import queue
+import threading
 
 from monitoring import BaselineAnomalyDetector
 
@@ -40,6 +41,7 @@ try:  # pragma: no cover - dashboard features are optional in tests
         _load_metrics as _real_load_metrics,
         get_rollback_logs as _real_get_rollback_logs,
         _load_sync_events as _real_load_sync_events,
+        _compliance_payload as _real_compliance_payload,
         METRICS_FILE as _METRICS_FILE,
         _load_compliance_payload as _real_load_compliance_payload,
     )
@@ -72,6 +74,9 @@ except Exception:  # pragma: no cover - provide fallbacks
 
     def _load_sync_events(*args: Any, **kwargs: Any):  # type: ignore[override]
         return []
+
+    def _compliance_payload(*args: Any, **kwargs: Any) -> Dict[str, Any]:  # type: ignore[override]
+        return {}
 
     _METRICS_FILE = Path("metrics.json")
 try:  # pragma: no cover - optional dependency
@@ -189,6 +194,11 @@ def dashboard_compliance_view() -> str:
         last_resolved=data.get("last_resolved", ""),
         audit_logs=data.get("audit_log", []),
     )
+
+
+@app.route("/api/dashboard/compliance")
+def dashboard_compliance_api() -> Any:
+    return jsonify(_compliance_payload())
 
 
 @app.route("/anomalies")
