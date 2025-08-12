@@ -73,6 +73,6 @@ def test_secondary_validator_invoked(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(qce, "validate_environment_root", lambda: None)
 
     engine = qce.QuantumComplianceEngine(tmp_path)
-    score = engine.score(target, ["quantum"])
+    engine.score(target, ["quantum"])
 
-    assert called["files"] == [f"{score:.4f}"]
+    assert called["files"] == [str(target)]
