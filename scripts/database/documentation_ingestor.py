@@ -19,6 +19,9 @@ from enterprise_modules.compliance import (
     validate_enterprise_operation,
 )
 
+# pid_recursion_guard is optional during certain lightweight test runs where the
+# full compliance module may not be available.  Expose a no-op fallback so the
+# module can still be imported without errors.
 try:  # pragma: no cover - optional import for environments without full compliance module
     from enterprise_modules.compliance import pid_recursion_guard  # type: ignore
     _PID_GUARD_AVAILABLE = True
@@ -36,7 +39,8 @@ from .cross_database_sync_logger import _table_exists, log_sync_operation
 from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
 
-__all__ = ["ingest_documentation", "pid_recursion_guard"]
+# Re-export the guard flag so tests can determine availability.
+__all__ = ["ingest_documentation", "pid_recursion_guard", "_PID_GUARD_AVAILABLE"]
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
