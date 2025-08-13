@@ -6,6 +6,7 @@ import uuid
 from pathlib import Path
 import sqlite3
 import typer
+import importlib.util
 
 from .api import _dao
 from .models import ScoreInputs, ScoreSnapshot
@@ -40,6 +41,30 @@ def migrate(migrations_dir: Path = typer.Option(Path("databases/gh_copilot_migra
             conn.executescript(sql)
             conn.commit()
             typer.echo(f"applied: {sql_file}")
+    finally:
+        conn.close()
+
+
+@app.command("migrate-all")
+def migrate_all(migrations_dir: Path = typer.Option(Path("databases/migrations"), exists=True)) -> None:
+    """Apply *.sql then *.py migrations in lexical order."""
+    db = _db_path()
+    conn = sqlite3.connect(db)
+    try:
+        for sql_file in sorted(migrations_dir.glob("*.sql")):
+            sql = sql_file.read_text(encoding="utf-8")
+            conn.executescript(sql)
+            conn.commit()
+            typer.echo(f"applied: {sql_file.name}")
+        for py_file in sorted(migrations_dir.glob("*.py")):
+            spec = importlib.util.spec_from_file_location(py_file.stem, py_file)
+            mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
+            assert spec and spec.loader
+            spec.loader.exec_module(mod)  # type: ignore[assignment]
+            if hasattr(mod, "upgrade"):
+                mod.upgrade(conn)  # type: ignore[arg-type]
+                conn.commit()
+                typer.echo(f"applied: {py_file.name}")
     finally:
         conn.close()
 
@@ -177,6 +202,21 @@ def generate_docs(
     except Exception as exc:  # pragma: no cover - surfaced via exit code
         typer.echo(str(exc), err=True)
         raise typer.Exit(1)
+
+
+@app.command("generate")
+def generate_cli(
+    kind: str = typer.Argument(..., help="docs|scripts"),
+    source_db: Path = typer.Option(Path("documentation.db"), help="DB for templates"),
+    out_dir: Path = typer.Option(Path("generated"), help="Output directory"),
+    params: str = typer.Option("", help="JSON substitutions"),
+) -> None:
+    """Generate docs or scripts from templates and log the event."""
+    from gh_copilot.generation.generate_from_templates import generate as gen
+
+    values = json.loads(params) if params else {}
+    written = gen(kind=kind, source_db=source_db, out_dir=out_dir, analytics_db=_db_path(), params=values)
+    typer.echo(json.dumps({"written": [str(p) for p in written]}, indent=2))
 
 
 if __name__ == "__main__":
