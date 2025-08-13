@@ -1,0 +1,36 @@
+version: 2.1
+
+jobs:
+  verify-lfs:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: Install Git LFS
+          command: |
+            set -euo pipefail
+            sudo apt-get update
+            sudo apt-get install -y git-lfs
+            git lfs install --skip-repo
+      - run:
+          name: Validate ZIP files are tracked by LFS
+          command: |
+            set -euo pipefail
+            git ls-files '*.zip' > all_zips.txt || true
+            git lfs ls-files > lfs_files.txt || true
+            awk '{print $3}' lfs_files.txt | sort -u > lfs_paths.txt
+            sort -u all_zips.txt > all_zips_sorted.txt || true
+            comm -23 all_zips_sorted.txt lfs_paths.txt > bad_zips.txt || true
+            if [[ -s bad_zips.txt ]]; then
+              echo "ERROR: The following ZIP files are not tracked by Git LFS:";
+              sed 's/^/ - /' bad_zips.txt
+              exit 1
+            else
+              echo "All ZIP files are properly tracked by LFS."
+            fi
+
+workflows:
+  lfs-check:
+    jobs:
+      - verify-lfs

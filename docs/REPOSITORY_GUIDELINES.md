@@ -57,6 +57,17 @@ export GH_COPILOT_BACKUP_ROOT=/external_path/backups/
 
 Configurations should follow the standards outlined in `AGENTS.md`.
 
+### Documentation Updates
+After modifying any files under `docs/`, run:
+
+```bash
+python scripts/docs_status_reconciler.py
+```
+
+Commit the updated `docs/task_stubs.md` and `docs/status_index.json` produced by
+the reconciler. Pull requests touching documentation are expected to include
+these refreshed artifacts.
+
 ### WLC Session Manager and Database Tracking
 The script `scripts/wlc_session_manager.py` implements the Wrapping, Logging,
 and Compliance (WLC) methodology. When executed, it logs session metadata and a

@@ -1,30 +1,37 @@
 # Quantum Integration Plan
 
-## Module Architecture
-- **QuantumAlgorithmRegistry**: central registry for available algorithms.
-- **QuantumExecutor**: manages backend selection and executes registered algorithms.
-- **QuantumIntegrationOrchestrator**: high level interface that coordinates algorithm execution using the registry and executor.
+The orchestrator supports multiple quantum providers behind a single command
+line entry point.  Usage:
 
-## Simulation Only
-- Hardware execution is not implemented; the integration always uses
-  `qasm_simulator` from `qiskit`.
-- Interfaces mirror potential hardware usage for future parity but currently
-  ignore hardware-specific settings.
-- Maintains identical interfaces so future hardware support can plug in without
-  API changes.
+```
+python quantum_integration_orchestrator.py --provider <simulator|ibm|ionq|dwave>
+```
 
-## Hardware Requirements
-- Future hardware execution will require `qiskit` plus `qiskit-ibm-provider`
-  and a valid IBM Quantum token provided via the `QISKIT_IBM_TOKEN` environment
-  variable.
-- Environment variables such as `QUANTUM_USE_HARDWARE` and `IBM_BACKEND` are
-  currently **no-ops**; the system always runs on simulators.
+The entry point delegates backend construction to
+`quantum.providers.get_provider`.  Lightweight stubs in
+`quantum.providers.backends` (`IBMBackend`, `IonQBackend`, `DWaveBackend`)
+mirror vendor behaviour so the orchestration flow can be tested without
+installing hardware SDKs.
 
-## Placeholder Modules
+## Configuration
 
-Prototype implementations reside under `scripts/quantum_placeholders/`.
-Each module defines `PLACEHOLDER_ONLY = True`, and build tooling
-detects this marker to exclude them during packaging. Importing a
-placeholder when `GH_COPILOT_ENV` is set to `"production"` raises a
-`RuntimeError`, keeping production deployments free of unfinished
-quantum code while preserving importability for planning.
+Each provider relies on an environment token.  When the token is missing the
+system falls back to the simulator backend.
+
+| Provider | Token | Notes |
+| -------- | ----- | ----- |
+| `ibm`    | `QISKIT_IBM_TOKEN` | Optional `IBM_BACKEND` selects a specific device. |
+| `ionq`   | `IONQ_API_KEY` | Supports `IONQ_BACKEND` for backend selection. |
+| `dwave`  | `DWAVE_API_TOKEN` | `DWAVE_SOLVER` selects the solver. |
+
+## Roadmap
+
+1. **Stub Backends:** Initial release ships with stub implementations so the
+   integration flow can be exercised without vendor SDKs.
+2. **Provider SDK Hooks:** Future updates will replace the stubs with actual
+   adapters that call provider APIs when the respective SDKs are installed.
+3. **Hybrid Workflows:** The orchestrator will expose hooks to combine classical
+   and quantum workloads, driven by the new provider abstraction.
+
+This document will evolve as hardware integrations progress.
+
