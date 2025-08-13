@@ -4,6 +4,7 @@ import json
 import os
 import uuid
 from pathlib import Path
+import sqlite3
 import typer
 
 from .api import _dao
@@ -14,6 +15,16 @@ app = typer.Typer(help="gh_COPILOT command-line tools")
 
 def _db_path() -> Path:
     return Path(os.getenv("GH_COPILOT_ANALYTICS_DB", "analytics.db"))
+
+
+def _count_rows(db: Path, table: str) -> int:
+    """Return row count for ``table`` in ``db``."""
+    with sqlite3.connect(db) as conn:
+        try:
+            cur = conn.execute(f"SELECT COUNT(*) FROM {table}")
+            return int(cur.fetchone()[0])
+        except sqlite3.Error:
+            return 0
 
 
 @app.command()
@@ -91,6 +102,59 @@ def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
     import uvicorn
 
     uvicorn.run("gh_copilot.api:app", host=host, port=port, reload=True)
+
+
+@app.command("ingest-docs")
+def ingest_docs(
+    workspace: Path = typer.Option(Path("."), exists=True),
+    docs_dir: Path | None = None,
+) -> None:
+    """Ingest documentation into the enterprise assets database."""
+    from scripts.database.documentation_ingestor import ingest_documentation
+
+    try:
+        ingest_documentation(workspace, docs_dir)
+        db = workspace / "databases" / "enterprise_assets.db"
+        count = _count_rows(db, "documentation_assets")
+        typer.echo(json.dumps({"ingested": count}))
+    except Exception as exc:  # pragma: no cover - surfaced via exit code
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(1)
+
+
+@app.command("ingest-templates")
+def ingest_templates_cmd(
+    workspace: Path = typer.Option(Path("."), exists=True),
+    templates_dir: Path | None = None,
+) -> None:
+    """Ingest templates into the enterprise assets database."""
+    from scripts.database.template_asset_ingestor import ingest_templates
+
+    try:
+        ingest_templates(workspace, templates_dir)
+        db = workspace / "databases" / "enterprise_assets.db"
+        count = _count_rows(db, "template_assets")
+        typer.echo(json.dumps({"ingested": count}))
+    except Exception as exc:  # pragma: no cover - surfaced via exit code
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(1)
+
+
+@app.command("generate-docs")
+def generate_docs(
+    db_path: Path = typer.Option(Path("databases/production.db")),
+    analytics_db: Path = typer.Option(Path("databases/analytics.db")),
+) -> None:
+    """Generate documentation metrics and output them as JSON."""
+    from scripts import generate_docs_metrics
+
+    try:
+        generate_docs_metrics.main(["--db-path", str(db_path), "--analytics-db", str(analytics_db)])
+        metrics = generate_docs_metrics.get_metrics(db_path)
+        typer.echo(json.dumps(metrics))
+    except Exception as exc:  # pragma: no cover - surfaced via exit code
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(1)
 
 
 if __name__ == "__main__":
