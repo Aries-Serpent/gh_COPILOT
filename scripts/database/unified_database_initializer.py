@@ -49,6 +49,7 @@ TABLES: dict[str, str] = {
         "id INTEGER PRIMARY KEY,"
         "doc_path TEXT NOT NULL,"
         "content_hash TEXT NOT NULL UNIQUE,"
+        "version INTEGER NOT NULL DEFAULT 1,"
         "created_at TEXT NOT NULL,"
         "modified_at TEXT NOT NULL"
         ")"
@@ -67,6 +68,22 @@ TABLES: dict[str, str] = {
         "pattern TEXT NOT NULL,"
         "usage_count INTEGER DEFAULT 0,"
         "lesson_name TEXT,"
+        "created_at TEXT NOT NULL"
+        ")"
+    ),
+    "har_entries": (
+        "CREATE TABLE IF NOT EXISTS har_entries ("
+        "id INTEGER PRIMARY KEY,"
+        "har_path TEXT NOT NULL,"
+        "content_hash TEXT NOT NULL UNIQUE,"
+        "created_at TEXT NOT NULL"
+        ")"
+    ),
+    "shell_logs": (
+        "CREATE TABLE IF NOT EXISTS shell_logs ("
+        "id INTEGER PRIMARY KEY,"
+        "log_path TEXT NOT NULL,"
+        "content_hash TEXT NOT NULL UNIQUE,"
         "created_at TEXT NOT NULL"
         ")"
     ),
