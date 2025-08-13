@@ -39,6 +39,7 @@ from utils.log_utils import log_event
 from .cross_database_sync_logger import _table_exists, log_sync_operation
 from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
+from .schema_validators import ensure_har_schema
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -74,6 +75,7 @@ def ingest_har_entries(workspace: Path, har_dir: Path | None = None) -> None:
 
     if not db_path.exists():
         initialize_database(db_path)
+    ensure_har_schema(db_path)
 
     har_dir = har_dir or (workspace / "logs")
     files = _gather_har_files(har_dir)
