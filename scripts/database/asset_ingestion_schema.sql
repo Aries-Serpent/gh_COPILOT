@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS template_assets (
     id INTEGER PRIMARY KEY,
     template_path TEXT NOT NULL,
     content_hash TEXT NOT NULL UNIQUE,
+    version INTEGER NOT NULL DEFAULT 1,
     created_at TEXT NOT NULL
 );
 
