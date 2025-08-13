@@ -17,16 +17,20 @@ fi
 
 has() { command -v "$1" >/dev/null 2>&1; }
 
+info() { echo "[info] $*"; }
+run()  { if [[ "${DRY_RUN:-0}" == "1" ]]; then echo "DRY: $*"; else eval "$*"; fi }
+
 if ! has git; then echo "❌ git not found on PATH" >&2; exit 1; fi
 
 # Ensure Git LFS is installed
 if ! has git-lfs; then
   echo "Installing git-lfs..."
   if has apt-get; then
-    run "apt-get update >/dev/null 2>&1"
-    run "apt-get install -y git-lfs >/dev/null 2>&1"
     if [[ "${DRY_RUN:-0}" == "1" ]]; then
       info "DRY_RUN: would install git-lfs via apt-get"
+    else
+      run "apt-get update >/dev/null 2>&1"
+      run "apt-get install -y git-lfs >/dev/null 2>&1"
     fi
   else
     echo "Warning: unable to install git-lfs automatically." >&2
@@ -66,8 +70,7 @@ PAT
 )
 
 # -------------- helper fns --------------
-info() { echo "[info] $*"; }
-run()  { if [[ "${DRY_RUN:-0}" == "1" ]]; then echo "DRY: $*"; else eval "$*"; fi }
+# (info and run defined near top)
 
 ensure_trailing_newline() {
   local file="$1"
