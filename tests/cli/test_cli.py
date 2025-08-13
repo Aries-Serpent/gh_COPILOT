@@ -53,7 +53,7 @@ def test_ingest_docs_cli(tmp_path, monkeypatch):
 
     result = runner.invoke(
         app,
-        ["ingest-docs", "--workspace", str(tmp_path), "--docs-dir", str(docs_dir)],
+        ["ingest", "docs", "--workspace", str(tmp_path), "--src-dir", str(docs_dir)],
     )
     assert result.exit_code == 0
     assert "\"ingested\": 1" in result.stdout
@@ -78,10 +78,11 @@ def test_ingest_templates_cli(tmp_path, monkeypatch):
     result = runner.invoke(
         app,
         [
-            "ingest-templates",
+            "ingest",
+            "templates",
             "--workspace",
             str(tmp_path),
-            "--templates-dir",
+            "--src-dir",
             str(tmpl_dir),
         ],
     )
@@ -106,7 +107,7 @@ def test_ingest_har_cli(tmp_path, monkeypatch):
     monkeypatch.setattr(hi, "tqdm", _DummyTqdm)
 
     result = runner.invoke(
-        app, ["ingest-har", "--workspace", str(tmp_path), "--har-dir", str(logs_dir)]
+        app, ["ingest", "har", "--workspace", str(tmp_path), "--src-dir", str(logs_dir)]
     )
     assert result.exit_code == 0
     assert "\"ingested\": 1" in result.stdout

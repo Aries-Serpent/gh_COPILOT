@@ -129,58 +129,39 @@ def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
     uvicorn.run("gh_copilot.api:app", host=host, port=port, reload=True)
 
 
-@app.command("ingest-docs")
-def ingest_docs(
+@app.command("ingest")
+def ingest_cmd(
+    kind: str = typer.Argument(..., help="docs|templates|har"),
     workspace: Path = typer.Option(Path("."), exists=True),
-    docs_dir: Path | None = None,
+    src_dir: Path | None = None,
     update_in_place: bool = typer.Option(
-        False,
-        help="Overwrite existing rows instead of retaining version history",
+        False, help="Overwrite existing rows instead of retaining version history"
     ),
 ) -> None:
-    """Ingest documentation into the enterprise assets database."""
-    from scripts.database.documentation_ingestor import ingest_documentation
+    """Ingest assets into the enterprise database."""
+    if kind == "docs":
+        from scripts.database.documentation_ingestor import ingest_documentation
+
+        ingest_documentation(
+            workspace, src_dir, retain_history=not update_in_place
+        )
+        table = "documentation_assets"
+    elif kind == "templates":
+        from scripts.database.template_asset_ingestor import ingest_templates
+
+        ingest_templates(workspace, src_dir)
+        table = "template_assets"
+    elif kind == "har":
+        from scripts.database.har_ingestor import ingest_har_entries
+
+        ingest_har_entries(workspace, src_dir)
+        table = "har_entries"
+    else:  # pragma: no cover - argument validation
+        raise typer.BadParameter("kind must be 'docs', 'templates', or 'har'")
 
     try:
-        ingest_documentation(workspace, docs_dir, retain_history=not update_in_place)
         db = workspace / "databases" / "enterprise_assets.db"
-        count = _count_rows(db, "documentation_assets")
-        typer.echo(json.dumps({"ingested": count}))
-    except Exception as exc:  # pragma: no cover - surfaced via exit code
-        typer.echo(str(exc), err=True)
-        raise typer.Exit(1)
-
-
-@app.command("ingest-templates")
-def ingest_templates_cmd(
-    workspace: Path = typer.Option(Path("."), exists=True),
-    templates_dir: Path | None = None,
-) -> None:
-    """Ingest templates into the enterprise assets database."""
-    from scripts.database.template_asset_ingestor import ingest_templates
-
-    try:
-        ingest_templates(workspace, templates_dir)
-        db = workspace / "databases" / "enterprise_assets.db"
-        count = _count_rows(db, "template_assets")
-        typer.echo(json.dumps({"ingested": count}))
-    except Exception as exc:  # pragma: no cover - surfaced via exit code
-        typer.echo(str(exc), err=True)
-        raise typer.Exit(1)
-
-
-@app.command("ingest-har")
-def ingest_har_cmd(
-    workspace: Path = typer.Option(Path("."), exists=True),
-    har_dir: Path | None = None,
-) -> None:
-    """Ingest HAR files into the enterprise assets database."""
-    from scripts.database.har_ingestor import ingest_har_entries
-
-    try:
-        ingest_har_entries(workspace, har_dir)
-        db = workspace / "databases" / "enterprise_assets.db"
-        count = _count_rows(db, "har_entries")
+        count = _count_rows(db, table)
         typer.echo(json.dumps({"ingested": count}))
     except Exception as exc:  # pragma: no cover - surfaced via exit code
         typer.echo(str(exc), err=True)
