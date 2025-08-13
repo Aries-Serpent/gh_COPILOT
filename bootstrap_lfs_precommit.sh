@@ -24,14 +24,26 @@ run()  { if [[ "${DRY_RUN:-0}" == "1" ]]; then echo "DRY: $*"; else eval "$*"; f
 if ! has git; then echo "❌ git not found on PATH" >&2; exit 1; fi
 
 # Ensure Git LFS is installed
+# Detect non-root usage: attempt sudo apt-get or warn and skip
 if ! has git-lfs; then
   echo "Installing git-lfs..."
   if has apt-get; then
-    if [[ "${DRY_RUN:-0}" == "1" ]]; then
-      info "DRY_RUN: would install git-lfs via apt-get"
-    else
-      run "apt-get update >/dev/null 2>&1"
-      run "apt-get install -y git-lfs >/dev/null 2>&1"
+    installer="apt-get"
+    if [[ $EUID -ne 0 ]]; then
+      if has sudo; then
+        installer="sudo apt-get"
+      else
+        echo "Warning: not running as root and no sudo found; skipping automatic git-lfs install." >&2
+        installer=""
+      fi
+    fi
+    if [[ -n "$installer" ]]; then
+      if [[ "${DRY_RUN:-0}" == "1" ]]; then
+        info "DRY_RUN: would install git-lfs via $installer"
+      else
+        run "$installer update >/dev/null 2>&1"
+        run "$installer install -y git-lfs >/dev/null 2>&1"
+      fi
     fi
   else
     echo "Warning: unable to install git-lfs automatically." >&2
