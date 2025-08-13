@@ -77,6 +77,9 @@ TABLES: dict[str, str] = {
         "id INTEGER PRIMARY KEY,"
         "har_path TEXT NOT NULL,"
         "content_hash TEXT NOT NULL UNIQUE,"
+        "md5 TEXT NOT NULL,"
+        "raw_content TEXT NOT NULL,"
+        "content_size INTEGER NOT NULL,"
         "created_at TEXT NOT NULL"
         ")"
     ),
