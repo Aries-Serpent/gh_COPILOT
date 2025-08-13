@@ -663,7 +663,7 @@ def main() -> int:
     ap.add_argument("--db", required=True)
     ap.add_argument("--analytics")
     ap.add_argument("--no-versioning", action="store_true", help="Disable versioning")
-    ap.add_argument("--update-in-place", action="store_true", help="Update latest row instead of version bump")
+    ap.add_argument("--in-place", action="store_true", help="Update latest row instead of version bump")
     ns = ap.parse_args()
 
     ing = DocumentationIngestor(
@@ -2250,7 +2250,7 @@ if (Test-Path $DocsDir) { $args += @('--docs-dir', $DocsDir) }
 if (Test-Path $TemplatesDir) { $args += @('--templates-dir', $TemplatesDir) }
 if (Test-Path $HarDir) { $args += @('--har-dir', $HarDir) }
 if (Test-Path $LogsDir) { $args += @('--logs-dir', $LogsDir) }
-if ($UpdateInPlace) { $args += '--update-in-place' } elseif (-not $DocsVersioning) { $args += '--no-versioning' }
+if ($UpdateInPlace) { $args += '--in-place' } elseif (-not $DocsVersioning) { $args += '--no-versioning' }
 python -m gh_copilot.cli @args
 }
 
