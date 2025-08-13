@@ -3,7 +3,8 @@
 
 The ingestor maintains a version history for each ``doc_path``. When a file
 with an existing path is ingested and its content has changed, a new row is
-inserted with an incremented ``version`` rather than skipping the file.
+inserted with an incremented ``version``. The history can be disabled by
+setting ``retain_history=False`` to update the existing row in place.
 """
 
 from __future__ import annotations
@@ -66,6 +67,8 @@ def ingest_documentation(
     workspace: Path,
     docs_dir: Path | None = None,
     timeout_seconds: int | None = None,
+    *,
+    retain_history: bool = True,
 ) -> None:
     """Ingest Markdown files into ``enterprise_assets.db``.
 
@@ -239,23 +242,35 @@ def ingest_documentation(
                         status = "UNCHANGED"
                     else:
                         status = "UPDATED"
-                        new_version = existing[1] + 1
-                        conn.execute(
-                            (
-                                "INSERT INTO documentation_assets "
-                                "(doc_path, content_hash, version, created_at, modified_at) "
-                                "VALUES (?, ?, ?, ?, ?)"
-                            ),
-                            (
-                                rel_path,
-                                digest_sha256,
-                                new_version,
-                                datetime.now(timezone.utc).isoformat(),
-                                modified_at,
-                            ),
-                        )
-                        existing_sha256.discard(existing[0])
-                        existing_sha256.add(digest_sha256)
+                        if retain_history:
+                            new_version = existing[1] + 1
+                            conn.execute(
+                                (
+                                    "INSERT INTO documentation_assets "
+                                    "(doc_path, content_hash, version, created_at, modified_at) "
+                                    "VALUES (?, ?, ?, ?, ?)"
+                                ),
+                                (
+                                    rel_path,
+                                    digest_sha256,
+                                    new_version,
+                                    datetime.now(timezone.utc).isoformat(),
+                                    modified_at,
+                                ),
+                            )
+                            existing_sha256.discard(existing[0])
+                            existing_sha256.add(digest_sha256)
+                        else:
+                            conn.execute(
+                                (
+                                    "UPDATE documentation_assets "
+                                    "SET content_hash=?, modified_at=?, version=version+1 "
+                                    "WHERE doc_path=?"
+                                ),
+                                (digest_sha256, modified_at, rel_path),
+                            )
+                            existing_sha256.discard(existing[0])
+                            existing_sha256.add(digest_sha256)
                     existing_md5.add(digest_md5)
                     existing_docs.add(rel_path)
                     conn.commit()

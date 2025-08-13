@@ -6,6 +6,7 @@ from gh_copilot.cli import app
 import scripts.database.documentation_ingestor as di
 import scripts.database.template_asset_ingestor as ti
 import scripts.generate_docs_metrics as gdm
+import scripts.database.har_ingestor as hi
 
 
 runner = CliRunner()
@@ -83,6 +84,29 @@ def test_ingest_templates_cli(tmp_path, monkeypatch):
             "--templates-dir",
             str(tmpl_dir),
         ],
+    )
+    assert result.exit_code == 0
+    assert "\"ingested\": 1" in result.stdout
+
+
+def test_ingest_har_cli(tmp_path, monkeypatch):
+    logs_dir = tmp_path / "logs"
+    logs_dir.mkdir()
+    (tmp_path / "databases").mkdir(exist_ok=True)
+    (logs_dir / "a.har").write_text("{}")
+    (logs_dir / "b.har").write_text("{}")
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+
+    monkeypatch.setattr(hi, "validate_enterprise_operation", lambda *a, **k: None)
+    monkeypatch.setattr(hi, "enforce_anti_recursion", lambda *a, **k: None)
+    monkeypatch.setattr(hi, "log_sync_operation", lambda *a, **k: None)
+    monkeypatch.setattr(hi, "log_event", lambda *a, **k: None)
+    monkeypatch.setattr(hi, "check_database_sizes", lambda *a, **k: True)
+    monkeypatch.setattr(hi, "SecondaryCopilotValidator", _stub_validator)
+    monkeypatch.setattr(hi, "tqdm", _DummyTqdm)
+
+    result = runner.invoke(
+        app, ["ingest-har", "--workspace", str(tmp_path), "--har-dir", str(logs_dir)]
     )
     assert result.exit_code == 0
     assert "\"ingested\": 1" in result.stdout

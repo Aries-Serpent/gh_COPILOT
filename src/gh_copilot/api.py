@@ -26,3 +26,12 @@ def get_placeholders(status: str = Query("open")):
 def get_compliance(branch: str = Query("main")):
     snap = _dao.fetch_score(branch)
     return snap.model_dump() if snap else {"branch": branch, "score": None}
+
+
+@app.post("/api/v1/ingest-har")
+def api_ingest_har() -> dict[str, bool]:
+    from scripts.database.har_ingestor import ingest_har_entries
+
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
+    ingest_har_entries(workspace)
+    return {"ok": True}
