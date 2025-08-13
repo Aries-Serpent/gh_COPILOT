@@ -167,7 +167,7 @@ audit the results and perform a rollback if necessary. Commands assume
    ```bash
    python scripts/database/template_asset_ingestor.py --workspace "$GH_COPILOT_WORKSPACE" --templates-dir templates
    python scripts/database/documentation_ingestor.py --workspace "$GH_COPILOT_WORKSPACE" --docs-dir docs
-   python scripts/database/har_asset_ingestor.py --workspace "$GH_COPILOT_WORKSPACE" --har-dir logs
+   python scripts/database/har_ingestor.py --workspace "$GH_COPILOT_WORKSPACE" --har-dir logs
    python scripts/database/shell_log_ingestor.py --workspace "$GH_COPILOT_WORKSPACE" --logs-dir logs
    ```
 

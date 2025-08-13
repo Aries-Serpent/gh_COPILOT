@@ -3,12 +3,12 @@ import os
 import sqlite3
 from pathlib import Path
 
-from scripts.database.har_asset_ingestor import ingest_har_entries
+from scripts.database.har_ingestor import ingest_har_entries
 from scripts.database.unified_database_initializer import initialize_database
 
 
-def _write_har(path: Path, comment: str) -> None:
-    data = {"log": {"comment": comment, "entries": []}}
+def _write_har(path: Path, comment: str, entries: int = 0) -> None:
+    data = {"log": {"comment": comment, "entries": [{}] * entries}}
     path.write_text(json.dumps(data))
 
 
@@ -32,16 +32,14 @@ def test_har_ingestor_stores_content_and_skips_duplicates(tmp_path: Path, monkey
 
     with sqlite3.connect(db_path) as conn:
         rows = conn.execute(
-            "SELECT har_path, content_hash, md5, raw_content, content_size FROM har_entries"
+            "SELECT path, content_hash, metrics FROM har_entries"
         ).fetchall()
 
     assert len(rows) == 1
-    path, sha256, md5, raw, size = rows[0]
+    path, sha256, metrics = rows[0]
     assert path.endswith("a.har") or path.endswith("b.har")
-    assert json.loads(raw)["log"]["comment"] == "first"
-    assert size == len(raw.encode())
-    # simple duplicate check: hash of file1 equals stored hash
+    data = json.loads(metrics)
+    assert data["entries"] == 0
     content = file1.read_bytes()
     assert sha256 == __import__("hashlib").sha256(content).hexdigest()
-    assert md5 == __import__("hashlib").md5(content).hexdigest()
 

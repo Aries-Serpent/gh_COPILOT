@@ -108,12 +108,16 @@ def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
 def ingest_docs(
     workspace: Path = typer.Option(Path("."), exists=True),
     docs_dir: Path | None = None,
+    update_in_place: bool = typer.Option(
+        False,
+        help="Overwrite existing rows instead of retaining version history",
+    ),
 ) -> None:
     """Ingest documentation into the enterprise assets database."""
     from scripts.database.documentation_ingestor import ingest_documentation
 
     try:
-        ingest_documentation(workspace, docs_dir)
+        ingest_documentation(workspace, docs_dir, retain_history=not update_in_place)
         db = workspace / "databases" / "enterprise_assets.db"
         count = _count_rows(db, "documentation_assets")
         typer.echo(json.dumps({"ingested": count}))
@@ -134,6 +138,24 @@ def ingest_templates_cmd(
         ingest_templates(workspace, templates_dir)
         db = workspace / "databases" / "enterprise_assets.db"
         count = _count_rows(db, "template_assets")
+        typer.echo(json.dumps({"ingested": count}))
+    except Exception as exc:  # pragma: no cover - surfaced via exit code
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(1)
+
+
+@app.command("ingest-har")
+def ingest_har_cmd(
+    workspace: Path = typer.Option(Path("."), exists=True),
+    har_dir: Path | None = None,
+) -> None:
+    """Ingest HAR files into the enterprise assets database."""
+    from scripts.database.har_ingestor import ingest_har_entries
+
+    try:
+        ingest_har_entries(workspace, har_dir)
+        db = workspace / "databases" / "enterprise_assets.db"
+        count = _count_rows(db, "har_entries")
         typer.echo(json.dumps({"ingested": count}))
     except Exception as exc:  # pragma: no cover - surfaced via exit code
         typer.echo(str(exc), err=True)
