@@ -23,7 +23,11 @@ if ! has git; then echo "❌ git not found on PATH" >&2; exit 1; fi
 if ! has git-lfs; then
   echo "Installing git-lfs..."
   if has apt-get; then
-    apt-get update >/dev/null 2>&1 && apt-get install -y git-lfs >/dev/null 2>&1
+    run "apt-get update >/dev/null 2>&1"
+    run "apt-get install -y git-lfs >/dev/null 2>&1"
+    if [[ "${DRY_RUN:-0}" == "1" ]]; then
+      info "git-lfs installation skipped due to DRY_RUN"
+    fi
   else
     echo "Warning: unable to install git-lfs automatically." >&2
   fi
@@ -74,6 +78,15 @@ append_gitattributes_block() {
   fi
   if (( need_block )); then
     info "Applying LFS archive rules to .gitattributes"
+    if [[ -f "$ATTR_FILE" ]] && [[ -s "$ATTR_FILE" ]]; then
+      local last_char
+      last_char=$(tail -c1 "$ATTR_FILE" 2>/dev/null || true)
+      if [[ "$last_char" != $'\n' ]]; then
+        run "printf '\n' >> '$ATTR_FILE'"
+      fi
+    else
+      run "touch '$ATTR_FILE'"
+    fi
     run "cat >> '$ATTR_FILE' <<'EOF'
 $marker_begin
 # ZIP (case-insensitive)
@@ -144,7 +157,7 @@ YAML"
 
 restage_archives_to_lfs() {
   info "Re-staging existing archives to write LFS pointers (if needed)"
-  local changed=0
+  local no_changes=1
   for pat in "${LFS_PATTERNS[@]}"; do
     while IFS= read -r -d '' f; do
       [[ -f "$f" ]] || continue
@@ -152,11 +165,11 @@ restage_archives_to_lfs() {
         info "Converting to LFS pointer: $f"
         run git rm --cached --quiet -- "$f"
         run git add -- "$f"
-        changed=1
+        no_changes=0
       fi
     done < <(git ls-files -z -- "$pat" || true)
   done
-  return $changed
+  return $no_changes
 }
 
 # -------------- main --------------
