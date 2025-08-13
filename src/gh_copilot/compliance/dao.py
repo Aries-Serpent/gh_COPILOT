@@ -15,11 +15,12 @@ PRAGMAS: tuple[str, ...] = (
 )
 
 
-def get_conn(db_path: Path) -> sqlite3.Connection:
-    conn = sqlite3.connect(db_path)
+def get_conn(db_path: Path, timeout: float = 30.0) -> sqlite3.Connection:
+    conn = sqlite3.connect(db_path, timeout=timeout)
     conn.row_factory = sqlite3.Row
     for p in PRAGMAS:
         conn.execute(p)
+    conn.execute(f"PRAGMA busy_timeout = {int(timeout * 1000)}")
     return conn
 
 
