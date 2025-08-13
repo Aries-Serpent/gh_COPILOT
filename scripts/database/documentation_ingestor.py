@@ -52,6 +52,8 @@ logger = logging.getLogger(__name__)
 
 _RECURSION_CTX = SimpleNamespace()
 
+BUSY_TIMEOUT_MS = 30_000
+
 
 def _gather_markdown_files(directory: Path) -> list[Path]:
     """Return a sorted list of Markdown files under ``directory``."""
@@ -99,6 +101,8 @@ def ingest_documentation(
     if db_path.exists():
         try:
             with sqlite3.connect(db_path) as conn:
+                conn.execute("PRAGMA journal_mode=WAL;")
+                conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
                 if _table_exists(conn, "documentation_assets"):
                     columns = {row[1] for row in conn.execute("PRAGMA table_info(documentation_assets)")}
                     if "version" not in columns:
@@ -125,6 +129,8 @@ def ingest_documentation(
     if primary_db and primary_db.exists() and primary_db != db_path:
         try:
             with sqlite3.connect(primary_db) as prod_conn:
+                prod_conn.execute("PRAGMA journal_mode=WAL;")
+                prod_conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
                 if _table_exists(prod_conn, "documentation_assets"):
                     columns = {
                         row[1]
@@ -162,11 +168,15 @@ def ingest_documentation(
     logger.info("Starting documentation ingestion at %s", start_time.isoformat())
 
     conn = sqlite3.connect(db_path)
+    conn.execute("PRAGMA journal_mode=WAL;")
+    conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
     try:
         if not _table_exists(conn, "documentation_assets"):
             conn.close()
             initialize_database(db_path)
             conn = sqlite3.connect(db_path)
+            conn.execute("PRAGMA journal_mode=WAL;")
+            conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
         existing_sha256.update(
             row[0]
             for row in conn.execute(
