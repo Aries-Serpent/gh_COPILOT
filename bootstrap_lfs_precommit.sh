@@ -69,6 +69,17 @@ PAT
 info() { echo "[info] $*"; }
 run()  { if [[ "${DRY_RUN:-0}" == "1" ]]; then echo "DRY: $*"; else eval "$*"; fi }
 
+ensure_trailing_newline() {
+  local file="$1"
+  if [[ -s "$file" ]]; then
+    local last_char
+    last_char=$(tail -c1 "$file" 2>/dev/null || true)
+    if [[ "$last_char" != $'\n' ]]; then
+      run "printf '\n' >> '$file'"
+    fi
+  fi
+}
+
 append_gitattributes_block() {
   local marker_begin="# BEGIN LFS ARCHIVES (autogen)"
   local marker_end="# END LFS ARCHIVES (autogen)"
@@ -79,13 +90,7 @@ append_gitattributes_block() {
   if (( need_block )); then
     info "Applying LFS archive rules to .gitattributes"
     run "touch '$ATTR_FILE'"
-    if [[ -s "$ATTR_FILE" ]]; then
-      local last_char
-      last_char=$(tail -c1 "$ATTR_FILE" 2>/dev/null || true)
-      if [[ "$last_char" != $'\n' ]]; then
-        run "printf '\n' >> '$ATTR_FILE'"
-      fi
-    fi
+    ensure_trailing_newline "$ATTR_FILE"
     run "cat <<'EOF' >> '$ATTR_FILE'"
 $marker_begin
 # ZIP (case-insensitive)
