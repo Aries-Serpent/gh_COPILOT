@@ -78,16 +78,15 @@ append_gitattributes_block() {
   fi
   if (( need_block )); then
     info "Applying LFS archive rules to .gitattributes"
-    if [[ -f "$ATTR_FILE" ]] && [[ -s "$ATTR_FILE" ]]; then
+    run "touch '$ATTR_FILE'"
+    if [[ -s "$ATTR_FILE" ]]; then
       local last_char
       last_char=$(tail -c1 "$ATTR_FILE" 2>/dev/null || true)
       if [[ "$last_char" != $'\n' ]]; then
         run "printf '\n' >> '$ATTR_FILE'"
       fi
-    else
-      run "touch '$ATTR_FILE'"
     fi
-    run "cat >> '$ATTR_FILE' <<'EOF'
+    run "cat <<'EOF' >> '$ATTR_FILE'"
 $marker_begin
 # ZIP (case-insensitive)
 *.[zZ][iI][pP] filter=lfs diff=lfs merge=lfs -text
