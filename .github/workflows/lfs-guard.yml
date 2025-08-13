@@ -1,0 +1,37 @@
+name: LFS Archive Guard
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Verify archive files are tracked by LFS
+        shell: bash
+        run: |
+          set -euo pipefail
+          MERGE_BASE=$(git merge-base "${{ github.event.pull_request.base.sha }}" HEAD)
+          git diff --name-status "$MERGE_BASE" HEAD | while IFS=$'\t' read -r status file; do
+            if [[ "$status" =~ ^[AM]$ ]]; then
+              case "$file" in
+                *.zip|*.jar|*.7z|*.tar|*.tar.gz|*.tgz|*.tar.bz2|*.tbz|*.tar.xz|*.txz|*.rar|*.apk|*.ipa|*.nupkg|*.cab|*.iso)
+                  attr=$(git check-attr filter -- "$file" | awk '{print $3}')
+                  if [[ "$attr" != lfs ]]; then
+                    echo "::error file=$file::Archive file is not tracked by Git LFS"
+                    exit_code=1
+                  fi
+                  ;;
+              esac
+            fi
+          done
+          exit ${exit_code:=0}
