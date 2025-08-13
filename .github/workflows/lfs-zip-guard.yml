@@ -12,10 +12,10 @@ jobs:
   verify-lfs-zip:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout (without LFS content)
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          lfs: false
+          lfs: true
           fetch-depth: 0
 
       - name: Ensure Git LFS available
