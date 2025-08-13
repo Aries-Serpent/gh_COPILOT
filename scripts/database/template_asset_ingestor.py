@@ -27,6 +27,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
+BUSY_TIMEOUT_MS = 30_000
+
 def _gather_template_files(directory: Path) -> list[Path]:
     """Return a sorted list of Markdown template files under ``directory``."""
     files = [p for p in directory.rglob("*.md") if p.is_file()]
@@ -63,6 +65,8 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
     if db_path.exists():
         try:
             with sqlite3.connect(db_path) as conn:
+                conn.execute("PRAGMA journal_mode=WAL;")
+                conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
                 if _table_exists(conn, "template_assets"):
                     columns = {
                         row[1] for row in conn.execute("PRAGMA table_info(template_assets)")
@@ -91,6 +95,8 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
     if primary_db and primary_db.exists() and primary_db != db_path:
         try:
             with sqlite3.connect(primary_db) as prod_conn:
+                prod_conn.execute("PRAGMA journal_mode=WAL;")
+                prod_conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
                 if _table_exists(prod_conn, "template_assets"):
                     columns = {
                         row[1]
@@ -121,11 +127,15 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
     dup_count = 0
 
     conn = sqlite3.connect(db_path)
+    conn.execute("PRAGMA journal_mode=WAL;")
+    conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
     try:
         if not _table_exists(conn, "template_assets"):
             conn.close()
             initialize_database(db_path)
             conn = sqlite3.connect(db_path)
+            conn.execute("PRAGMA journal_mode=WAL;")
+            conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
         existing_hashes = {
             row[0] for row in conn.execute("SELECT content_hash FROM template_assets")
         }
