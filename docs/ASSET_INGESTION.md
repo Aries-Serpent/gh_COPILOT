@@ -10,9 +10,9 @@
 - The ingestion process is highly extensible, supporting new document formats, selective inclusion/exclusion filters, and scheduled batch jobs tied to session management.
 
 ## Key Scripts / Files
-- `scripts/database/documentation_ingestor.py` — Automates Markdown document detection, deduplication, hashing, and ingestion.
+- `scripts/database/documentation_ingestor.py` — Automates Markdown document detection, deduplication, hashing, and ingestion. Supports version history with an optional `--in-place` flag for overwriting existing rows.
 - `scripts/database/template_asset_ingestor.py` — Specialized for code/template file ingestion; computes hashes, checks for existing assets, and supports asset type tagging.
-- `scripts/database/har_asset_ingestor.py` — Loads HAR files while deduplicating content and logging analytics.
+- `scripts/database/har_ingestor.py` — Loads HAR files while deduplicating content and logging analytics.
 - `scripts/database/shell_log_ingestor.py` — Captures shell log files with hash-based duplicate detection.
 - `scripts/autonomous_setup_and_audit.py` — Supports scheduled ingestion runs, startup audits, and hooks for compliance checks. Integrates with session and analytics modules.
 - `scripts/database/asset_ingestion_schema.sql` — Defines schema for asset metadata, including unique content hashes and ingest event tracking.

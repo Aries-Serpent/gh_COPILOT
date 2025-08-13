@@ -24,12 +24,10 @@ from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.logging_utils import setup_enterprise_logging
 from utils.validation_utils import anti_recursion_guard, detect_zero_byte_files, validate_path
 
-from .add_code_audit_log import ensure_code_audit_log
 from .cross_database_sync_logger import log_sync_operation
 
 # Database paths
 PRODUCTION_DB = CrossPlatformPathManager.get_workspace_path() / "databases" / "production.db"
-ANALYTICS_DB = CrossPlatformPathManager.get_workspace_path() / "databases" / "analytics.db"
 
 logger = logging.getLogger(__name__)
 
@@ -75,12 +73,10 @@ TABLES: dict[str, str] = {
     "har_entries": (
         "CREATE TABLE IF NOT EXISTS har_entries ("
         "id INTEGER PRIMARY KEY,"
-        "har_path TEXT NOT NULL,"
+        "path TEXT NOT NULL,"
         "content_hash TEXT NOT NULL UNIQUE,"
-        "md5 TEXT NOT NULL,"
-        "raw_content TEXT NOT NULL,"
-        "content_size INTEGER NOT NULL,"
-        "created_at TEXT NOT NULL"
+        "created_at TEXT NOT NULL,"
+        "metrics TEXT"
         ")"
     ),
     "shell_logs": (
@@ -109,16 +105,6 @@ TABLES: dict[str, str] = {
         "status TEXT NOT NULL,"
         "start_time TEXT NOT NULL,"
         "duration REAL NOT NULL,"
-        "timestamp TEXT NOT NULL"
-        ")"
-    ),
-    "code_audit_log": (
-        "CREATE TABLE IF NOT EXISTS code_audit_log ("
-        "id INTEGER PRIMARY KEY,"
-        "file_path TEXT NOT NULL,"
-        "line_number INTEGER NOT NULL,"
-        "placeholder_type TEXT NOT NULL,"
-        "context TEXT,"
         "timestamp TEXT NOT NULL"
         ")"
     ),
@@ -250,10 +236,8 @@ def main() -> None:
     db_path = root / "databases" / "enterprise_assets.db"
     if db_path.exists():
         logger.info("%s already exists", db_path)
-        ensure_code_audit_log(ANALYTICS_DB)
         return
     initialize_database(db_path)
-    ensure_code_audit_log(ANALYTICS_DB)
 
 
 if __name__ == "__main__":

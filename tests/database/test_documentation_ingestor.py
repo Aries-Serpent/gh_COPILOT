@@ -56,12 +56,37 @@ def test_version_increment_on_update(tmp_path: Path, monkeypatch) -> None:
     doc.write_text("version two")
     ingest_documentation(workspace, docs_dir)
     with sqlite3.connect(db_dir / "enterprise_assets.db") as conn:
-        version, content_hash = conn.execute(
+        rows = conn.execute(
+            "SELECT version, content_hash FROM documentation_assets WHERE doc_path=? ORDER BY version",
+            (str(doc.relative_to(workspace)),),
+        ).fetchall()
+    assert len(rows) == 2
+    assert rows[1][0] == 2
+    assert rows[1][1] == hashlib.sha256("version two".encode()).hexdigest()
+
+
+def test_update_in_place_flag(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    workspace = tmp_path
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    db_dir = workspace / "databases"
+    db_dir.mkdir()
+    analytics_db = db_dir / "analytics.db"
+    monkeypatch.setenv("ANALYTICS_DB", str(analytics_db))
+    docs_dir = workspace / "documentation"
+    docs_dir.mkdir()
+    doc = docs_dir / "guide.md"
+    doc.write_text("first")
+    ingest_documentation(workspace, docs_dir, retain_history=False)
+    doc.write_text("second")
+    ingest_documentation(workspace, docs_dir, retain_history=False)
+    with sqlite3.connect(db_dir / "enterprise_assets.db") as conn:
+        row = conn.execute(
             "SELECT version, content_hash FROM documentation_assets WHERE doc_path=?",
             (str(doc.relative_to(workspace)),),
         ).fetchone()
-    assert version == 2
-    assert content_hash == hashlib.sha256("version two".encode()).hexdigest()
+    assert row[0] == 2
+    assert row[1] == hashlib.sha256("second".encode()).hexdigest()
 
 
 def test_validator_invoked(tmp_path: Path, monkeypatch) -> None:
