@@ -31,6 +31,9 @@ def get_enterprise_database_connection(
 ) -> Optional[sqlite3.Connection]:
     """
     Get standardized enterprise database connection
+
+    Connections run in WAL mode with a configurable busy timeout to
+    support concurrent access.
     
     Extracted from scripts:
     - script_modulation_analyzer.py
@@ -49,13 +52,11 @@ def get_enterprise_database_connection(
         connection = sqlite3.connect(
             str(db_file),
             timeout=timeout,
-            check_same_thread=check_same_thread
+            check_same_thread=check_same_thread,
         )
-        
-        # Enable foreign key constraints
+        connection.execute("PRAGMA journal_mode=WAL")
+        connection.execute(f"PRAGMA busy_timeout = {int(timeout * 1000)}")
         connection.execute("PRAGMA foreign_keys = ON")
-        
-        # Set row factory for easier access
         connection.row_factory = sqlite3.Row
         
         logging.info(f"Database connection established: {db_path}")
@@ -155,6 +156,79 @@ def execute_safe_insert(
         logging.error(f"Error inserting into {table_name}: {e}")
         connection.rollback()
         return False
+
+
+def execute_safe_batch_insert(
+    connection: sqlite3.Connection,
+    table_name: str,
+    rows: List[Dict[str, Any]],
+    *,
+    chunk_size: Optional[int] = None,
+    checkpoint_interval: Optional[int] = None,
+) -> bool:
+    """Insert multiple rows efficiently with optional chunking.
+
+    Parameters
+    ----------
+    connection:
+        Target SQLite connection.
+    table_name:
+        Name of the table to insert into.
+    rows:
+        Sequence of dictionaries representing rows to insert.
+    chunk_size:
+        When provided, commit after each chunk of this size.
+    checkpoint_interval:
+        Run a WAL checkpoint after roughly this many rows.
+    """
+
+    if not rows:
+        return True
+    db_file = Path(connection.execute("PRAGMA database_list").fetchone()[2])
+    try:
+        if not validate_enterprise_operation(str(db_file)):
+            raise ComplianceError(f"Forbidden database write: {db_file}")
+    except NotADirectoryError as exc:  # pragma: no cover - safety net
+        logging.error("Validation path error: %s", exc)
+
+    columns = list(rows[0].keys())
+    placeholder_str = ", ".join("?" for _ in columns)
+    query = (
+        f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({placeholder_str})"
+    )
+    values = [tuple(r[c] for c in columns) for r in rows]
+
+    try:
+        cursor = connection.cursor()
+        if not chunk_size:
+            cursor.executemany(query, values)
+            connection.commit()
+            if checkpoint_interval:
+                wal_checkpoint(connection)
+        else:
+            processed = 0
+            for i in range(0, len(values), chunk_size):
+                chunk = values[i : i + chunk_size]
+                cursor.executemany(query, chunk)
+                connection.commit()
+                processed += len(chunk)
+                if checkpoint_interval and processed >= checkpoint_interval:
+                    wal_checkpoint(connection)
+                    processed = 0
+        logging.info(f"Inserted {len(values)} records into {table_name}")
+        return True
+    except Exception as e:
+        logging.error(f"Error batch inserting into {table_name}: {e}")
+        connection.rollback()
+        return False
+
+
+def wal_checkpoint(connection: sqlite3.Connection, mode: str = "PASSIVE") -> None:
+    """Trigger a WAL checkpoint on the given connection."""
+    try:
+        connection.execute(f"PRAGMA wal_checkpoint({mode})")
+    except Exception as e:
+        logging.warning(f"WAL checkpoint failed: {e}")
 
 
 def execute_safe_update(
