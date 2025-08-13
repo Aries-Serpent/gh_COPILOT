@@ -2,6 +2,7 @@
 # Purpose: One-shot bootstrap to apply .gitattributes (LFS rules for archives),
 #          install Git LFS + pre-commit, convert existing archives to LFS pointers,
 #          and install commit/push hooks. Idempotent and safe for repeated runs.
+# Exit:    0 if any archives were converted to LFS pointers, 1 otherwise.
 # Usage:   bash bootstrap_lfs_precommit.sh
 # Options: BOOTSTRAP_NO_RUN=1   # skip pre-commit run --all-files
 #          DRY_RUN=1            # show actions without changing repo
@@ -190,8 +191,10 @@ info "Adding .gitattributes to index"
 run git add .gitattributes
 
 # Convert existing matching files to pointers when necessary
+converted=1
 if restage_archives_to_lfs; then
   info "Some archives converted to LFS pointers"
+  converted=0
 fi
 
 # Commit if there are staged changes
@@ -243,3 +246,4 @@ if [[ "${BOOTSTRAP_NO_RUN:-0}" != "1" ]]; then
 fi
 
 info "✅ Bootstrap complete — LFS rules applied, archives tracked, hooks installed."
+exit $converted
