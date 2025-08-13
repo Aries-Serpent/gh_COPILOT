@@ -95,6 +95,11 @@ def ingest_documentation(
         try:
             with sqlite3.connect(db_path) as conn:
                 if _table_exists(conn, "documentation_assets"):
+                    columns = {row[1] for row in conn.execute("PRAGMA table_info(documentation_assets)")}
+                    if "version" not in columns:
+                        conn.execute(
+                            "ALTER TABLE documentation_assets ADD COLUMN version INTEGER NOT NULL DEFAULT 1"
+                        )
                     existing_docs.update(
                         row[0]
                         for row in conn.execute(
@@ -116,6 +121,14 @@ def ingest_documentation(
         try:
             with sqlite3.connect(primary_db) as prod_conn:
                 if _table_exists(prod_conn, "documentation_assets"):
+                    columns = {
+                        row[1]
+                        for row in prod_conn.execute("PRAGMA table_info(documentation_assets)")
+                    }
+                    if "version" not in columns:
+                        prod_conn.execute(
+                            "ALTER TABLE documentation_assets ADD COLUMN version INTEGER NOT NULL DEFAULT 1"
+                        )
                     existing_docs.update(
                         row[0]
                         for row in prod_conn.execute(
@@ -193,6 +206,53 @@ def ingest_documentation(
                 content = path.read_text(encoding="utf-8")
                 digest_sha256 = hashlib.sha256(content.encode()).hexdigest()
                 digest_md5 = hashlib.md5(content.encode()).hexdigest()
+
+                existing = conn.execute(
+                    "SELECT content_hash, version FROM documentation_assets WHERE doc_path=?",
+                    (rel_path,),
+                ).fetchone()
+
+                modified_at = datetime.fromtimestamp(
+                    path.stat().st_mtime, timezone.utc
+                ).isoformat()
+
+                if existing:
+                    if existing[0] == digest_sha256:
+                        status = "UNCHANGED"
+                    else:
+                        status = "UPDATED"
+                        new_version = existing[1] + 1
+                        conn.execute(
+                            (
+                                "UPDATE documentation_assets SET content_hash=?, modified_at=?, version=? WHERE doc_path=?"
+                            ),
+                            (digest_sha256, modified_at, new_version, rel_path),
+                        )
+                        existing_sha256.discard(existing[0])
+                        existing_sha256.add(digest_sha256)
+                    existing_md5.add(digest_md5)
+                    existing_docs.add(rel_path)
+                    conn.commit()
+                    log_sync_operation(
+                        db_path,
+                        "documentation_ingestion",
+                        status=status,
+                        start_time=file_start,
+                    )
+                    log_event(
+                        {
+                            "module": "documentation_ingestor",
+                            "level": "INFO",
+                            "doc_path": rel_path,
+                            "status": status,
+                            "sha256": digest_sha256,
+                            "md5": digest_md5,
+                        },
+                        db_path=analytics_db,
+                    )
+                    bar.update(1)
+                    continue
+
                 if digest_sha256 in existing_sha256 or digest_md5 in existing_md5:
                     status = "DUPLICATE"
                     logger.info(
@@ -221,35 +281,13 @@ def ingest_documentation(
                     )
                     bar.update(1)
                     continue
-                if rel_path in existing_docs:
-                    status = "EXISTS"
-                    logger.info("Skipping existing document: %s", path)
-                    conn.commit()
-                    log_sync_operation(
-                        db_path,
-                        "documentation_ingestion",
-                        status=status,
-                        start_time=file_start,
-                    )
-                    log_event(
-                        {
-                            "module": "documentation_ingestor",
-                            "level": "INFO",
-                            "doc_path": rel_path,
-                            "status": status,
-                            "sha256": digest_sha256,
-                            "md5": digest_md5,
-                        },
-                        db_path=analytics_db,
-                    )
-                    bar.update(1)
-                    continue
-                modified_at = datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat()
+
+                status = "SUCCESS"
                 conn.execute(
                     (
                         "INSERT INTO documentation_assets "
-                        "(doc_path, content_hash, created_at, modified_at) "
-                        "VALUES (?, ?, ?, ?)"
+                        "(doc_path, content_hash, version, created_at, modified_at) "
+                        "VALUES (?, ?, 1, ?, ?)"
                     ),
                     (
                         rel_path,
