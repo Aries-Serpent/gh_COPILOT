@@ -5,6 +5,8 @@ from __future__ import annotations
 from importlib import import_module
 from typing import TYPE_CHECKING, Dict, Type
 
+from .backends import DWaveBackend, IBMBackend, IonQBackend, ProviderBackend
+
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from .base import BackendProvider
 
@@ -34,4 +36,10 @@ def get_provider(name: str) -> "BackendProvider":
     return _load_provider(path)
 
 
-__all__ = ["get_provider"]
+__all__ = [
+    "get_provider",
+    "ProviderBackend",
+    "IBMBackend",
+    "IonQBackend",
+    "DWaveBackend",
+]

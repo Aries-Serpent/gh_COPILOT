@@ -83,16 +83,21 @@ def reconcile_once(db_paths: Sequence[Path]) -> None:
             "WARNING",
             f"{len(missing)} rows missing in {state.path}",
         )
+        conn.execute("BEGIN")
         try:
-            conn.execute("BEGIN")
             for row in missing:
                 op, status, start_time, duration, ts = row
                 existing = existing_map.get((op, ts))
                 if existing and existing != row:
+                    diff = {
+                        idx: (old, new)
+                        for idx, (old, new) in enumerate(zip(existing, row))
+                        if old != new
+                    }
                     log_enterprise_operation(
                         "row_conflict",
                         "ERROR",
-                        f"conflict for {op} at {state.path}",
+                        f"conflict for {op} at {state.path}: {diff}",
                     )
                     raise ValueError("conflicting row")
                 log_enterprise_operation(

@@ -12,11 +12,19 @@ import json
 import re
 import sqlite3
 from pathlib import Path
+import importlib.util
+import sys
 
 import pytest
+from flask import Flask
 
-from dashboard import enterprise_dashboard as ed
-from pathlib import Path
+ed_spec = importlib.util.spec_from_file_location(
+    "dashboard.enterprise_dashboard",
+    Path(__file__).resolve().parents[2] / "dashboard" / "enterprise_dashboard.py",
+)
+ed = importlib.util.module_from_spec(ed_spec)
+sys.modules["dashboard.enterprise_dashboard"] = ed
+ed_spec.loader.exec_module(ed)
 
 
 @pytest.fixture()
@@ -37,7 +45,9 @@ def app(tmp_path: Path, monkeypatch):
 
     monkeypatch.setattr(ed, "METRICS_FILE", metrics)
     monkeypatch.setattr(ed, "ANALYTICS_DB", db)
-    return ed.app
+    flask_app = Flask(__name__)
+    flask_app.add_url_rule("/metrics_stream", view_func=ed.metrics_stream)
+    return flask_app
 
 
 def test_metrics_stream_includes_placeholder_history(app):
@@ -69,4 +79,7 @@ def test_dashboard_gauge_titles_and_chartjs():
     # Ensure Chart.js gauge update helper is present.
     assert "function updateGauge(chart, value)" in html
     assert "new Chart(document.getElementById('lintGauge')" in html
+    assert "updateGauge(lintGauge" in html
+    assert "updateGauge(testGauge" in html
+    assert "updateGauge(placeholderGauge" in html
 

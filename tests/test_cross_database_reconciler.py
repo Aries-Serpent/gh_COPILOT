@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import logging
 
 import sqlite3
 
@@ -37,7 +38,7 @@ def test_reconcile_once_fills_missing_rows(tmp_path, monkeypatch) -> None:
     assert count1 == 2
 
 
-def test_conflict_triggers_rollback(tmp_path, monkeypatch) -> None:
+def test_conflict_triggers_rollback(tmp_path, monkeypatch, caplog) -> None:
     monkeypatch.setattr(
         "enterprise_modules.compliance.validate_enterprise_operation", lambda: True
     )
@@ -65,7 +66,8 @@ def test_conflict_triggers_rollback(tmp_path, monkeypatch) -> None:
         )
         conn.commit()
 
-    reconcile_once([db1, db2])
+    with caplog.at_level(logging.ERROR):
+        reconcile_once([db1, db2])
 
     with sqlite3.connect(db2) as conn:
         rows = conn.execute(
@@ -73,4 +75,5 @@ def test_conflict_triggers_rollback(tmp_path, monkeypatch) -> None:
         ).fetchall()
     rows = [r for r in rows if r[0] != "reconcile_databases"]
     assert rows == [("op_conflict", "FAILED")]
+    assert any("reconcile_rollback" in r.getMessage() for r in caplog.records)
 
