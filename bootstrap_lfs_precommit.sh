@@ -72,17 +72,6 @@ PAT
 # -------------- helper fns --------------
 # (info and run defined near top)
 
-ensure_trailing_newline() {
-  local file="$1"
-  if [[ -s "$file" ]]; then
-    local last_char
-    last_char=$(tail -c1 "$file" 2>/dev/null || true)
-    if [[ "$last_char" != $'\n' ]]; then
-      run "printf '\n' >> '$file'"
-    fi
-  fi
-}
-
 append_gitattributes_block() {
   local marker_begin="# BEGIN LFS ARCHIVES (autogen)"
   local marker_end="# END LFS ARCHIVES (autogen)"
@@ -93,7 +82,13 @@ append_gitattributes_block() {
   if (( need_block )); then
     info "Applying LFS archive rules to .gitattributes"
     run "touch '$ATTR_FILE'"
-    ensure_trailing_newline "$ATTR_FILE"
+    if [[ -s "$ATTR_FILE" ]]; then
+      local last_char
+      last_char=$(tail -c1 "$ATTR_FILE" 2>/dev/null || true)
+      if [[ "$last_char" != $'\n' ]]; then
+        run "echo >> '$ATTR_FILE'"
+      fi
+    fi
     run "cat <<'EOF' >> '$ATTR_FILE'"
 $marker_begin
 # ZIP (case-insensitive)
