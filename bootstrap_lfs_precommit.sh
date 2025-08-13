@@ -26,7 +26,7 @@ if ! has git-lfs; then
     run "apt-get update >/dev/null 2>&1"
     run "apt-get install -y git-lfs >/dev/null 2>&1"
     if [[ "${DRY_RUN:-0}" == "1" ]]; then
-      info "git-lfs installation skipped due to DRY_RUN"
+      info "DRY_RUN: would install git-lfs via apt-get"
     fi
   else
     echo "Warning: unable to install git-lfs automatically." >&2
