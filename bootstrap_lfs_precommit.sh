@@ -156,7 +156,8 @@ YAML"
 
 restage_archives_to_lfs() {
   info "Re-staging existing archives to write LFS pointers (if needed)"
-  local no_changes=1
+  # Return 0 if at least one file was converted, 1 otherwise.
+  local restaged=0
   for pat in "${LFS_PATTERNS[@]}"; do
     while IFS= read -r -d '' f; do
       [[ -f "$f" ]] || continue
@@ -164,11 +165,14 @@ restage_archives_to_lfs() {
         info "Converting to LFS pointer: $f"
         run git rm --cached --quiet -- "$f"
         run git add -- "$f"
-        no_changes=0
+        restaged=1
       fi
     done < <(git ls-files -z -- "$pat" || true)
   done
-  return $no_changes
+  if (( restaged )); then
+    return 0
+  fi
+  return 1
 }
 
 # -------------- main --------------
