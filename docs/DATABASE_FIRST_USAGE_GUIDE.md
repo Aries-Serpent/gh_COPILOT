@@ -162,16 +162,19 @@ audit the results and perform a rollback if necessary. Commands assume
    [INIT] Verified schema version
    ```
 
-2. **Ingest Template and Documentation Assets**
+2. **Ingest Template, Documentation, HAR, and Shell Log Assets**
 
    ```bash
    python scripts/database/template_asset_ingestor.py --workspace "$GH_COPILOT_WORKSPACE" --templates-dir templates
    python scripts/database/documentation_ingestor.py --workspace "$GH_COPILOT_WORKSPACE" --docs-dir docs
+   python scripts/database/har_asset_ingestor.py --workspace "$GH_COPILOT_WORKSPACE" --har-dir logs
+   python scripts/database/shell_log_ingestor.py --workspace "$GH_COPILOT_WORKSPACE" --logs-dir logs
    ```
 
    These commands record ingestion events in `analytics.db` and log progress to
    `dashboard/compliance/metrics.json`. Duplicate files are skipped based on
-   their content hash.
+   their content hash, and documentation assets automatically increment a
+   `version` field whenever their contents change.
 
 3. **Validate Ingested Assets**
 
