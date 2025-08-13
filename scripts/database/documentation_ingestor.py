@@ -4,7 +4,8 @@
 The ingestor maintains a version history for each ``doc_path``. When a file
 with an existing path is ingested and its content has changed, a new row is
 inserted with an incremented ``version``. The history can be disabled by
-setting ``retain_history=False`` to update the existing row in place.
+setting ``retain_history=False`` (or using the ``--in-place`` CLI flag) to
+update the existing row in place.
 """
 
 from __future__ import annotations
@@ -391,6 +392,11 @@ if __name__ == "__main__":
         type=Path,
         help="Directory containing markdown files",
     )
+    parser.add_argument(
+        "--in-place",
+        action="store_true",
+        help="Update existing records in place instead of retaining history",
+    )
 
     args = parser.parse_args()
-    ingest_documentation(args.workspace, args.docs_dir)
+    ingest_documentation(args.workspace, args.docs_dir, retain_history=not args.in_place)
