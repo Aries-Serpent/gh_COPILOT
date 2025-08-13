@@ -614,6 +614,13 @@ The shell version `tools/git_safe_add_commit.sh` behaves the same and can push
 when invoked with `--push`. See
 `docs/GIT_LFS_WORKFLOW.md <docs/GIT_LFS_WORKFLOW.md>`_ for details.
 
+LFS archive guard
+^^^^^^^^^^^^^^^^^
+
+Pull requests are checked by the ``lfs-guard`` workflow to ensure any added or
+modified archive files (``zip``, ``jar``, ``7z``, ``tar.*``, ``rar``, ``apk``,
+``ipa``, ``nupkg``, ``cab``, ``iso``) are tracked with Git LFS.
+
 Syncing `.gitattributes`
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1720,3 +1727,6 @@ The `src/gh_copilot` package provides a minimal database-first service with a Fa
    gh-copilot seed-models
    gh-copilot compute-score --lint 0.9 --tests 0.8 --placeholders 0.95 --sessions 1.0
    gh-copilot serve  # http://127.0.0.1:8000/docs
+   gh-copilot ingest-docs --workspace . --docs-dir documentation
+   gh-copilot ingest-templates --workspace . --templates-dir prompts
+   gh-copilot generate-docs --db-path databases/production.db

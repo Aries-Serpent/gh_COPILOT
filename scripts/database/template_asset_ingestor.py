@@ -27,6 +27,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
+BUSY_TIMEOUT_MS = 30_000
+
 def _gather_template_files(directory: Path) -> list[Path]:
     """Return a sorted list of Markdown template files under ``directory``."""
     files = [p for p in directory.rglob("*.md") if p.is_file()]
@@ -63,9 +65,28 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
     if db_path.exists():
         try:
             with sqlite3.connect(db_path) as conn:
+                conn.execute("PRAGMA journal_mode=WAL;")
+                conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
                 if _table_exists(conn, "template_assets"):
-                    existing_paths.update(row[0] for row in conn.execute("SELECT template_path FROM template_assets"))
-                    existing_hashes.update(row[0] for row in conn.execute("SELECT content_hash FROM template_assets"))
+                    columns = {
+                        row[1] for row in conn.execute("PRAGMA table_info(template_assets)")
+                    }
+                    if "version" not in columns:
+                        conn.execute(
+                            "ALTER TABLE template_assets ADD COLUMN version INTEGER NOT NULL DEFAULT 1"
+                        )
+                    existing_paths.update(
+                        row[0]
+                        for row in conn.execute(
+                            "SELECT template_path FROM template_assets"
+                        )
+                    )
+                    existing_hashes.update(
+                        row[0]
+                        for row in conn.execute(
+                            "SELECT content_hash FROM template_assets"
+                        )
+                    )
         except sqlite3.Error:
             existing_paths = set()
             existing_hashes = set()
@@ -74,12 +95,28 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
     if primary_db and primary_db.exists() and primary_db != db_path:
         try:
             with sqlite3.connect(primary_db) as prod_conn:
+                prod_conn.execute("PRAGMA journal_mode=WAL;")
+                prod_conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
                 if _table_exists(prod_conn, "template_assets"):
+                    columns = {
+                        row[1]
+                        for row in prod_conn.execute("PRAGMA table_info(template_assets)")
+                    }
+                    if "version" not in columns:
+                        prod_conn.execute(
+                            "ALTER TABLE template_assets ADD COLUMN version INTEGER NOT NULL DEFAULT 1"
+                        )
                     existing_paths.update(
-                        row[0] for row in prod_conn.execute("SELECT template_path FROM template_assets")
+                        row[0]
+                        for row in prod_conn.execute(
+                            "SELECT template_path FROM template_assets"
+                        )
                     )
                     existing_hashes.update(
-                        row[0] for row in prod_conn.execute("SELECT content_hash FROM template_assets")
+                        row[0]
+                        for row in prod_conn.execute(
+                            "SELECT content_hash FROM template_assets"
+                        )
                     )
         except sqlite3.Error:
             pass
@@ -90,12 +127,18 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
     dup_count = 0
 
     conn = sqlite3.connect(db_path)
+    conn.execute("PRAGMA journal_mode=WAL;")
+    conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
     try:
         if not _table_exists(conn, "template_assets"):
             conn.close()
             initialize_database(db_path)
             conn = sqlite3.connect(db_path)
-        existing_hashes = {row[0] for row in conn.execute("SELECT content_hash FROM template_assets")}
+            conn.execute("PRAGMA journal_mode=WAL;")
+            conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
+        existing_hashes = {
+            row[0] for row in conn.execute("SELECT content_hash FROM template_assets")
+        }
 
         with conn, tqdm(total=len(files), desc="Templates", unit="file") as bar:
             for path in files:
@@ -103,31 +146,66 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
                 rel_path = str(path.relative_to(workspace))
                 content = path.read_text(encoding="utf-8")
                 digest = hashlib.sha256(content.encode()).hexdigest()
-                status = "DUPLICATE" if digest in existing_hashes else "NEW"
-                logger.info(
-                    json.dumps(
-                        {
-                            "template_hash": digest,
-                            "status": status,
-                            "db_path": str(db_path),
-                        }
+
+                existing = conn.execute(
+                    (
+                        "SELECT content_hash, version FROM template_assets "
+                        "WHERE template_path=? ORDER BY version DESC LIMIT 1"
+                    ),
+                    (rel_path,),
+                ).fetchone()
+
+                if existing:
+                    if existing[0] == digest:
+                        status = "UNCHANGED"
+                    else:
+                        status = "UPDATED"
+                        new_version = existing[1] + 1
+                        conn.execute(
+                            (
+                                "INSERT INTO template_assets "
+                                "(template_path, content_hash, version, created_at) "
+                                "VALUES (?, ?, ?, ?)"
+                            ),
+                            (
+                                rel_path,
+                                digest,
+                                new_version,
+                                datetime.now(timezone.utc).isoformat(),
+                            ),
+                        )
+                        existing_hashes.discard(existing[0])
+                        existing_hashes.add(digest)
+                    conn.commit()
+                    log_sync_operation(
+                        db_path,
+                        "template_ingestion",
+                        status=status,
+                        start_time=file_start,
                     )
-                )
+                    bar.update(1)
+                    continue
+
+                status = "DUPLICATE" if digest in existing_hashes else "SUCCESS"
                 if status == "DUPLICATE":
                     dup_count += 1
                     conn.commit()
                     log_sync_operation(
                         db_path,
                         "template_ingestion",
-                        status="DUPLICATE",
+                        status=status,
                         start_time=file_start,
                     )
                     bar.update(1)
                     continue
+
                 new_count += 1
-                existing_hashes.add(digest)
                 conn.execute(
-                    ("INSERT INTO template_assets (template_path, content_hash, created_at) VALUES (?, ?, ?)"),
+                    (
+                        "INSERT INTO template_assets "
+                        "(template_path, content_hash, version, created_at) "
+                        "VALUES (?, ?, 1, ?)"
+                    ),
                     (
                         rel_path,
                         digest,
@@ -135,7 +213,9 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
                     ),
                 )
                 conn.execute(
-                    ("INSERT INTO pattern_assets (pattern, usage_count, created_at) VALUES (?, 0, ?)"),
+                    (
+                        "INSERT INTO pattern_assets (pattern, usage_count, created_at) VALUES (?, 0, ?)"
+                    ),
                     (content[:1000], datetime.now(timezone.utc).isoformat()),
                 )
                 conn.commit()

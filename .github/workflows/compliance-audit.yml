@@ -10,7 +10,11 @@ jobs:
       GH_COPILOT_WORKSPACE: ${{ github.workspace }}
       FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY || 'test_secret' }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+      - run: git lfs checkout
       - uses: actions/setup-python@v4
         with:
           python-version: '3.x'

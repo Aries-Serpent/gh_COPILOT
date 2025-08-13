@@ -11,6 +11,13 @@ This project uses a **single source of truth** for contributor guidelines: `AGEN
 
 Note: Any obsolete or deprecated guidelines are moved to an archival location `archives/`.
 
+## Git LFS Branch Migration Status
+
+- `main` branch migrated using `git lfs migrate import --include="*.zip,*.jar,*.db"`.
+- No active release branches currently require migration.
+- Older or inactive branches will be migrated as needed.
+- After migrating a branch, force-push the updated history and enable branch protection.
+
 ---
 
 ## ENVIRONMENT SETUP

@@ -2,6 +2,7 @@
 # Purpose: One-shot bootstrap to apply .gitattributes (LFS rules for archives),
 #          install Git LFS + pre-commit, convert existing archives to LFS pointers,
 #          and install commit/push hooks. Idempotent and safe for repeated runs.
+# Exit:    0 if any archives were converted to LFS pointers, 1 otherwise.
 # Usage:   bash bootstrap_lfs_precommit.sh
 # Options: BOOTSTRAP_NO_RUN=1   # skip pre-commit run --all-files
 #          DRY_RUN=1            # show actions without changing repo
@@ -17,16 +18,32 @@ fi
 
 has() { command -v "$1" >/dev/null 2>&1; }
 
+info() { echo "[info] $*"; }
+run()  { if [[ "${DRY_RUN:-0}" == "1" ]]; then echo "DRY: $*"; else eval "$*"; fi }
+
 if ! has git; then echo "❌ git not found on PATH" >&2; exit 1; fi
 
 # Ensure Git LFS is installed
+# Detect non-root usage: attempt sudo apt-get or warn and skip
 if ! has git-lfs; then
   echo "Installing git-lfs..."
   if has apt-get; then
-    run "apt-get update >/dev/null 2>&1"
-    run "apt-get install -y git-lfs >/dev/null 2>&1"
-    if [[ "${DRY_RUN:-0}" == "1" ]]; then
-      info "DRY_RUN: would install git-lfs via apt-get"
+    installer="apt-get"
+    if [[ $EUID -ne 0 ]]; then
+      if has sudo; then
+        installer="sudo apt-get"
+      else
+        echo "Warning: not running as root and no sudo found; skipping automatic git-lfs install." >&2
+        installer=""
+      fi
+    fi
+    if [[ -n "$installer" ]]; then
+      if [[ "${DRY_RUN:-0}" == "1" ]]; then
+        info "DRY_RUN: would install git-lfs via $installer"
+      else
+        run "$installer update >/dev/null 2>&1"
+        run "$installer install -y git-lfs >/dev/null 2>&1"
+      fi
     fi
   else
     echo "Warning: unable to install git-lfs automatically." >&2
@@ -66,19 +83,7 @@ PAT
 )
 
 # -------------- helper fns --------------
-info() { echo "[info] $*"; }
-run()  { if [[ "${DRY_RUN:-0}" == "1" ]]; then echo "DRY: $*"; else eval "$*"; fi }
-
-ensure_trailing_newline() {
-  local file="$1"
-  if [[ -s "$file" ]]; then
-    local last_char
-    last_char=$(tail -c1 "$file" 2>/dev/null || true)
-    if [[ "$last_char" != $'\n' ]]; then
-      run "printf '\n' >> '$file'"
-    fi
-  fi
-}
+# (info and run defined near top)
 
 append_gitattributes_block() {
   local marker_begin="# BEGIN LFS ARCHIVES (autogen)"
@@ -90,7 +95,13 @@ append_gitattributes_block() {
   if (( need_block )); then
     info "Applying LFS archive rules to .gitattributes"
     run "touch '$ATTR_FILE'"
-    ensure_trailing_newline "$ATTR_FILE"
+    if [[ -s "$ATTR_FILE" ]]; then
+      local last_char
+      last_char=$(tail -c1 "$ATTR_FILE" 2>/dev/null || true)
+      if [[ "$last_char" != $'\n' ]]; then
+        run "echo >> '$ATTR_FILE'"
+      fi
+    fi
     run "cat <<'EOF' >> '$ATTR_FILE'"
 $marker_begin
 # ZIP (case-insensitive)
@@ -192,8 +203,10 @@ info "Adding .gitattributes to index"
 run git add .gitattributes
 
 # Convert existing matching files to pointers when necessary
+converted=1
 if restage_archives_to_lfs; then
   info "Some archives converted to LFS pointers"
+  converted=0
 fi
 
 # Commit if there are staged changes
@@ -245,3 +258,4 @@ if [[ "${BOOTSTRAP_NO_RUN:-0}" != "1" ]]; then
 fi
 
 info "✅ Bootstrap complete — LFS rules applied, archives tracked, hooks installed."
+exit $converted
