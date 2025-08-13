@@ -614,6 +614,13 @@ The shell version `tools/git_safe_add_commit.sh` behaves the same and can push
 when invoked with `--push`. See
 `docs/GIT_LFS_WORKFLOW.md <docs/GIT_LFS_WORKFLOW.md>`_ for details.
 
+LFS archive guard
+^^^^^^^^^^^^^^^^^
+
+Pull requests are checked by the ``lfs-guard`` workflow to ensure any added or
+modified archive files (``zip``, ``jar``, ``7z``, ``tar.*``, ``rar``, ``apk``,
+``ipa``, ``nupkg``, ``cab``, ``iso``) are tracked with Git LFS.
+
 Syncing `.gitattributes`
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
