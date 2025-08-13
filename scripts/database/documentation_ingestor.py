@@ -32,6 +32,8 @@ from tqdm import tqdm
 from .cross_database_sync_logger import log_sync_operation
 from .ingestion_utils import AssetIngestor, IngestorConfig
 from .size_compliance_checker import check_database_sizes
+from .schema_validators import ensure_documentation_schema
+from .unified_database_initializer import initialize_database
 
 __all__ = ["ingest_documentation", "pid_recursion_guard", "_PID_GUARD_AVAILABLE"]
 
@@ -59,6 +61,11 @@ def ingest_documentation(
     db_dir = workspace / "databases"
     analytics_db = Path(os.getenv("ANALYTICS_DB", str(db_dir / "analytics.db")))
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
+
+    db_path = db_dir / "enterprise_assets.db"
+    if not db_path.exists():
+        initialize_database(db_path)
+    ensure_documentation_schema(db_path)
 
     docs_dir = docs_dir or (workspace / "documentation")
     dataset_dbs = get_dataset_sources(str(workspace))

@@ -23,6 +23,8 @@ from tqdm import tqdm
 from .cross_database_sync_logger import log_sync_operation
 from .ingestion_utils import AssetIngestor, IngestorConfig
 from .size_compliance_checker import check_database_sizes
+from .schema_validators import ensure_template_schema
+from .unified_database_initializer import initialize_database
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -39,6 +41,11 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
     db_dir = workspace / "databases"
     analytics_db = db_dir / "analytics.db"
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
+
+    db_path = db_dir / "enterprise_assets.db"
+    if not db_path.exists():
+        initialize_database(db_path)
+    ensure_template_schema(db_path)
 
     template_dir = template_dir or (workspace / "prompts")
     dataset_dbs = get_dataset_sources(str(workspace))
