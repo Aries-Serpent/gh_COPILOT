@@ -27,6 +27,7 @@ jobs:
             sudo apt-get install -y git-lfs
           fi
           git lfs install --skip-repo
+      - run: git lfs checkout
 
       - name: Validate that ZIP files are tracked by LFS
         shell: bash
@@ -57,5 +58,4 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git lfs pull
           git lfs fsck
