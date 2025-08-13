@@ -5,7 +5,14 @@ well as a small pipeline for training and evaluating anomaly detectors that
 operate on historical metrics stored in a SQLite database.
 """
 
-from .baseline import train_baseline_models, detect_anomalies
+from .baseline import Model, detect_anomalies, train_baseline_models
+from .model import StatisticalAnomalyDetector
 from .pipeline import AnomalyPipeline
 
-__all__ = ["train_baseline_models", "detect_anomalies", "AnomalyPipeline"]
+__all__ = [
+    "train_baseline_models",
+    "detect_anomalies",
+    "AnomalyPipeline",
+    "StatisticalAnomalyDetector",
+    "Model",
+]
