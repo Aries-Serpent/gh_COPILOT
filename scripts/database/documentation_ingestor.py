@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Ingest Markdown files into documentation_assets table."""
+"""Ingest Markdown files into ``documentation_assets`` table.
+
+The ingestor maintains a version history for each ``doc_path``. When a file
+with an existing path is ingested and its content has changed, a new row is
+inserted with an incremented ``version`` rather than skipping the file.
+"""
 
 from __future__ import annotations
 
@@ -208,7 +213,10 @@ def ingest_documentation(
                 digest_md5 = hashlib.md5(content.encode()).hexdigest()
 
                 existing = conn.execute(
-                    "SELECT content_hash, version FROM documentation_assets WHERE doc_path=?",
+                    (
+                        "SELECT content_hash, version FROM documentation_assets "
+                        "WHERE doc_path=? ORDER BY version DESC LIMIT 1"
+                    ),
                     (rel_path,),
                 ).fetchone()
 
@@ -224,9 +232,17 @@ def ingest_documentation(
                         new_version = existing[1] + 1
                         conn.execute(
                             (
-                                "UPDATE documentation_assets SET content_hash=?, modified_at=?, version=? WHERE doc_path=?"
+                                "INSERT INTO documentation_assets "
+                                "(doc_path, content_hash, version, created_at, modified_at) "
+                                "VALUES (?, ?, ?, ?, ?)"
                             ),
-                            (digest_sha256, modified_at, new_version, rel_path),
+                            (
+                                rel_path,
+                                digest_sha256,
+                                new_version,
+                                datetime.now(timezone.utc).isoformat(),
+                                modified_at,
+                            ),
                         )
                         existing_sha256.discard(existing[0])
                         existing_sha256.add(digest_sha256)
