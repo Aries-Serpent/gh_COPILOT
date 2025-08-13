@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Ingest Markdown files into documentation_assets table."""
+"""Ingest Markdown files into ``documentation_assets`` table.
+
+The ingestor maintains a version history for each ``doc_path``. When a file
+with an existing path is ingested and its content has changed, a new row is
+inserted with an incremented ``version`` rather than skipping the file.
+"""
 
 from __future__ import annotations
 
@@ -46,6 +51,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 _RECURSION_CTX = SimpleNamespace()
+
+BUSY_TIMEOUT_MS = 30_000
 
 
 def _gather_markdown_files(directory: Path) -> list[Path]:
@@ -94,6 +101,8 @@ def ingest_documentation(
     if db_path.exists():
         try:
             with sqlite3.connect(db_path) as conn:
+                conn.execute("PRAGMA journal_mode=WAL;")
+                conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
                 if _table_exists(conn, "documentation_assets"):
                     columns = {row[1] for row in conn.execute("PRAGMA table_info(documentation_assets)")}
                     if "version" not in columns:
@@ -120,6 +129,8 @@ def ingest_documentation(
     if primary_db and primary_db.exists() and primary_db != db_path:
         try:
             with sqlite3.connect(primary_db) as prod_conn:
+                prod_conn.execute("PRAGMA journal_mode=WAL;")
+                prod_conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
                 if _table_exists(prod_conn, "documentation_assets"):
                     columns = {
                         row[1]
@@ -157,11 +168,15 @@ def ingest_documentation(
     logger.info("Starting documentation ingestion at %s", start_time.isoformat())
 
     conn = sqlite3.connect(db_path)
+    conn.execute("PRAGMA journal_mode=WAL;")
+    conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
     try:
         if not _table_exists(conn, "documentation_assets"):
             conn.close()
             initialize_database(db_path)
             conn = sqlite3.connect(db_path)
+            conn.execute("PRAGMA journal_mode=WAL;")
+            conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
         existing_sha256.update(
             row[0]
             for row in conn.execute(
@@ -208,7 +223,10 @@ def ingest_documentation(
                 digest_md5 = hashlib.md5(content.encode()).hexdigest()
 
                 existing = conn.execute(
-                    "SELECT content_hash, version FROM documentation_assets WHERE doc_path=?",
+                    (
+                        "SELECT content_hash, version FROM documentation_assets "
+                        "WHERE doc_path=? ORDER BY version DESC LIMIT 1"
+                    ),
                     (rel_path,),
                 ).fetchone()
 
@@ -224,9 +242,17 @@ def ingest_documentation(
                         new_version = existing[1] + 1
                         conn.execute(
                             (
-                                "UPDATE documentation_assets SET content_hash=?, modified_at=?, version=? WHERE doc_path=?"
+                                "INSERT INTO documentation_assets "
+                                "(doc_path, content_hash, version, created_at, modified_at) "
+                                "VALUES (?, ?, ?, ?, ?)"
                             ),
-                            (digest_sha256, modified_at, new_version, rel_path),
+                            (
+                                rel_path,
+                                digest_sha256,
+                                new_version,
+                                datetime.now(timezone.utc).isoformat(),
+                                modified_at,
+                            ),
                         )
                         existing_sha256.discard(existing[0])
                         existing_sha256.add(digest_sha256)
