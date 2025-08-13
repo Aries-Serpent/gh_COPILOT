@@ -28,10 +28,30 @@ def get_compliance(branch: str = Query("main")):
     return snap.model_dump() if snap else {"branch": branch, "score": None}
 
 
-@app.post("/api/v1/ingest-har")
-def api_ingest_har() -> dict[str, bool]:
-    from scripts.database.har_ingestor import ingest_har_entries
+@app.post("/api/v1/ingest")
+def api_ingest(kind: str = Query(..., regex="^(docs|templates|har)$")) -> dict[str, bool]:
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
+    if kind == "docs":
+        from scripts.database.documentation_ingestor import ingest_documentation
+
+        ingest_documentation(workspace)
+    elif kind == "templates":
+        from scripts.database.template_asset_ingestor import ingest_templates
+
+        ingest_templates(workspace)
+    else:
+        from scripts.database.har_ingestor import ingest_har_entries
+
+        ingest_har_entries(workspace)
+    return {"ok": True}
+
+
+@app.post("/api/v1/regenerate/{kind}")
+def api_regenerate(kind: str, params: dict | None = None) -> dict[str, list[str]]:
+    from gh_copilot.generation.generate_from_templates import generate as gen
 
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
-    ingest_har_entries(workspace)
-    return {"ok": True}
+    source = workspace / ("documentation.db" if kind == "docs" else "production.db")
+    out_dir = workspace / "generated"
+    written = gen(kind=kind, source_db=source, out_dir=out_dir, analytics_db=_DB, params=params or {})
+    return {"written": [str(p) for p in written]}

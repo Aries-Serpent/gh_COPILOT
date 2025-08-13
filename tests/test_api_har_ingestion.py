@@ -3,7 +3,7 @@ from pathlib import Path
 from src.gh_copilot.api import app
 
 
-def test_api_ingest_har(monkeypatch, tmp_path):
+def test_api_ingest(monkeypatch, tmp_path):
     called = {}
 
     def fake_ingest(workspace: Path, har_dir: Path | None = None) -> None:  # pragma: no cover - stub
@@ -14,7 +14,7 @@ def test_api_ingest_har(monkeypatch, tmp_path):
     )
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     client = TestClient(app)
-    resp = client.post("/api/v1/ingest-har")
+    resp = client.post("/api/v1/ingest", params={"kind": "har"})
     assert resp.status_code == 200
     assert resp.json() == {"ok": True}
     assert Path(called["workspace"]) == tmp_path
