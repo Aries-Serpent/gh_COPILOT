@@ -132,6 +132,7 @@ automatically when called by recovery scripts.
 
 ## Notes
 - All migrations are idempotent and safe to re-run.
+- `code_audit_log` is created exclusively by `add_code_audit_log.sql`; the unified database initializer no longer defines this table.
 - For compliance details see `scripts/database/add_code_audit_log.py`.
 - Audit logging is integrated via `scripts/code_placeholder_audit.py`.
 - You can apply all migrations at once by running `python scripts/run_migrations.py`.
