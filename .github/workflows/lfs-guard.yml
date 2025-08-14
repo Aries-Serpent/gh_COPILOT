@@ -20,7 +20,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          MERGE_BASE=$(git merge-base "${{ github.event.pull_request.base.sha }}" HEAD)
+          MERGE_BASE=$(git merge-base "origin/${GITHUB_BASE_REF}" HEAD)
+          exit_code=0
           git diff --name-status "$MERGE_BASE" HEAD | while IFS=$'\t' read -r status file; do
             if [[ "$status" =~ ^[AM]$ ]]; then
               case "$file" in
@@ -34,4 +35,4 @@ jobs:
               esac
             fi
           done
-          exit ${exit_code:=0}
+          exit $exit_code
