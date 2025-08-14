@@ -3,7 +3,7 @@ import os
 import sqlite3
 from pathlib import Path
 
-from scripts.database.har_ingestor import ingest_har_entries
+from gh_copilot.ingest.har import ingest_har_entries
 from scripts.database.unified_database_initializer import initialize_database
 
 
@@ -28,7 +28,7 @@ def test_har_ingestor_stores_content_and_skips_duplicates(tmp_path: Path, monkey
     _write_har(file1, "first")
     _write_har(file2, "first")  # duplicate content
 
-    ingest_har_entries(workspace, logs_dir)
+    ingest_har_entries(db_path, [logs_dir])
 
     with sqlite3.connect(db_path) as conn:
         rows = conn.execute(
@@ -42,4 +42,14 @@ def test_har_ingestor_stores_content_and_skips_duplicates(tmp_path: Path, monkey
     assert data["entries"] == 0
     content = file1.read_bytes()
     assert sha256 == __import__("hashlib").sha256(content).hexdigest()
+
+    events = conn.execute(
+        "SELECT kind, source, target_table, status FROM ingest_events"
+    ).fetchall()
+    assert len(events) == 1
+    kind, source, target_table, status = events[0]
+    assert kind == "har"
+    assert source.endswith("a.har") or source.endswith("b.har")
+    assert target_table == "har_entries"
+    assert status == "ok"
 
