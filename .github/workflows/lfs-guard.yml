@@ -1,10 +1,10 @@
-name: LFS Archive Guard
+name: LFS Guard
 
 on:
-  workflow_call:
+  pull_request:
 
 jobs:
-  verify-lfs:
+  enforce-lfs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -18,7 +18,7 @@ jobs:
         run: |
           set -euo pipefail
           git fetch origin "$GITHUB_BASE_REF" --depth=1
-          git diff --name-only --diff-filter=AM FETCH_HEAD...HEAD > changed_files.txt
+          git diff --name-only --diff-filter=AM origin/"$GITHUB_BASE_REF"...HEAD > changed_files.txt
           archives=$(grep -E '\\.(zip|jar|tar.*|7z|rar|apk|ipa|nupkg|cab|iso)$' changed_files.txt || true)
           if [[ -z "$archives" ]]; then
             echo "No archive files added or modified."

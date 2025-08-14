@@ -617,9 +617,9 @@ when invoked with `--push`. See
 LFS archive guard
 ^^^^^^^^^^^^^^^^^
 
-Pull requests run a reusable ``lfs-zip-guard`` job that ensures any added or
-modified archive files (``zip``, ``jar``, ``tar.*``, ``7z``, ``rar``, ``apk``,
-``ipa``, ``nupkg``, ``cab``, ``iso``) are tracked with Git LFS.
+Pull requests run an ``lfs-guard`` job that ensures any added or modified
+archive files (``zip``, ``jar``, ``tar.*``, ``7z``, ``rar``, ``apk``, ``ipa``,
+``nupkg``, ``cab``, ``iso``) are tracked with Git LFS.
 
 Syncing `.gitattributes`
 ^^^^^^^^^^^^^^^^^^^^^^^^
