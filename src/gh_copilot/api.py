@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from fastapi import FastAPI, Query
+from fastapi import BackgroundTasks, FastAPI, Query
 
 from .dao import SQLiteAnalyticsDAO
 
@@ -55,3 +55,31 @@ def api_regenerate(kind: str, params: dict | None = None) -> dict[str, list[str]
     out_dir = workspace / "generated"
     written = gen(kind=kind, source_db=source, out_dir=out_dir, analytics_db=_DB, params=params or {})
     return {"written": [str(p) for p in written]}
+
+
+@app.post("/api/v1/audit-consistency")
+def api_audit_consistency(
+    background_tasks: BackgroundTasks,
+    enterprise_db: str = Query("enterprise_assets.db"),
+    production_db: str = Query("production.db"),
+    analytics_db: str = Query("analytics.db"),
+    base_path: str = Query("."),
+    patterns: str = Query("*.md,*.sql,*.py,*.har"),
+    regenerate: bool = Query(False),
+    reingest: bool = Query(False),
+) -> dict[str, str]:
+    from gh_copilot.auditor.consistency import run_audit
+    from pathlib import Path
+
+    pats = [p.strip() for p in patterns.split(",") if p.strip()]
+    background_tasks.add_task(
+        run_audit,
+        Path(enterprise_db),
+        Path(production_db),
+        Path(analytics_db),
+        [Path(base_path)],
+        pats,
+        regenerate=regenerate,
+        reingest=reingest,
+    )
+    return {"status": "scheduled"}
