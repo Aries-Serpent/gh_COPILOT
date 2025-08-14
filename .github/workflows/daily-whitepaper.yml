@@ -15,7 +15,6 @@ jobs:
         with:
           lfs: true
           fetch-depth: 0
-      - run: git lfs checkout
       - name: Verify LFS objects
         run: |
           missing=$(git lfs ls-files -n | while read -r file; do
