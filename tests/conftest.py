@@ -11,6 +11,22 @@ import pytest
 import sqlite3
 import sys
 import types
+
+
+def _ensure_stub(mod_name: str, submods: list[str] | None = None) -> None:
+    if mod_name in sys.modules:
+        return
+    try:
+        __import__(mod_name)
+        return
+    except Exception:
+        stub = types.ModuleType(mod_name)
+        sys.modules[mod_name] = stub
+        for sub in (submods or []):
+            full = f'{mod_name}.{sub}'
+            sys.modules[full] = types.ModuleType(full)
+
+_ensure_stub('qiskit', ['algorithms','quantum_info','transpiler','providers'])
 try:
     import scripts.wlc_session_manager as wsm
 except Exception:  # pragma: no cover - fallback when optional deps missing

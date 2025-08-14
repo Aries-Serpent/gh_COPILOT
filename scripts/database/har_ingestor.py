@@ -6,7 +6,7 @@ into the `enterprise_assets.db` or user-specified SQLite database. It robustly
 handles duplicate detection, metrics extraction, secondary validation, logging,
 and optional WAL checkpointing.
 
-Features integrated from both implementations:
+Features:
 - Typer CLI interface for modern usage.
 - Backward-compatible function-based ingestion (with workspace/har_dir).
 - Duplicate file detection via SHA256 hash.
@@ -16,9 +16,9 @@ Features integrated from both implementations:
 """
 
 from __future__ import annotations
-
-import hashlib
 import json
+import sys
+import hashlib
 import logging
 import sqlite3
 from datetime import datetime, timezone
@@ -73,14 +73,11 @@ __all__ = [
     "main",
 ]
 
-
 _RECURSION_CTX = SimpleNamespace(recursion_depth=0, ancestors=[])
-
 
 def _gather_har_files(directory: Path) -> list[Path]:
     """Return a sorted list of HAR files under ``directory``."""
     return sorted(p for p in directory.rglob("*.har") if p.is_file())
-
 
 @pid_recursion_guard
 def ingest_har_entries(
@@ -296,9 +293,7 @@ def ingest_har_entries(
             self.db_path = str(db_path)
     return Result(new_count, dup_count, db_path)
 
-
 app = typer.Typer(add_completion=False, help="HAR ingestor (WAL, busy_timeout, batching)")
-
 
 @app.command()
 def main(
@@ -314,11 +309,8 @@ def main(
         logger.error(f"Failed to ingest HAR files: {e}")
         raise typer.Exit(code=1)
 
-
 if __name__ == "__main__":
     # Prefer Typer CLI, but provide backwards compatibility.
-    import sys
-
     if len(sys.argv) > 1 and "--workspace" not in sys.argv:
         # Modern Typer CLI usage
         app()
