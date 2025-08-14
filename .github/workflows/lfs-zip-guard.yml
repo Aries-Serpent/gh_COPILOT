@@ -17,6 +17,7 @@ jobs:
         with:
           lfs: true
           fetch-depth: 0
+      - run: git lfs checkout
 
       - name: Ensure Git LFS available
         shell: bash
@@ -29,29 +30,50 @@ jobs:
           git lfs install --skip-repo
       - run: git lfs checkout
 
-      - name: Validate that ZIP files are tracked by LFS
-        shell: bash
-        run: |
-          set -euo pipefail
-          git ls-files '*.zip' > all_zips.txt || true
-          git lfs ls-files > lfs_files.txt || true
-          awk '{print $3}' lfs_files.txt | sort -u > lfs_paths.txt
-          sort -u all_zips.txt > all_zips_sorted.txt || true
-          comm -23 all_zips_sorted.txt lfs_paths.txt > bad_zips.txt || true
-          if [[ -s bad_zips.txt ]]; then
-            echo "::error title=ZIP files not tracked by LFS::The following ZIP files are not tracked by Git LFS:";
-            sed 's/^/ - /' bad_zips.txt
-            echo ""
-            echo "To fix:"
-            echo "  git lfs track \"*.zip\""
-            echo "  git add .gitattributes $(cat bad_zips.txt)"
-            echo "  git rm --cached $(cat bad_zips.txt)"
-            echo "  git add $(cat bad_zips.txt)"
-            echo "  git commit -m \"Track ZIPs with Git LFS\""
-            exit 1
-          else
-            echo "All ZIP files are properly tracked by LFS."
-          fi
+        - name: Validate that ZIP files are tracked by LFS
+          shell: bash
+          run: |
+            set -euo pipefail
+
+            if [[ -z "${GITHUB_BASE_REF:-}" ]]; then
+              echo "No base ref; skipping ZIP LFS check."
+              exit 0
+            fi
+
+            git fetch origin "$GITHUB_BASE_REF"
+            BASE_SHA=$(git merge-base HEAD "origin/$GITHUB_BASE_REF")
+
+            git diff --name-only "$BASE_SHA" HEAD | grep -E '\.zip$' > changed_zips.txt || true
+
+            if [[ ! -s changed_zips.txt ]]; then
+              echo "No ZIP files changed."
+              exit 0
+            fi
+
+            bad=0
+            > bad_zips.txt
+            while IFS= read -r file; do
+              attr=$(git check-attr filter -- "$file" | awk -F': ' '{print $3}')
+              if [[ "$attr" != "lfs" ]]; then
+                echo "$file" >> bad_zips.txt
+                bad=1
+              fi
+            done < changed_zips.txt
+
+            if [[ $bad -eq 1 ]]; then
+              echo "::error title=ZIP files not tracked by LFS::The following ZIP files are not tracked by Git LFS:";
+              sed 's/^/ - /' bad_zips.txt
+              echo ""
+              echo "To fix:"
+              echo "  git lfs track \"*.zip\""
+              echo "  git add .gitattributes $(cat bad_zips.txt)"
+              echo "  git rm --cached $(cat bad_zips.txt)"
+              echo "  git add $(cat bad_zips.txt)"
+              echo "  git commit -m \"Track ZIPs with Git LFS\""
+              exit 1
+            else
+              echo "All changed ZIP files are properly tracked by LFS."
+            fi
 
       - name: Optional — verify LFS pointers resolvable
         if: ${{ always() }}

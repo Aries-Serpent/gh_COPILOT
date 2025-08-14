@@ -25,20 +25,24 @@ class AuditResult:
     status: str = "ok"
 
 def _connect(db: Path) -> sqlite3.Connection:
-    conn = sqlite3.connect(db)
-    conn.execute("PRAGMA journal_mode=WAL;")
-    conn.execute("PRAGMA busy_timeout=10000;")
-    conn.execute("PRAGMA foreign_keys=ON;")
-    return conn
-
+    try:
+        conn = sqlite3.connect(db)
+        conn.execute("PRAGMA journal_mode=WAL;")
+        conn.execute("PRAGMA busy_timeout=10000;")
+        conn.execute("PRAGMA foreign_keys=ON;")
+        return conn
+    except sqlite3.Error as e:
+        raise RuntimeError(f"Failed to connect to database {db}: {e}")
 
 def _sha256_file(p: Path) -> str:
     h = hashlib.sha256()
-    with p.open("rb") as f:
-        for chunk in iter(lambda: f.read(1024 * 1024), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
+    try:
+        with p.open("rb") as f:
+            for chunk in iter(lambda: f.read(1024 * 1024), b""):
+                h.update(chunk)
+        return h.hexdigest()
+    except Exception as e:
+        raise RuntimeError(f"Failed to compute sha256 for file {p}: {e}")
 
 def _iter_files(paths: Sequence[Path], patterns: Sequence[str]) -> Iterator[Path]:
     for root in paths:
@@ -51,25 +55,28 @@ def _iter_files(paths: Sequence[Path], patterns: Sequence[str]) -> Iterator[Path
                 if fp.is_file():
                     yield fp
 
-
 def _fetch_db_assets(conn: sqlite3.Connection, table: str, path_col: str, hash_col: Optional[str]) -> dict:
     cols = [path_col] + ([hash_col] if hash_col else [])
     q = f"SELECT {', '.join([c for c in cols if c])} FROM {table}"
-    rows = conn.execute(q).fetchall()
+    try:
+        rows = conn.execute(q).fetchall()
+    except sqlite3.Error:
+        return {}
     out = {}
     for r in rows:
         path = r[0]
-        ch = r[1] if hash_col else None
+        ch = r[1] if hash_col and len(r) > 1 else None
         out[path] = ch
     return out
-
 
 def _pragma_quick_check(conn: sqlite3.Connection) -> str:
     # quick_check is faster; integrity_check is more thorough. Both return 'ok' on success.
     # See: https://www.sqlite.org/pragma.html ; https://serverfault.com/questions/8048
-    row = conn.execute("PRAGMA quick_check").fetchone()
-    return row[0] if row else "ok"
-
+    try:
+        row = conn.execute("PRAGMA quick_check").fetchone()
+        return row[0] if row else "ok"
+    except sqlite3.Error:
+        return "error"
 
 def run_audit(
     enterprise_db: Path,
@@ -84,9 +91,18 @@ def run_audit(
     started = datetime.utcnow().isoformat()
     scanned = [str(p) for p in base_paths]
 
-    ent = _connect(enterprise_db)
-    prod = _connect(production_db)
-    ana = _connect(analytics_db)
+    try:
+        ent = _connect(enterprise_db)
+    except Exception as e:
+        raise RuntimeError(f"Could not connect to enterprise_db: {e}")
+    try:
+        prod = _connect(production_db)
+    except Exception as e:
+        raise RuntimeError(f"Could not connect to production_db: {e}")
+    try:
+        ana = _connect(analytics_db)
+    except Exception as e:
+        raise RuntimeError(f"Could not connect to analytics_db: {e}")
 
     # Health checks
     ent_health = _pragma_quick_check(ent)
@@ -127,7 +143,7 @@ def run_audit(
             expected = ent_assets.get(sp) or prod_assets.get(sp)
             if expected and expected != actual:
                 stale.append((sp, expected, actual))
-        # Also find DB rows that reference files that no longer exist
+    # Also find DB rows that reference files that no longer exist
     for path_key in set(list(ent_assets.keys()) + list(prod_assets.keys())):
         if not Path(path_key).exists():
             missing.append(path_key)
@@ -201,3 +217,13 @@ def run_audit(
         details=details,
         status="ok",
     )
+
+__all__ = [
+    "AuditResult",
+    "_connect",
+    "_sha256_file",
+    "_iter_files",
+    "_fetch_db_assets",
+    "_pragma_quick_check",
+    "run_audit",
+]
