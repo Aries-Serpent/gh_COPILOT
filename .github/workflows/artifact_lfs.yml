@@ -18,7 +18,6 @@ jobs:
         with:
           lfs: true # fetch LFS pointers immediately; see ARTIFACT_RECOVERY_WORKFLOW.md
           fetch-depth: 0
-      - run: git lfs checkout
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
