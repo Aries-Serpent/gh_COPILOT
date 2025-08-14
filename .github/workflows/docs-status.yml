@@ -18,7 +18,7 @@ on:
 
 jobs:
   reconcile:
-    runs-on: #ubuntu-latest ONLY ENABLED BY REPO ONWER
+    runs-on: #ubuntu-latest !ONLY ENABLED BY REPO OWNER!
     steps:
       - uses: actions/checkout@v4
         with:
