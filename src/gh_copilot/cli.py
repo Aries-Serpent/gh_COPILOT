@@ -200,5 +200,31 @@ def generate_cli(
     typer.echo(json.dumps({"written": [str(p) for p in written]}, indent=2))
 
 
+@app.command("audit-consistency")
+def audit_consistency(
+    enterprise_db: Path = typer.Option(Path("enterprise_assets.db"), help="enterprise assets DB"),
+    production_db: Path = typer.Option(Path("production.db"), help="production DB"),
+    analytics_db: Path = typer.Option(Path("analytics.db"), help="analytics DB for audit logs"),
+    base_path: list[Path] = typer.Option([Path(".")], "--base-path", help="paths to scan"),
+    patterns: str = typer.Option("*.md,*.sql,*.py,*.har", help="comma-separated glob patterns"),
+    regenerate: bool = typer.Option(False, help="attempt doc/script regeneration for stale"),
+    reingest: bool = typer.Option(False, help="re-run ingestion for missing/stale"),
+) -> None:
+    """Cross-check filesystem assets vs SQLite rows and log to analytics."""
+    from gh_copilot.auditor.consistency import run_audit
+
+    pats = [p.strip() for p in patterns.split(",") if p.strip()]
+    res = run_audit(
+        enterprise_db,
+        production_db,
+        analytics_db,
+        base_path,
+        pats,
+        regenerate=regenerate,
+        reingest=reingest,
+    )
+    typer.echo(json.dumps(res.__dict__, indent=2, default=str))
+
+
 if __name__ == "__main__":
     app()

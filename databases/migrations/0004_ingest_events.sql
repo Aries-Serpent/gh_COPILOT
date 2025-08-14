@@ -1,7 +1,7 @@
 PRAGMA foreign_keys=ON;
 CREATE TABLE IF NOT EXISTS ingest_events (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  kind TEXT NOT NULL,          -- 'har' | 'docs' | 'templates' | ...
+  kind TEXT NOT NULL,
   path TEXT NOT NULL,
   sha256 TEXT NOT NULL,
   metrics_json TEXT,
