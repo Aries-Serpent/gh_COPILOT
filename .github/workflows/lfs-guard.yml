@@ -1,37 +1,39 @@
-name: LFS Archive Guard
+name: LFS Guard
 
 on:
   pull_request:
 
-permissions:
-  contents: read
-
 jobs:
-  guard:
+  enforce-lfs:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           lfs: true
           fetch-depth: 0
 
-      - name: Verify archive files are tracked by LFS
+      - name: Enforce LFS for archive files
         shell: bash
         run: |
           set -euo pipefail
-          MERGE_BASE=$(git merge-base "${{ github.event.pull_request.base.sha }}" HEAD)
-          git diff --name-status "$MERGE_BASE" HEAD | while IFS=$'\t' read -r status file; do
-            if [[ "$status" =~ ^[AM]$ ]]; then
-              case "$file" in
-                *.zip|*.jar|*.7z|*.tar|*.tar.gz|*.tgz|*.tar.bz2|*.tbz|*.tar.xz|*.txz|*.rar|*.apk|*.ipa|*.nupkg|*.cab|*.iso)
-                  attr=$(git check-attr filter -- "$file" | awk '{print $3}')
-                  if [[ "$attr" != lfs ]]; then
-                    echo "::error file=$file::Archive file is not tracked by Git LFS"
-                    exit_code=1
-                  fi
-                  ;;
-              esac
+          git fetch origin "$GITHUB_BASE_REF" --depth=1
+          git diff --name-only --diff-filter=AM origin/"$GITHUB_BASE_REF"...HEAD > changed_files.txt
+          archives=$(grep -E '\\.(zip|jar|tar.*|7z|rar|apk|ipa|nupkg|cab|iso)$' changed_files.txt || true)
+          if [[ -z "$archives" ]]; then
+            echo "No archive files added or modified."
+            exit 0
+          fi
+          missing_files=""
+          while IFS= read -r file; do
+            if ! git check-attr filter -- "$file" | grep -q 'filter: lfs'; then
+              echo "::error file=$file::Archive file is not tracked by Git LFS"
+              missing_files+="$file\n"
             fi
-          done
-          exit ${exit_code:=0}
+          done <<< "$archives"
+          if [[ -n "$missing_files" ]]; then
+            echo -e "The following archive files are not tracked by Git LFS:\n$missing_files"
+            exit 1
+          fi
+          echo "All archive files are properly tracked by Git LFS."
+

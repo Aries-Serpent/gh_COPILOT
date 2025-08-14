@@ -617,9 +617,9 @@ when invoked with `--push`. See
 LFS archive guard
 ^^^^^^^^^^^^^^^^^
 
-Pull requests are checked by the ``lfs-guard`` workflow to ensure any added or
-modified archive files (``zip``, ``jar``, ``7z``, ``tar.*``, ``rar``, ``apk``,
-``ipa``, ``nupkg``, ``cab``, ``iso``) are tracked with Git LFS.
+Pull requests run an ``lfs-guard`` job that ensures any added or modified
+archive files (``zip``, ``jar``, ``tar.*``, ``7z``, ``rar``, ``apk``, ``ipa``,
+``nupkg``, ``cab``, ``iso``) are tracked with Git LFS.
 
 Syncing `.gitattributes`
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1727,6 +1727,13 @@ The `src/gh_copilot` package provides a minimal database-first service with a Fa
    gh-copilot seed-models
    gh-copilot compute-score --lint 0.9 --tests 0.8 --placeholders 0.95 --sessions 1.0
    gh-copilot serve  # http://127.0.0.1:8000/docs
-   gh-copilot ingest-docs --workspace . --docs-dir documentation
-   gh-copilot ingest-templates --workspace . --templates-dir prompts
-   gh-copilot generate-docs --db-path databases/production.db
+   gh-copilot ingest docs --workspace . --src-dir documentation
+   gh-copilot ingest templates --workspace . --src-dir prompts
+    gh-copilot ingest har --workspace . --src-dir logs
+    gh-copilot generate docs --source-db documentation.db
+    gh-copilot generate scripts --source-db production.db
+
+API endpoints:
+
+* ``POST /api/v1/ingest?kind=docs|templates|har``
+* ``POST /api/v1/regenerate/{docs|scripts}``

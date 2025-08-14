@@ -7,7 +7,6 @@ size_threshold_mb: 50
 # File extensions that should always be committed via Git LFS
 binary_extensions:
   - .db
-  - .zip
   - .7z
   - .bak
   - .dot
@@ -37,7 +36,6 @@ binary_extensions:
   - .iso
 # Template used when generating .gitattributes automatically
 gitattributes_template: |
-  codex_sessions/*.zip filter=lfs diff=lfs merge=lfs -text
   *.db filter=lfs diff=lfs merge=lfs -text
   *.bak filter=lfs diff=lfs merge=lfs -text
   *.sqlite filter=lfs diff=lfs merge=lfs -text
@@ -78,3 +76,7 @@ gitattributes_template: |
   *.cab filter=lfs diff=lfs merge=lfs -text
   *.iso filter=lfs diff=lfs merge=lfs -text
   # END LFS ARCHIVES (autogen)
+  # Explicit text placeholders (never LFS)
+  **/.gitkeep      -filter -diff -merge text
+  **/.keep         -filter -diff -merge text
+  **/.placeholder  -filter -diff -merge text

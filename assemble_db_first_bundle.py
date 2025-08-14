@@ -663,7 +663,7 @@ def main() -> int:
     ap.add_argument("--db", required=True)
     ap.add_argument("--analytics")
     ap.add_argument("--no-versioning", action="store_true", help="Disable versioning")
-    ap.add_argument("--update-in-place", action="store_true", help="Update latest row instead of version bump")
+    ap.add_argument("--in-place", action="store_true", help="Update latest row instead of version bump")
     ns = ap.parse_args()
 
     ing = DocumentationIngestor(
@@ -1888,38 +1888,43 @@ echo "✅ Bootstrap complete"
 main "$@"
 '''
 
-lfs_zip_guard_yml = r'''name: LFS Zip Guard
+lfs_guard_yml = r'''name: LFS Guard
 
 on:
-pull_request:
-push:
+  pull_request:
 
 jobs:
-lfs-zip-guard:
-runs-on: ubuntu-latest
-steps:
-- uses: actions/checkout@v4
-with:
-lfs: true
-fetch-depth: 0
-- name: Verify archives tracked by LFS
-run: |
-set -euo pipefail
-PATTERN='.(zip|jar|war|ear|7z|rar|tar|tgz|tar.gz|tbz2|tar.bz2|txz|tar.xz|tzst|tar.zst|apk|ipa|nupkg|cab|iso)$'
-changed=$(git diff --name-only HEAD^ HEAD | grep -Ei "$PATTERN" || true)
-if [ -z "$changed" ]; then echo "No archives changed"; exit 0; fi
-echo "Changed archives:"
-echo "$changed"
-failed=0
-while read -r f; do
-[ -z "$f" ] && continue
-attr=$(git check-attr filter -- "$f" | awk -F: '{print $3}' | xargs)
-if [ "$attr" != "lfs" ]; then
-echo "::error:: $f is an archive and MUST be tracked by Git LFS. Update .gitattributes and re-stage."
-failed=1
-fi
-done <<< "$changed"
-exit $failed
+  enforce-lfs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Enforce LFS for archive files
+        run: |
+          set -euo pipefail
+          git fetch origin "$GITHUB_BASE_REF" --depth=1
+          git diff --name-only --diff-filter=AM origin/"$GITHUB_BASE_REF"...HEAD > changed_files.txt
+          archives=$(grep -E '\\.(zip|jar|tar.*|7z|rar|apk|ipa|nupkg|cab|iso)$' changed_files.txt || true)
+          if [[ -z "$archives" ]]; then
+            echo "No archive files added or modified."
+            exit 0
+          fi
+          missing_files=""
+          while IFS= read -r file; do
+            if ! git check-attr filter -- "$file" | grep -q 'filter: lfs'; then
+              echo "::error file=$file::Archive file is not tracked by Git LFS"
+              missing_files+="$file\n"
+            fi
+          done <<< "$archives"
+          if [[ -n "$missing_files" ]]; then
+            echo -e "The following archive files are not tracked by Git LFS:\n$missing_files"
+            exit 1
+          fi
+          echo "All archive files are properly tracked by Git LFS."
 '''
 
 circleci_config = r'''version: 2.1
@@ -2250,7 +2255,7 @@ if (Test-Path $DocsDir) { $args += @('--docs-dir', $DocsDir) }
 if (Test-Path $TemplatesDir) { $args += @('--templates-dir', $TemplatesDir) }
 if (Test-Path $HarDir) { $args += @('--har-dir', $HarDir) }
 if (Test-Path $LogsDir) { $args += @('--logs-dir', $LogsDir) }
-if ($UpdateInPlace) { $args += '--update-in-place' } elseif (-not $DocsVersioning) { $args += '--no-versioning' }
+if ($UpdateInPlace) { $args += '--in-place' } elseif (-not $DocsVersioning) { $args += '--no-versioning' }
 python -m gh_copilot.cli @args
 }
 
@@ -2284,7 +2289,7 @@ switch ($Task) {
 }
 '''
 
----------------- Write all files ----------------
+# ---------------- Write all files ----------------
 write(root / "scripts/database/lib/asset_ingestor_base.py", asset_ingestor_base_py)
 write(root / "scripts/database/har_asset_ingestor.py", har_asset_ingestor_py)
 write(root / "scripts/database/shell_log_ingestor.py", shell_log_ingestor_py)
@@ -2308,7 +2313,7 @@ write(root / "tests/test_har_and_logs_ingest.py", tests_har_logs)
 write(root / "tests/test_sqlite_wal_concurrency.py", tests_wal)
 
 write(root / ".github/workflows/dbfirst.yml", workflow_yml)
-write(root / ".github/workflows/lfs-zip-guard.yml", lfs_zip_guard_yml)
+write(root / ".github/workflows/lfs-guard.yml", lfs_guard_yml)
 write(root / ".circleci/config.yml", circleci_config)
 write(root / "docs/database_first.md", docs_md)
 
@@ -2322,7 +2327,7 @@ write(root / "Taskfile.yml", taskfile_yml)
 write(root / "Makefile.win", makefile_win)
 write(root / "Invoke-DbFirst.ps1", invoke_dbfirst_ps1)
 
----------------- Create the ZIP ----------------
+# ---------------- Create the ZIP ----------------
 with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as z:
 for p in root.rglob("*"):
 if p.is_file():

@@ -36,7 +36,10 @@ if __package__ is None:
 
 from tqdm import tqdm
 
-from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
+try:
+    from gh_copilot.validation.secondary_copilot_validator import SecondaryCopilotValidator
+except Exception:
+    from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator  # type: ignore
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.validation_utils import anti_recursion_guard, validate_enterprise_environment
 from utils.lessons_learned_integrator import (

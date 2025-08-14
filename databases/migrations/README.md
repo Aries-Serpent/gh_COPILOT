@@ -29,9 +29,10 @@ in the following order to satisfy foreign key constraints:
 15. `add_size_violations.sql`
 16. `add_sync_events_log.sql`
 17. `add_unified_wrapup_sessions.sql`
-18. `add_violation_logs.sql`
-19. `create_todo_fixme_tracking.sql`
-20. `extend_todo_fixme_tracking.sql`
+18. `add_version_to_documentation_assets.sql`
+19. `add_violation_logs.sql`
+20. `create_todo_fixme_tracking.sql`
+21. `extend_todo_fixme_tracking.sql`
 
 `extend_todo_fixme_tracking.sql` depends on both `create_todo_fixme_tracking.sql`
 and `add_placeholder_removals.sql` because it references the `placeholder_removals`
@@ -74,6 +75,7 @@ restoring a database backup.
 | `add_size_violations.sql` | None | Drop `size_violations` |
 | `add_sync_events_log.sql` | None | Drop `sync_events_log` |
 | `add_unified_wrapup_sessions.sql` | None | Drop `unified_wrapup_sessions` |
+| `add_version_to_documentation_assets.sql` | None | Restore backup |
 | `add_violation_logs.sql` | None | Drop `violation_logs` |
 | `create_todo_fixme_tracking.sql` | `add_placeholder_removals.sql` | Drop `todo_fixme_tracking` |
 | `extend_todo_fixme_tracking.sql` | `create_todo_fixme_tracking.sql` | Remove added columns |
@@ -132,6 +134,7 @@ automatically when called by recovery scripts.
 
 ## Notes
 - All migrations are idempotent and safe to re-run.
+- `code_audit_log` is created exclusively by `add_code_audit_log.sql`; the unified database initializer no longer defines this table.
 - For compliance details see `scripts/database/add_code_audit_log.py`.
 - Audit logging is integrated via `scripts/code_placeholder_audit.py`.
 - You can apply all migrations at once by running `python scripts/run_migrations.py`.

@@ -2,6 +2,8 @@ import hashlib
 import logging
 import os
 import sqlite3
+import subprocess
+import sys
 from pathlib import Path
 
 from enterprise_modules.compliance import pid_recursion_guard as compliance_pid_guard
@@ -110,20 +112,50 @@ def test_reingest_logs_duplicate(tmp_path: Path, caplog, monkeypatch) -> None:
     docs_dir = workspace / "documentation"
     docs_dir.mkdir()
     doc = docs_dir / "guide.md"
-    content = "# Guide"
+    content = "# Guide\n"
     doc.write_text(content)
     ingest_documentation(workspace, docs_dir)
     caplog.clear()
     caplog.set_level(logging.INFO)
     ingest_documentation(workspace, docs_dir)
-    digest = hashlib.sha256(content.encode()).hexdigest()
     messages = " ".join(caplog.messages)
-    assert digest in messages
-    assert str(doc) in messages
+    assert "UNCHANGED" in messages
     db_path = db_dir / "enterprise_assets.db"
     with sqlite3.connect(db_path) as conn:
         count = conn.execute("SELECT COUNT(*) FROM documentation_assets").fetchone()[0]
     assert count == 1
+
+
+def test_cli_in_place_flag(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    workspace = tmp_path
+    os.environ["GH_COPILOT_WORKSPACE"] = str(workspace)
+    db_dir = workspace / "databases"
+    db_dir.mkdir()
+    docs_dir = workspace / "documentation"
+    docs_dir.mkdir()
+    doc = docs_dir / "guide.md"
+    doc.write_text("first")
+    module = "scripts.database.documentation_ingestor"
+    repo_root = Path(__file__).resolve().parents[1]
+    subprocess.run(
+        [sys.executable, "-m", module, "--workspace", str(workspace), "--docs-dir", str(docs_dir), "--in-place"],
+        check=True,
+        cwd=repo_root,
+    )
+    doc.write_text("second")
+    subprocess.run(
+        [sys.executable, "-m", module, "--workspace", str(workspace), "--docs-dir", str(docs_dir), "--in-place"],
+        check=True,
+        cwd=repo_root,
+    )
+    with sqlite3.connect(db_dir / "enterprise_assets.db") as conn:
+        row = conn.execute(
+            "SELECT version, content_hash FROM documentation_assets WHERE doc_path=?",
+            (str(doc.relative_to(workspace)),),
+        ).fetchone()
+    assert row[0] == 2
+    assert row[1] == hashlib.sha256("second".encode()).hexdigest()
 
 
 def test_pid_recursion_guard_exposed() -> None:

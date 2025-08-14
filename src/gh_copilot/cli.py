@@ -6,6 +6,7 @@ import uuid
 from pathlib import Path
 import sqlite3
 import typer
+import importlib.util
 
 from .api import _dao
 from .models import ScoreInputs, ScoreSnapshot
@@ -40,6 +41,30 @@ def migrate(migrations_dir: Path = typer.Option(Path("databases/gh_copilot_migra
             conn.executescript(sql)
             conn.commit()
             typer.echo(f"applied: {sql_file}")
+    finally:
+        conn.close()
+
+
+@app.command("migrate-all")
+def migrate_all(migrations_dir: Path = typer.Option(Path("databases/migrations"), exists=True)) -> None:
+    """Apply *.sql then *.py migrations in lexical order."""
+    db = _db_path()
+    conn = sqlite3.connect(db)
+    try:
+        for sql_file in sorted(migrations_dir.glob("*.sql")):
+            sql = sql_file.read_text(encoding="utf-8")
+            conn.executescript(sql)
+            conn.commit()
+            typer.echo(f"applied: {sql_file.name}")
+        for py_file in sorted(migrations_dir.glob("*.py")):
+            spec = importlib.util.spec_from_file_location(py_file.stem, py_file)
+            mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
+            assert spec and spec.loader
+            spec.loader.exec_module(mod)  # type: ignore[assignment]
+            if hasattr(mod, "upgrade"):
+                mod.upgrade(conn)  # type: ignore[arg-type]
+                conn.commit()
+                typer.echo(f"applied: {py_file.name}")
     finally:
         conn.close()
 
@@ -104,36 +129,39 @@ def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
     uvicorn.run("gh_copilot.api:app", host=host, port=port, reload=True)
 
 
-@app.command("ingest-docs")
-def ingest_docs(
+@app.command("ingest")
+def ingest_cmd(
+    kind: str = typer.Argument(..., help="docs|templates|har"),
     workspace: Path = typer.Option(Path("."), exists=True),
-    docs_dir: Path | None = None,
+    src_dir: Path | None = None,
+    update_in_place: bool = typer.Option(
+        False, help="Overwrite existing rows instead of retaining version history"
+    ),
 ) -> None:
-    """Ingest documentation into the enterprise assets database."""
-    from scripts.database.documentation_ingestor import ingest_documentation
+    """Ingest assets into the enterprise database."""
+    if kind == "docs":
+        from scripts.database.documentation_ingestor import ingest_documentation
+
+        ingest_documentation(
+            workspace, src_dir, retain_history=not update_in_place
+        )
+        table = "documentation_assets"
+    elif kind == "templates":
+        from scripts.database.template_asset_ingestor import ingest_templates
+
+        ingest_templates(workspace, src_dir)
+        table = "template_assets"
+    elif kind == "har":
+        from scripts.database.har_ingestor import ingest_har_entries
+
+        ingest_har_entries(workspace, src_dir)
+        table = "har_entries"
+    else:  # pragma: no cover - argument validation
+        raise typer.BadParameter("kind must be 'docs', 'templates', or 'har'")
 
     try:
-        ingest_documentation(workspace, docs_dir)
         db = workspace / "databases" / "enterprise_assets.db"
-        count = _count_rows(db, "documentation_assets")
-        typer.echo(json.dumps({"ingested": count}))
-    except Exception as exc:  # pragma: no cover - surfaced via exit code
-        typer.echo(str(exc), err=True)
-        raise typer.Exit(1)
-
-
-@app.command("ingest-templates")
-def ingest_templates_cmd(
-    workspace: Path = typer.Option(Path("."), exists=True),
-    templates_dir: Path | None = None,
-) -> None:
-    """Ingest templates into the enterprise assets database."""
-    from scripts.database.template_asset_ingestor import ingest_templates
-
-    try:
-        ingest_templates(workspace, templates_dir)
-        db = workspace / "databases" / "enterprise_assets.db"
-        count = _count_rows(db, "template_assets")
+        count = _count_rows(db, table)
         typer.echo(json.dumps({"ingested": count}))
     except Exception as exc:  # pragma: no cover - surfaced via exit code
         typer.echo(str(exc), err=True)
@@ -155,6 +183,47 @@ def generate_docs(
     except Exception as exc:  # pragma: no cover - surfaced via exit code
         typer.echo(str(exc), err=True)
         raise typer.Exit(1)
+
+
+@app.command("generate")
+def generate_cli(
+    kind: str = typer.Argument(..., help="docs|scripts"),
+    source_db: Path = typer.Option(Path("documentation.db"), help="DB for templates"),
+    out_dir: Path = typer.Option(Path("generated"), help="Output directory"),
+    params: str = typer.Option("", help="JSON substitutions"),
+) -> None:
+    """Generate docs or scripts from templates and log the event."""
+    from gh_copilot.generation.generate_from_templates import generate as gen
+
+    values = json.loads(params) if params else {}
+    written = gen(kind=kind, source_db=source_db, out_dir=out_dir, analytics_db=_db_path(), params=values)
+    typer.echo(json.dumps({"written": [str(p) for p in written]}, indent=2))
+
+
+@app.command("audit-consistency")
+def audit_consistency(
+    enterprise_db: Path = typer.Option(Path("enterprise_assets.db"), help="enterprise assets DB"),
+    production_db: Path = typer.Option(Path("production.db"), help="production DB"),
+    analytics_db: Path = typer.Option(Path("analytics.db"), help="analytics DB for audit logs"),
+    base_path: list[Path] = typer.Option([Path(".")], "--base-path", help="paths to scan"),
+    patterns: str = typer.Option("*.md,*.sql,*.py,*.har", help="comma-separated glob patterns"),
+    regenerate: bool = typer.Option(False, help="attempt doc/script regeneration for stale"),
+    reingest: bool = typer.Option(False, help="re-run ingestion for missing/stale"),
+) -> None:
+    """Cross-check filesystem assets vs SQLite rows and log to analytics."""
+    from gh_copilot.auditor.consistency import run_audit
+
+    pats = [p.strip() for p in patterns.split(",") if p.strip()]
+    res = run_audit(
+        enterprise_db,
+        production_db,
+        analytics_db,
+        base_path,
+        pats,
+        regenerate=regenerate,
+        reingest=reingest,
+    )
+    typer.echo(json.dumps(res.__dict__, indent=2, default=str))
 
 
 if __name__ == "__main__":

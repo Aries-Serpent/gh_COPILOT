@@ -234,12 +234,9 @@ if ! has pre-commit; then
   exit 1
 fi
 
-# Initialize Git LFS and pre-commit hooks if available
+# Initialize Git LFS hooks if available
 if has git-lfs; then
   git lfs install --local >/dev/null 2>&1 || true
-fi
-if has pre-commit; then
-  pre-commit install --install-hooks >/dev/null 2>&1 || true
 fi
 
 # Ensure a config exists, then install hooks
