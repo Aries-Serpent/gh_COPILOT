@@ -21,6 +21,7 @@ jobs:
         with:
           lfs: true
           fetch-depth: 0
+      - run: git lfs checkout
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
@@ -163,6 +164,7 @@ jobs:
           with:
             lfs: true
             fetch-depth: 0
+        - run: git lfs checkout
         - uses: actions/setup-python@v4
           with:
             python-version: '3.11'
@@ -189,6 +191,7 @@ jobs:
           with:
             lfs: true
             fetch-depth: 0
+        - run: git lfs checkout
         - uses: actions/setup-python@v4
           with:
             python-version: ${{ matrix.python-version }}
@@ -236,6 +239,7 @@ jobs:
         with:
           lfs: true
           fetch-depth: 0
+      - run: git lfs checkout
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
@@ -255,6 +259,7 @@ jobs:
         with:
           lfs: true
           fetch-depth: 0
+      - run: git lfs checkout
       - uses: github/codeql-action/init@v3
         with:
           languages: python
@@ -274,6 +279,7 @@ jobs:
         with:
           lfs: true
           fetch-depth: 0
+      - run: git lfs checkout
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
