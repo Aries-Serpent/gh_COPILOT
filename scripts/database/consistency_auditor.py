@@ -1,7 +1,10 @@
+"""CLI entrypoint for filesystem/database consistency auditing."""
+
 from __future__ import annotations
 
 import json
 from pathlib import Path
+
 import typer
 
 from gh_copilot.auditor.consistency import run_audit
