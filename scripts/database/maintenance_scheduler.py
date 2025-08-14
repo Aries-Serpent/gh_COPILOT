@@ -17,6 +17,7 @@ from utils.validation_utils import anti_recursion_guard, validate_enterprise_env
 from .cross_database_sync_logger import log_sync_operation
 from .database_sync_scheduler import synchronize_databases
 from .size_compliance_checker import check_database_sizes
+from gh_copilot.auditor.consistency import run_audit
 
 logger = logging.getLogger(__name__)
 
@@ -43,13 +44,15 @@ def _load_database_names(list_file: Path) -> list[str]:
 
 
 def run_cycle(workspace: Path, *, timeout: int | None = None) -> None:
-    """Synchronize replicas and check database sizes."""
+    """Synchronize replicas, check sizes, and audit asset consistency."""
     db_dir = workspace / "databases"
     master = db_dir / "enterprise_assets.db"
     list_path = workspace / "documentation" / "CONSOLIDATED_DATABASE_LIST.md"
     replica_names = _load_database_names(list_path)
     replicas = [db_dir / name for name in replica_names if name != master.name]
     log_db = db_dir / "enterprise_assets.db"
+    production_db = db_dir / "production.db"
+    analytics_db = db_dir / "analytics.db"
 
     start_dt = datetime.now(timezone.utc)
     log_sync_operation(log_db, f"cycle_start_{start_dt.isoformat()}")
@@ -59,7 +62,7 @@ def run_cycle(workspace: Path, *, timeout: int | None = None) -> None:
     status = "success"
     start_ts = time.time()
     try:
-        with tqdm(total=2, desc="Maintenance Cycle", unit="task", dynamic_ncols=True) as bar:
+        with tqdm(total=3, desc="Maintenance Cycle", unit="task", dynamic_ncols=True) as bar:
             synchronize_databases(
                 master,
                 replicas,
@@ -74,6 +77,19 @@ def run_cycle(workspace: Path, *, timeout: int | None = None) -> None:
                 status = "timeout"
                 raise TimeoutError("Maintenance cycle timed out")
             check_database_sizes(db_dir)
+            etc_delta = bar.format_dict.get("elapsed", 0) + bar.format_dict.get("remaining", 0)
+            etc_time = start_dt + timedelta(seconds=etc_delta)
+            bar.set_postfix_str(f"ETC {etc_time.strftime('%H:%M:%S')}")
+            bar.update(1)
+            if timeout and time.time() - start_ts > timeout:
+                status = "timeout"
+                raise TimeoutError("Maintenance cycle timed out")
+            run_audit(
+                master,
+                production_db,
+                analytics_db,
+                [workspace],
+            )
             etc_delta = bar.format_dict.get("elapsed", 0) + bar.format_dict.get("remaining", 0)
             etc_time = start_dt + timedelta(seconds=etc_delta)
             bar.set_postfix_str(f"ETC {etc_time.strftime('%H:%M:%S')}")

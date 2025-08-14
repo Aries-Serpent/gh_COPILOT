@@ -87,7 +87,25 @@ def test_run_cycle_logging_and_progress(tmp_path: Path, monkeypatch) -> None:
 
     run_cycle(tmp_path)
 
-    assert bars and bars[0].updates == 2
+    assert bars and bars[0].updates == 3
     with sqlite3.connect(log_db) as conn:
         count = conn.execute("SELECT COUNT(*) FROM cross_database_sync_operations").fetchone()[0]
     assert count >= 3
+    analytics_db = db_dir / "analytics.db"
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS consistency_audit_events(
+              id INTEGER PRIMARY KEY, started_at TEXT, finished_at TEXT,
+              scanned_paths TEXT, missing_count INTEGER, stale_count INTEGER,
+              regenerated_count INTEGER, reingested_count INTEGER,
+              details_json TEXT, status TEXT
+            )
+            """
+        )
+    run_cycle(tmp_path)
+    with sqlite3.connect(analytics_db) as conn:
+        rows = conn.execute(
+            "SELECT COUNT(*) FROM consistency_audit_events"
+        ).fetchone()[0]
+    assert rows >= 1
