@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: #ubuntu-latest !ONLY ENABLED BY REPO OWNER!
     strategy:
       matrix:
         python-version: ['3.10', '3.11']
