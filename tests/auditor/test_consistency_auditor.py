@@ -19,22 +19,28 @@ def test_audit_minimal(tmp_path: Path) -> None:
     ana = tmp_path / "analytics.db"
 
     with _mk_db(ent) as c:
-        c.executescript(
+        c.execute(
             """
             CREATE TABLE IF NOT EXISTS documentation_assets(
               id INTEGER PRIMARY KEY, path TEXT NOT NULL, content_hash TEXT
-            );
-            INSERT INTO documentation_assets(path, content_hash) VALUES('README.md','abc');
+            )
             """
         )
+        c.execute(
+            "INSERT INTO documentation_assets(path, content_hash) VALUES(?, 'abc')",
+            (str(tmp_path / "README.md"),),
+        )
     with _mk_db(prod) as c:
-        c.executescript(
+        c.execute(
             """
             CREATE TABLE IF NOT EXISTS har_entries(
               id INTEGER PRIMARY KEY, path TEXT NOT NULL, sha256 TEXT
-            );
-            INSERT INTO har_entries(path, sha256) VALUES('missing.har','def');
+            )
             """
+        )
+        c.execute(
+            "INSERT INTO har_entries(path, sha256) VALUES(?, 'def')",
+            (str(tmp_path / "missing.har"),),
         )
     with _mk_db(ana) as c:
         c.executescript(
