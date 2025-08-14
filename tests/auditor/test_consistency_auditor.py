@@ -19,6 +19,7 @@ def test_audit_minimal(tmp_path: Path) -> None:
     ana = tmp_path / "analytics.db"
 
     with _mk_db(ent) as c:
+        # Create documentation_assets table and insert a README.md record
         c.execute(
             """
             CREATE TABLE IF NOT EXISTS documentation_assets(
@@ -31,6 +32,7 @@ def test_audit_minimal(tmp_path: Path) -> None:
             (str(tmp_path / "README.md"),),
         )
     with _mk_db(prod) as c:
+        # Create har_entries table and insert a missing.har record
         c.execute(
             """
             CREATE TABLE IF NOT EXISTS har_entries(
@@ -59,3 +61,8 @@ def test_audit_minimal(tmp_path: Path) -> None:
     res = run_audit(ent, prod, ana, [tmp_path], ["*.md"])
     assert res.missing_count >= 1
     assert res.stale_count >= 1
+
+__all__ = [
+    "test_audit_minimal",
+    "_mk_db",
+]

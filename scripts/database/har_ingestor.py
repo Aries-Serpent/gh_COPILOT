@@ -1,6 +1,3 @@
-# [Script]: ingest_har_files
-# > Generated: 2025-08-14 06:09:33 | Author: mbaetiong
-#!/usr/bin/env python3
 """
 CLI wrapper for HAR ingestion.
 
