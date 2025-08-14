@@ -1,3 +1,6 @@
+# [Script]: ingest_har_files.py
+> Generated: 2025-08-14 02:47:12 | Author: mbaetiong
+
 #!/usr/bin/env python3
 """Ingest HAR files into the `har_entries` table and provide a Typer CLI entrypoint.
 
