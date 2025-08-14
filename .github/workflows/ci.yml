@@ -5,7 +5,11 @@ on:
   pull_request:
     branches: [main]
 jobs:
+  lfs-archive-guard:
+    uses: ./.github/workflows/lfs-zip-guard.yml
+
   lint-test:
+    needs: lfs-archive-guard
     runs-on: ubuntu-latest
     env:
       FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY || 'test_secret' }}

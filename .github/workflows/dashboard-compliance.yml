@@ -18,7 +18,11 @@ permissions:
   contents: read
 
 jobs:
+  lfs-archive-guard:
+    uses: ./.github/workflows/lfs-zip-guard.yml
+
   build-and-smoke:
+    needs: lfs-archive-guard
     name: Build & UI Smoke
     runs-on: ubuntu-latest
     steps:
