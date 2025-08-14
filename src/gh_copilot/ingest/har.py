@@ -1,16 +1,13 @@
-# [Script]: ingest_har_entries
-# > Generated: 2025-08-14 06:09:33 | Author: mbaetiong
 """
 Unified HAR ingestion module.
 
-This merged version:
+Features:
 - Applies SQLite performance PRAGMAs.
 - Ensures (and if needed, migrates) schema with columns:
     path, sha256, content_hash, created_at, metrics_json, metrics
 - Maintains a UNIQUE index on (path, COALESCE(sha256, content_hash))
 - Provides per-file ingestion with detailed event logging via IngestDAO if available.
-- Computes SHA256 for duplicate detection; both sha256 and content_hash populated (content_hash kept
-  for backward compatibility with earlier versions referencing it).
+- Computes SHA256 for duplicate detection; both sha256 and content_hash populated (content_hash kept for backward compatibility).
 - Extracts lightweight metrics (count of entries, file size).
 - Gracefully handles and counts errors; continues ingestion.
 - Supports optional WAL checkpoint.
@@ -40,7 +37,6 @@ PRAGMAS: tuple[str, ...] = (
     "PRAGMA busy_timeout=10000;",
 )
 
-
 @dataclass
 class IngestResult:
     inserted: int
@@ -48,7 +44,6 @@ class IngestResult:
     errors: int
     duration_s: float
     checkpointed: bool
-
 
 def _connect(db: Path) -> sqlite3.Connection:
     conn = sqlite3.connect(db)
@@ -59,7 +54,6 @@ def _connect(db: Path) -> sqlite3.Connection:
         except Exception:
             pass
     return conn
-
 
 def _ensure_schema(conn: sqlite3.Connection) -> None:
     """
@@ -103,14 +97,12 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
     except Exception:
         pass
 
-
 def _sha256_file(p: Path) -> str:
     h = hashlib.sha256()
     with p.open("rb") as f:
         for chunk in iter(lambda: f.read(1024 * 1024), b""):
             h.update(chunk)
     return h.hexdigest()
-
 
 def _discover(inputs: list[Path]) -> list[Path]:
     files: list[Path] = []
@@ -122,7 +114,6 @@ def _discover(inputs: list[Path]) -> list[Path]:
     # Deduplicate + stable ordering
     return sorted(set(files))
 
-
 def _parse_metrics(p: Path) -> dict:
     size_bytes = p.stat().st_size
     try:
@@ -132,13 +123,12 @@ def _parse_metrics(p: Path) -> dict:
     except Exception:
         return {"entries": None, "size_bytes": size_bytes}
 
-
 def ingest_har_entries(
     db_path: str | Path,
     inputs: Iterable[str | Path],
     *,
     checkpoint: bool = False,
-    dao: Optional[IngestDAO] = None,  # type: ignore
+    dao: Optional['IngestDAO'] = None,  # type: ignore
 ) -> IngestResult:
     """
     Ingest provided HAR files (or directory trees) into the database.
@@ -289,7 +279,6 @@ def ingest_har_entries(
         duration_s=duration,
         checkpointed=checkpoint,
     )
-
 
 __all__ = ["ingest_har_entries", "IngestResult"]
 if IngestDAO:  # type: ignore

@@ -23,6 +23,6 @@ try:
 except Exception:
     IngestDAO = None  # type: ignore
 
-__all__ = [" ingest_har_entries", "IngestResult"]
+__all__ = ["ingest_har_entries", "IngestResult"]
 if IngestDAO:
     __all__.append("IngestDAO")

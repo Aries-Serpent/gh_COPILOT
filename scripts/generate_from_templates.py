@@ -1,6 +1,3 @@
-# [Script]: generate_docs_scripts
-# > Generated: 2025-08-14 06:09:33 | Author: mbaetiong
-#!/usr/bin/env python3
 from __future__ import annotations
 
 import json
@@ -21,7 +18,6 @@ except Exception:
 from gh_copilot.generation.generate_from_templates import generate as _generate
 
 app = typer.Typer(help="Generate docs/scripts from DB templates and log events")
-
 
 @app.command()
 def main(
@@ -66,7 +62,6 @@ def main(
     except Exception as exc:
         typer.secho(f"Generation failed: {exc}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1)
-
 
 if __name__ == "__main__":
     app()
