@@ -1660,7 +1660,7 @@ on:
 
 jobs:
   test-dbfirst:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest !ONLY ENABLED BY REPO OWNER!
     steps:
       - uses: actions/checkout@v4
         with:
@@ -1895,7 +1895,7 @@ on:
 
 jobs:
   enforce-lfs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest !ONLY ENABLED BY REPO OWNER!
     steps:
       - name: Checkout
         uses: actions/checkout@v4
