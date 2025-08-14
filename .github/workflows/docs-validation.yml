@@ -10,7 +10,7 @@ on:
 
 jobs:
   docs:
-    runs-on: ubuntu-latest
+    runs-on: #ubuntu-latest !ONLY ENABLED BY REPO OWNER!
     env:
       GH_COPILOT_WORKSPACE: ${{ github.workspace }}
       GH_COPILOT_BACKUP_ROOT: /tmp/gh_copilot_backup
