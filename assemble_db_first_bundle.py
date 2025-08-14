@@ -2289,7 +2289,7 @@ switch ($Task) {
 }
 '''
 
----------------- Write all files ----------------
+# ---------------- Write all files ----------------
 write(root / "scripts/database/lib/asset_ingestor_base.py", asset_ingestor_base_py)
 write(root / "scripts/database/har_asset_ingestor.py", har_asset_ingestor_py)
 write(root / "scripts/database/shell_log_ingestor.py", shell_log_ingestor_py)
@@ -2327,7 +2327,7 @@ write(root / "Taskfile.yml", taskfile_yml)
 write(root / "Makefile.win", makefile_win)
 write(root / "Invoke-DbFirst.ps1", invoke_dbfirst_ps1)
 
----------------- Create the ZIP ----------------
+# ---------------- Create the ZIP ----------------
 with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as z:
 for p in root.rglob("*"):
 if p.is_file():
