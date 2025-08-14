@@ -89,7 +89,7 @@ permissions:
 jobs:
   drift-check:
     name: SSOT Drift Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest !ONLY ENABLED BY REPO OWNER!
     steps:
         - name: Checkout
           uses: actions/checkout@v4
@@ -164,7 +164,7 @@ permissions:
 jobs:
   build-and-smoke:
     name: Build & UI Smoke
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest !ONLY ENABLED BY REPO OWNER!
       steps:
         - name: Checkout
           uses: actions/checkout@v4
@@ -244,7 +244,7 @@ permissions:
   jobs:
     policy-checks:
       name: Policy Tests & Gate
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-latest !ONLY ENABLED BY REPO OWNER!
       steps:
         - name: Checkout
           uses: actions/checkout@v4

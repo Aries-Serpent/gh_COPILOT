@@ -27,7 +27,7 @@ name: CI
 on: [push, pull_request]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest !ONLY ENABLED BY REPO OWNER!
     steps:
       - uses: actions/checkout@v3
       - name: Setup

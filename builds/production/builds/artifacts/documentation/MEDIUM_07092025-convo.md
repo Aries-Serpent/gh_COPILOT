@@ -50,7 +50,7 @@ Systematically traverse the **entire repository**—including all Python source 
 
      jobs:
        flake8-lint:
-         runs-on: ubuntu-latest
+         runs-on: ubuntu-latest !ONLY ENABLED BY REPO OWNER!
          steps:
            - uses: actions/checkout@v4
            - name: Set up Python
@@ -931,7 +931,7 @@ Systematically traverse the **entire repository**—including all Python source 
 
      jobs:
        flake8-lint:
-         runs-on: ubuntu-latest
+         runs-on: ubuntu-latest !ONLY ENABLED BY REPO OWNER!
          steps:
            - uses: actions/checkout@v4
            - name: Set up Python
