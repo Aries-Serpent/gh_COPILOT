@@ -1595,9 +1595,6 @@ Set these variables in your `.env` file or shell before running scripts:
 ### Advanced Troubleshooting
 
 ```bash
-# Comprehensive system diagnostics
-python scripts/diagnostics/system_diagnostics.py --comprehensive
-
 # Database integrity check
 # Validate integrity of all databases
 python scripts/database/database_consolidation_validator.py
