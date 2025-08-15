@@ -1495,8 +1495,8 @@ python scripts/database/watch_sync_pairs.py /data/a.db:/data/b.db --interval 5
 # Automated workspace optimization
 python scripts/optimization/automated_optimization_engine.py --workspace .
 
-# Autonomous system health check
-python scripts/autonomous/system_health_checker.py --deep-analysis
+# System health check
+python scripts/docker_healthcheck.py --deep-analysis
 
 # Compliance certification generation
 python scripts/compliance/certification_generator.py --framework sox,pci,hipaa

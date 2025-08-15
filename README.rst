@@ -1480,8 +1480,8 @@ python scripts/sync/cross_environment_sync.py --source prod --target staging --v
 # Performance optimization
 python scripts/optimization/performance_optimizer.py --targets database,network,compute
 
-# Autonomous system health check
-python scripts/autonomous/system_health_checker.py --deep-analysis
+# System health check
+python scripts/docker_healthcheck.py --deep-analysis
 
 # Compliance certification generation
 python scripts/compliance/certification_generator.py --framework sox,pci,hipaa
