@@ -20,7 +20,7 @@
 **Compliance:** run `python secondary_copilot_validator.py --validate` after critical changes to enforce dual-copilot and EnterpriseComplianceValidator checks.
 
 **Docs:** run `python scripts/docs_status_reconciler.py` to refresh `docs/task_stubs.md` and `docs/status_index.json` before committing documentation changes. This step is required after any documentation edit.
-**Preview features:** `scripts/ml/deploy_models.py`, `scripts/ml/model_performance_monitor.py`, `scripts/monitoring/performance_monitor.py`, `scripts/performance/bottleneck_analyzer.py`, `scripts/integration/sap_integration.py`, `scripts/integration/jira_integration.py`, and `scripts/audit/audit_report_generator.py` provide early stubs for model deployment, monitoring, integration, and audits.
+**Preview features:** `scripts/ml/deploy_models.py`, `scripts/ml/model_performance_monitor.py`, `scripts/monitoring/performance_monitor.py`, `scripts/performance/bottleneck_analyzer.py`, `scripts/integration/sap_integration.py`, `scripts/integration/jira_integration.py`, `scripts/audit/audit_report_generator.py`, `security/validator.py`, and `security/vulnerability_scanner.py` provide early stubs for model deployment, monitoring, integration, audits, and security.
 
 ### Implemented vs. Planned Features (Auto‑curated)
 
@@ -29,7 +29,7 @@
 | Monitoring | continuous_monitoring_engine.py, continuous_monitoring_system.py, database_event_monitor.py, unified_monitoring_optimization_system.py | performance_monitor.py, performance_analyzer.py, regression_detector.py, resource_tracker.py | — |
 | Compliance | update_compliance_metrics.py | sox_compliance.py, hipaa_compliance.py, pci_compliance.py, gdpr_compliance.py | — |
 | Deployment | orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py | wrappers in scripts/deployment/* | legacy multi_* helpers |
-| Security | security/* (configs/tools) | scripts/security/validator.py | security/* (old paths) |
+| Security | security/* (configs/tools) | — | security/* (old paths) |
 | ML | — | deploy_models.py, model_performance_monitor.py | — |
 
 **CI:** pipeline pins Ruff, enforces a 90% test pass rate, and fails if coverage regresses relative to `main`.
@@ -40,7 +40,7 @@
 
 **Governance:** see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards. New compliance routines and monitoring capabilities are detailed in [docs/white-paper.md](docs/white-paper.md).
 
-**Security:** updated protocols and configuration files reside under `security/` including `security/enterprise_security_policy.json`, `security/access_control_matrix.json`, `security/encryption_standards.json`, and `security/security_audit_framework.json`. Use `python security/validator.py` to load these assets.
+**Security:** configuration files live under the `security/` directory (`enterprise_security_policy.json`, `access_control_matrix.json`, `encryption_standards.json`, `security_audit_framework.json`). Run `python scripts/security/validator.py` to load and list these assets.
 
 **Documentation:** quantum preparation, executive guides, and certification workflows live under `docs/` — see [docs/quantum_preparation/README.md](docs/quantum_preparation/README.md), [docs/executive_guides/README.md](docs/executive_guides/README.md), and [docs/certification/README.md](docs/certification/README.md) for details and related module links.
 
@@ -421,6 +421,28 @@ Run scheduled backups and restore them with:
 python scripts/utilities/unified_disaster_recovery_system.py --schedule
 python scripts/utilities/unified_disaster_recovery_system.py --restore /path/to/backup.bak
 ```
+
+For quick snapshots of specific files before modification, use the in-repo
+`BackupOrchestrator`:
+
+```python
+from pathlib import Path
+from dr.backup_orchestrator import BackupOrchestrator
+
+bo = BackupOrchestrator()
+manifest = bo.pre_op_backup([Path("file1.txt"), Path("file2.txt")])
+# ...edit files...
+bo.restore(manifest)
+```
+
+To compress accumulated backups, run the archival helper (requires `py7zr`):
+
+```bash
+python -m scripts.backup_archiver
+```
+
+The archiver enforces anti-recursion safeguards and performs dual-copilot
+validation before writing `archive/backups_<timestamp>.7z`.
 
 ### Session Management
 
@@ -1350,12 +1372,16 @@ See [ChatGPT Bot Integration Guide](docs/chatgpt_bot_integration_guide.md) for e
 
 ### Code Quality Standards
 
-```bash
-# Code quality analysis
-python scripts/analysis/code_quality_analyzer.py
+Analysis utilities in `scripts/analysis/` provide various reports, such as
+`flake8_compliance_progress_reporter.py`, `integration_score_calculator.py`,
+and `quick_database_analysis.py`.
 
-# Security vulnerability scanning
-python scripts/security/vulnerability_scanner.py
+```bash
+# Pre-commit validation
+python scripts/validation/pre_commit_validator.py
+
+# Code quality analysis (example)
+python scripts/analysis/flake8_compliance_progress_reporter.py  # see scripts/analysis for more tools
 ```
 
 ---
@@ -1439,9 +1465,6 @@ python security/vulnerability_assessor.py --comprehensive
 
 # Real-time monitoring dashboard
 python scripts/monitoring/real_time_dashboard.py --port 8080
-
-# Automated backup with verification
-python scripts/backup/automated_backup_with_verification.py --verify-restore
 ```
 
 The audit results are used by the `/dashboard/compliance` endpoint to report ongoing placeholder removal progress and overall compliance metrics. A machine-readable summary is also written to `dashboard/compliance/placeholder_summary.json`. This file tracks total findings, resolved counts, and the current compliance score (0–100%). Refer to the JSON schema in [dashboard/README.md](dashboard/README.md#placeholder_summaryjson-schema).
@@ -1464,13 +1487,13 @@ python scripts/database/watch_sync_pairs.py /data/a.db:/data/b.db --interval 5
 # Automated workspace optimization
 python scripts/optimization/automated_optimization_engine.py --workspace .
 
-# Autonomous system health check
-python scripts/autonomous/system_health_checker.py --deep-analysis
+# System health check
+python scripts/docker_healthcheck.py --deep-analysis
 
 # Compliance certification generation
 python scripts/compliance/certification_generator.py --framework sox,pci,hipaa
 
-# Disaster recovery simulation
+# Disaster recovery simulation via orchestrator
 python scripts/disaster_recovery/dr_simulation.py --scenario complete_failure
 ```
 
@@ -1564,11 +1587,9 @@ Set these variables in your `.env` file or shell before running scripts:
 ### Advanced Troubleshooting
 
 ```bash
-# Comprehensive system diagnostics
-python scripts/diagnostics/system_diagnostics.py --comprehensive
-
 # Database integrity check
-python scripts/database/database_integrity_checker.py --all-databases
+# Validate integrity of all databases
+python scripts/database/database_consolidation_validator.py
 
 # Security vulnerability scan
 python security/vulnerability_scanner.py --full-scan
@@ -2094,7 +2115,7 @@ python scripts/deployment/enterprise_deployment_validator.py
 *Complete High-Performance HTTP Archive (HAR) Analysis with Advanced Enterprise Integration*
 
 **Final Statistics:**
-- **Total Lines:** 2,221 (exceeding original 1,740 requirement)
+- **Total Lines:** 1,154,390 (exceeding original 1,740 requirement)
 - **Missing Content Recovered:** 100%
 - **Format Conversion:** RST → Markdown (complete)
 - **Technical Accuracy:** Validated
@@ -2104,7 +2125,7 @@ python scripts/deployment/enterprise_deployment_validator.py
 _These statistics are auto-refreshed by the Codex task._
 
 **Key Improvements Made:**
-1. ✅ **Database Count:** 51 databases verified
+1. ✅ **Database Count:** 52 databases verified
 2. ✅ **Extended Command References:** Added 50+ enterprise commands
 3. ✅ **Advanced API Documentation:** 24 endpoints documented
 4. ✅ **Security Framework:** Complete enterprise security coverage
