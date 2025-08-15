@@ -2093,37 +2093,8 @@ Audit logging, report generation, trail verification, and a compliance dashboard
 
 Seamless integration with enterprise systems:
 
-#### ERP Integration
-
-```bash
-# SAP integration
-python scripts/integration/sap_integration.py --rfc-connector --real-time-sync
-
-# Oracle ERP integration
-python scripts/integration/oracle_erp_integration.py --fusion-middleware --data-sync
-
-# Microsoft Dynamics integration
-python scripts/integration/dynamics_integration.py --odata-api --power-platform
-
-# Custom ERP integration
-python scripts/integration/custom_erp_integration.py --rest-api --webhook-notifications
-```
-
-#### ITSM Integration
-
-```bash
-# ServiceNow integration
-python scripts/integration/servicenow_integration.py --incident-management --change-requests
-
-# Jira integration
-python scripts/integration/jira_integration.py --issue-tracking --workflow-automation
-
-# BMC Remedy integration
-python scripts/integration/bmc_integration.py --cmdb-sync --automation-workflows
-
-# Custom ITSM integration
-python scripts/integration/custom_itsm_integration.py --ticket-lifecycle --sla-monitoring
-```
+> For maintained examples, see the integration modules in directories such as
+> `github_integration` and `quantum/integration`.
 
 ### Global Deployment Framework
 
