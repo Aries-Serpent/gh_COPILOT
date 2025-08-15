@@ -422,6 +422,28 @@ python scripts/utilities/unified_disaster_recovery_system.py --schedule
 python scripts/utilities/unified_disaster_recovery_system.py --restore /path/to/backup.bak
 ```
 
+For quick snapshots of specific files before modification, use the in-repo
+`BackupOrchestrator`:
+
+```python
+from pathlib import Path
+from dr.backup_orchestrator import BackupOrchestrator
+
+bo = BackupOrchestrator()
+manifest = bo.pre_op_backup([Path("file1.txt"), Path("file2.txt")])
+# ...edit files...
+bo.restore(manifest)
+```
+
+To compress accumulated backups, run the archival helper (requires `py7zr`):
+
+```bash
+python -m scripts.backup_archiver
+```
+
+The archiver enforces anti-recursion safeguards and performs dual-copilot
+validation before writing `archive/backups_<timestamp>.7z`.
+
 ### Session Management
 
 Codex sessions record start/end markers and actions in `databases/codex_log.db`. The `COMPREHENSIVE_WORKSPACE_MANAGER.py` CLI can launch and wrap up sessions:
@@ -1470,9 +1492,6 @@ python security/vulnerability_assessor.py --comprehensive
 
 # Real-time monitoring dashboard
 python scripts/monitoring/real_time_dashboard.py --port 8080
-
-# Automated backup with verification
-python scripts/backup/automated_backup_with_verification.py --verify-restore
 ```
 
 The audit results are used by the `/dashboard/compliance` endpoint to report ongoing placeholder removal progress and overall compliance metrics. A machine-readable summary is also written to `dashboard/compliance/placeholder_summary.json`. This file tracks total findings, resolved counts, and the current compliance score (0–100%). Refer to the JSON schema in [dashboard/README.md](dashboard/README.md#placeholder_summaryjson-schema).
