@@ -1597,7 +1597,8 @@ Set these variables in your `.env` file or shell before running scripts:
 python scripts/diagnostics/system_diagnostics.py --comprehensive
 
 # Database integrity check
-python scripts/database/database_integrity_checker.py --all-databases
+# Validate integrity of all databases
+python scripts/database/database_consolidation_validator.py
 
 # Security vulnerability scan
 python security/vulnerability_scanner.py --full-scan
