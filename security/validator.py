@@ -11,8 +11,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict
 
-ROOT = Path(__file__).resolve().parents[2]
-CONFIG_DIR = ROOT / "security"
+CONFIG_DIR = Path(__file__).resolve().parent
 
 def load_security_configs() -> Dict[str, Any]:
     """Return parsed security configuration data.
