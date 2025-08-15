@@ -1485,8 +1485,8 @@ python scripts/ml/ml_pipeline_orchestrator.py --pipeline full_automation
 # Enterprise security audit
 python scripts/security/enterprise_security_auditor.py --comprehensive --generate-report
 
-# Cross-environment synchronization
-python scripts/sync/cross_environment_sync.py --source prod --target staging --validate
+# Database synchronization (see docs/DATABASE_SYNC_GUIDE.md)
+python scripts/database/watch_sync_pairs.py /data/a.db:/data/b.db --interval 5
 
 # Performance optimization
 python scripts/optimization/performance_optimizer.py --targets database,network,compute
@@ -1500,6 +1500,8 @@ python scripts/compliance/certification_generator.py --framework sox,pci,hipaa
 # Disaster recovery simulation
 python scripts/disaster_recovery/dr_simulation.py --scenario complete_failure
 ```
+
+For comprehensive synchronization workflows, see [docs/DATABASE_SYNC_GUIDE.md](docs/DATABASE_SYNC_GUIDE.md) and `database_first_synchronization_engine.py`.
 
 ### Contact & Support
 
