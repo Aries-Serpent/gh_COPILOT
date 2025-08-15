@@ -20,6 +20,7 @@
 **Compliance:** run `python secondary_copilot_validator.py --validate` after critical changes to enforce dual-copilot and EnterpriseComplianceValidator checks.
 
 **Docs:** run `python scripts/docs_status_reconciler.py` to refresh `docs/task_stubs.md` and `docs/status_index.json` before committing documentation changes. This step is required after any documentation edit.
+**Preview features:** `scripts/ml/deploy_models.py` and `scripts/ml/model_performance_monitor.py` provide early stubs for model deployment and monitoring.
 
 **CI:** pipeline pins Ruff, enforces a 90% test pass rate, and fails if coverage regresses relative to `main`.
 
