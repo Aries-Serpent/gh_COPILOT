@@ -1177,7 +1177,7 @@ python -m pytest tests/quantum/ -v
 python -m pytest tests/security/ -v
 
 # Full integration testing
-python scripts/testing/integration_test_suite.py --comprehensive
+python -m pytest tests/integration/ -v
 ```
 
 Tests enforce a default 120 s timeout via `pytest-timeout` (`timeout = 120` in `pytest.ini`) and fail fast with `--maxfail=10 --exitfirst`. For modules that need more time, decorate slow tests with `@pytest.mark.timeout(<seconds>)` or split heavy tests into smaller pieces to keep the suite responsive.
@@ -1188,14 +1188,11 @@ Tests enforce a default 120 s timeout via `pytest-timeout` (`timeout = 120` in `
 # Test against multiple Python versions
 tox
 
-# Test against multiple environments
-python scripts/testing/multi_environment_tester.py --environments dev,staging,prod
-
 # Cross-platform compatibility testing
-python scripts/testing/cross_platform_tester.py --platforms windows,linux,macos
+python -m pytest tests -k cross_platform -v
 
 # Performance benchmarking
-python scripts/testing/performance_benchmark.py --comprehensive
+python -m pytest tests/integration/test_performance.py -v
 ```
 
 ---
