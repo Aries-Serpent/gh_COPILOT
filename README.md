@@ -29,7 +29,7 @@
 | Monitoring | continuous_monitoring_engine.py, continuous_monitoring_system.py, database_event_monitor.py, unified_monitoring_optimization_system.py | performance_monitor.py, performance_analyzer.py, regression_detector.py, resource_tracker.py | — |
 | Compliance | update_compliance_metrics.py | sox_compliance.py, hipaa_compliance.py, pci_compliance.py, gdpr_compliance.py | — |
 | Deployment | orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py | wrappers in scripts/deployment/* | legacy multi_* helpers |
-| Security | security/* (configs/tools) | scripts/security/validator.py | security/* (old paths) |
+| Security | security/* (configs/tools) | — | security/* (old paths) |
 | ML | — | deploy_models.py, model_performance_monitor.py | — |
 
 **CI:** pipeline pins Ruff, enforces a 90% test pass rate, and fails if coverage regresses relative to `main`.
@@ -40,7 +40,7 @@
 
 **Governance:** see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards. New compliance routines and monitoring capabilities are detailed in [docs/white-paper.md](docs/white-paper.md).
 
-**Security:** updated protocols and configuration files reside under `security/` including `security/enterprise_security_policy.json`, `security/access_control_matrix.json`, `security/encryption_standards.json`, and `security/security_audit_framework.json`. Use `python security/validator.py` to load these assets.
+**Security:** configuration files live under the `security/` directory (`enterprise_security_policy.json`, `access_control_matrix.json`, `encryption_standards.json`, `security_audit_framework.json`). Run `python scripts/security/validator.py` to load and list these assets.
 
 **Documentation:** quantum preparation, executive guides, and certification workflows live under `docs/` — see [docs/quantum_preparation/README.md](docs/quantum_preparation/README.md), [docs/executive_guides/README.md](docs/executive_guides/README.md), and [docs/certification/README.md](docs/certification/README.md) for details and related module links.
 
@@ -1374,15 +1374,17 @@ See [ChatGPT Bot Integration Guide](docs/chatgpt_bot_integration_guide.md) for e
 
 ### Code Quality Standards
 
+Analysis utilities in `scripts/analysis/` provide various reports, such as
+`flake8_compliance_progress_reporter.py`, `integration_score_calculator.py`,
+and `quick_database_analysis.py`.
+
 ```bash
 # Pre-commit validation
 python scripts/validation/pre_commit_validator.py
 
-# Code quality analysis
-python scripts/analysis/code_quality_analyzer.py
+# Code quality analysis (example)
+python scripts/analysis/flake8_compliance_progress_reporter.py  # see scripts/analysis for more tools
 
-# Security vulnerability scanning
-python scripts/security/vulnerability_scanner.py
 ```
 
 ---
@@ -1593,11 +1595,9 @@ Set these variables in your `.env` file or shell before running scripts:
 ### Advanced Troubleshooting
 
 ```bash
-# Comprehensive system diagnostics
-python scripts/diagnostics/system_diagnostics.py --comprehensive
-
 # Database integrity check
-python scripts/database/database_integrity_checker.py --all-databases
+# Validate integrity of all databases
+python scripts/database/database_consolidation_validator.py
 
 # Security vulnerability scan
 python security/vulnerability_scanner.py --full-scan
