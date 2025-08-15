@@ -1209,19 +1209,21 @@ python scripts/testing/performance_benchmark.py --comprehensive
 - **ML Model Accuracy:** >95% for anomaly detection models
 - **Quantum Simulation Fidelity:** >98% for supported algorithms
 
-### Performance Monitoring
+### Performance Monitoring (Preview)
+
+> The following commands are preview stubs and currently do not provide full functionality.
 
 ```bash
-# Real-time performance monitoring
+# Real-time performance monitoring (preview stub)
 python scripts/monitoring/performance_monitor.py --real-time
 
-# Historical performance analysis
+# Historical performance analysis (preview stub)
 python scripts/monitoring/performance_analyzer.py --days 30
 
-# Performance regression detection
+# Performance regression detection (preview stub)
 python scripts/monitoring/regression_detector.py --baseline main
 
-# Resource utilization tracking
+# Resource utilization tracking (preview stub)
 python scripts/monitoring/resource_tracker.py --metrics cpu,memory,disk,network
 ```
 
