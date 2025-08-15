@@ -29,7 +29,7 @@
 | Monitoring | continuous_monitoring_engine.py, continuous_monitoring_system.py, database_event_monitor.py, unified_monitoring_optimization_system.py | performance_monitor.py, performance_analyzer.py, regression_detector.py, resource_tracker.py | — |
 | Compliance | update_compliance_metrics.py | sox_compliance.py, hipaa_compliance.py, pci_compliance.py, gdpr_compliance.py | — |
 | Deployment | orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py | wrappers in scripts/deployment/* | legacy multi_* helpers |
-| Security | security/* (configs/tools) | security/validator.py | security/* (old paths) |
+| Security | security/* (configs/tools) | security/validator.py, security/vulnerability_scanner.py | security/* (old paths) |
 | ML | — | deploy_models.py, model_performance_monitor.py | — |
 
 **CI:** pipeline pins Ruff, enforces a 90% test pass rate, and fails if coverage regresses relative to `main`.
@@ -2123,7 +2123,7 @@ python scripts/deployment/enterprise_deployment_validator.py
 *Complete High-Performance HTTP Archive (HAR) Analysis with Advanced Enterprise Integration*
 
 **Final Statistics:**
-- **Total Lines:** 554,802 (exceeding original 1,740 requirement)
+- **Total Lines:** 1,154,678 (exceeding original 1,740 requirement)
 - **Missing Content Recovered:** 100%
 - **Format Conversion:** RST → Markdown (complete)
 - **Technical Accuracy:** Validated
@@ -2133,7 +2133,7 @@ python scripts/deployment/enterprise_deployment_validator.py
 _These statistics are auto-refreshed by the Codex task._
 
 **Key Improvements Made:**
-1. ✅ **Database Count:** 51 databases verified
+1. ✅ **Database Count:** 52 databases verified
 2. ✅ **Extended Command References:** Added 50+ enterprise commands
 3. ✅ **Advanced API Documentation:** 24 endpoints documented
 4. ✅ **Security Framework:** Complete enterprise security coverage
