@@ -2000,6 +2000,31 @@ python scripts/optimization/cpu_optimizer.py --thread-pool-tuning
 python scripts/optimization/network_optimizer.py --bandwidth-optimization
 ```
 
+### Quantum Scripts
+
+The repository includes the following quantum-related scripts:
+
+- `quantum_algorithm_library_expansion.py` – lightweight algorithm demonstrations.
+- `quantum_algorithms_functional.py` – reference implementations of common algorithms.
+- `quantum_clustering_file_organization.py` – wrapper for quantum clustering utilities.
+- `quantum_database_search.py` – quantum-inspired database search helpers.
+- `quantum_integration_orchestrator.py` – command-line orchestrator selecting provider backends.
+- `quantum_neural_networks_predictive_maintenance.py` – quantum neural network utilities.
+- `quantum_optimizer.py` – optimization helpers with anti-recursion checks.
+- `quantum_performance_integration_tester.py` – integration test wrapper.
+- `scripts/quantum/quantum_algorithm_suite.py` – placeholder suite for algorithm experiments.
+- `scripts/quantum/quantum_database_processor.py` – simulated quantum-enhanced queries.
+- `scripts/quantum/run_hardware_demo.py` – simple circuit executed on IBM hardware when available.
+
+Optional placeholder stubs located under `scripts/quantum_placeholders/`:
+
+- `quantum_annealing.py`
+- `quantum_placeholder_algorithm.py`
+- `quantum_superposition_search.py`
+- `quantum_entanglement_correction.py`
+
+## Planned Features
+
 ### Advanced Machine Learning Pipeline
 
 The ML pipeline provides enterprise-grade machine learning capabilities:
