@@ -1019,11 +1019,8 @@ python scripts/validation/comprehensive_session_integrity_validator.py --full-ch
 # Anti-recursion validation
 python scripts/utilities/emergency_c_temp_violation_prevention.py --emergency-cleanup
 
-# Advanced compliance framework validation
-python scripts/compliance/compliance_framework_validator.py --full-audit
-
-# Security protocol validation
-python security/enterprise_security_validator.py --comprehensive
+# Security configuration validation
+python scripts/security/validator.py
 ```
 
 ### Advanced Compliance Framework
@@ -1032,19 +1029,7 @@ The enterprise compliance framework includes multiple validation layers:
 
 #### Multi-Environment Compliance
 
-```bash
-# Development environment validation
-python scripts/compliance/environment_validator.py --env development
-
-# Staging environment validation
-python scripts/compliance/environment_validator.py --env staging
-
-# Production environment validation  
-python scripts/compliance/environment_validator.py --env production
-
-# Cross-environment consistency check
-python scripts/compliance/cross_environment_validator.py --all-environments
-```
+Environment-specific compliance validators are under development and currently unavailable.
 
 #### Security Compliance Auditing
 
@@ -1053,16 +1038,7 @@ python scripts/compliance/cross_environment_validator.py --all-environments
 python security/security_audit_comprehensive.py --generate-report
 
 # Load security configuration assets
-python security/validator.py
-
-# Access control matrix validation
-python security/access_control_validator.py --matrix-check
-
-# Encryption standards verification
-python security/encryption_validator.py --standards-check
-
-# Enterprise security policy enforcement
-python security/enterprise_policy_enforcer.py --strict-mode
+python scripts/security/validator.py
 ```
 
 ---
@@ -1480,8 +1456,6 @@ python scripts/quantum/advanced_quantum_simulator.py --backend ibm_qasm_simulato
 # ML model training and validation
 python scripts/ml/enterprise_ml_trainer.py --model-type isolation_forest
 
-# Comprehensive compliance framework validation
-python scripts/compliance/compliance_framework_validator.py --full-audit
 
 # Deployment orchestration
 python scripts/orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py --start
@@ -1620,8 +1594,8 @@ python scripts/database/database_consolidation_validator.py
 # Security vulnerability scan
 python security/vulnerability_scanner.py --full-scan
 
-# ML model validation
-python scripts/ml/model_validator.py --all-models
+# ML model performance monitoring
+python scripts/ml/model_performance_monitor.py
 
 # Quantum simulation diagnostics
 python scripts/quantum/quantum_diagnostics.py --simulator-check
@@ -1692,7 +1666,7 @@ Several small modules provide common helpers:
 
 ### ML & AI Utilities
 - `scripts.ml.autonomous_ml_optimizer.AutonomousMLOptimizer` – ML-powered optimization engine
-- `scripts.ml.model_validator.ModelValidator` – comprehensive ML model validation
+- `scripts.ml.model_performance_monitor.monitor_performance` – placeholder model performance monitoring
 - `scripts.ml.training_pipeline_orchestrator.TrainingPipelineOrchestrator` – automated ML training workflows
 
 ### Quantum Computing Utilities
@@ -1896,7 +1870,7 @@ python security/penetration_test_simulator.py --advanced
 python security/policy_enforcement_engine.py --strict-mode
 
 # Compliance validation (SOX, HIPAA, PCI-DSS)
-python security/compliance_validator.py --frameworks all
+python secondary_copilot_validator.py --validate
 ```
 
 ### Multi-Environment Configuration
