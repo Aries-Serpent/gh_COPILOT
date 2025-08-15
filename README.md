@@ -168,7 +168,7 @@ Compliance enforcement also blocks destructive commands (`rm -rf`, `mkfs`, `shut
 - Python 3.8+
 - PowerShell (for Windows automation)
 - SQLite3
-- Required packages: `pip install -r requirements.txt` (includes `py7zr` for 7z archive support)
+- The provided setup script installs required packages (includes `py7zr` for 7z archive support)
 - Quantum routines run on Qiskit simulators; hardware execution is not yet supported, and any provider credentials are ignored
 
 ### Installation & Setup
@@ -186,9 +186,9 @@ cp .env.example .env
 
 # 2. Set the external backup directory and run the setup script
 export GH_COPILOT_BACKUP_ROOT=/path/to/external/backups
-bash setup.sh            # installs core and test dependencies
+./setup.sh               # installs core and test dependencies
 # Or include optional extras
-GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh --with-optional
+GH_COPILOT_BACKUP_ROOT=/path/to/external/backups ./setup.sh --with-optional
 # Always run this script before executing tests or automation tasks.
 # The script installs `requirements.txt` and `requirements-test.txt` by default,
 # runs `scripts/run_migrations.py`, and prepares environment variables.
@@ -1420,7 +1420,7 @@ python scripts/code_placeholder_audit.py --cleanup
 python scripts/code_placeholder_audit.py --summary-json results/placeholder_summary.json
 
 # CI runs the audit via GitHub Actions using `actions/setup-python` and
-# `pip install -r requirements.txt` to ensure dependencies are present.
+# the repository's setup script to ensure dependencies are present.
 
 # The audit automatically populates `code_audit_log` in analytics.db for
 # compliance reporting. After fixing issues, run:
@@ -1790,7 +1790,8 @@ See [Continuous Improvement Roadmap](docs/continuous_improvement_roadmap.md), [S
 The `src/gh_copilot` package provides a minimal database-first service with a FastAPI app and Typer CLI.
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
+./setup.sh
+source .venv/bin/activate
 pip install -e .
 gh-copilot migrate
 gh-copilot seed-models
