@@ -1321,8 +1321,8 @@ python scripts/monitoring/resource_tracker.py --metrics cpu,memory,disk,network
 
 - **[Multi-Environment Setup](docs/MULTI_ENVIRONMENT_SETUP.md)** - deployment across environments
 - **[Scaling Configuration](docs/SCALING_CONFIGURATION.md)** - enterprise scaling strategies
-- **[High Availability Setup](docs/HIGH_AVAILABILITY_SETUP.md)** - HA deployment procedures
-- **[Disaster Recovery Procedures](docs/DISASTER_RECOVERY_PROCEDURES.md)** - comprehensive DR planning
+- **[High Availability & Disaster Recovery](scripts/disaster_recovery/)** - backup scheduling and failover utilities via `unified_disaster_recovery_system.py`
+- **[Backup Compliance Guide](documentation/BACKUP_COMPLIANCE_GUIDE.md)** - external backup requirements and recovery procedures
 - **[Compliance Certification Workflows](docs/COMPLIANCE_CERTIFICATION.md)** - certification procedures
 - **[API Documentation](docs/API_DOCUMENTATION.md)** - comprehensive API reference
 - **[WebSocket API Specifications](docs/WEBSOCKET_API.md)** - real-time API documentation
@@ -1941,23 +1941,11 @@ python scripts/environment/migrate_environment.py --from dev --to staging --vali
 
 ### High Availability Setup
 
-Enterprise deployments support high availability configurations:
+Enterprise deployments support high availability configurations through existing disaster recovery and failover tooling:
 
-#### Load Balancing Configuration
-
-```bash
-# Configure load balancer
-python scripts/ha/configure_load_balancer.py --nodes 3 --health-check-interval 30
-
-# Setup database clustering
-python scripts/ha/setup_database_cluster.py --primary-node node1 --replicas node2,node3
-
-# Configure failover mechanisms
-python scripts/ha/configure_failover.py --automatic --notification-enabled
-
-# Test disaster recovery
-python scripts/ha/test_disaster_recovery.py --scenario node_failure
-```
+- Backup scheduling and point-in-time restores live under [`scripts/disaster_recovery/`](scripts/disaster_recovery/).
+- [`unified_disaster_recovery_system.py`](unified_disaster_recovery_system.py) provides a stable interface for recording backup events and executing restores.
+- Service failover is coordinated by [`scripts/enterprise_orchestration_engine.py`](scripts/enterprise_orchestration_engine.py) using templates like [`config/production_failover_config.json`](config/production_failover_config.json).
 
 #### Monitoring and Alerting
 
