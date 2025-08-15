@@ -1488,8 +1488,8 @@ python scripts/security/enterprise_security_auditor.py --comprehensive --generat
 # Cross-environment synchronization
 python scripts/sync/cross_environment_sync.py --source prod --target staging --validate
 
-# Performance optimization
-python scripts/optimization/performance_optimizer.py --targets database,network,compute
+# Automated workspace optimization
+python scripts/optimization/automated_optimization_engine.py --workspace .
 
 # Autonomous system health check
 python scripts/autonomous/system_health_checker.py --deep-analysis
@@ -1968,36 +1968,20 @@ python scripts/monitoring/test_alerts.py --simulate-failures
 
 Advanced performance optimization capabilities:
 
-#### Database Optimization
+#### Optimization Toolkit
 
 ```bash
-# Database performance analysis
-python scripts/optimization/database_performance_analyzer.py --comprehensive
+# Automated code cleanup and style fixes
+python scripts/optimization/automated_optimization_engine.py --workspace .
 
-# Query optimization
-python scripts/optimization/query_optimizer.py --analyze-slow-queries
+# Deployment optimization and hardening
+python scripts/optimization/deployment_optimization_engine.py --config config/enterprise.json
 
-# Index optimization
-python scripts/optimization/index_optimizer.py --rebuild-suggested
+# Flake8-based code quality enhancement
+python scripts/optimization/enterprise_flake8_quality_enhancement_system.py --path server/
 
-# Connection pool optimization
-python scripts/optimization/connection_pool_optimizer.py --tune-parameters
-```
-
-#### Application Performance Tuning
-
-```bash
-# Application profiling
-python scripts/optimization/application_profiler.py --detailed-analysis
-
-# Memory optimization
-python scripts/optimization/memory_optimizer.py --garbage-collection-tuning
-
-# CPU optimization
-python scripts/optimization/cpu_optimizer.py --thread-pool-tuning
-
-# Network optimization
-python scripts/optimization/network_optimizer.py --bandwidth-optimization
+# Security compliance checks and remediation
+python scripts/optimization/security_compliance_enhancer.py --policy security/enterprise_security_policy.json
 ```
 
 ### Advanced Machine Learning Pipeline
