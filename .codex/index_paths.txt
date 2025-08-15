@@ -521,7 +521,6 @@ scripts/run_migrations.py
 scripts/run_tests_safe.py
 scripts/safe_database_migration_engine.py
 scripts/schemas/status_index.schema.json
-scripts/security/validator.py
 scripts/seed_templates.py
 scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py
 scripts/session/anti_recursion_enforcer.py
