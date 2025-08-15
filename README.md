@@ -20,7 +20,7 @@
 **Compliance:** run `python secondary_copilot_validator.py --validate` after critical changes to enforce dual-copilot and EnterpriseComplianceValidator checks.
 
 **Docs:** run `python scripts/docs_status_reconciler.py` to refresh `docs/task_stubs.md` and `docs/status_index.json` before committing documentation changes. This step is required after any documentation edit.
-**Preview features:** `scripts/ml/deploy_models.py`, `scripts/ml/model_performance_monitor.py`, `scripts/monitoring/performance_monitor.py`, `scripts/performance/bottleneck_analyzer.py`, `scripts/integration/sap_integration.py`, `scripts/integration/jira_integration.py`, and `scripts/audit/audit_report_generator.py` provide early stubs for model deployment, monitoring, integration, and audits.
+**Preview features:** `scripts/ml/deploy_models.py`, `scripts/ml/model_performance_monitor.py`, `scripts/monitoring/performance_monitor.py`, `scripts/performance/bottleneck_analyzer.py`, `scripts/integration/sap_integration.py`, `scripts/integration/jira_integration.py`, `scripts/audit/audit_report_generator.py`, `security/validator.py`, and `security/vulnerability_scanner.py` provide early stubs for model deployment, monitoring, integration, audits, and security.
 
 ### Implemented vs. Planned Features (Auto‑curated)
 
@@ -29,7 +29,7 @@
 | Monitoring | continuous_monitoring_engine.py, continuous_monitoring_system.py, database_event_monitor.py, unified_monitoring_optimization_system.py | performance_monitor.py, performance_analyzer.py, regression_detector.py, resource_tracker.py | — |
 | Compliance | update_compliance_metrics.py | sox_compliance.py, hipaa_compliance.py, pci_compliance.py, gdpr_compliance.py | — |
 | Deployment | orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py | wrappers in scripts/deployment/* | legacy multi_* helpers |
-| Security | security/* (configs/tools) | scripts/security/validator.py | security/* (old paths) |
+| Security | security/* (configs/tools) | security/validator.py | security/* (old paths) |
 | ML | — | deploy_models.py, model_performance_monitor.py | — |
 
 **CI:** pipeline pins Ruff, enforces a 90% test pass rate, and fails if coverage regresses relative to `main`.
@@ -1382,7 +1382,7 @@ python scripts/validation/pre_commit_validator.py
 python scripts/analysis/code_quality_analyzer.py
 
 # Security vulnerability scanning
-python scripts/security/vulnerability_scanner.py
+python security/vulnerability_scanner.py
 ```
 
 ---

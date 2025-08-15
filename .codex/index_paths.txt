@@ -141,6 +141,11 @@ scripts/MISSION_COMPLETION_SUMMARY.py
 scripts/PRODUCTION_DATABASE_ANALYZER.py
 scripts/STAGING_FILE_INGESTION_ANALYSIS.py
 scripts/__init__.py
+scripts/__pycache__/__init__.cpython-312.pyc
+scripts/__pycache__/correction_logger_and_rollback.cpython-312.pyc
+scripts/__pycache__/docs_metrics_validator.cpython-312.pyc
+scripts/__pycache__/run_migrations.cpython-312.pyc
+scripts/__pycache__/validate_docs_metrics.cpython-312.pyc
 scripts/advanced_visual_processing_engine.py
 scripts/analysis/COMPREHENSIVE_MODULAR_BREAKDOWN_ANALYSIS.py
 scripts/analysis/comprehensive_campaign_final_report.py
@@ -250,6 +255,11 @@ scripts/cross_database_aggregation_system.py
 scripts/cross_reference_validator.py
 scripts/dashboard_placeholder_sync.py
 scripts/database/__init__.py
+scripts/database/__pycache__/__init__.cpython-312.pyc
+scripts/database/__pycache__/add_rollback_logs.cpython-312.pyc
+scripts/database/__pycache__/add_rollback_strategy_history.cpython-312.pyc
+scripts/database/__pycache__/add_violation_logs.cpython-312.pyc
+scripts/database/__pycache__/size_compliance_checker.cpython-312.pyc
 scripts/database/add_code_audit_log.py
 scripts/database/add_legacy_cleanup_log.py
 scripts/database/add_rollback_logs.py
@@ -483,6 +493,7 @@ scripts/quick_database_query.py
 scripts/quick_filesystem_check.py
 scripts/reclone_repo.py
 scripts/refined_production_builder.py
+scripts/regenerated/.github/copilot/conversations_with_human/disaster_recovery_enhancer_edited.py
 scripts/regenerated/ENTERPRISE_QUALITY_ENHANCEMENT.py
 scripts/regenerated/comprehensive_database_structure_analyzer.py
 scripts/regenerated/cross_database_aggregation_implementation.py
@@ -593,6 +604,7 @@ scripts/utilities/web_gui_integration_system.py
 scripts/utilities/web_gui_integration_system.pyi
 scripts/validate_docs_metrics.py
 scripts/validate_roadmap.py
+scripts/validation/__pycache__/secondary_copilot_validator.cpython-312.pyc
 scripts/validation/actual_critical_script_tester.py
 scripts/validation/complete_root_maintenance_validator.py
 scripts/validation/comprehensive_functionality_revalidator.py
