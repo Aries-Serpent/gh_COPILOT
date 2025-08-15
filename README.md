@@ -1593,9 +1593,6 @@ Set these variables in your `.env` file or shell before running scripts:
 ### Advanced Troubleshooting
 
 ```bash
-# Comprehensive system diagnostics
-python scripts/diagnostics/system_diagnostics.py --comprehensive
-
 # Database integrity check
 python scripts/database/database_integrity_checker.py --all-databases
 
