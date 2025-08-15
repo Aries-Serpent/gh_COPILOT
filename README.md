@@ -1501,7 +1501,7 @@ python scripts/autonomous/system_health_checker.py --deep-analysis
 # Compliance certification generation
 python scripts/compliance/certification_generator.py --framework sox,pci,hipaa
 
-# Disaster recovery simulation
+# Disaster recovery simulation via orchestrator
 python scripts/disaster_recovery/dr_simulation.py --scenario complete_failure
 ```
 
