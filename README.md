@@ -29,7 +29,7 @@
 | Monitoring | continuous_monitoring_engine.py, continuous_monitoring_system.py, database_event_monitor.py, unified_monitoring_optimization_system.py | performance_monitor.py, performance_analyzer.py, regression_detector.py, resource_tracker.py | — |
 | Compliance | update_compliance_metrics.py | sox_compliance.py, hipaa_compliance.py, pci_compliance.py, gdpr_compliance.py | — |
 | Deployment | orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py | wrappers in scripts/deployment/* | legacy multi_* helpers |
-| Security | security/* (configs/tools) | scripts/security/validator.py | scripts/security/* (old paths) |
+| Security | security/* (configs/tools) | scripts/security/validator.py | security/* (old paths) |
 | ML | — | deploy_models.py, model_performance_monitor.py | — |
 
 **CI:** pipeline pins Ruff, enforces a 90% test pass rate, and fails if coverage regresses relative to `main`.
@@ -40,7 +40,7 @@
 
 **Governance:** see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards. New compliance routines and monitoring capabilities are detailed in [docs/white-paper.md](docs/white-paper.md).
 
-**Security:** updated protocols and configuration files reside under `security/` including `security/enterprise_security_policy.json`, `security/access_control_matrix.json`, `security/encryption_standards.json`, and `security/security_audit_framework.json`. Use `python scripts/security/validator.py` to load these assets.
+**Security:** updated protocols and configuration files reside under `security/` including `security/enterprise_security_policy.json`, `security/access_control_matrix.json`, `security/encryption_standards.json`, and `security/security_audit_framework.json`. Use `python security/validator.py` to load these assets.
 
 **Documentation:** quantum preparation, executive guides, and certification workflows live under `docs/` — see [docs/quantum_preparation/README.md](docs/quantum_preparation/README.md), [docs/executive_guides/README.md](docs/executive_guides/README.md), and [docs/certification/README.md](docs/certification/README.md) for details and related module links.
 
@@ -2199,7 +2199,7 @@ python scripts/deployment/canary_deployment.py --gradual-rollout --monitoring-ba
 *Complete High-Performance HTTP Archive (HAR) Analysis with Advanced Enterprise Integration*
 
 **Final Statistics:**
-- **Total Lines:** 2,219 (exceeding original 1,740 requirement)
+- **Total Lines:** 2,221 (exceeding original 1,740 requirement)
 - **Missing Content Recovered:** 100%
 - **Format Conversion:** RST → Markdown (complete)
 - **Technical Accuracy:** Validated
@@ -2209,7 +2209,7 @@ python scripts/deployment/canary_deployment.py --gradual-rollout --monitoring-ba
 _These statistics are auto-refreshed by the Codex task._
 
 **Key Improvements Made:**
-1. ✅ **Database Count:** 52 databases verified
+1. ✅ **Database Count:** 51 databases verified
 2. ✅ **Extended Command References:** Added 50+ enterprise commands
 3. ✅ **Advanced API Documentation:** 24 endpoints documented
 4. ✅ **Security Framework:** Complete enterprise security coverage
