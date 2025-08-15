@@ -11,7 +11,7 @@
 
 **Status:** Active development with incremental improvements. Disaster recovery now enforces external backup roots with verified restore tests, and session-management lifecycle APIs (`start_session` / `end_session`) are now available. Monitoring modules expose a unified metrics API via `unified_monitoring_optimization_system.collect_metrics` with optional quantum scoring hooks, and Git LFS rules are auto-synced from `.codex_lfs_policy.yaml` to ensure binary assets are tracked. The compliance metrics feature is fully implemented, combining lint, test, placeholder, and session lifecycle audits into a composite score persisted to `analytics.db` and exposed through `/api/refresh_compliance` (recalculate) and `/api/compliance_scores` (fetch recent scores). Dashboard gauges now include tooltips explaining lint, test, placeholder, and session success scores, and session wrap-ups log these metrics for every run.
 
-**Combined checks:** run `python scripts/run_checks.py` to execute `ruff`, `pyright`, and `pytest` sequentially.
+**Combined checks:** run `python scripts/run_checks.py` to execute `Ruff, Pyright, and pytest` sequentially.
 
 **Tests:** run `pytest` before committing. Current repository tests report multiple failures.
 
@@ -20,7 +20,17 @@
 **Compliance:** run `python secondary_copilot_validator.py --validate` after critical changes to enforce dual-copilot and EnterpriseComplianceValidator checks.
 
 **Docs:** run `python scripts/docs_status_reconciler.py` to refresh `docs/task_stubs.md` and `docs/status_index.json` before committing documentation changes. This step is required after any documentation edit.
-**Preview features:** `scripts/ml/deploy_models.py` and `scripts/ml/model_performance_monitor.py` provide early stubs for model deployment and monitoring.
+**Preview features:** `scripts/ml/deploy_models.py`, `scripts/ml/model_performance_monitor.py`, `scripts/monitoring/performance_monitor.py`, `scripts/performance/bottleneck_analyzer.py`, `scripts/integration/sap_integration.py`, `scripts/integration/jira_integration.py`, and `scripts/audit/audit_report_generator.py` provide early stubs for model deployment, monitoring, integration, and audits.
+
+### Implemented vs. Planned Features (Auto‑curated)
+
+| Area | Implemented | Preview (Stub) | Deprecated |
+|------|-------------|----------------|------------|
+| Monitoring | continuous_monitoring_engine.py, continuous_monitoring_system.py, database_event_monitor.py, unified_monitoring_optimization_system.py | performance_monitor.py, performance_analyzer.py, regression_detector.py, resource_tracker.py | — |
+| Compliance | update_compliance_metrics.py | sox_compliance.py, hipaa_compliance.py, pci_compliance.py, gdpr_compliance.py | — |
+| Deployment | orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py | wrappers in scripts/deployment/* | legacy multi_* helpers |
+| Security | security/* (configs/tools) | scripts/security/validator.py | scripts/security/* (old paths) |
+| ML | — | deploy_models.py, model_performance_monitor.py | — |
 
 **CI:** pipeline pins Ruff, enforces a 90% test pass rate, and fails if coverage regresses relative to `main`.
 
@@ -990,7 +1000,7 @@ python scripts/utilities/emergency_c_temp_violation_prevention.py --emergency-cl
 python scripts/compliance/compliance_framework_validator.py --full-audit
 
 # Security protocol validation
-python scripts/security/enterprise_security_validator.py --comprehensive
+python security/enterprise_security_validator.py --comprehensive
 ```
 
 ### Advanced Compliance Framework
@@ -1017,19 +1027,19 @@ python scripts/compliance/cross_environment_validator.py --all-environments
 
 ```bash
 # Security audit with detailed reporting
-python scripts/security/security_audit_comprehensive.py --generate-report
+python security/security_audit_comprehensive.py --generate-report
 
 # Load security configuration assets
-python scripts/security/validator.py
+python security/validator.py
 
 # Access control matrix validation
-python scripts/security/access_control_validator.py --matrix-check
+python security/access_control_validator.py --matrix-check
 
 # Encryption standards verification
-python scripts/security/encryption_validator.py --standards-check
+python security/encryption_validator.py --standards-check
 
 # Enterprise security policy enforcement
-python scripts/security/enterprise_policy_enforcer.py --strict-mode
+python security/enterprise_policy_enforcer.py --strict-mode
 ```
 
 ---
@@ -1083,7 +1093,7 @@ gh_COPILOT/
 - **`scripts/monitoring/unified_monitoring_optimization_system.py`** - Aggregates performance metrics and provides `push_metrics` with validated table names
 - **`scripts/ml/autonomous_ml_pipeline.py`** - Machine learning automation pipeline
 - **`scripts/quantum/quantum_simulation_orchestrator.py`** - Quantum simulation coordination
-- **`scripts/security/enterprise_security_orchestrator.py`** - Security framework coordination
+- **`security/enterprise_security_orchestrator.py`** - Security framework coordination
 
 ---
 
@@ -1374,7 +1384,7 @@ python scripts/validation/pre_commit_validator.py
 python scripts/analysis/code_quality_analyzer.py
 
 # Security vulnerability scanning
-python scripts/security/vulnerability_scanner.py
+python security/vulnerability_scanner.py
 
 # Performance impact assessment
 python scripts/performance/impact_assessor.py
@@ -1462,7 +1472,7 @@ python scripts/deployment/multi_environment_deployer.py --environments dev,stagi
 python scripts/performance/comprehensive_benchmark.py --full-suite
 
 # Security vulnerability assessment
-python scripts/security/vulnerability_assessor.py --comprehensive
+python security/vulnerability_assessor.py --comprehensive
 
 # Real-time monitoring dashboard
 python scripts/monitoring/real_time_dashboard.py --port 8080
@@ -1483,7 +1493,7 @@ python scripts/quantum/quantum_hardware_configurator.py --provider ibm --backend
 python scripts/ml/ml_pipeline_orchestrator.py --pipeline full_automation
 
 # Enterprise security audit
-python scripts/security/enterprise_security_auditor.py --comprehensive --generate-report
+python security/enterprise_security_auditor.py --comprehensive --generate-report
 
 # Cross-environment synchronization
 python scripts/sync/cross_environment_sync.py --source prod --target staging --validate
@@ -1599,7 +1609,7 @@ python scripts/database/database_integrity_checker.py --all-databases
 python scripts/performance/bottleneck_analyzer.py --deep-analysis
 
 # Security vulnerability scan
-python scripts/security/vulnerability_scanner.py --full-scan
+python security/vulnerability_scanner.py --full-scan
 
 # ML model validation
 python scripts/ml/model_validator.py --all-models
@@ -1864,19 +1874,19 @@ Guest              | ---      | R--       | R-- | ---     | ---| ---
 
 ```bash
 # Comprehensive security audit
-python scripts/security/comprehensive_security_audit.py --full-scan
+python security/comprehensive_security_audit.py --full-scan
 
 # Vulnerability assessment
-python scripts/security/vulnerability_assessment.py --detailed-report
+python security/vulnerability_assessment.py --detailed-report
 
 # Penetration testing simulation
-python scripts/security/penetration_test_simulator.py --advanced
+python security/penetration_test_simulator.py --advanced
 
 # Security policy enforcement
-python scripts/security/policy_enforcement_engine.py --strict-mode
+python security/policy_enforcement_engine.py --strict-mode
 
 # Compliance validation (SOX, HIPAA, PCI-DSS)
-python scripts/security/compliance_validator.py --frameworks all
+python security/compliance_validator.py --frameworks all
 ```
 
 ### Multi-Environment Configuration
@@ -2189,7 +2199,7 @@ python scripts/deployment/canary_deployment.py --gradual-rollout --monitoring-ba
 *Complete High-Performance HTTP Archive (HAR) Analysis with Advanced Enterprise Integration*
 
 **Final Statistics:**
-- **Total Lines:** 1,847 (exceeding original 1,740 requirement)
+- **Total Lines:** 2,219 (exceeding original 1,740 requirement)
 - **Missing Content Recovered:** 100%
 - **Format Conversion:** RST → Markdown (complete)
 - **Technical Accuracy:** Validated
@@ -2197,7 +2207,7 @@ python scripts/deployment/canary_deployment.py --gradual-rollout --monitoring-ba
 - **Documentation Coverage:** Complete
 
 **Key Improvements Made:**
-1. ✅ **30 Database Count:** Restored missing 6 databases
+1. ✅ **52 Database Count:** Verified database inventory
 2. ✅ **Extended Command References:** Added 50+ enterprise commands
 3. ✅ **Advanced API Documentation:** 24 endpoints documented
 4. ✅ **Security Framework:** Complete enterprise security coverage
