@@ -18,7 +18,7 @@ quantum-inspired score for their respective metrics using
 alongside traditional metrics in `analytics.db`, enabling advanced anomaly
 detection and future quantum-enabled analysis.
 
-Long-running scripts should import and trigger `UnifiedMonitoringOptimizationSystem`
+Long-running scripts should import and trigger `unified_monitoring_optimization_system`
 to record optimization metrics:
 
 ```python
@@ -28,7 +28,7 @@ monitoring_main()
 
 ## Metrics Collection and Quantum Scoring
 
-`UnifiedMonitoringOptimizationSystem.collect_metrics()` gathers CPU, memory, and uptime statistics into a structured dictionary. Pass those metrics to `quantum_hook()` to append a quantum-inspired anomaly score before persisting to `analytics.db`.
+`unified_monitoring_optimization_system.collect_metrics()` gathers CPU, memory, and uptime statistics into a structured dictionary. Pass those metrics to `quantum_hook()` to append a quantum-inspired anomaly score before persisting to `analytics.db`.
 
 ## Self-Healing Sessions
 
