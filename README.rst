@@ -1351,12 +1351,16 @@ See [ChatGPT Bot Integration Guide](docs/chatgpt_bot_integration_guide.md) for e
 
 ### Code Quality Standards
 
+Analysis utilities in `scripts/analysis/` provide various reports, such as
+`flake8_compliance_progress_reporter.py`, `integration_score_calculator.py`,
+and `quick_database_analysis.py`.
+
 ```bash
 # Pre-commit validation
 python scripts/validation/pre_commit_validator.py
 
-# Code quality analysis
-python scripts/analysis/code_quality_analyzer.py
+# Code quality analysis (example)
+python scripts/analysis/flake8_compliance_progress_reporter.py  # see scripts/analysis for more tools
 
 # Security vulnerability scanning
 python scripts/security/vulnerability_scanner.py
