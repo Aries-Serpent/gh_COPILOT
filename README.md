@@ -1460,8 +1460,8 @@ python scripts/ml/enterprise_ml_trainer.py --model-type isolation_forest
 # Comprehensive compliance framework validation
 python scripts/compliance/compliance_framework_validator.py --full-audit
 
-# Multi-environment deployment
-python scripts/deployment/multi_environment_deployer.py --environments dev,staging,prod
+# Deployment orchestration
+python scripts/orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py --start
 
 # Security vulnerability assessment
 python security/vulnerability_assessor.py --comprehensive
@@ -2139,38 +2139,14 @@ python scripts/integration/custom_itsm_integration.py --ticket-lifecycle --sla-m
 
 ### Global Deployment Framework
 
-Multi-region deployment capabilities:
-
-#### Geographic Distribution
+Use built-in tooling for reliable rollouts:
 
 ```bash
-# Multi-region setup
-python scripts/deployment/multi_region_setup.py --regions us-east,eu-west,asia-pacific
+# Start orchestrator service
+python scripts/orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py --start
 
-# Data replication
-python scripts/deployment/data_replication.py --active-active --conflict-resolution
-
-# Geographic load balancing
-python scripts/deployment/geo_load_balancer.py --latency-routing --health-monitoring
-
-# Disaster recovery across regions
-python scripts/deployment/global_disaster_recovery.py --rpo-minutes --rto-minutes
-```
-
-#### Deployment Automation
-
-```bash
-# Infrastructure as Code
-python scripts/deployment/infrastructure_as_code.py --terraform --ansible --kubernetes
-
-# CI/CD pipeline
-python scripts/deployment/cicd_pipeline.py --jenkins --gitlab --github-actions
-
-# Blue-green deployment
-python scripts/deployment/blue_green_deployment.py --zero-downtime --automated-rollback
-
-# Canary deployment
-python scripts/deployment/canary_deployment.py --gradual-rollout --monitoring-based
+# Validate enterprise deployment
+python scripts/deployment/enterprise_deployment_validator.py
 ```
 
 ---
