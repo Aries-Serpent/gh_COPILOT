@@ -181,6 +181,7 @@ scripts/archived_deployment_scripts/MIGRATION_20250707_061405/enterprise_gh_copi
 scripts/archived_deployment_scripts/MIGRATION_20250707_061405/enterprise_gh_copilot_deployment_orchestrator_windows.py.metadata.json
 scripts/archived_deployment_scripts/MIGRATION_20250707_061405/final_enterprise_deployment_executor.py.metadata.json
 scripts/archived_deployment_scripts/MIGRATION_20250707_061405/integrated_deployment_orchestrator.py.metadata.json
+scripts/audit/audit_report_generator.py
 scripts/automation/ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py
 scripts/automation/archive_migration_executor.py
 scripts/automation/archive_migration_executor_corrected.py
@@ -432,6 +433,8 @@ scripts/generated/phase_5_completion_report.json
 scripts/generated/placeholder_conversion_recommendations.json
 scripts/github_copilot_instruction_alignment_confirmer.py
 scripts/ingest_test_and_lint_results.py
+scripts/integration/jira_integration.py
+scripts/integration/sap_integration.py
 scripts/lfs_full_repair.sh
 scripts/lfs_restore.sh
 scripts/maintenance/consistency_cron.sh
@@ -466,6 +469,7 @@ scripts/optimization/windows_compatible_optimizer_async.py
 scripts/orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py
 scripts/orchestrators/unified_wrapup_orchestrator.py
 scripts/perfect_100_excellence_booster.py
+scripts/performance/bottleneck_analyzer.py
 scripts/phase10_universal_mastery_demo.py
 scripts/phase10_universal_mastery_intelligence.py
 scripts/phase4_comprehensive_completion_summary.py
