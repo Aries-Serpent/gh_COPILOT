@@ -49,6 +49,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 
 > **Roadmap**
 > Hardware support is evolving and falls back to simulation if initialization fails.
+> Performance tooling is planned for a future release.
 
 **Phase 5 AI**
 Advanced AI integration features operate in simulation mode by default and ignore hardware execution flags.
@@ -1375,9 +1376,6 @@ python scripts/analysis/code_quality_analyzer.py
 
 # Security vulnerability scanning
 python scripts/security/vulnerability_scanner.py
-
-# Performance impact assessment
-python scripts/performance/impact_assessor.py
 ```
 
 ---
@@ -1457,9 +1455,6 @@ python scripts/compliance/compliance_framework_validator.py --full-audit
 
 # Multi-environment deployment
 python scripts/deployment/multi_environment_deployer.py --environments dev,staging,prod
-
-# Performance benchmarking
-python scripts/performance/comprehensive_benchmark.py --full-suite
 
 # Security vulnerability assessment
 python scripts/security/vulnerability_assessor.py --comprehensive
@@ -1594,9 +1589,6 @@ python scripts/diagnostics/system_diagnostics.py --comprehensive
 
 # Database integrity check
 python scripts/database/database_integrity_checker.py --all-databases
-
-# Performance bottleneck analysis
-python scripts/performance/bottleneck_analyzer.py --deep-analysis
 
 # Security vulnerability scan
 python scripts/security/vulnerability_scanner.py --full-scan
