@@ -1,25 +1,19 @@
 {
-  "compliance-metrics": {
-    "status": "started",
-    "file": "PHASE5_TASKS_STARTED.md#compliance-metrics"
+  "timestamp": "2025-08-16T07:39:57.210432+00:00",
+  "weights": {
+    "lint": 0.25,
+    "tests": 0.45,
+    "placeholder": 0.15,
+    "session": 0.15
   },
-  "database-synchronization-engine": {
-    "status": "started",
-    "file": "PHASE5_TASKS_STARTED.md#database-synchronization-engine"
+  "scores": {
+    "lint": 100.0,
+    "tests": 51.53,
+    "placeholder": 0.0,
+    "session": 80.0,
+    "composite": 60.188500000000005
   },
-  "flask-dashboard": {
-    "status": "started",
-    "file": "PHASE5_TASKS_STARTED.md#flask-dashboard"
-  },
-  "unified-disaster-recovery-system": {
-    "status": "started",
-    "file": "PHASE5_TASKS_STARTED.md#unified-disaster-recovery-system"
-  },
-  "compliance_score": 60.19,
-  "threshold": 85.0,
-  "enforced": false,
-  "updated_at": "2025-08-16T07:39:57.211052+00:00",
-  "inputs": {
+  "details": {
     "lint": {
       "errors": 0,
       "warnings": 0,
