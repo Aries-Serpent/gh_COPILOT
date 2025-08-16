@@ -15,6 +15,12 @@
 
 **Tests:** run `pytest` before committing. Current repository tests report multiple failures.
 
+### Test Repair & Stub Policy
+
+- Missing modules may be replaced with lightweight stubs raising `NotImplementedError`.
+- Replace stubs with full implementations before enabling related tests.
+- Re-run tests with `pytest -q` to verify.
+
 **Lint:** run `ruff check .` before committing.
 
 **Compliance:** run `python secondary_copilot_validator.py --validate` after critical changes to enforce dual-copilot and EnterpriseComplianceValidator checks.
