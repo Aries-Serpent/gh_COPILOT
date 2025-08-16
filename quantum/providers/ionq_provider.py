@@ -7,6 +7,7 @@ import warnings
 from typing import Any, TYPE_CHECKING
 
 from .base import BackendProvider
+from quantum.feature_flags import IONQ_HARDWARE_ENABLED
 
 if TYPE_CHECKING:  # pragma: no cover - type checking only
     from quantum.framework.backend import QuantumBackend
@@ -27,7 +28,11 @@ class IonQProvider(BackendProvider):
     def is_available(self) -> bool:
         """Return ``True`` when the IonQ SDK and credentials are present."""
 
-        return _IonQProvider is not None and bool(os.getenv("IONQ_API_KEY"))
+        return (
+            IONQ_HARDWARE_ENABLED
+            and _IonQProvider is not None
+            and bool(os.getenv("IONQ_API_KEY"))
+        )
 
     def _build_backend(self) -> "QuantumBackend":
         api_key = os.getenv("IONQ_API_KEY")

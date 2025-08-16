@@ -8,6 +8,9 @@ validation script to ensure each item has a status marker or issue link.
 - Autonomous system expansion across modules `[status: planned]`
 - Stricter compliance checks and automated audits `[status: planned]`
 - Quantum algorithm upgrade pipeline `[status: planned]`
+- IBM hardware pilot integration `[status: planned]`
+- IonQ hardware pilot integration `[status: planned]`
+- D-Wave annealing pilot `[status: planned]`
 
 ## Validation
 Run `python scripts/validate_roadmap.py docs/continuous_improvement_roadmap.md`
