@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-08-16T21:06:31Z",
+  "repo": "/workspace/gh_COPILOT",
+  "dashboard_file": "dashboard/enterprise_dashboard.py",
+  "outputs": {
+    "analysis": "/workspace/gh_COPILOT/codex_changes/analysis",
+    "patches": "/workspace/gh_COPILOT/codex_changes/patches",
+    "stubs": "/workspace/gh_COPILOT/codex_changes/stubs",
+    "tests": "/workspace/gh_COPILOT/codex_changes/tests",
+    "docs": "/workspace/gh_COPILOT/codex_changes/docs",
+    "logs": "/workspace/gh_COPILOT/codex_changes/logs",
+    "schemas": "/workspace/gh_COPILOT/codex_changes/stubs/schemas"
+  }
+}

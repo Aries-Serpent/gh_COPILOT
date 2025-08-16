@@ -1,0 +1,39 @@
+<!-- Stub template for synchronization gauge panel -->
+<div class="card">
+  <h3>Synchronization Metrics</h3>
+  <canvas id="gauge_synchronization"></canvas>
+</div>
+
+<script>
+async function fetch_synchronization_metrics() {
+  try {
+    const res = await fetch("/metrics/synchronization", { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    // TODO: update Chart.js gauge with `data.metrics.value`
+  } catch (e) {
+    console.error("Failed to fetch synchronization metrics:", e);
+  }
+}
+
+const ctx_synchronization = document.getElementById('gauge_synchronization').getContext('2d');
+const gauge_synchronization = new Chart(ctx_synchronization, {
+  type: 'doughnut',
+  data: {
+    labels: ['Value', 'Remainder'],
+    datasets: [{
+      data: [0, 100],
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '80%',
+    plugins: {
+      legend: { display: false }
+    }
+  }
+});
+
+setInterval(fetch_synchronization_metrics, 5000);
+fetch_synchronization_metrics();
+</script>

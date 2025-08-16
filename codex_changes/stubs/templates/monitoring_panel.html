@@ -1,0 +1,39 @@
+<!-- Stub template for monitoring gauge panel -->
+<div class="card">
+  <h3>Monitoring Metrics</h3>
+  <canvas id="gauge_monitoring"></canvas>
+</div>
+
+<script>
+async function fetch_monitoring_metrics() {
+  try {
+    const res = await fetch("/metrics/monitoring", { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    // TODO: update Chart.js gauge with `data.metrics.value`
+  } catch (e) {
+    console.error("Failed to fetch monitoring metrics:", e);
+  }
+}
+
+const ctx_monitoring = document.getElementById('gauge_monitoring').getContext('2d');
+const gauge_monitoring = new Chart(ctx_monitoring, {
+  type: 'doughnut',
+  data: {
+    labels: ['Value', 'Remainder'],
+    datasets: [{
+      data: [0, 100],
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '80%',
+    plugins: {
+      legend: { display: false }
+    }
+  }
+});
+
+setInterval(fetch_monitoring_metrics, 5000);
+fetch_monitoring_metrics();
+</script>
