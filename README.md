@@ -13,6 +13,10 @@
 
 **Combined checks:** run `python scripts/run_checks.py` to execute `Ruff, Pyright, and pytest` sequentially.
 
+```bash
+python scripts/run_checks.py  # runs Ruff, Pyright, pytest
+```
+
 **Tests:** run `pytest` before committing. Current repository tests report multiple failures.
 
 **Lint:** run `ruff check .` before committing.
@@ -1237,13 +1241,13 @@ python -m pytest tests/integration/test_performance.py -v
 python scripts/monitoring/performance_monitor.py --real-time
 
 # Historical performance analysis (preview stub)
-python scripts/monitoring/performance_analyzer.py --days 30
+python scripts/monitoring/performance_monitor.py --days 30
 
 # Performance regression detection (preview stub)
-python scripts/monitoring/regression_detector.py --baseline main
+python scripts/monitoring/performance_monitor.py --baseline main
 
 # Resource utilization tracking (preview stub)
-python scripts/monitoring/resource_tracker.py --metrics cpu,memory,disk,network
+python scripts/monitoring/performance_monitor.py --metrics cpu,memory,disk,network
 ```
 
 ---
