@@ -1,0 +1,39 @@
+<!-- Stub template for compliance gauge panel -->
+<div class="card">
+  <h3>Compliance Metrics</h3>
+  <canvas id="gauge_compliance"></canvas>
+</div>
+
+<script>
+async function fetch_compliance_metrics() {
+  try {
+    const res = await fetch("/metrics/compliance", { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    // TODO: update Chart.js gauge with `data.metrics.value`
+  } catch (e) {
+    console.error("Failed to fetch compliance metrics:", e);
+  }
+}
+
+const ctx_compliance = document.getElementById('gauge_compliance').getContext('2d');
+const gauge_compliance = new Chart(ctx_compliance, {
+  type: 'doughnut',
+  data: {
+    labels: ['Value', 'Remainder'],
+    datasets: [{
+      data: [0, 100],
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '80%',
+    plugins: {
+      legend: { display: false }
+    }
+  }
+});
+
+setInterval(fetch_compliance_metrics, 5000);
+fetch_compliance_metrics();
+</script>

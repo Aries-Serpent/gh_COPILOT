@@ -1,0 +1,21 @@
+   --- a/dashboard/enterprise_dashboard.py
+   +++ b/dashboard/enterprise_dashboard.py (suggested patch)
+   @@
+    # --- BEGIN SUGGESTED ADDITION: monitoring metrics endpoint ---
+@app.route("/metrics/monitoring", methods=["GET"])
+def metrics_monitoring():
+    """Return JSON metrics for monitoring.
+    TODO: Replace mock with real metrics. Keep schema stable.
+    """
+    data = {
+        "panel": "monitoring",
+        "updated_at": "2025-08-16T21:06:31Z",
+        "status": "ok",
+        "metrics": {
+            "value": 0,
+            "target": 100,
+            "unit": "%"
+        }
+    }
+    return jsonify(data), 200
+# --- END SUGGESTED ADDITION ---
