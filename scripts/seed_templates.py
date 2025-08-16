@@ -13,7 +13,8 @@ def seed(db: Path) -> None:
         INSERT OR IGNORE INTO script_templates(id, path, content) VALUES ('hello', 'hello', "print('ok')");
         """
     )
-    con.commit(); con.close()
+    con.commit()
+    con.close()
 
 if __name__ == "__main__":
     seed(Path("documentation.db"))

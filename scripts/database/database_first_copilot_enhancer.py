@@ -181,7 +181,7 @@ class DatabaseFirstCopilotEnhancer:
         template = self._find_template_matches(objective)
         adapted = self._adapt_to_current_environment(template)
         return {
-            "database_solutions": solutions,
+            "database_solutions": codes,
             "template_code": adapted,
             "confidence_score": self._calculate_confidence(scored),
             "integration_ready": True,
