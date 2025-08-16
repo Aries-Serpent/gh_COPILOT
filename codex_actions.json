@@ -1,0 +1,10 @@
+{
+  "fixed": false,
+  "adapted_to": "assemble_db_first_bundle.py",
+  "pruned": false,
+  "relocated": null,
+  "coverage_omit_updated": false,
+  "readme_updated": false,
+  "tests_exit_code": 1,
+  "policy_github_workflows_modified": false
+}
