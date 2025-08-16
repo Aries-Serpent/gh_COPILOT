@@ -7,7 +7,7 @@ import sqlite3
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable, Iterator, List, Optional, Sequence, Tuple
+from typing import Iterator, List, Optional, Sequence, Tuple
 
 # SQLite pragmas: WAL improves concurrent readers; busy_timeout reduces SQLITE_BUSY.
 # See: https://sqlite.org/wal.html ; https://highperformancesqlite.com/articles/sqlite-recommended-pragmas
