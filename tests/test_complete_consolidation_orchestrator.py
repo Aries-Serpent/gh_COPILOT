@@ -2,8 +2,10 @@ import os
 import sqlite3
 from pathlib import Path
 
-import py7zr  # pyright: ignore[reportMissingImports]
 import pytest
+
+# Skip tests if the optional `py7zr` dependency is unavailable
+py7zr = pytest.importorskip("py7zr")
 
 # Disable validation at import time for test isolation
 os.environ.setdefault("GH_COPILOT_DISABLE_VALIDATION", "1")

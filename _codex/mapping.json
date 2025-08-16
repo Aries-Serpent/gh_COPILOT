@@ -1,0 +1,222 @@
+{
+  "tests/documentation/test_documentation_manager_templates.py": {
+    "imports": [
+      "__future__.annotations",
+      "sqlite3",
+      "pathlib.Path",
+      "archive.consolidated_scripts.enterprise_database_driven_documentation_manager",
+      "os"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_archive_scripts.py": {
+    "imports": [
+      "importlib",
+      "sqlite3",
+      "pathlib.Path",
+      "pytest"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_autonomous_setup_and_audit.py": {
+    "imports": [
+      "__future__.annotations",
+      "sqlite3",
+      "pathlib.Path",
+      "pytest",
+      "scripts.autonomous_setup_and_audit.ingest_assets",
+      "scripts.database.unified_database_initializer.initialize_database"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_complete_consolidation_orchestrator.py": {
+    "imports": [
+      "os",
+      "sqlite3",
+      "pathlib.Path",
+      "py7zr",
+      "pytest",
+      "scripts.database.complete_consolidation_orchestrator.export_table_to_7z",
+      "scripts.database.complete_consolidation_orchestrator.migrate_and_compress",
+      "contextlib.contextmanager",
+      "scripts.database.unified_database_initializer",
+      "scripts.database.complete_consolidation_orchestrator"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_complete_template_generator.py": {
+    "imports": [
+      "sqlite3",
+      "pathlib.Path",
+      "scripts.utilities.complete_template_generator.CompleteTemplateGenerator"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_compliance_metrics_updater.py": {
+    "imports": [
+      "importlib",
+      "json",
+      "logging",
+      "sqlite3",
+      "pytest",
+      "sys",
+      "types"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_comprehensive_workspace_manager_cli.py": {
+    "imports": [
+      "__future__.annotations",
+      "os",
+      "shutil",
+      "sqlite3",
+      "subprocess",
+      "pathlib.Path"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_compress_database.py": {
+    "imports": [
+      "sqlite3",
+      "pathlib.Path",
+      "scripts.database.unified_database_migration._compress_database"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_correction_history.py": {
+    "imports": [
+      "shutil",
+      "sqlite3",
+      "pathlib.Path",
+      "scripts.database.database_first_windows_compatible_flake8_corrector.CorrectionPattern",
+      "scripts.database.database_first_windows_compatible_flake8_corrector.DatabaseFirstFlake8Corrector",
+      "scripts.database.database_first_windows_compatible_flake8_corrector.FlakeViolation",
+      "scripts.database.documentation_db_analyzer.ensure_correction_history"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_cross_database_sync_logger.py": {
+    "imports": [
+      "sqlite3",
+      "time",
+      "datetime.datetime",
+      "datetime.timezone",
+      "pathlib.Path",
+      "scripts.database.cross_database_sync_logger.log_sync_operation",
+      "scripts.database.unified_database_initializer.initialize_database"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_cross_platform_paths.py": {
+    "imports": [
+      "utils.cross_platform_paths.CrossPlatformPathManager",
+      "scripts.database.complete_consolidation_orchestrator.ExternalBackupConfiguration"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_database_list.py": {
+    "imports": [
+      "pathlib.Path",
+      "scripts.database.unified_database_management_system.UnifiedDatabaseManager"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_db_helper_usage.py": {
+    "imports": [
+      "sqlite3",
+      "contextlib.contextmanager",
+      "pathlib.Path",
+      "typing.Iterator",
+      "scripts.optimization.optimize_to_100_percent",
+      "scripts.optimization.security_compliance_enhancer",
+      "utils.db_utils"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_disallowed_paths.py": {
+    "imports": [
+      "os",
+      "pathlib.Path",
+      "unittest.mock.patch",
+      "enterprise_modules.compliance.validate_enterprise_operation"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_documentation_db_analyzer.py": {
+    "imports": [
+      "sqlite3",
+      "os",
+      "pathlib.Path",
+      "scripts.database.documentation_db_analyzer.analyze_documentation_tables",
+      "scripts.database.documentation_db_analyzer.validate_analysis",
+      "scripts.database.documentation_db_analyzer.rollback_db",
+      "scripts.database.documentation_db_analyzer.summarize_corrections",
+      "scripts.database.documentation_db_analyzer.ensure_correction_history",
+      "scripts.database.documentation_db_analyzer",
+      "types.SimpleNamespace",
+      "scripts.database.documentation_db_analyzer",
+      "types.SimpleNamespace",
+      "scripts.database.documentation_db_analyzer",
+      "types.SimpleNamespace",
+      "scripts.database.documentation_db_analyzer",
+      "scripts.database.documentation_db_analyzer",
+      "scripts.database.documentation_db_analyzer",
+      "scripts.database.documentation_db_analyzer"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_documentation_manager_validator.py": {
+    "imports": [
+      "os",
+      "sqlite3",
+      "pathlib.Path",
+      "archive.consolidated_scripts.enterprise_database_driven_documentation_manager.DocumentationManager",
+      "archive.consolidated_scripts.enterprise_database_driven_documentation_manager.dual_validate",
+      "template_engine.auto_generator",
+      "archive.consolidated_scripts.enterprise_database_driven_documentation_manager"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_enterprise_database_driven_documentation_manager.py": {
+    "imports": [
+      "logging",
+      "os",
+      "sqlite3",
+      "datetime.datetime",
+      "pathlib.Path",
+      "archive.consolidated_scripts.enterprise_database_driven_documentation_manager.DocumentationManager",
+      "archive.consolidated_scripts.enterprise_database_driven_documentation_manager.dual_validate"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_enterprise_utility_logging.py": {
+    "imports": [
+      "sqlite3",
+      "pathlib.Path",
+      "types",
+      "sys",
+      "pytest",
+      "numpy",
+      "unified_session_management_system",
+      "session_management_consolidation_executor.EnterpriseUtility"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_entrypoint_env.py": {
+    "imports": [
+      "os",
+      "subprocess",
+      "pathlib.Path"
+    ],
+    "has_assert_false": false
+  },
+  "tests/test_log_error_notifier.py": {
+    "imports": [
+      "importlib",
+      "sqlite3",
+      "sys",
+      "pathlib.Path"
+    ],
+    "has_assert_false": false
+  }
+}
