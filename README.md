@@ -2141,3 +2141,6 @@ _These statistics are auto-refreshed by the Codex task._
 8. ✅ **ML Pipeline Enhancement:** Advanced ML capabilities
 9. ✅ **Quantum Computing:** Hardware integration roadmap
 10. ✅ **Global Deployment:** Multi-region enterprise support
+
+
+See **Compliance Model**: `docs/governance/COMPLIANCE.md`.
