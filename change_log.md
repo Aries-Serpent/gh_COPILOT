@@ -1,0 +1,14 @@
+- 2025-08-17T21:53:07.154063 — py7zr already present in requirements.txt
+- 2025-08-17T21:53:09.823168 — pip install py7zr succeeded.
+- 2025-08-17T21:53:09.827164 — Created tests/test_backup_archiver_dependency.py
+- 2025-08-17T21:53:09.827224 — No 'monitoring' import found; no repair needed.
+- 2025-08-17T21:53:10.160302 — backup_archiver execution failed; captured research question.
+- 2025-08-17T21:53:10.160930 — Summary written to update_summary.json: {'py7zr_added': True, 'archiver_import_fix': 'no_repair_needed', 'archiver_run_success': False, 'notes': 'See change_log.md and run_logs/ for details.'}
+- 2025-08-17T21:54:01+00:00 — backup_archiver executed successfully via direct invocation
+- 2025-08-17T21:54:10.496162 — py7zr already present in requirements.txt
+- 2025-08-17T21:54:11.225743 — pip install py7zr succeeded.
+- 2025-08-17T21:54:11.229594 — Regression test already present and up-to-date.
+- 2025-08-17T21:54:11.229681 — No 'monitoring' import found; no repair needed.
+- 2025-08-17T21:54:12.117853 — backup_archiver execution failed; captured research question.
+- 2025-08-17T21:54:12.118535 — Summary written to update_summary.json: {'py7zr_added': True, 'archiver_import_fix': 'no_repair_needed', 'archiver_run_success': False, 'notes': 'See change_log.md and run_logs/ for details.'}
+- 2025-08-17T21:57:14+00:00 — pytest for backup_archiver subset failed due to missing qiskit

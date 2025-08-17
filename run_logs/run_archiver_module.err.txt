@@ -1,0 +1,121 @@
+2025-08-17 21:54:11,621 - INFO - [START] add_table for /workspace/gh_COPILOT/databases/analytics.db
+2025-08-17 21:54:11,621 - INFO - Process ID: 6027
+
+create-table:   0%|          | 0/1 [00:00<?, ?step/s]
+create-table: 100%|██████████| 1/1 [00:00<00:00, 2441.39step/s]
+2025-08-17 21:54:11,628 - INFO - violation_logs ensured in /workspace/gh_COPILOT/databases/analytics.db
+2025-08-17 21:54:11,628 - INFO - ============================================================
+2025-08-17 21:54:11,628 - INFO - 🎯 ENTERPRISE LOGGING CONFIGURED
+2025-08-17 21:54:11,628 - INFO - Level: INFO
+2025-08-17 21:54:11,628 - INFO - Handlers: 2
+2025-08-17 21:54:11,629 - INFO - Console Output: True
+2025-08-17 21:54:11,629 - INFO - Log File: logs/size_compliance_checker.log
+2025-08-17 21:54:11,629 - INFO - ============================================================
+2025-08-17 21:54:11,629 - INFO - ============================================================
+2025-08-17 21:54:11,629 - INFO - 📏 DATABASE SIZE COMPLIANCE CHECK
+2025-08-17 21:54:11,629 - INFO - Directory: /workspace/gh_COPILOT/databases
+2025-08-17 21:54:11,629 - INFO - Threshold: 99.9 MB
+2025-08-17 21:54:11,629 - INFO - ============================================================
+
+📏 Checking sizes:   0%|          | 0/30 [00:00<?, ?db/s]
+📏 Checking scaling_innovation.db:   0%|          | 0/30 [00:00<?, ?db/s]2025-08-17 21:54:11,632 - INFO - ✅ scaling_innovation.db: 2.60 MB
+
+📏 Checking performance_analysis.db:   3%|▎         | 1/30 [00:00<00:00, 380.33db/s]2025-08-17 21:54:11,635 - INFO - ✅ performance_analysis.db: 2.68 MB
+
+📏 Checking codex_session_logs.db:   7%|▋         | 2/30 [00:00<00:00, 377.56db/s]  2025-08-17 21:54:11,635 - ERROR - ❌ Error checking codex_session_logs.db: file is not a database
+
+📏 Checking capability_scaler.db:  10%|█         | 3/30 [00:00<00:00, 535.28db/s] 2025-08-17 21:54:11,638 - INFO - ✅ capability_scaler.db: 2.64 MB
+
+📏 Checking enterprise_auth.db:  13%|█▎        | 4/30 [00:00<00:00, 488.25db/s]  2025-08-17 21:54:11,638 - ERROR - ❌ Error checking enterprise_auth.db: file is not a database
+
+📏 Checking quantum_learning.db:  17%|█▋        | 5/30 [00:00<00:00, 588.69db/s]2025-08-17 21:54:11,638 - ERROR - ❌ Error checking quantum_learning.db: file is not a database
+
+📏 Checking development.db:  20%|██        | 6/30 [00:00<00:00, 681.06db/s]     2025-08-17 21:54:11,641 - INFO - ✅ development.db: 2.57 MB
+
+📏 Checking web_gui_data.db:  23%|██▎       | 7/30 [00:00<00:00, 625.50db/s]2025-08-17 21:54:11,641 - ERROR - ❌ Error checking web_gui_data.db: file is not a database
+
+📏 Checking ml_deployment_engine.db:  27%|██▋       | 8/30 [00:00<00:00, 696.86db/s]2025-08-17 21:54:11,648 - INFO - ✅ ml_deployment_engine.db: 2.50 MB
+
+📏 Checking deployment_logs.db:  30%|███       | 9/30 [00:00<00:00, 497.06db/s]     2025-08-17 21:54:11,655 - INFO - ✅ deployment_logs.db: 2.30 MB
+
+📏 Checking monitoring.db:  33%|███▎      | 10/30 [00:00<00:00, 393.05db/s]    2025-08-17 21:54:11,663 - INFO - ✅ monitoring.db: 2.53 MB
+
+📏 Checking codex_logs.db:  37%|███▋      | 11/30 [00:00<00:00, 330.10db/s]2025-08-17 21:54:11,664 - ERROR - ❌ Error checking codex_logs.db: file is not a database
+
+📏 Checking autonomous_decisions.db:  40%|████      | 12/30 [00:00<00:00, 353.68db/s]2025-08-17 21:54:11,671 - INFO - ✅ autonomous_decisions.db: 2.50 MB
+
+📏 Checking template_documentation.db:  43%|████▎     | 13/30 [00:00<00:00, 311.85db/s]2025-08-17 21:54:11,694 - INFO - ✅ template_documentation.db: 49.07 MB
+
+📏 Checking analytics_collector.db:  47%|████▋     | 14/30 [00:00<00:00, 217.80db/s]   2025-08-17 21:54:11,702 - INFO - ✅ analytics_collector.db: 2.66 MB
+
+📏 Checking documentation_templates.db:  50%|█████     | 15/30 [00:00<00:00, 206.06db/s]2025-08-17 21:54:11,711 - INFO - ✅ documentation_templates.db: 5.51 MB
+
+📏 Checking learning_monitor.db:  53%|█████▎    | 16/30 [00:00<00:00, 197.29db/s]       2025-08-17 21:54:11,723 - INFO - ✅ learning_monitor.db: 6.33 MB
+
+📏 Checking production.db:  57%|█████▋    | 17/30 [00:00<00:00, 182.22db/s]      2025-08-17 21:54:11,758 - INFO - ✅ production.db: 85.48 MB
+
+📏 Checking production.db:  60%|██████    | 18/30 [00:00<00:00, 140.01db/s]
+📏 Checking analytics.db:  60%|██████    | 18/30 [00:00<00:00, 140.01db/s] 2025-08-17 21:54:11,760 - INFO - ✅ analytics.db: 0.21 MB
+
+📏 Checking consolidation_analysis.db:  63%|██████▎   | 19/30 [00:00<00:00, 140.01db/s]2025-08-17 21:54:11,767 - INFO - ✅ consolidation_analysis.db: 2.15 MB
+
+📏 Checking continuous_innovation.db:  67%|██████▋   | 20/30 [00:00<00:00, 140.01db/s] 2025-08-17 21:54:11,775 - INFO - ✅ continuous_innovation.db: 2.57 MB
+
+📏 Checking enterprise_ml_engine.db:  70%|███████   | 21/30 [00:00<00:00, 140.01db/s] 2025-08-17 21:54:11,783 - INFO - ✅ enterprise_ml_engine.db: 2.61 MB
+
+📏 Checking v3_self_learning_engine.db:  73%|███████▎  | 22/30 [00:00<00:00, 140.01db/s]2025-08-17 21:54:11,791 - INFO - ✅ v3_self_learning_engine.db: 2.50 MB
+
+📏 Checking documentation.db:  77%|███████▋  | 23/30 [00:00<00:00, 140.01db/s]          2025-08-17 21:54:11,819 - INFO - ✅ documentation.db: 74.04 MB
+
+📏 Checking codex_log.db:  80%|████████  | 24/30 [00:00<00:00, 140.01db/s]    2025-08-17 21:54:11,824 - ERROR - ❌ Error checking codex_log.db: file is not a database
+
+📏 Checking flake8_violations.db:  83%|████████▎ | 25/30 [00:00<00:00, 140.01db/s]2025-08-17 21:54:11,826 - INFO - ✅ flake8_violations.db: 3.69 MB
+
+📏 Checking logs.db:  87%|████████▋ | 26/30 [00:00<00:00, 140.01db/s]             2025-08-17 21:54:11,837 - INFO - ✅ logs.db: 31.53 MB
+
+📏 Checking testing.db:  90%|█████████ | 27/30 [00:00<00:00, 140.01db/s]2025-08-17 21:54:11,841 - INFO - ✅ testing.db: 2.57 MB
+
+📏 Checking enhanced_intelligence.db:  93%|█████████▎| 28/30 [00:00<00:00, 140.01db/s]2025-08-17 21:54:11,843 - INFO - ✅ enhanced_intelligence.db: 4.02 MB
+
+📏 Checking enhanced_deployment_tracking.db:  97%|█████████▋| 29/30 [00:00<00:00, 140.01db/s]2025-08-17 21:54:11,846 - INFO - ✅ enhanced_deployment_tracking.db: 2.60 MB
+
+📏 Checking enhanced_deployment_tracking.db: 100%|██████████| 30/30 [00:00<00:00, 138.64db/s]
+2025-08-17 21:54:11,846 - INFO - ============================================================
+2025-08-17 21:54:11,846 - INFO - 📏 SIZE COMPLIANCE SUMMARY
+2025-08-17 21:54:11,846 - INFO - Total Databases: 30
+2025-08-17 21:54:11,846 - INFO - Compliant: 24
+2025-08-17 21:54:11,846 - INFO - Violations: 0
+2025-08-17 21:54:11,846 - INFO - Compliance Rate: 80.0%
+2025-08-17 21:54:11,846 - INFO - ============================================================
+
+log:   0%|          | 0/1 [00:00<?, ?evt/s]
+log:   0%|          | 0/1 [00:00<?, ?evt/s, written]
+                                                    
+2025-08-17 21:54:11,859 - INFO - analytics.db log event: {"event": "violation_logs_ready", "db": "/workspace/gh_COPILOT/databases/analytics.db", "timestamp": "2025-08-17T21:54:11.847041", "module": "utils.log_utils", "level": "INFO"} | 0.01s | allowed: True
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/gh_COPILOT/scripts/backup_archiver.py", line 74, in <module>
+    archive_backups()
+  File "/workspace/gh_COPILOT/enterprise_modules/compliance.py", line 212, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/gh_COPILOT/utils/validation_utils.py", line 258, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/gh_COPILOT/scripts/backup_archiver.py", line 39, in archive_backups
+    if not validate_enterprise_operation(str(workspace)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/gh_COPILOT/enterprise_modules/compliance.py", line 956, in validate_enterprise_operation
+    _log_violation("recursive_workspace")
+  File "/workspace/gh_COPILOT/enterprise_modules/compliance.py", line 249, in _log_violation
+    ensure_violation_logs(analytics_db, validate=False)
+  File "/workspace/gh_COPILOT/scripts/database/add_violation_logs.py", line 64, in ensure_violation_logs
+    add_table(db_path, validate=validate)
+  File "/workspace/gh_COPILOT/scripts/database/add_violation_logs.py", line 54, in add_table
+    from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
+  File "/workspace/gh_COPILOT/scripts/validation/dual_copilot_orchestrator.py", line 12, in <module>
+    from scripts.monitoring.unified_monitoring_optimization_system import (
+  File "/workspace/gh_COPILOT/scripts/monitoring/unified_monitoring_optimization_system.py", line 21, in <module>
+    from monitoring.health_monitor import gather_metrics
+ModuleNotFoundError: No module named 'monitoring'
