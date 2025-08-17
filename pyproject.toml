@@ -60,6 +60,9 @@ extend-exclude = [
     "databases/*.db",
     "*.log",
     "recovered_files_*",
+      "*.md",
+      "*.rst",
+      "README.md",
 ]
 
 extend-include = [
