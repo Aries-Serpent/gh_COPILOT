@@ -38,3 +38,6 @@ pip install -r requirements.txt
 ```
 
 > Note: This project requires `PyYAML>=6.0.1`.
+## Linting Scope
+- Ruff targets Python files.
+- Documentation files (`*.md`, `*.rst`, including `README.md`) are excluded via `extend-exclude`.

@@ -1,0 +1,8 @@
+ruff failed
+  Cause: Failed to parse /workspace/gh_COPILOT/pyproject.toml
+  Cause: TOML parse error at line 29, column 2
+   |
+29 |  = "src"
+   |  ^
+unquoted keys cannot be empty, expected letters, numbers, `-`, `_`
+

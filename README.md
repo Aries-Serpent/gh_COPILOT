@@ -1,5 +1,8 @@
 # 🎯 gh_COPILOT Toolkit v4.0 Enterprise
 
+> Ruff is configured for Python files only; docs (*.md, *.rst) are excluded.
+
+
 ## High-Performance HTTP Archive () Analysis with Advanced Enterprise Integration
 
 ![GitHub Copilot Integration](https://img.shields.io/badge/GitHub_Copilot-Enterprise_Integration-green)
