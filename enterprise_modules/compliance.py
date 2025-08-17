@@ -411,11 +411,21 @@ def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bo
 def _run_ruff() -> int:
     """Return the number of lint issues reported by Ruff."""
     try:
+        workspace = CrossPlatformPathManager.get_workspace_path()
         result = subprocess.run(
-            ["ruff", ".", "--output-format", "json"],
+            [
+                "ruff",
+                ".",
+                "--output-format",
+                "json",
+                "--config",
+                str(workspace / "pyproject.toml"),
+                "--force-exclude",
+            ],
             check=False,
             capture_output=True,
             text=True,
+            cwd=workspace,
         )
         return len(json.loads(result.stdout or "[]"))
     except Exception:  # pragma: no cover - lint fallback
