@@ -1,24 +1,32 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-deps_hardening.py
-Guarantee Typer availability (dev/test), ensure global tqdm, align README and CI (non-activating),
-add smoke tests, and capture errors as ChatGPT-5 research questions.
+tools/deps_hardening.py
+
+Codex-aligned implementation of the "Codex-Ready Sequential Execution Block" canvas.
+- Guarantees Typer availability (dev/test) and global tqdm.
+- Aligns README install guidance.
+- Adds smoke test for imports.
+- Produces change log and research-ready error log.
+- Performs explicit prerequisite checks (Python, pip, pytest, git).
+- Distinguishes blocking vs non-blocking issues in the final summary.
 
 USAGE:
   python tools/deps_hardening.py --repo-root . --run-validator --run-tests
 
-DO NOT ACTIVATE ANY GitHub Actions files.
+POLICY:
+  DO NOT ACTIVATE ANY GitHub Actions files. This script only reads CI files and
+  emits suggested changes to the changelog.
 """
+
 import argparse
-import hashlib
 import os
 import re
 import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 
 REPO_FILES = {
     "pyproject": "pyproject.toml",
@@ -33,24 +41,10 @@ REPO_FILES = {
 CHANGELOG = "CHANGELOG_DEP_FIX.md"
 ERROR_LOG = ".codex_error_log.md"
 
-STEP_CTX = {
-    "P1": "Phase 1 Preparation",
-    "P2": "Phase 2 Search & Mapping",
-    "P3": "Phase 3 Best-Effort Construction",
-    "P4": "Phase 4 Controlled Pruning",
-    "P5": "Phase 5 Error Capture",
-    "P6": "Phase 6 Finalization",
-}
 
-def sha256(path: Path) -> str:
-    h = hashlib.sha256()
-    with path.open("rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
+# ---------------- Error capture ----------------
 def append_error(phase_step: str, err: Exception, context: str):
-    msg = str(err).strip()
+    msg = (str(err) or err.__class__.__name__).strip()
     block = (
         "Question for ChatGPT-5:\n"
         f"While performing [{phase_step}], encountered the following error:\n"
@@ -58,7 +52,20 @@ def append_error(phase_step: str, err: Exception, context: str):
         f"Context: {context}\n"
         "What are the possible causes, and how can this be resolved while preserving intended functionality?\n\n"
     )
-    Path(ERROR_LOG).write_text(Path(ERROR_LOG).read_text() + block if Path(ERROR_LOG).exists() else block, encoding="utf-8")
+    p = Path(ERROR_LOG)
+    p.write_text((p.read_text(encoding="utf-8") if p.exists() else "") + block, encoding="utf-8")
+
+
+# ---------------- IO helpers ----------------
+def sha256(path: Path) -> str:
+    import hashlib
+
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
 
 def safe_write(path: Path, content: str, phase_step: str, ctx: str):
     try:
@@ -70,11 +77,8 @@ def safe_write(path: Path, content: str, phase_step: str, ctx: str):
         append_error(phase_step, e, ctx)
         raise
 
+
 def ensure_line(path: Path, predicate, line_to_add: str) -> bool:
-    """
-    For requirements.txt-like files: add line if missing.
-    Returns True if modified.
-    """
     if not path.exists():
         return False
     lines = path.read_text(encoding="utf-8").splitlines()
@@ -84,80 +88,63 @@ def ensure_line(path: Path, predicate, line_to_add: str) -> bool:
     safe_write(path, "\n".join(lines) + "\n", "P3:8 ensure_line", f"Add '{line_to_add}' to {path}")
     return True
 
-def find_dev_req_file(repo: Path) -> Optional[Path]:
-    for cand in REPO_FILES["req_dev_candidates"]:
-        p = repo / cand
-        if p.exists():
-            return p
-    return None
 
+# ---------------- Requirements surfaces ----------------
 def add_to_pyproject_dependencies(pyproject: Path, package: str, dev: bool) -> Tuple[bool, str]:
-    """
-    Minimal, tolerant text manipulation without external TOML libs:
-    - For base deps: under [project] dependencies = [...]
-    - For dev: under [project.optional-dependencies].dev = [...]
-    Returns (modified, rationale).
-    """
     if not pyproject.exists():
         return (False, "pyproject.toml not present")
     text = pyproject.read_text(encoding="utf-8")
 
-    def list_has(pkg_line: str, lst: str) -> bool:
-        pattern = rf"['\"]{re.escape(pkg_line)}(['\"][^,)]*)?"
-        return re.search(pattern, lst) is not None
+    def list_has(pkg: str, inner: str) -> bool:
+        return bool(re.search(rf"['\"]{re.escape(pkg)}(['\"][^,)]*)?", inner))
 
     modified = False
     rationale = []
 
     if dev:
-        # Ensure [project.optional-dependencies]
         if "[project.optional-dependencies]" not in text:
             text += "\n[project.optional-dependencies]\n"
             modified = True
             rationale.append("created [project.optional-dependencies]")
-
-        # Ensure dev array
         if re.search(r"^\s*dev\s*=\s*\[", text, flags=re.M) is None:
             text += "dev = []\n"
             modified = True
             rationale.append("created dev extras list")
 
-        # Insert package if missing
-        text = re.sub(
-            r"(^\s*dev\s*=\s*\[)([^\]]*)(\])",
-            lambda m: m.group(1)
-            + (m.group(2) + ("" if m.group(2).strip() == "" else ", "))
-            + f"\"{package}\""
-            + m.group(3)
-            if not list_has(package, m.group(2))
-            else m.group(0),
-            text, flags=re.M
-        )
-        if text != pyproject.read_text(encoding="utf-8"):
+        def _ins(m):
+            head, inner, tail = m.group(1), m.group(2), m.group(3)
+            if not list_has(package, inner):
+                if inner.strip():
+                    inner = inner + ", "
+                inner = inner + f"\"{package}\""
+                return head + inner + tail
+            return m.group(0)
+
+        new_text = re.sub(r"(^\s*dev\s*=\s*\[)([^\]]*)(\])", _ins, text, flags=re.M)
+        if new_text != text:
+            text = new_text
             modified = True
             rationale.append(f"added {package} to dev extras")
     else:
-        # Base dependencies
         if "[project]" not in text:
-            # Try to create a minimal [project] with deps
             text += "\n[project]\ndependencies = []\n"
             modified = True
             rationale.append("created [project] with empty dependencies")
-
-        # Ensure dependencies list exists
         if re.search(r"^\s*dependencies\s*=\s*\[", text, flags=re.M) is None:
             text = re.sub(r"(\[project\][^\n]*\n)", r"\1dependencies = []\n", text)
             modified = True
             rationale.append("created dependencies list")
 
-        # Insert package if missing
-        def add_pkg(m):
-            inner = m.group(2)
+        def _add(m):
+            head, inner, tail = m.group(1), m.group(2), m.group(3)
             if not list_has(package, inner):
-                return m.group(1) + (inner + ("" if inner.strip() == "" else ", ")) + f"\"{package}\"" + m.group(3)
+                if inner.strip():
+                    inner = inner + ", "
+                inner = inner + f"\"{package}\""
+                return head + inner + tail
             return m.group(0)
 
-        new_text = re.sub(r"(^\s*dependencies\s*=\s*\[)([^\]]*)(\])", add_pkg, text, flags=re.M)
+        new_text = re.sub(r"(^\s*dependencies\s*=\s*\[)([^\]]*)(\])", _add, text, flags=re.M)
         if new_text != text:
             text = new_text
             modified = True
@@ -167,6 +154,7 @@ def add_to_pyproject_dependencies(pyproject: Path, package: str, dev: bool) -> T
         safe_write(pyproject, text, "P3:8-9 add_to_pyproject_dependencies", f"Ensure {package} (dev={dev})")
     return (modified, "; ".join(rationale) if rationale else "no change")
 
+
 def add_to_setup_cfg(setup_cfg: Path, package: str, dev: bool) -> Tuple[bool, str]:
     if not setup_cfg.exists():
         return (False, "setup.cfg not present")
@@ -175,7 +163,6 @@ def add_to_setup_cfg(setup_cfg: Path, package: str, dev: bool) -> Tuple[bool, st
     rationale = []
 
     if dev:
-        # extras_require dev =
         if "[options.extras_require]" not in text:
             text += "\n[options.extras_require]\n"
             modified = True
@@ -184,19 +171,15 @@ def add_to_setup_cfg(setup_cfg: Path, package: str, dev: bool) -> Tuple[bool, st
             text += "dev =\n"
             modified = True
             rationale.append("created dev extras key")
-        # Insert line under dev =
         text = re.sub(
             r"(^\s*dev\s*=\s*\n(?:^\s+.*\n)*)",
-            lambda m: m.group(1) + f"    {package}\n"
-            if f"    {package}\n" not in m.group(1)
-            else m.group(1),
-            text, flags=re.M
+            lambda m: m.group(1) + (f"    {package}\n" if f"    {package}\n" not in m.group(1) else ""),
+            text,
+            flags=re.M,
         )
-        if text != setup_cfg.read_text(encoding="utf-8"):
-            modified = True
-            rationale.append(f"added {package} to dev extras")
+        modified = True
+        rationale.append(f"added {package} to dev extras")
     else:
-        # install_requires
         if "[options]" not in text:
             text += "\n[options]\ninstall_requires =\n"
             modified = True
@@ -207,41 +190,35 @@ def add_to_setup_cfg(setup_cfg: Path, package: str, dev: bool) -> Tuple[bool, st
             rationale.append("created install_requires")
         text = re.sub(
             r"(^\s*install_requires\s*=\s*\n(?:^\s+.*\n)*)",
-            lambda m: m.group(1) + f"    {package}\n"
-            if f"    {package}\n" not in m.group(1)
-            else m.group(1),
-            text, flags=re.M
+            lambda m: m.group(1) + (f"    {package}\n" if f"    {package}\n" not in m.group(1) else ""),
+            text,
+            flags=re.M,
         )
-        new_text = text
-        if new_text != setup_cfg.read_text(encoding="utf-8"):
-            modified = True
-            rationale.append(f"added {package} to install_requires")
-        text = new_text
+        modified = True
+        rationale.append(f"added {package} to install_requires")
 
     if modified:
         safe_write(setup_cfg, text, "P3:8-9 add_to_setup_cfg", f"Ensure {package} (dev={dev})")
     return (modified, "; ".join(rationale) if rationale else "no change")
 
+
+# ---------------- README alignment ----------------
 def ensure_readme_alignment(readme: Path, has_dev_extras: bool) -> Tuple[bool, str]:
     if not readme.exists():
         return (False, "README.md not present")
     text = readme.read_text(encoding="utf-8")
     original = text
-
-    # Normalize install guidance
     if has_dev_extras:
-        text = re.sub(r"pip install\s+(-r\s+\S+|\.\[dev\]|\.)",
-                      "pip install .[dev]", text)
+        text = re.sub(r"pip install\s+(-r\s+\S+|\.\[dev\]|\.)", "pip install .[dev]", text)
     else:
-        # Prefer dev requirements file guidance if exists
-        text = re.sub(r"pip install\s+(\.\[dev\]|\.)",
-                      "pip install -r requirements-dev.txt", text)
-
+        text = re.sub(r"pip install\s+(\.\[dev\]|\.)", "pip install -r requirements-dev.txt", text)
     if text != original:
         safe_write(readme, text, "P3:10 ensure_readme_alignment", f"README install guidance updated (dev_extras={has_dev_extras})")
         return (True, "updated README install guidance")
     return (False, "no README changes")
 
+
+# ---------------- CI suggestions (non-activating) ----------------
 def suggest_ci_amendments(ci_dir: Path, has_dev_extras: bool) -> List[str]:
     suggestions = []
     if not ci_dir.exists():
@@ -251,16 +228,17 @@ def suggest_ci_amendments(ci_dir: Path, has_dev_extras: bool) -> List[str]:
             body = f.read_text(encoding="utf-8")
             if re.search(r"pip install\s+\.\[dev\]", body):
                 continue
-            # Only suggest; do not modify workflow execution semantics
             suggestions.append(
                 f"- Suggest adding `pip install .[dev]` before test steps in {f.name} (NOT auto-applied)."
-                if has_dev_extras else
-                f"- Suggest adding `pip install -r requirements-dev.txt` before test steps in {f.name} (NOT auto-applied)."
+                if has_dev_extras
+                else f"- Suggest adding `pip install -r requirements-dev.txt` before test steps in {f.name} (NOT auto-applied)."
             )
         except Exception as e:
             append_error("P3:11 suggest_ci_amendments", e, f"Reading {f}")
     return suggestions
 
+
+# ---------------- Commands ----------------
 def run_cmd(cmd: List[str], cwd: Path, phase_step: str, context: str) -> Tuple[int, str, str]:
     try:
         proc = subprocess.Popen(cmd, cwd=str(cwd), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -273,6 +251,8 @@ def run_cmd(cmd: List[str], cwd: Path, phase_step: str, context: str) -> Tuple[i
         append_error(phase_step, e, context)
         return 1, "", str(e)
 
+
+# ---------------- Tests ----------------
 def ensure_tests(repo: Path) -> Tuple[bool, Path]:
     tests_dir = repo / REPO_FILES["tests_dir"]
     tests_dir.mkdir(parents=True, exist_ok=True)
@@ -290,11 +270,41 @@ def ensure_tests(repo: Path) -> Tuple[bool, Path]:
             "    except Exception as e:\n"
             "        missing.append(f\"typer: {e}\")\n"
             "    assert not missing, f\"Missing dependencies: {missing}\"\n",
-            encoding="utf-8"
+            encoding="utf-8",
         )
         return True, test_file
     return False, test_file
 
+
+# ---------------- Prerequisites ----------------
+def check_prereqs() -> Tuple[List[str], List[str]]:
+    """Returns (warnings, blocking_errors)."""
+    warnings: List[str] = []
+    blocking: List[str] = []
+
+    # Python version
+    if sys.version_info < (3, 8):
+        blocking.append(f"Python >=3.8 required, found {sys.version.split()[0]}")
+
+    # pip
+    code, _, _ = run_cmd([sys.executable, "-m", "pip", "--version"], Path.cwd(), "P0:Prereq", "pip --version")
+    if code != 0:
+        warnings.append("pip not detected via `python -m pip --version`")
+
+    # pytest (optional)
+    code, _, _ = run_cmd(["pytest", "-q", "--help"], Path.cwd(), "P0:Prereq", "pytest --help")
+    if code != 0:
+        warnings.append("pytest not found in PATH (tests may be skipped unless --run-tests is false)")
+
+    # git
+    code, _, _ = run_cmd(["git", "--version"], Path.cwd(), "P0:Prereq", "git --version")
+    if code != 0:
+        warnings.append("git not found in PATH (not strictly required)")
+
+    return warnings, blocking
+
+
+# ---------------- Main ----------------
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", default=".", help="Repository root")
@@ -306,7 +316,16 @@ def main():
     os.chdir(repo)
 
     changes: List[str] = []
+    advisories: List[str] = []
+    blocking_notes: List[str] = []
     errors_blocking = False
+
+    # Phase 0: Prerequisites
+    warn, block = check_prereqs()
+    advisories.extend([f"Prereq: {w}" for w in warn])
+    if block:
+        blocking_notes.extend([f"Prereq: {b}" for b in block])
+        errors_blocking = True
 
     # Phase 1: Preparation
     try:
@@ -319,16 +338,16 @@ def main():
     except Exception as e:
         append_error("P1:1-4 Preparation", e, f"repo={repo}")
         errors_blocking = True
+        blocking_notes.append("Failed to create initial changelog or snapshot.")
 
-    # Phase 2: Search & Mapping
+    # Phase 2 context
     pyproject = repo / REPO_FILES["pyproject"]
     setup_cfg = repo / REPO_FILES["setup_cfg"]
-    setup_py  = repo / REPO_FILES["setup_py"]
-    req_base  = repo / REPO_FILES["req_base"]
-    readme    = repo / REPO_FILES["readme"]
-    ci_dir    = repo / REPO_FILES["ci_dir"]
+    setup_py = repo / REPO_FILES["setup_py"]
+    req_base = repo / REPO_FILES["req_base"]
+    readme = repo / REPO_FILES["readme"]
+    ci_dir = repo / REPO_FILES["ci_dir"]
 
-    # Heuristics for which packaging is active
     uses_pyproject = pyproject.exists()
     uses_setup_cfg = setup_cfg.exists()
     has_dev_extras = False
@@ -347,12 +366,10 @@ def main():
             base_changed |= ch
             rationale += ("; " if rationale else "") + why
         else:
-            # fallback to requirements.txt
             if req_base.exists():
                 base_changed = ensure_line(req_base, lambda s: s.strip().startswith("tqdm"), "tqdm")
                 rationale = "added tqdm to requirements.txt" if base_changed else "tqdm already present in requirements.txt"
             else:
-                # create requirements.txt
                 safe_write(req_base, "tqdm\n", "P3:8 fallback requirements.txt", "created base requirements.txt with tqdm")
                 base_changed = True
                 rationale = "created requirements.txt with tqdm"
@@ -360,7 +377,7 @@ def main():
             changes.append(f"* Ensured global tqdm in base deps: {rationale}")
     except Exception as e:
         append_error("P3:8 Ensure tqdm globally", e, "Add tqdm to base deps")
-        errors_blocking = False  # not blocking yet
+        advisories.append("Unable to auto-add tqdm; see error log.")
 
     # Ensure typer in dev
     try:
@@ -370,15 +387,19 @@ def main():
             ch, why = add_to_pyproject_dependencies(pyproject, "typer", dev=True)
             dev_changed |= ch
             rationale += ("; " if rationale else "") + why
-            # best-effort check for dev extras presence
-            has_dev_extras = "added typer to dev extras" in rationale or "[project.optional-dependencies]" in pyproject.read_text(encoding="utf-8")
+            has_dev_extras = "[project.optional-dependencies]" in pyproject.read_text(encoding="utf-8")
         elif uses_setup_cfg:
             ch, why = add_to_setup_cfg(setup_cfg, "typer", dev=True)
             dev_changed |= ch
             rationale += ("; " if rationale else "") + why
-            has_dev_extras = True if "added typer to dev extras" in rationale or "[options.extras_require]" in setup_cfg.read_text(encoding="utf-8") else False
+            has_dev_extras = True
         else:
-            dev_req = find_dev_req_file(repo)
+            dev_req = None
+            for cand in REPO_FILES["req_dev_candidates"]:
+                p = repo / cand
+                if p.exists():
+                    dev_req = p
+                    break
             if dev_req is None:
                 dev_req = repo / "requirements-dev.txt"
                 safe_write(dev_req, "typer\n", "P3:9 create dev requirements", "created requirements-dev.txt with typer")
@@ -390,7 +411,7 @@ def main():
             changes.append(f"* Ensured typer available in dev/test: {rationale}")
     except Exception as e:
         append_error("P3:9 Ensure typer in dev", e, "Add typer to dev deps")
-        errors_blocking = False
+        advisories.append("Unable to auto-add typer; see error log.")
 
     # README alignment
     try:
@@ -399,7 +420,6 @@ def main():
             changes.append(f"* README alignment: {why}")
     except Exception as e:
         append_error("P3:10 README alignment", e, f"readme={readme}")
-        errors_blocking = False
 
     # CI recommendations (non-activating)
     try:
@@ -408,14 +428,14 @@ def main():
             changes.append("* CI (non-activating) recommendations:\n" + "\n".join(suggestions))
     except Exception as e:
         append_error("P3:11 CI suggestions", e, f"ci_dir={ci_dir}")
-        errors_blocking = False
 
-    # Regression hooks
+    # Optional regression validator
     if args.run_validator and (repo / "secondary_copilot_validator.py").exists():
         code, out, err = run_cmd([sys.executable, "secondary_copilot_validator.py", "--validate"], repo, "P3:12 validator", "secondary_copilot_validator.py --validate")
         changes.append(f"* Validator run exit={code}")
         if code != 0:
             errors_blocking = True
+            blocking_notes.append("Validator returned non-zero exit.")
 
     # Test scaffold
     try:
@@ -424,27 +444,27 @@ def main():
             changes.append(f"* Created smoke test: {test_path.relative_to(repo)}")
     except Exception as e:
         append_error("P3:12 Create tests", e, f"tests_dir={REPO_FILES['tests_dir']}")
-        errors_blocking = False
 
-    # Phase 4: Controlled Pruning — (Advisory; no auto deletion)
-    # We only document if duplicate declarations were detected (heuristic)
-    try:
-        dup_note = []
-        if uses_pyproject and (uses_setup_cfg or (repo / REPO_FILES["req_base"]).exists()):
-            dup_note.append("- Detected multiple dependency declaration surfaces; prefer pyproject.toml as source-of-truth. Consider pruning duplicates.")
-        if dup_note:
-            changes.append("* Pruning advisories:\n" + "\n".join(dup_note))
-    except Exception as e:
-        append_error("P4:13 Pruning advisories", e, "dup detection")
-        errors_blocking = False
-
-    # Optional: run pytest if requested
+    # Optional pytest run
     if args.run_tests:
-        if (repo / "pytest.ini").exists() or (repo / "pyproject.toml").exists() or (repo / "tests").exists():
+        if (repo / "tests").exists():
             code, out, err = run_cmd(["pytest", "-q"], repo, "P3:12 pytest", "pytest -q for smoke deps")
             changes.append(f"* pytest run exit={code}")
             if code != 0:
                 errors_blocking = True
+                blocking_notes.append("pytest returned non-zero exit.")
+        else:
+            advisories.append("No tests/ directory present; skipping pytest run.")
+
+    # Phase 4: Controlled pruning (advisory only)
+    try:
+        dup_note = []
+        if uses_pyproject and (uses_setup_cfg or req_base.exists()):
+            dup_note.append("- Detected multiple dependency surfaces; prefer pyproject.toml as source-of-truth. Consider pruning duplicates.")
+        if dup_note:
+            changes.append("* Pruning advisories:\n" + "\n".join(dup_note))
+    except Exception as e:
+        append_error("P4:13 Pruning advisories", e, "dup detection")
 
     # Phase 6: Finalization
     try:
@@ -452,6 +472,14 @@ def main():
             chlog.write("## Summary of Changes\n\n")
             for c in changes:
                 chlog.write(c.strip() + "\n")
+            if advisories:
+                chlog.write("\n## Non-Blocking Advisories\n\n")
+                for a in advisories:
+                    chlog.write(f"- {a}\n")
+            if blocking_notes:
+                chlog.write("\n## Blocking Issues\n\n")
+                for b in blocking_notes:
+                    chlog.write(f"- {b}\n")
             chlog.write("\n### Notes\n- DO NOT ACTIVATE ANY GitHub Actions files; suggestions are non-executable guidance only.\n")
             chlog.write("\n### Remaining Errors\n")
             if Path(ERROR_LOG).exists():
@@ -461,15 +489,26 @@ def main():
     except Exception as e:
         append_error("P6:15-16 Finalization", e, f"write {CHANGELOG}")
         errors_blocking = True
+        blocking_notes.append("Failed to write changelog.")
 
     # Terminal summary
     print("=== Dependency Hardening Summary ===")
     for c in changes:
         print(c)
+    if advisories:
+        print("\n-- Non-Blocking Advisories --")
+        for a in advisories:
+            print(f"- {a}")
+    if blocking_notes:
+        print("\n!! Blocking Issues !!")
+        for b in blocking_notes:
+            print(f"- {b}")
     if Path(ERROR_LOG).exists():
         print(f"\nErrors captured. See {ERROR_LOG}")
     print("\nPolicy: DO NOT ACTIVATE ANY GitHub Actions files.")
-    sys.exit(1 if errors_blocking else 0)
+    sys.exit(1 if (errors_blocking or bool(blocking_notes)) else 0)
+
 
 if __name__ == "__main__":
     main()
+
