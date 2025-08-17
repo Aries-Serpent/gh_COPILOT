@@ -1,8 +1,5 @@
 # 🎯 gh_COPILOT Toolkit v4.0 Enterprise
 
-> Ruff is configured for Python files only; docs (*.md, *.rst) are excluded.
-
-
 ## High-Performance HTTP Archive () Analysis with Advanced Enterprise Integration
 
 ![GitHub Copilot Integration](https://img.shields.io/badge/GitHub_Copilot-Enterprise_Integration-green)
@@ -15,10 +12,6 @@
 **Status:** Active development with incremental improvements. Disaster recovery now enforces external backup roots with verified restore tests, and session-management lifecycle APIs () are now available. Monitoring modules expose a unified metrics API via `unified_monitoring_optimization_system.collect_metrics` with optional quantum scoring hooks, and Git LFS rules are auto-synced from `.codex_lfs_policy.yaml` to ensure binary assets are tracked. The compliance metrics feature is fully implemented, combining lint, test, placeholder, and session lifecycle audits into a composite score persisted to `analytics.db` and exposed through `/api/refresh_compliance` () and `/api/compliance_scores` (). Dashboard gauges now include tooltips explaining lint, test, placeholder, and session success scores, and session wrap-ups log these metrics for every run.
 
 **Combined checks:** run `python scripts/run_checks.py` to execute `Ruff, Pyright, and pytest` sequentially.
-
-```bash
-python scripts/run_checks.py  # runs Ruff, Pyright, pytest
-```
 
 **Tests:** run `pytest` before committing. Current repository tests report multiple failures.
 
@@ -149,7 +142,7 @@ The Flask dashboard streams these metrics in real time with Chart.js gauges and 
 
 Anti-recursion guards () execute alongside scoring; violating runs are excluded.
 
-Compliance enforcement also blocks destructive commands () and flags unresolved `DONE` or `FIXME` placeholders in accordance with `enterprise_modules/compliance.py` and the Phase 5 scoring guidelines.
+Compliance enforcement also blocks destructive commands () and flags unresolved `TODO` or `FIXME` placeholders in accordance with `enterprise_modules/compliance.py` and the Phase 5 scoring guidelines.
 
 ### 🏆 Enterprise Achievements
 
@@ -1628,7 +1621,7 @@ Ruff linting runs and targeted tests pass in simulation, but the full test suite
 ### CI/CD Pipeline Status
 
 - **ci.yml** runs Ruff linting, executes the test suite on multiple Python versions, builds the Docker image, and performs a CodeQL scan
-- **compliance-audit.yml** validates placeholder cleanup and fails if unresolved DONE markers remain
+- **compliance-audit.yml** validates placeholder cleanup and fails if unresolved TODO markers remain
 - **docs-validation.yml** checks documentation metrics on docs changes and weekly
 - **ml-validation.yml** validates ML models and training pipelines
 - **quantum-simulation.yml** tests quantum simulation modules
@@ -1805,7 +1798,7 @@ The `src/gh_copilot` package provides a minimal database-first service with a Fa
 ```bash
 ./setup.sh
 source .venv/bin/activate
-pip install .[dev]
+pip install -e .
 gh-copilot migrate
 gh-copilot seed-models
 gh-copilot compute-score --lint 0.9 --tests 0.8 --placeholders 0.95 --sessions 1.0
