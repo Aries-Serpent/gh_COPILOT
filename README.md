@@ -2155,3 +2155,8 @@ git lfs push --all origin
 git lfs fetch --all && git lfs fsck
 ```
 ---
+
+### CLI Notes (auto)
+Use Typer-based CLI via:
+- `python -m gh_copilot` (module mode), or
+- After install: the generated console script declared in pyproject `[project.scripts]` (if present).

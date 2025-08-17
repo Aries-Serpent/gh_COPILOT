@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-08-17T19:11:44+00:00",
+  "dependency_source": "pyproject.toml",
+  "dependency_changed": true,
+  "editable_install_rc": 2,
+  "test_runner": "pytest",
+  "tests_rc": 1,
+  "success": false
+}
