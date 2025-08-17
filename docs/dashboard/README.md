@@ -28,3 +28,11 @@ Once decoded, the images will be written alongside their `.b64` sources:
 
 ![Metrics View](metrics.png)
 
+
+
+### Installation
+```bash
+pip install -r requirements.txt
+```
+
+> Note: This project requires `PyYAML>=6.0.1`.

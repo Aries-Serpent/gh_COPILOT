@@ -8,6 +8,7 @@ from typing import Any
 
 from .base import BackendProvider
 from quantum.framework.backend import QuantumBackend, SimulatorBackend
+from quantum.feature_flags import IBM_HARDWARE_ENABLED
 
 try:  # pragma: no cover - optional dependency
     from qiskit_ibm_provider import IBMProvider  # type: ignore
@@ -29,7 +30,7 @@ class IBMBackendProvider(BackendProvider):
 
     def is_available(self) -> bool:
         token = os.getenv("QISKIT_IBM_TOKEN")
-        return IBMProvider is not None and token is not None
+        return IBM_HARDWARE_ENABLED and IBMProvider is not None and token is not None
 
     def _build_backend(self) -> QuantumBackend:
         token = os.getenv("QISKIT_IBM_TOKEN")

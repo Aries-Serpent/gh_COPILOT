@@ -7,6 +7,7 @@ import warnings
 from typing import Any, TYPE_CHECKING
 
 from .base import BackendProvider
+from quantum.feature_flags import DWAVE_HARDWARE_ENABLED
 
 if TYPE_CHECKING:  # pragma: no cover - type checking only
     from quantum.framework.backend import QuantumBackend
@@ -19,7 +20,7 @@ class DWaveProvider(BackendProvider):
         self._backend: "QuantumBackend" | None = None
 
     def is_available(self) -> bool:
-        return bool(os.getenv("DWAVE_API_TOKEN"))
+        return DWAVE_HARDWARE_ENABLED and bool(os.getenv("DWAVE_API_TOKEN"))
 
     def _build_backend(self) -> "QuantumBackend":
         if not self.is_available():

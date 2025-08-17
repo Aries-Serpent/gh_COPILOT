@@ -5,11 +5,15 @@ import sqlite3
 import pytest
 import sys
 import types
+from pathlib import Path
 
 
 @pytest.mark.parametrize("simulate,test_mode", [(True, False), (False, True), (False, False)])
 def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    repo_root = Path(__file__).resolve().parents[1]
+    monkeypatch.syspath_prepend(str(repo_root))
+    importlib.invalidate_caches()
     push_calls = []
     executed = []
 

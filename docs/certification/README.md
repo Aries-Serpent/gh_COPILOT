@@ -30,3 +30,11 @@ interface.
   certificate logging and auditing practices
 
 
+
+
+### Installation
+```bash
+pip install -r requirements.txt
+```
+
+> Note: This project requires `PyYAML>=6.0.1`.

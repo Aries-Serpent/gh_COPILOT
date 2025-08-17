@@ -1,0 +1,7 @@
+$ git lfs fetch --all
+fetch: 48 objects found, done.
+fetch: Fetching all references...
+
+batch request: missing protocol: ""
+error: failed to fetch some objects from ''
+

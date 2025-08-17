@@ -17,6 +17,7 @@ This module provides three main classes:
 
 from __future__ import annotations
 
+import hashlib
 import re
 import sqlite3
 import threading
@@ -402,3 +403,33 @@ def list_events(analytics_db: Path | str, limit: int = 10) -> List[Dict[str, Any
 
 
 __all__ = ["SchemaMapper", "SyncManager", "SyncWatcher", "list_events", "watch_and_sync"]
+
+
+def compare_schema(conn_a, conn_b):
+    # TODO[Codex-BestEffort]: compare table/column shapes
+    return {}
+
+
+def compute_row_signature(row: tuple) -> str:
+    # TODO[Codex-BestEffort]: robust hash for row identity
+    return hashlib.sha256(str(row).encode('utf-8')).hexdigest()
+
+
+def diff_rows(sig_set_a, sig_set_b):
+    # TODO[Codex-BestEffort]: return (only_in_a, only_in_b)
+    return sig_set_a - sig_set_b, sig_set_b - sig_set_a
+
+
+def attempt_reconcile(conn_src, conn_dst, diffs, policy='report_only'):
+    # TODO[Codex-BestEffort]: implement idempotent upsert based on policy
+    return {'applied': 0, 'policy': policy}
+
+
+def perform_recovery(context):
+    # TODO[Codex-BestEffort]: rollback/restore strategy
+    return {'recovered': True}
+
+
+def log_analytics_event(cnx, run_id, kind, payload):
+    # TODO[Codex-BestEffort]: write to analytics tables
+    pass

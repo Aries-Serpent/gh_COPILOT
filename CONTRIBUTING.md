@@ -30,3 +30,11 @@ For daily white-paper updates, ensure the following:
 - [ ] `python tools/convert_daily_whitepaper.py` run to create Markdown copy and update the index
 
 See `documentation/generated/README.md` for detailed instructions.
+
+
+### Installation
+```bash
+pip install -r requirements.txt
+```
+
+> Note: This project requires `PyYAML>=6.0.1`.

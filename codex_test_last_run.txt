@@ -1,0 +1,24 @@
+
+============================================================ ERRORS ============================================================
+____________________________________________ ERROR collecting tests/cli/test_cli.py ____________________________________________
+ImportError while importing test module '/workspace/gh_COPILOT/tests/cli/test_cli.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/cli/test_cli.py:2: in <module>
+    from typer.testing import CliRunner
+E   ModuleNotFoundError: No module named 'typer'
+======================================================== Skipped tests =========================================================
+misc/tests/test_base64_zip_transformer.py - ('/workspace/gh_COPILOT/misc/tests/test_base64_zip_transformer.py', 12, "Skipped: could not import 'PyQt6': No module named 'PyQt6'")
+misc/tests/test_zip_transformer.py - ('/workspace/gh_COPILOT/misc/tests/test_zip_transformer.py', 11, "Skipped: could not import 'PyQt6': No module named 'PyQt6'")
+========================================================= Future work ==========================================================
+Consider extending artifact_manager tests for additional edge cases and CI integration.
+=================================================== short test summary info ====================================================
+ERROR tests/cli/test_cli.py
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+2 skipped, 2 warnings, 1 error in 6.15s
+
+
+STDERR:
