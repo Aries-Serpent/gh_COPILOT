@@ -1798,7 +1798,7 @@ The `src/gh_copilot` package provides a minimal database-first service with a Fa
 ```bash
 ./setup.sh
 source .venv/bin/activate
-pip install -e .
+pip install .[dev]
 gh-copilot migrate
 gh-copilot seed-models
 gh-copilot compute-score --lint 0.9 --tests 0.8 --placeholders 0.95 --sessions 1.0
