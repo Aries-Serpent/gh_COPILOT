@@ -155,7 +155,15 @@ Compliance enforcement also blocks destructive commands () and flags unresolved 
 
 ### Enterprise Systems
 
-- **Multiple SQLite Databases:** `databases/production.db`, `databases/analytics.db`, `databases/monitoring.db`, `databases/codex_logs.db`
+- **Multiple SQLite Databases:** the toolkit relies on several SQLite files for state and metrics.
+
+| Database | Path | Purpose |
+|----------|------|---------|
+| Production | `databases/production.db` | Primary source of truth and session records |
+| Analytics | `databases/analytics.db` | Compliance metrics, audits, and placeholder snapshots |
+| Monitoring | `databases/monitoring.db` | System health and performance telemetry |
+| Codex Logs | `databases/codex_logs.db` | Codex session and action logs |
+
   - [ER Diagrams](docs/ER_DIAGRAMS.md) for key databases
 - **Flask Enterprise Dashboard:** run `python web_gui_integration_system.py` to launch the metrics and compliance dashboard
 - **Template Intelligence Platform:** tracks generated scripts
