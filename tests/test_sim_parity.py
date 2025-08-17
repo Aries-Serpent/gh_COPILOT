@@ -1,6 +1,5 @@
 # Auto-generated prototype tests for simulator parity
 import unittest
-from scripts.quantum_placeholders import __init__ as qp_init  # if exists
 # Tests call into an exemplar placeholder module if present, else use local runner.
 
 try:
@@ -11,7 +10,9 @@ except Exception:
 
 def _fallback_verify(circuit: dict, shots: int = 512) -> dict:
     # inline minimal parity check (mirrors generator)
-    import json, hashlib, math
+    import hashlib
+    import json
+    import math
 
     def _stable_hash(s):
         return int(hashlib.sha256(s.encode("utf-8")).hexdigest(), 16)
@@ -22,21 +23,21 @@ def _fallback_verify(circuit: dict, shots: int = 512) -> dict:
             h = hashlib.sha256(key.encode("utf-8")).digest()
             vals = [b / 255.0 for b in h[:4]]
             s = sum(vals) or 1.0
-            return {"type": "statevector", "vector": [v / s for v in vals]}
+            return {"type":"statevector","vector":[v / s for v in vals]}
 
     class S2:
         def run(self, c, shots=512):
             key = json.dumps(c, sort_keys=True)
-            seed = _stable_hash(key) % (2**32)
+            seed = _stable_hash(key) % (2 ** 32)
             probs_raw = [((seed >> k) & 0xFF) / 255.0 for k in (0, 8, 16, 24)]
             s = sum(probs_raw) or 1.0
             probs = [p / s for p in probs_raw]
             labels = ["00", "01", "10", "11"]
             counts = {lab: int(round(p * shots)) for lab, p in zip(labels, probs)}
-            return {"type": "counts", "counts": counts, "shots": shots}
+            return {"type":"counts","counts":counts,"shots":shots}
 
     def _hellinger(p, q):
-        return (1.0 / (2.0**0.5)) * (sum((math.sqrt(pi) - math.sqrt(qi)) ** 2 for pi, qi in zip(p, q))) ** 0.5
+        return (1.0 / (2.0 ** 0.5)) * (sum((math.sqrt(pi) - math.sqrt(qi)) ** 2 for pi, qi in zip(p, q))) ** 0.5
 
     def _norm(counts):
         tot = sum(counts.values()) or 1

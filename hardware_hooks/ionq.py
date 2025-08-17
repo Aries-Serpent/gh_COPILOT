@@ -1,4 +1,4 @@
-# Auto-generated hardware hook (no network calls). 2025-08-17T03:39:27Z
+# Auto-generated hardware hook (no network calls). 2025-08-17T04:05:14Z
 import os
 from typing import Optional, Dict
 
@@ -15,6 +15,5 @@ def client_info(name: str, env_var: str) -> Dict[str, str]:
         "env_var": env_var,
         "activation": "disabled",  # DO NOT ACTIVATE
     }
-
 
 # IONQ_API_TOKEN
