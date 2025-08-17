@@ -2141,3 +2141,40 @@ _These statistics are auto-refreshed by the Codex task._
 
 
 See **Compliance Model**: `docs/governance/COMPLIANCE.md`.
+
+
+
+## Disaster Recovery (Automated Update)
+
+**Scope:** Backup creation, verification, restore, and rollback with analytics
+logging to `analytics.db`.
+
+### Quick Start
+```bash
+# run tests (if pytest installed)
+pytest -q
+```
+
+### Analytics Database
+
+* SQLite file: `analytics.db`
+* Table: `events(event_time TEXT, level TEXT, event TEXT, details TEXT)`
+
+### Functions (auto-injected helpers)
+
+* `_dr_create_backup(src, dest, logger=None)`
+* `_dr_verify_backup(dest, logger=None)`
+* `_dr_restore_from_backup(src, dest, logger=None)`
+* `_dr_rollback(previous_state, dest, logger=None)`
+
+> Note: These helpers are injected between:
+
+```
+# === BEGIN: AUTO-INJECTED DR HELPERS (safe to remove) ===
+...
+# === END: AUTO-INJECTED DR HELPERS ===
+```
+
+and are safe to remove once the primary DR implementation supersedes them.
+
+**Safety:** DO NOT ACTIVATE ANY GitHub Actions files.
