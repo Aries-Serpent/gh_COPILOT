@@ -13,10 +13,6 @@
 
 **Combined checks:** run `python scripts/run_checks.py` to execute `Ruff, Pyright, and pytest` sequentially.
 
-```bash
-python scripts/run_checks.py  # runs Ruff, Pyright, pytest
-```
-
 **Tests:** run `pytest` before committing. Current repository tests report multiple failures.
 
 ### Test Repair & Stub Policy
@@ -1802,7 +1798,7 @@ The `src/gh_copilot` package provides a minimal database-first service with a Fa
 ```bash
 ./setup.sh
 source .venv/bin/activate
-pip install .[dev]
+pip install -e .
 gh-copilot migrate
 gh-copilot seed-models
 gh-copilot compute-score --lint 0.9 --tests 0.8 --placeholders 0.95 --sessions 1.0

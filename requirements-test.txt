@@ -3,7 +3,6 @@ pytest
 pytest-cov
 pytest-timeout
 psutil
-tqdm
 numpy
 scikit-learn
 Flask==3.1.1
