@@ -32,9 +32,11 @@ def _query_counts(db: Path) -> dict[str, int]:
     return counts
 
 
-def _run(cmd: list[str]) -> tuple[int, str]:
+def _run(cmd: list[str], cwd: Path | None = None) -> tuple[int, str]:
     """Run a command and return its exit code and combined output."""
-    proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    proc = subprocess.run(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, cwd=cwd
+    )
     output = proc.stdout.strip()
     return proc.returncode, output
 
@@ -43,10 +45,21 @@ def generate_reports() -> dict:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     counts = _query_counts(DB_PATH)
 
-    pytest_rc, pytest_out = _run(["pytest", "-q"])
+    pytest_rc, pytest_out = _run(["pytest", "-q"], cwd=ROOT)
     pytest_summary = pytest_out.splitlines()[-1] if pytest_out else ""
 
-    ruff_rc, ruff_out = _run(["ruff", "check", ".", "--quiet"])
+    ruff_rc, ruff_out = _run(
+        [
+            "ruff",
+            "check",
+            ".",
+            "--quiet",
+            "--config",
+            str(ROOT / "pyproject.toml"),
+            "--force-exclude",
+        ],
+        cwd=ROOT,
+    )
     lint_errors = len(ruff_out.splitlines()) if ruff_rc else 0
 
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d")
