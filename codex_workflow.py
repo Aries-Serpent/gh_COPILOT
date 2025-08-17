@@ -1,485 +1,405 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-codex_workflow.py — End-to-end helper for prioritized test repair against stub modules.
+Codex Workflow: Verify tqdm base requirement, execute scripts/wlc_session_manager.py with TEST_MODE=1,
+add a smoke test import, patch README dependencies, document changes, and capture errors as ChatGPT-5 questions.
 
-Capabilities:
-- Parse docs/STUB_MODULE_STATUS.md for prioritized modules
-- Map tests -> source modules via AST heuristics
-- Best-effort construct missing modules/symbols
-- README link fixups (safe replacements/removals)
-- Run pytest, capture reports, and parse failures
-- Change log + research question capture (ChatGPT-5 format)
-- Explicitly does NOT activate GitHub Actions
-
-Usage:
-  python codex_workflow.py
+Policy: DO NOT ACTIVATE OR MODIFY ANY GitHub Actions files (.github/workflows/**).
 """
 
-import ast
+import os
 import re
 import sys
+import json
 import time
+import textwrap
 import subprocess
 from pathlib import Path
-from typing import Dict, List, Tuple
+from datetime import datetime
 
-# ------------------------------
-# Constants & Paths
-# ------------------------------
-REPO_ROOT = Path(__file__).resolve().parent
-TESTS_DIR = REPO_ROOT / "tests"
-DOCS_DIR = REPO_ROOT / "docs"
-REPORTS_DIR = REPO_ROOT / "reports"
-CHANGELOG = REPO_ROOT / "codex_change_log.md"
-QUESTIONS = REPO_ROOT / "codex_research_questions.md"
-RUNLOG = REPO_ROOT / "codex_run.log"
+# --------------- Config ---------------
+REPO_ROOT = Path.cwd()
+OUT_DIR = REPO_ROOT / ".codex_out"
+OUT_DIR.mkdir(exist_ok=True)
+CHANGELOG = REPO_ROOT / "codex_workflow_changelog.md"
+QUESTIONS = REPO_ROOT / "chatgpt5_questions.md"
 README = REPO_ROOT / "README.md"
-STUB_STATUS = DOCS_DIR / "STUB_MODULE_STATUS.md"
-GHA_DIR = REPO_ROOT / ".github" / "workflows"
-PYTEST_REPORT = REPORTS_DIR / "test_results.txt"
+TARGET_SCRIPT = REPO_ROOT / "scripts" / "wlc_session_manager.py"
+TESTS_DIR = REPO_ROOT / "tests"
+SMOKE_TEST = TESTS_DIR / "test_wlc_session_manager_smoke.py"
 
-# Common source roots to probe
-SOURCE_ROOTS = [
-    REPO_ROOT / "src",
-    REPO_ROOT,  # direct top-level modules
+DEP_FILES = [
+    REPO_ROOT / "requirements.txt",
+    REPO_ROOT / "pyproject.toml",
+    REPO_ROOT / "Pipfile",
+    REPO_ROOT / "environment.yml",
 ]
 
-# ------------------------------
-# Utilities
-# ------------------------------
+GH_ACTIONS_DIR = REPO_ROOT / ".github" / "workflows"
+
+TQDM_MIN = "4.0.0"  # conservative floor
+# --------------------------------------
 
 
-def log(msg: str):
-    RUNLOG.parent.mkdir(parents=True, exist_ok=True)
-    with RUNLOG.open("a", encoding="utf-8") as f:
-        f.write(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {msg}\n")
-    print(msg)
+def log_change(msg: str):
+    line = f"- {datetime.now().isoformat()} — {msg}\n"
+    with CHANGELOG.open("a", encoding="utf-8") as f:
+        f.write(line)
 
 
-def append_file(path: Path, content: str):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8") as f:
-        f.write(content.rstrip() + "\n")
+def ask_chatgpt5(step_num: str, step_desc: str, error_msg: str, ctx: str):
+    block = textwrap.dedent(f"""
+    **Question for ChatGPT-5:**
+    While performing [{step_num}:{step_desc}], encountered the following error:
+    `{error_msg}`
+    Context: `{ctx}`
+    What are the possible causes, and how can this be resolved while preserving intended functionality?
+
+    """).lstrip()
+    with QUESTIONS.open("a", encoding="utf-8") as f:
+        f.write(block)
 
 
-def write_file(path: Path, content: str):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
-        f.write(content)
-
-
-def read_text(path: Path) -> str:
+def read_file_lines(p: Path):
     try:
-        return path.read_text(encoding="utf-8")
-    except FileNotFoundError:
-        return ""
-
-
-def safe_rel(p: Path) -> str:
-    try:
-        return str(p.relative_to(REPO_ROOT))
-    except ValueError:
-        return str(p)
-
-
-def run_pytest() -> Tuple[int, str]:
-    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-    try:
-        proc = subprocess.run(
-            [sys.executable, "-m", "pytest", "-q"],
-            cwd=REPO_ROOT,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            check=False,
-        )
-        output = proc.stdout
-        write_file(PYTEST_REPORT, output)
-        return proc.returncode, output
+        return p.read_text(encoding="utf-8").splitlines()
     except Exception as e:
-        msg = f"pytest invocation failed: {e}"
-        append_research_question(
-            step="11:Run full test suite",
-            error_message=str(e),
-            context="Could not execute pytest; environment or dependencies may be missing."
-        )
-        return 1, msg
+        ask_chatgpt5("P1", f"Read file {p}", str(e), "Attempting to read textual dependency or README file")
+        return None
 
 
-def parse_stub_status(md: str) -> List[str]:
-    """
-    Very simple parser to extract module names mentioned as stubs.
-    Accept lines like '- module_name' or table cells containing module paths.
-    """
-    modules = set()
-    for line in md.splitlines():
-        line = line.strip()
-        # Bullet or table cell heuristic
-        m = re.findall(r"([A-Za-z0-9_./\\-]+)\.py", line)
-        for token in m:
-            # Normalize pathish -> module stem
-            stem = Path(token).stem
-            if stem:
-                modules.add(stem)
-    return sorted(modules)
-
-
-def find_tests() -> List[Path]:
-    return sorted(TESTS_DIR.glob("test_*.py")) if TESTS_DIR.exists() else []
-
-
-def ast_parse_symbols_from_test(test_path: Path) -> Dict[str, List[str]]:
-    """
-    Parse a test file to infer:
-      - imports: modules under test
-      - attribute usage: functions/classes likely required
-    """
-    content = read_text(test_path)
-    info = {"imports": [], "attributes": []}
+def write_text(p: Path, content: str, step_num: str, step_desc: str):
     try:
-        tree = ast.parse(content)
+        p.write_text(content, encoding="utf-8")
+        return True
     except Exception as e:
-        append_research_question(
-            step="5:Parse test AST",
-            error_message=str(e),
-            context=f"Failed parsing {safe_rel(test_path)}"
-        )
-        return info
+        ask_chatgpt5(step_num, step_desc, str(e), f"Writing to {p}")
+        return False
 
-    class Visitor(ast.NodeVisitor):
-        def visit_Import(self, node: ast.Import):
-            for n in node.names:
-                info["imports"].append(n.name)
 
-        def visit_ImportFrom(self, node: ast.ImportFrom):
-            if node.module:
-                info["imports"].append(node.module)
+def ensure_tqdm_in_requirements():
+    """Add or normalize tqdm in known dependency files (best-effort, non-destructive)."""
+    results = {"updated": [], "conflicts": [], "notes": []}
 
-        def visit_Attribute(self, node: ast.Attribute):
-            # Collect attribute names used; heuristic only.
-            if isinstance(node.attr, str):
-                info["attributes"].append(node.attr)
-            self.generic_visit(node)
+    # 1) requirements.txt
+    req = REPO_ROOT / "requirements.txt"
+    if req.exists():
+        lines = read_file_lines(req)
+        if lines is not None:
+            norm = [ln.strip() for ln in lines if ln.strip()]
+            has_tqdm = any(re.match(r"^\s*tqdm([<=>!~]=.*)?\s*$", ln, re.IGNORECASE) for ln in norm)
+            if not has_tqdm:
+                norm.append(f"tqdm>={TQDM_MIN}")
+                content = "\n".join(norm) + "\n"
+                if write_text(req, content, "B3", "Append tqdm to requirements.txt"):
+                    results["updated"].append(str(req))
+                    log_change("Added 'tqdm>=' line to requirements.txt")
+            else:
+                results["notes"].append("tqdm already present in requirements.txt")
 
-        def visit_Call(self, node: ast.Call):
-            # capture function names used
-            if isinstance(node.func, ast.Attribute) and isinstance(node.func.attr, str):
-                info["attributes"].append(node.func.attr)
-            elif isinstance(node.func, ast.Name):
-                info["attributes"].append(node.func.id)
-            self.generic_visit(node)
+    # 2) pyproject.toml (PEP 621 or Poetry)
+    pyp = REPO_ROOT / "pyproject.toml"
+    if pyp.exists():
+        txt = pyp.read_text(encoding="utf-8")
+        new_txt = txt
+        if "[project]" in txt and "dependencies" in txt:
+            # naive insertion if missing
+            if "tqdm" not in txt:
+                new_txt = re.sub(
+                    r"(?ms)(\[project\].*?dependencies\s*=\s*\[)(.*?)(\])",
+                    lambda m: f"{m.group(1)}{m.group(2)}\n  \"tqdm>={TQDM_MIN}\",{m.group(3)}",
+                    txt,
+                )
+        elif "[tool.poetry.dependencies]" in txt:
+            # naive insertion if missing
+            if re.search(r"(?mi)^\s*tqdm\s*=", txt) is None:
+                new_txt = re.sub(
+                    r"(?ms)(\[tool\.poetry\.dependencies\]\s*)(.*?)($|\n\[)",
+                    lambda m: f"{m.group(1)}{m.group(2)}\ntqdm = \">={TQDM_MIN}\"\n{m.group(3)}",
+                    txt,
+                )
 
-    Visitor().visit(tree)
-    # Deduplicate while preserving order
-    info["imports"] = list(dict.fromkeys(info["imports"]))
-    info["attributes"] = list(dict.fromkeys(info["attributes"]))
+        if new_txt != txt:
+            if write_text(pyp, new_txt, "B3", "Insert tqdm into pyproject.toml"):
+                results["updated"].append(str(pyp))
+                log_change("Inserted 'tqdm' into pyproject.toml dependencies")
+        else:
+            results["notes"].append("pyproject.toml unchanged or tqdm already present")
+
+    # 3) Pipfile (very basic handling)
+    pipf = REPO_ROOT / "Pipfile"
+    if pipf.exists():
+        txt = pipf.read_text(encoding="utf-8")
+        if "[packages]" in txt and "tqdm" not in txt:
+            new_txt = re.sub(
+                r"(?ms)(\[packages\]\s*)(.*?)($|\n\[)",
+                lambda m: f"{m.group(1)}{m.group(2)}\ntqdm = \">={TQDM_MIN}\"\n{m.group(3)}",
+                txt,
+            )
+            if new_txt != txt:
+                if write_text(pipf, new_txt, "B3", "Insert tqdm into Pipfile"):
+                    results["updated"].append(str(pipf))
+                    log_change("Inserted 'tqdm' into Pipfile [packages]")
+        else:
+            results["notes"].append("Pipfile unchanged or tqdm already present")
+
+    # 4) environment.yml (conda) — add under dependencies if safe
+    envy = REPO_ROOT / "environment.yml"
+    if envy.exists():
+        lines = read_file_lines(envy)
+        if lines is not None:
+            joined = "\n".join(lines)
+            if "tqdm" not in joined:
+                # Append to dependencies list heuristically
+                new_lines = []
+                in_deps = False
+                injected = False
+                for ln in lines:
+                    new_lines.append(ln)
+                    if re.match(r"^\s*dependencies\s*:\s*$", ln):
+                        in_deps = True
+                    elif in_deps and re.match(r"^\S", ln):
+                        # leaving dependencies block
+                        if not injected:
+                            new_lines.insert(-1, "  - tqdm>=" + TQDM_MIN)
+                            injected = True
+                        in_deps = False
+                if in_deps and not injected:
+                    new_lines.append("  - tqdm>=" + TQDM_MIN)
+                    injected = True
+
+                if injected:
+                    if write_text(envy, "\n".join(new_lines) + "\n", "B3", "Insert tqdm into environment.yml"):
+                        results["updated"].append(str(envy))
+                        log_change("Inserted 'tqdm' into environment.yml dependencies")
+            else:
+                results["notes"].append("environment.yml already mentions tqdm")
+
+    return results
+
+
+def patch_readme_dependencies():
+    if not README.exists():
+        return {"updated": False, "note": "README.md not found"}
+
+    txt = README.read_text(encoding="utf-8")
+
+    deps_section_pat = re.compile(r"(?mis)^##\s*Dependencies.*?(?=^##\s|\Z)")
+    has_deps = deps_section_pat.search(txt)
+
+    deps_block = textwrap.dedent(f"""
+    ## Dependencies
+
+    - This project now requires `tqdm>={TQDM_MIN}` as a base dependency for progress reporting.
+    - Ensure your environment reflects this requirement (see `requirements.txt` or `pyproject.toml`).
+    """)
+
+    updated_txt = None
+    if has_deps:
+        # Replace existing Dependencies section cautiously: append tqdm note if missing
+        sect = has_deps.group(0)
+        if "tqdm" not in sect:
+            updated_txt = txt.replace(sect, sect.rstrip() + "\n\n- Added requirement: `tqdm>=" + TQDM_MIN + "`\n")
+    else:
+        # Append a new Dependencies section at end
+        updated_txt = (txt.rstrip() + "\n\n" + deps_block.strip() + "\n")
+
+    if updated_txt and updated_txt != txt:
+        if write_text(README, updated_txt, "B4", "Patch README with Dependencies section note for tqdm"):
+            log_change("Patched README.md with tqdm dependency note")
+            return {"updated": True, "note": "README.md patched"}
+        else:
+            return {"updated": False, "note": "Failed to write README.md (see questions)"}
+    return {"updated": False, "note": "README already contained suitable Dependencies info"}
+
+
+def ensure_smoke_test():
+    TESTS_DIR.mkdir(exist_ok=True)
+    if SMOKE_TEST.exists():
+        return {"created": False, "note": "Smoke test already exists"}
+
+    # Try both direct import and fallback dynamic import from scripts path.
+    content = textwrap.dedent("""
+    import importlib
+    import importlib.util
+    import sys
+    from pathlib import Path
+
+    def _dynamic_import_from_scripts():
+        repo_root = Path(__file__).resolve().parents[1]
+        candidate = repo_root / "scripts" / "wlc_session_manager.py"
+        if candidate.exists():
+            spec = importlib.util.spec_from_file_location("wlc_session_manager", candidate)
+            mod = importlib.util.module_from_spec(spec)
+            sys.modules["wlc_session_manager"] = mod
+            spec.loader.exec_module(mod)  # type: ignore
+            return mod
+        return None
+
+    def test_import_wlc_session_manager():
+        try:
+            import wlc_session_manager  # noqa: F401
+            assert True
+            return
+        except Exception:
+            mod = _dynamic_import_from_scripts()
+            assert mod is not None, "Unable to import wlc_session_manager from package or scripts/"
+    """).lstrip()
+
+    if write_text(SMOKE_TEST, content, "B5", "Create smoke test for wlc_session_manager import"):
+        log_change("Created tests/test_wlc_session_manager_smoke.py")
+        return {"created": True, "note": "Smoke test created"}
+    return {"created": False, "note": "Failed to create smoke test (see questions)"}
+
+
+def run_script_with_test_mode():
+    if not TARGET_SCRIPT.exists():
+        ask_chatgpt5("B6", "Execute wlc_session_manager with TEST_MODE=1",
+                     "scripts/wlc_session_manager.py not found",
+                     "Checked default path scripts/wlc_session_manager.py")
+        return {"ran": False, "exit_code": None, "stdout": "", "stderr": "file not found"}
+
+    env = os.environ.copy()
+    env["TEST_MODE"] = "1"
+    cmd = [sys.executable, str(TARGET_SCRIPT)]
+    run_log_base = OUT_DIR / f"wlc_session_manager_run_{int(time.time())}"
+    try:
+        proc = subprocess.run(cmd, env=env, capture_output=True, text=True, timeout=120)
+        (run_log_base.with_suffix(".stdout.txt")).write_text(proc.stdout or "", encoding="utf-8")
+        (run_log_base.with_suffix(".stderr.txt")).write_text(proc.stderr or "", encoding="utf-8")
+        log_change(f"Executed target script with TEST_MODE=1 (exit={proc.returncode})")
+        if proc.returncode != 0:
+            ask_chatgpt5("B6", "Execute wlc_session_manager with TEST_MODE=1",
+                         f"Non-zero exit: {proc.returncode}",
+                         f"stderr snippet: {(proc.stderr or '').strip()[:400]}")
+        return {"ran": True, "exit_code": proc.returncode, "stdout": proc.stdout, "stderr": proc.stderr}
+    except subprocess.TimeoutExpired as e:
+        ask_chatgpt5("B6", "Execute wlc_session_manager with TEST_MODE=1",
+                     "TimeoutExpired",
+                     f"Command: {cmd}, after 120s; partial output may exist.")
+        return {"ran": False, "exit_code": None, "stdout": "", "stderr": "timeout"}
+    except Exception as e:
+        ask_chatgpt5("B6", "Execute wlc_session_manager with TEST_MODE=1", str(e), "Subprocess invocation failed")
+        return {"ran": False, "exit_code": None, "stdout": "", "stderr": str(e)}
+
+
+def python_version_info():
+    info = {
+        "python": sys.version.replace("\n", " "),
+        "executable": sys.executable,
+        "cwd": str(REPO_ROOT),
+    }
+    (OUT_DIR / "python_env.json").write_text(json.dumps(info, indent=2), encoding="utf-8")
     return info
 
 
-def guess_module_paths(test_path: Path, imports: List[str]) -> List[Path]:
-    """
-    Given `tests/test_<name>.py`, try to locate a corresponding module.
-    Heuristics:
-      1) test_<name>.py -> <name>.py in SOURCE_ROOTS
-      2) Prefer paths derived from explicit imports (e.g., package.module).
-    """
-    candidates = []
-
-    # Heuristic from test filename
-    name = test_path.stem.replace("test_", "", 1)
-    if name:
-        for root in SOURCE_ROOTS:
-            candidates.append(root / f"{name}.py")
-
-    # Heuristic from imports (package.module)
-    for imp in imports:
-        parts = imp.split(".")
-        for root in SOURCE_ROOTS:
-            if len(parts) >= 2:
-                candidates.append(root.joinpath(*parts[:-1], f"{parts[-1]}.py"))
-            else:
-                candidates.append(root / f"{imp}.py")
-
-    # Deduplicate
-    uniq = []
-    seen = set()
-    for c in candidates:
-        key = c.resolve()
-        if key not in seen:
-            seen.add(key)
-            uniq.append(c)
-    return uniq
-
-
-def ensure_module_exists(module_path: Path, reason: str):
-    if module_path.exists():
-        return
-    write_file(
-        module_path,
-        f'''"""
-Auto-created by codex_workflow.py
-Reason: {reason}
-"""
-
-# TODO(Codex): Implement real logic to satisfy tests while preserving intended behavior.
-def _placeholder():
-    """No-op placeholder to keep module importable."""
-    return None
-'''
-    )
-    append_change_log(f"Created stub module: {safe_rel(module_path)} (reason: {reason})")
-
-
-def parse_module_symbols(module_path: Path) -> Dict[str, str]:
-    """
-    Return {symbol_name: 'function'|'class'|'other'}
-    """
-    content = read_text(module_path)
-    out: Dict[str, str] = {}
-    if not content:
-        return out
-    try:
-        tree = ast.parse(content)
-    except Exception as e:
-        append_research_question(
-            step="7:Parse source AST",
-            error_message=str(e),
-            context=f"Failed parsing {safe_rel(module_path)}"
-        )
-        return out
-
-    for node in tree.body:
-        if isinstance(node, ast.FunctionDef):
-            out[node.name] = "function"
-        elif isinstance(node, ast.AsyncFunctionDef):
-            out[node.name] = "function"
-        elif isinstance(node, ast.ClassDef):
-            out[node.name] = "class"
-        else:
-            # ignore assignments / constants
-            pass
-    return out
-
-
-def add_missing_symbol(module_path: Path, symbol: str, kind: str):
-    content = read_text(module_path)
-    if not content:
-        ensure_module_exists(module_path, f"Initialize module for missing symbol {symbol}")
-        content = read_text(module_path)
-
-    snippet = ""
-    if kind == "function":
-        snippet = f"""
-
-def {symbol}(*args, **kwargs):
-    \"\"\"TODO(Codex): Implement {symbol} to satisfy tests without breaking contracts.\"\"\"
-    # Minimal best-effort: return None or passthrough
-    return None
-"""
-    elif kind == "class":
-        snippet = f"""
-
-class {symbol}:
-    \"\"\"TODO(Codex): Implement class {symbol} with minimal viable interface.\"\"\"
-    def __init__(self, *args, **kwargs):
-        pass
-"""
-    else:
-        snippet = f"""
-
-# TODO(Codex): symbol '{symbol}' referenced by tests—add correct implementation.
-{symbol} = None
-"""
-
-    write_file(module_path, content.rstrip() + "\n" + snippet)
-    append_change_log(f"Added {kind} '{symbol}' to {safe_rel(module_path)} (best-effort).")
-
-
-def classify_symbol_kind_from_test_usage(symbol: str) -> str:
-    # Heuristic: names in ALL_CAPS → constant; CamelCase → class; else → function.
-    if symbol.isupper():
-        return "other"
-    if re.match(r"[A-Z][A-Za-z0-9]+$", symbol):
-        return "class"
-    return "function"
-
-
-def fix_readme_references():
-    if not README.exists():
-        return
-    content = read_text(README)
-    # Replace dead relative links to .py files that were created/moved
-    # Heuristic: convert links pointing to non-existent targets into code literals.
-    pattern = re.compile(r"\(([^)]+\.py)\)")
-
-    def repl(m):
-        target = m.group(1)
-        path = REPO_ROOT / target
-        if not path.exists():
-            append_change_log(f"README: replaced dead link ({target}) with inline code.")
-            return f"`{target}`"
-        return f"({target})"
-
-    new_content = re.sub(pattern, repl, content)
-    if new_content != content:
-        write_file(README, new_content)
-        append_change_log("README: updated references (safe replacements/removals).")
-
-
-def parse_pytest_failures(output: str) -> List[Dict[str, str]]:
-    """
-    Very heuristic parsing to capture failing tests and error heads.
-    """
-    failures = []
-    lines = output.splitlines()
-    current = None
-    for ln in lines:
-        if re.match(r"^=+ FAILURES =+$", ln):
-            current = {"test": "", "error": ""}
-            continue
-        if current is not None:
-            if ln.strip().startswith("___") and " ___" in ln:
-                # Test header line e.g. "___ TestClass::test_name ___"
-                if current["test"] or current["error"]:
-                    failures.append(current)
-                    current = {"test": "", "error": ""}
-                current["test"] = ln.strip("_ ").strip()
-            elif ln.startswith("E   "):
-                current["error"] += ln + "\n"
-            elif re.match(r"^=+ short test summary info =+$", ln):
-                # close out
-                if current["test"] or current["error"]:
-                    failures.append(current)
-                current = None
-    return failures
-
-
-def append_change_log(entry: str):
-    append_file(CHANGELOG, f"- {entry}")
-
-
-def append_research_question(step: str, error_message: str, context: str):
-    block = f"""
-Question for ChatGPT-5:
-While performing [{step}], encountered the following error:
-{error_message}
-Context: {context}
-What are the possible causes, and how can this be resolved while preserving intended functionality?
-"""
-    append_file(QUESTIONS, block.strip() + "\n")
-
-
-def assert_no_gha_activation():
-    if GHA_DIR.exists():
-        # Just log their presence; do not modify/enable anything.
-        append_change_log("Confirmed presence of .github/workflows; no activation performed.")
-
-
-# ------------------------------
-# Main Workflow
-# ------------------------------
-
-
 def main():
-    # Phase 1: Preparation
-    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-    write_file(CHANGELOG, "# Codex Change Log\n\n")
-    write_file(QUESTIONS, "# Codex Research Questions\n\n")
-    write_file(RUNLOG, "")
+    # Safety policy logging
+    if GH_ACTIONS_DIR.exists():
+        log_change("Policy enforced: Skipping any interaction with .github/workflows/**")
 
-    log("Phase 1: Preparation started.")
-    stub_modules = parse_stub_status(read_text(STUB_STATUS))
-    all_tests = find_tests()
+    pyenv = python_version_info()
 
-    # Prioritize tests matching stub modules (by stem heuristic)
-    prioritized = []
-    others = []
-    stub_set = set(stub_modules)
-    for t in all_tests:
-        name = t.stem.replace("test_", "", 1)
-        if name in stub_set:
-            prioritized.append(t)
-        else:
-            others.append(t)
-    test_order = prioritized + others
+    # Phase 3 — Best-effort: ensure tqdm
+    dep_results = ensure_tqdm_in_requirements()
 
-    append_change_log(f"Discovered {len(all_tests)} tests; prioritized {len(prioritized)} by stub status.")
-    log(f"Prioritized tests: {[safe_rel(p) for p in prioritized]}")
+    # Phase 3 — README patch
+    readme_result = patch_readme_dependencies()
 
-    # Phase 2 & 3: Search/Mapping & Best-Effort Construction
-    for idx, test_path in enumerate(test_order, start=1):
-        step_tag = f"5..9:Process test {safe_rel(test_path)}"
+    # Phase 3 — Smoke test
+    smoke_result = ensure_smoke_test()
+
+    # Phase 3 — Execution with TEST_MODE=1
+    run_result = run_script_with_test_mode()
+
+    # Construct success equation report
+    tqdm_present = any(
+        [
+            "updated" in dep_results and dep_results["updated"],
+            "notes" in dep_results and any("already" in n for n in dep_results["notes"]),
+        ]
+    )
+
+    E = run_result.get("exit_code")
+    ran_ok = (E == 0)
+
+    # Try import verification quickly
+    try:
+        import importlib
         try:
-            info = ast_parse_symbols_from_test(test_path)
-            imports = info["imports"]
-            attrs = info["attributes"]
-
-            module_candidates = guess_module_paths(test_path, imports)
-            target_module = None
-            for cand in module_candidates:
-                if cand.exists():
-                    target_module = cand
-                    break
-            if target_module is None and module_candidates:
-                target_module = module_candidates[0]
-                ensure_module_exists(target_module, f"Derived from {safe_rel(test_path)}")
-
-            if target_module is None:
-                append_change_log(f"No module candidate found for {safe_rel(test_path)}; skipping.")
-                continue
-
-            # Ensure needed symbols exist
-            existing = parse_module_symbols(target_module)
-            for sym in attrs:
-                # Ignore pytest fixtures / common names
-                if sym in ("fixture", "parametrize", "raises", "skip", "mark"):
-                    continue
-                if sym not in existing:
-                    kind = classify_symbol_kind_from_test_usage(sym)
-                    add_missing_symbol(target_module, sym, kind)
-
-        except Exception as e:
-            append_research_question(
-                step=step_tag,
-                error_message=str(e),
-                context=f"While mapping/constructing for {safe_rel(test_path)}"
+            import wlc_session_manager  # type: ignore # noqa
+            import_ok = True
+        except Exception:
+            # dynamic import fallback
+            import importlib.util
+            spec = importlib.util.spec_from_file_location(
+                "wlc_session_manager", str(TARGET_SCRIPT)
             )
+            if TARGET_SCRIPT.exists() and spec and spec.loader:
+                mod = importlib.util.module_from_spec(spec)
+                sys.modules["wlc_session_manager"] = mod
+                spec.loader.exec_module(mod)  # type: ignore
+                import_ok = True
+            else:
+                import_ok = False
+    except Exception as e:
+        import_ok = False
+        ask_chatgpt5("C1", "Verify import of wlc_session_manager", str(e), "Dynamic import fallback failed")
 
-    # Phase 5: Execute & Document
-    log("Running pytest...")
-    rc, output = run_pytest()
-    if output:
-        failures = parse_pytest_failures(output)
-        if failures:
-            append_change_log("Remaining test failures:")
-            for f in failures:
-                append_change_log(f"  * {f.get('test','(unknown)')}")
-                append_research_question(
-                    step="12:Parse failures",
-                    error_message=f.get("error", "(no error excerpt)"),
-                    context=f"From {PYTEST_REPORT}"
-                )
-        else:
-            append_change_log("All tests passed or no failure blocks parsed.")
+    success = bool(tqdm_present and ran_ok and import_ok)
 
-    # Phase 7: README fixes
-    fix_readme_references()
+    # Write summary
+    summary = textwrap.dedent(f"""
+    # Codex Workflow Summary
 
-    # Phase 8: Finalization
-    assert_no_gha_activation()
-    summary = f"""
-## Summary
-- Tests discovered: {len(all_tests)}
-- Prioritized by stubs: {len(prioritized)}
-- Pytest return code: {rc}
-- Reports: {safe_rel(PYTEST_REPORT)}
-"""
-    append_file(CHANGELOG, summary.strip() + "\n")
-    log("Workflow complete.")
-    sys.exit(rc)
+    **Policy:** DID NOT touch `.github/workflows/**`.
 
+    ## Environment
+    - Python: {pyenv['python']}
+    - Executable: {pyenv['executable']}
+
+    ## Dependency Handling
+    - Results: {json.dumps(dep_results, indent=2)}
+
+    ## README
+    - {readme_result['note']}
+
+    ## Smoke Test
+    - {smoke_result['note']}
+
+    ## Execution (TEST_MODE=1)
+    - Ran: {run_result['ran']}
+    - Exit code: {run_result['exit_code']}
+    - Stdout path: saved in .codex_out/
+    - Stderr path: saved in .codex_out/
+
+    ## Success Equation
+    - tqdm present in R: {tqdm_present}
+    - E == 0: {ran_ok}
+    - I == True: {import_ok}
+
+    **SUCCESS:** {success}
+    """).strip() + "\n"
+
+    (OUT_DIR / "summary.md").write_text(summary, encoding="utf-8")
+    log_change(f"Final SUCCESS={success}")
+
+    # If failure in any dimension, propose next steps
+    if not success:
+        remediation = []
+        if not tqdm_present:
+            remediation.append("- Ensure environment is installed from updated requirements/pyproject.")
+        if not ran_ok:
+            remediation.append("- Inspect .codex_out/*.stderr.txt for runtime errors; consider gating TEST_MODE paths.")
+        if not import_ok:
+            remediation.append("- Package layout may require __init__.py or sys.path adjustment for imports.")
+
+        (OUT_DIR / "next_steps.md").write_text(
+            ("# Remediation Hints\n\n" + "\n".join(remediation) + "\n"), encoding="utf-8"
+        )
 
 if __name__ == "__main__":
-    main()
-
+    try:
+        main()
+    except Exception as e:
+        ask_chatgpt5("Z9", "Top-level workflow execution", str(e), "Unhandled exception in codex_workflow.py")
+        raise

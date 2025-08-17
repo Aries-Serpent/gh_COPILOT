@@ -2213,3 +2213,8 @@ pytest -q
 and are safe to remove once the primary DR implementation supersedes them.
 
 **Safety:** DO NOT ACTIVATE ANY GitHub Actions files.
+
+## Dependencies
+
+- This project now requires `tqdm>=4.0.0` as a base dependency for progress reporting.
+- Ensure your environment reflects this requirement (see `requirements.txt` or `pyproject.toml`).
