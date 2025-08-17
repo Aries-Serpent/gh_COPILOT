@@ -2147,6 +2147,33 @@ _These statistics are auto-refreshed by the Codex task._
 9. ✅ **Quantum Computing:** Hardware integration roadmap
 10. ✅ **Global Deployment:** Multi-region enterprise support
 
+---
+## LFS Health & Recovery Status
+_Last updated: 2025-08-17T03:56:16+00:00_
+
+- **Missing (initial):** 0
+- **Recovered:** 0
+- **Unrecovered:** 0
+- **Integrity Check:** pass
+
+Commands executed (high-level):
+```bash
+git lfs fsck
+git lfs track <path>
+git add <path>
+git commit -m "Restore LFS object: <path> (oid:<oid>)"
+git lfs push --all origin
+git lfs fetch --all && git lfs fsck
+```
+---
+
+### CLI Notes (auto)
+Use Typer-based CLI via:
+- `python -m gh_copilot` (module mode), or
+- After install: the generated console script declared in pyproject `[project.scripts]` (if present).
+
+
+> Note: This project requires `PyYAML>=6.0.1`.
 
 See **Compliance Model**: `docs/governance/COMPLIANCE.md`.
 

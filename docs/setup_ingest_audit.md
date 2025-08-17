@@ -47,3 +47,11 @@ git checkout HEAD -- path/to/file
 git lfs pull -I path/to/file
 ```
 
+
+
+### Installation
+```bash
+pip install -r requirements.txt
+```
+
+> Note: This project requires `PyYAML>=6.0.1`.

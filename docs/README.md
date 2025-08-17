@@ -109,3 +109,11 @@ in production builds. Importing them while `GH_COPILOT_ENV` is set to
 They remain importable for experimentation and planning.
 Progress on these placeholders and other pending modules is tracked in
 [STUB_MODULE_STATUS.md](STUB_MODULE_STATUS.md).
+
+
+### Installation
+```bash
+pip install -r requirements.txt
+```
+
+> Note: This project requires `PyYAML>=6.0.1`.
