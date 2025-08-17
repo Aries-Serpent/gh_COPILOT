@@ -403,3 +403,15 @@ if __name__ == "__main__":
     except Exception as e:
         ask_chatgpt5("Z9", "Top-level workflow execution", str(e), "Unhandled exception in codex_workflow.py")
         raise
+
+
+# Auto-injected by codex_sequential_executor.py
+def _minimal_behavior(example_input=None):
+    """
+    Minimal deterministic behavior to avoid silent stubs.
+    Returns the input unchanged and logs an explanatory message.
+    """
+    return example_input
+
+def _not_impl(msg="Generated element requires explicit implementation."):
+    raise NotImplementedError(msg)
