@@ -54,10 +54,10 @@ class BaselineAnomalyDetector:  # minimal placeholder
 
 
 monitoring_stub.BaselineAnomalyDetector = BaselineAnomalyDetector
-sys.modules.setdefault("monitoring", monitoring_stub)
+sys.modules["monitoring"] = monitoring_stub
 health_monitor_stub = types.ModuleType("monitoring.health_monitor")
 health_monitor_stub.gather_metrics = lambda *a, **k: []
-sys.modules.setdefault("monitoring.health_monitor", health_monitor_stub)
+sys.modules["monitoring.health_monitor"] = health_monitor_stub
 
 # Enable test mode to prevent side effects such as database writes.
 os.environ.setdefault("TEST_MODE", "1")

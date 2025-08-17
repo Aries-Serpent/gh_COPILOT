@@ -184,7 +184,7 @@ def load_code_quality_metrics(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
     return metrics
 
 
-@app.route("/dashboard/compliance")
+@app.route("/dashboard/compliance", endpoint="enterprise_dashboard_compliance")
 def dashboard_compliance() -> str:
     """Render compliance information directly from ``analytics.db``."""
     placeholders = 0

@@ -1,0 +1,7 @@
+source_dbs: []
+target_dbs: []
+analytics_db: analytics.db
+reconcile_policy: report_only
+max_retry: 2
+retry_backoff_sec: 2
+transactional_batch_size: 5000

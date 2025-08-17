@@ -14,10 +14,28 @@ import sqlite3
 from pathlib import Path
 import importlib.util
 import sys
+import types
 
 import pytest
 from flask import Flask
 
+orig_monitoring = sys.modules.get("monitoring")
+monitoring_stub = types.SimpleNamespace(
+    BaselineAnomalyDetector=type("BaselineAnomalyDetector", (), {}),
+    unified_monitoring_optimization_system=types.SimpleNamespace(
+        collect_metrics=lambda *a, **k: [],
+        auto_heal_session=lambda *a, **k: False,
+    ),
+)
+sys.modules["monitoring"] = monitoring_stub
+integrated_stub = types.SimpleNamespace(
+    app=Flask("stub"),
+    _dashboard=None,
+    create_app=lambda *a, **k: Flask("stub"),
+    _load_metrics=lambda *a, **k: {},
+)
+orig_integrated = sys.modules.get("dashboard.integrated_dashboard")
+sys.modules["dashboard.integrated_dashboard"] = integrated_stub
 ed_spec = importlib.util.spec_from_file_location(
     "dashboard.enterprise_dashboard",
     Path(__file__).resolve().parents[2] / "dashboard" / "enterprise_dashboard.py",
@@ -25,6 +43,14 @@ ed_spec = importlib.util.spec_from_file_location(
 ed = importlib.util.module_from_spec(ed_spec)
 sys.modules["dashboard.enterprise_dashboard"] = ed
 ed_spec.loader.exec_module(ed)
+if orig_monitoring is not None:
+    sys.modules["monitoring"] = orig_monitoring
+else:
+    del sys.modules["monitoring"]
+if orig_integrated is not None:
+    sys.modules["dashboard.integrated_dashboard"] = orig_integrated
+else:
+    del sys.modules["dashboard.integrated_dashboard"]
 
 
 @pytest.fixture()
@@ -46,7 +72,11 @@ def app(tmp_path: Path, monkeypatch):
     monkeypatch.setattr(ed, "METRICS_FILE", metrics)
     monkeypatch.setattr(ed, "ANALYTICS_DB", db)
     flask_app = Flask(__name__)
-    flask_app.add_url_rule("/metrics_stream", view_func=ed.metrics_stream)
+
+    @flask_app.route("/metrics_stream")
+    def _proxy():
+        return ed.metrics_stream()
+
     return flask_app
 
 

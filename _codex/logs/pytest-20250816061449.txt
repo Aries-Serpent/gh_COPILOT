@@ -1,0 +1,13 @@
+
+======================================================= warnings summary =======================================================
+../../root/.pyenv/versions/3.12.10/lib/python3.12/site-packages/_pytest/config/__init__.py:1474
+  /root/.pyenv/versions/3.12.10/lib/python3.12/site-packages/_pytest/config/__init__.py:1474: PytestConfigWarning: Unknown config option: timeout
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================================================== Skipped tests =========================================================
+tests/test_complete_consolidation_orchestrator.py - ('/workspace/gh_COPILOT/tests/test_complete_consolidation_orchestrator.py', 8, "Skipped: could not import 'py7zr': No module named 'py7zr'")
+========================================================= Future work ==========================================================
+Consider extending artifact_manager tests for additional edge cases and CI integration.
+1 skipped, 1 warning in 0.17s
