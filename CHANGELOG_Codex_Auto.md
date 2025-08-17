@@ -1,0 +1,6 @@
+- 2025-08-17T20:22:54.643116 Guardrail confirmed: .github/workflows exists; no files altered under this path.
+- 2025-08-17T20:22:54.643426 Detected strategy: pyproject; files=['pyproject.toml']
+- 2025-08-17T20:22:54.644084 Added PyYAML to PEP 621 dependencies.
+- 2025-08-17T20:22:56.842788 Verification succeeded; see .codex_artifacts/2.4_run_verification_script.log
+- 2025-08-17T20:22:56.858680 Updated CONTRIBUTING.md with install guidance and requirement note.; Updated README.md with install guidance and requirement note.; Updated README.md with install guidance and requirement note.; Updated QUANTUM_HARDWARE_SETUP.md with install guidance and requirement note.; Updated setup_ingest_audit.md with install guidance and requirement note.; Updated README.md with install guidance and requirement note.; Updated README.md with install guidance and requirement note.; Updated README.md with install guidance and requirement note.; Updated README.md with install guidance and requirement note.; Updated README.md with install guidance and requirement note.
+- 2025-08-17T20:22:56.858850 Guardrail confirmed: .github/workflows exists; no files altered under this path.
