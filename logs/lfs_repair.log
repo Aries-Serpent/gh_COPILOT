@@ -1,0 +1,10 @@
+$ bash tools/lfs_repair.sh
+[2025-08-17T03:56:08+00:00] Starting LFS repair
+Removing local LFS cache...
+Fetching LFS objects...
+fetch: 48 objects found, done.
+fetch: Fetching all references...
+batch request: missing protocol: ""
+error: failed to fetch some objects from ''
+
+
