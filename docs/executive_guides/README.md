@@ -34,3 +34,11 @@ to the highlighted sections to review system health at a glance.
   and tuning
 
 
+
+
+### Installation
+```bash
+pip install -r requirements.txt
+```
+
+> Note: This project requires `PyYAML>=6.0.1`.

@@ -2160,3 +2160,6 @@ git lfs fetch --all && git lfs fsck
 Use Typer-based CLI via:
 - `python -m gh_copilot` (module mode), or
 - After install: the generated console script declared in pyproject `[project.scripts]` (if present).
+
+
+> Note: This project requires `PyYAML>=6.0.1`.

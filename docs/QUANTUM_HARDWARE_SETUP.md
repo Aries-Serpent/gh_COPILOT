@@ -46,3 +46,11 @@ Future releases will expand hardware provider support beyond IBM Quantum and add
 automated credential management. Track progress in
 [STUB_MODULE_STATUS.md](STUB_MODULE_STATUS.md) and
 [QUANTUM_PLACEHOLDERS.md](QUANTUM_PLACEHOLDERS.md).
+
+
+### Installation
+```bash
+pip install -r requirements.txt
+```
+
+> Note: This project requires `PyYAML>=6.0.1`.
