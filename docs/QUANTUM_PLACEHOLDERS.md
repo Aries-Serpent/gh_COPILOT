@@ -1,6 +1,6 @@
 # Quantum Placeholders Roadmap
 
-**Last Updated:** 2025-08-17T03:39:27Z
+**Last Updated:** 2025-08-17T04:05:14Z
 
 ## Scope
 Replace pass-through stubs in `scripts/quantum_placeholders/` with minimal parity-verifying algorithms and define backend API hooks (Qiskit, IonQ, D-Wave) without activation.
