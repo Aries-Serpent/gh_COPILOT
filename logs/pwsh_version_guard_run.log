@@ -1,0 +1,15 @@
+[2025-08-17T23:34:26.525845Z] START pwsh version guard run
+[2025-08-17T23:34:26.527508Z] README already aligned or no reference found
+[2025-08-17T23:34:27.178231Z] Linux probe: pwsh NOT present on PATH (Linux probe)
+[2025-08-17T23:34:27.178442Z] SUMMARY: {
+  "scanned": 35,
+  "modified": 0,
+  "no_change": 35,
+  "errors": 0,
+  "pruned": 0,
+  "pwsh_present_probe": false,
+  "readme_changed": false,
+  "readme_note": "No README update needed",
+  "timestamp_utc": "2025-08-17T23:34:27.178362Z"
+}
+[2025-08-17T23:34:27.178499Z] END pwsh version guard run
