@@ -13,3 +13,23 @@ While performing [C1:Verify import of wlc_session_manager], encountered the foll
 Context: `Dynamic import fallback failed`
 What are the possible causes, and how can this be resolved while preserving intended functionality?
 
+Question for ChatGPT-5:
+While performing [Phase 6: Optional Ruff Run], encountered the following error:
+Non-zero exit code: 2
+STDERR:
+ruff failed
+  Cause: Failed to parse /workspace/gh_COPILOT/pyproject.toml
+  Cause: TOML parse error at line 29, column 2
+   |
+29 |  = "src"
+   |  ^
+unquoted keys cannot be empty, expected letters, numbers, `-`, `_`
+Context: Post-exclusion Ruff check encountered issues; need guidance to preserve intended scope.
+What are the possible causes, and how can this be resolved while preserving intended functionality?
+
+Question for ChatGPT-5:
+While performing [Session wrap-up: scripts/wlc_session_manager.py], encountered the following error:
+sqlite3.DatabaseError: file is not a database
+Context: Executing scripts/wlc_session_manager.py for session logging.
+What are the possible causes, and how can this be resolved while preserving intended functionality?
+
