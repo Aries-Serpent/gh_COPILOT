@@ -13,6 +13,10 @@
 
 **Combined checks:** run `python scripts/run_checks.py` to execute `Ruff, Pyright, and pytest` sequentially.
 
+```bash
+python scripts/run_checks.py  # runs Ruff, Pyright, pytest
+```
+
 **Tests:** run `pytest` before committing. Current repository tests report multiple failures.
 
 ### Test Repair & Stub Policy
