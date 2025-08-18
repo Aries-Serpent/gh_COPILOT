@@ -1,0 +1,60 @@
+{
+  "coverage_average_pct": 90.0,
+  "composite_overall_pct": 86.33,
+  "by_component": [
+    {
+      "component": "Core Systems",
+      "status": "Active",
+      "coverage": 94.0,
+      "performance": 85.0,
+      "composite": 89.39
+    },
+    {
+      "component": "Database Layer",
+      "status": "Active",
+      "coverage": 96.0,
+      "performance": 85.0,
+      "composite": 90.33
+    },
+    {
+      "component": "ML Pipeline",
+      "status": "Active",
+      "coverage": 87.0,
+      "performance": 85.0,
+      "composite": 85.99
+    },
+    {
+      "component": "Quantum Simulation",
+      "status": "Development",
+      "coverage": 73.0,
+      "performance": 70.0,
+      "composite": 71.48
+    },
+    {
+      "component": "Security Framework",
+      "status": "Active",
+      "coverage": 99.0,
+      "performance": 85.0,
+      "composite": 91.73
+    },
+    {
+      "component": "Compliance Engine",
+      "status": "Active",
+      "coverage": 92.0,
+      "performance": 85.0,
+      "composite": 88.43
+    },
+    {
+      "component": "Performance Monitor",
+      "status": "Active",
+      "coverage": 89.0,
+      "performance": 85.0,
+      "composite": 86.98
+    }
+  ],
+  "prior_policy": {
+    "Active": 0.85,
+    "Development": 0.7,
+    "Deprecated": 0.5
+  }
+}
