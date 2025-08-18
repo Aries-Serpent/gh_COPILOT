@@ -1240,3 +1240,17 @@ ModuleNotFoundError: No module named 'tqdm'
 Context: running `python scripts/wlc_session_manager.py`
 What are the possible causes, and how can this be resolved while preserving intended functionality?
 
+Question for ChatGPT-5:
+While performing [SETUP:run setup.sh], encountered the following error:
+sqlite3.DatabaseError: file is not a database
+Context: running ./setup.sh at repository root; /workspace/gh_COPILOT/databases/analytics.db is not a valid SQLite database
+What are the possible causes, and how can this be resolved while preserving intended functionality?
+Timestamp: 2025-08-18T12:11:00Z
+
+Question for ChatGPT-5:
+While performing [WRAPUP:run scripts/wlc_session_manager.py], encountered the following error:
+sqlite3.DatabaseError: file is not a database
+Context: running scripts/wlc_session_manager.py after commit; issue with codex_log_db initialization
+What are the possible causes, and how can this be resolved while preserving intended functionality?
+Timestamp: 2025-08-18T12:14:18Z
+

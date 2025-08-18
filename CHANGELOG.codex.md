@@ -33,3 +33,12 @@
 
 - If you choose to activate CI, **manually** copy the example into your CI system and review.
 - Confirm coverage thresholds and reports as desired.
+
+## 2025-08-18 - Session logging integration
+
+- Added SQLite-backed session logger with per-thread connections (`src/codex/logging/session_logger.py`).
+- Introduced wrapper runner to execute scripts with session logging (`scripts/with_session_logging.py`).
+- Added tests verifying event insertion (`tests/test_session_logging.py`).
+- Updated README with session logging documentation and usage examples.
+- Recorded non-injected entrypoints in `codex_changes/PRUNED_ITEMS.md`.
+

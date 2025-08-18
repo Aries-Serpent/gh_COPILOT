@@ -1,0 +1,2 @@
+- No safe integration points detected for automatic session logging injection; wrapper provided instead.
+- Shell entrypoint `entrypoint.sh` uses Python; auto-injection skipped to avoid altering startup behavior.
