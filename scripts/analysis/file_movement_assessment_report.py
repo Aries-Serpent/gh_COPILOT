@@ -412,7 +412,8 @@ def main():
     except Exception as e:
         logging.exception("analysis script error")
         print(f"🚨 Assessment error: {str(e)}")
-        logging.error(f"Assessment failed: {str(e)}")
+        logging.exception("Assessment failed")
+        raise
 
 
 if __name__ == "__main__":

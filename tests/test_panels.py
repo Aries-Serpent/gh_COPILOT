@@ -4,9 +4,9 @@ def test_panel_update_js_presence():
     import pathlib
 
     panels = [
-      pathlib.Path("codex_changes/stubs/templates/compliance_panel.html"),
-      pathlib.Path("codex_changes/stubs/templates/monitoring_panel.html"),
-      pathlib.Path("codex_changes/stubs/templates/synchronization_panel.html"),
+        pathlib.Path("codex_changes/stubs/templates/compliance_panel.html"),
+        pathlib.Path("codex_changes/stubs/templates/monitoring_panel.html"),
+        pathlib.Path("codex_changes/stubs/templates/synchronization_panel.html"),
     ]
     for p in panels:
         if p.exists():
