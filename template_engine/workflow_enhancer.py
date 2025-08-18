@@ -12,6 +12,8 @@ MANDATORY REQUIREMENTS:
 
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 import os
 import sqlite3
@@ -55,9 +57,16 @@ class TemplateWorkflowEnhancer:
     scoring.
     """
 
-    def __init__(self, production_db: Path = PRODUCTION_DB, dashboard_dir: Path = DASHBOARD_DIR) -> None:
+    def __init__(
+        self,
+        production_db: Path = PRODUCTION_DB,
+        dashboard_dir: Path = DASHBOARD_DIR,
+        *,
+        dry_run: bool = False,
+    ) -> None:
         self.production_db = production_db
         self.dashboard_dir = dashboard_dir
+        self.dry_run = dry_run
         self.start_time = datetime.now()
         self.process_id = os.getpid()
         self.timeout_seconds = 1800  # 30 minutes
@@ -172,44 +181,75 @@ class TemplateWorkflowEnhancer:
         }
         return report
 
+    def _analytics_has_hash(self, report_hash: str) -> bool:
+        """Check analytics database for an existing report hash."""
+        if not DEFAULT_ANALYTICS_DB.exists():
+            return False
+        try:
+            with sqlite3.connect(DEFAULT_ANALYTICS_DB) as conn:
+                cur = conn.execute(
+                    "SELECT 1 FROM workflow_events WHERE event=? AND hash=? LIMIT 1",
+                    ("workflow_enhancement_report_generated", report_hash),
+                )
+                return cur.fetchone() is not None
+        except sqlite3.DatabaseError:
+            return False
+
     def generate_modular_report(
         self,
         templates: List[Dict[str, Any]],
         clusters: Dict[int, List[Dict[str, Any]]],
         patterns: List[str],
         compliance_score: float,
-    ) -> None:
-        """Generate modular report and dashboard-ready metrics."""
+        *,
+        dry_run: Optional[bool] = None,
+    ) -> str:
+        """Generate modular report and dashboard-ready metrics.
+
+        Returns
+        -------
+        str
+            Hash of the generated report payload.
+        """
+        dry_run = self.dry_run if dry_run is None else dry_run
+        core_payload = {
+            "templates": templates,
+            "clusters": clusters,
+            "patterns": patterns,
+            "average_compliance_score": compliance_score,
+        }
+        core_json = json.dumps(core_payload, sort_keys=True)
+        report_hash = hashlib.sha256(core_json.encode("utf-8")).hexdigest()
+        report_file = self.dashboard_dir / f"workflow_enhancement_report_{report_hash}.json"
+
+        if report_file.exists() or self._analytics_has_hash(report_hash):
+            logging.info("Report hash %s unchanged; skipping regeneration", report_hash)
+            return report_hash
+
         report = self.generate_compliance_report(
             templates, clusters=clusters, patterns=patterns, compliance_score=compliance_score
         )
-        report["timestamp"] = datetime.now().isoformat()
-        report["status"] = "enhanced"
-        self.dashboard_dir.mkdir(parents=True, exist_ok=True)
-        import json
+        report.update({"timestamp": datetime.now().isoformat(), "status": "enhanced", "hash": report_hash})
 
-        report_file = self.dashboard_dir / "workflow_enhancement_report.json"
-        report_file.write_text(json.dumps(report, indent=2), encoding="utf-8")
-        logging.info(f"Modular report written to {report_file}")
-        _log_event(
-            {
-                "event": "workflow_enhancement_report_generated",
-                "template_count": report["total_templates"],
-                "cluster_count": report["cluster_count"],
-                "avg_score": report["average_compliance_score"],
-            },
-            table="workflow_events",
-            db_path=DEFAULT_ANALYTICS_DB,
-        )
-        _log_event(
-            {
-                "event": "workflow_report",
-                "template_count": report["total_templates"],
-                "cluster_count": report["cluster_count"],
-            },
-            table="workflow_events",
-            db_path=DEFAULT_ANALYTICS_DB,
-        )
+        if not dry_run:
+            self.dashboard_dir.mkdir(parents=True, exist_ok=True)
+            report_file.write_text(json.dumps(report, indent=2), encoding="utf-8")
+            latest = self.dashboard_dir / "workflow_enhancement_report.json"
+            latest.write_text(json.dumps(report, indent=2), encoding="utf-8")
+            logging.info(f"Modular report written to {report_file}")
+            _log_event(
+                {
+                    "event": "workflow_enhancement_report_generated",
+                    "template_count": report["total_templates"],
+                    "avg_score": report["average_compliance_score"],
+                    "hash": report_hash,
+                },
+                table="workflow_events",
+                db_path=DEFAULT_ANALYTICS_DB,
+            )
+        else:
+            logging.info("Dry-run enabled; report not written to dashboard or analytics")
+        return report_hash
 
     def _monitor_and_schedule(self) -> bool:
         """Consult monitoring metrics and decide whether to run enhancement."""
@@ -228,7 +268,12 @@ class TemplateWorkflowEnhancer:
         provide real-time feedback and fault tolerance.
         """
         self.status = "ENHANCING"
-        _log_event({"event": "workflow_enhancement_start"}, table="workflow_events", db_path=DEFAULT_ANALYTICS_DB)
+        if not self.dry_run:
+            _log_event(
+                {"event": "workflow_enhancement_start"},
+                table="workflow_events",
+                db_path=DEFAULT_ANALYTICS_DB,
+            )
         if not self._monitor_and_schedule():
             self.status = "DEFERRED"
             return False
@@ -252,17 +297,20 @@ class TemplateWorkflowEnhancer:
             bar.set_description("Scoring Compliance")
             bar.update(1)
             bar.set_description("Generating Report")
-            self.generate_modular_report(templates, clusters, patterns, compliance_score)
+            self.generate_modular_report(
+                templates, clusters, patterns, compliance_score, dry_run=self.dry_run
+            )
             bar.update(1)
             etc = self._calculate_etc(elapsed, total_steps, total_steps)
             bar.set_postfix(ETC=etc)
         elapsed = time.time() - start_time
         logging.info(f"Template workflow enhancement completed in {elapsed:.2f}s | ETC: {etc}")
-        _log_event(
-            {"event": "workflow_enhancement_complete", "duration": elapsed},
-            table="workflow_events",
-            db_path=DEFAULT_ANALYTICS_DB,
-        )
+        if not self.dry_run:
+            _log_event(
+                {"event": "workflow_enhancement_complete", "duration": elapsed},
+                table="workflow_events",
+                db_path=DEFAULT_ANALYTICS_DB,
+            )
         self.status = "COMPLETED"
         valid = self.validate_enhancement(len(templates))
         if valid:
@@ -287,7 +335,6 @@ class TemplateWorkflowEnhancer:
         report_file = self.dashboard_dir / "workflow_enhancement_report.json"
         if not report_file.exists():
             return False
-        import json
 
         with open(report_file, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -300,6 +347,8 @@ def main(
     production_db_path: Optional[str] = None,
     dashboard_dir: Optional[str] = None,
     timeout_minutes: int = 30,
+    *,
+    dry_run: bool = False,
 ) -> bool:
     """
     Entry point for template workflow enhancement.
@@ -316,7 +365,7 @@ def main(
     production_db = Path(production_db_path or workspace / "databases" / "production.db")
     dashboard = Path(dashboard_dir or workspace / "dashboard" / "compliance")
 
-    enhancer = TemplateWorkflowEnhancer(production_db, dashboard)
+    enhancer = TemplateWorkflowEnhancer(production_db, dashboard, dry_run=dry_run)
     success = enhancer.enhance(timeout_minutes=timeout_minutes)
     elapsed = time.time() - start_time
     logging.info(f"Template workflow enhancement session completed in {elapsed:.2f}s")
@@ -324,5 +373,22 @@ def main(
 
 
 if __name__ == "__main__":
-    success = main()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Template workflow enhancement")
+    parser.add_argument("--production-db", dest="production_db_path")
+    parser.add_argument("--dashboard-dir", dest="dashboard_dir")
+    parser.add_argument("--timeout-minutes", type=int, default=30)
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Validate without mutating dashboard files or analytics",
+    )
+    args = parser.parse_args()
+    success = main(
+        production_db_path=args.production_db_path,
+        dashboard_dir=args.dashboard_dir,
+        timeout_minutes=args.timeout_minutes,
+        dry_run=args.dry_run,
+    )
     raise SystemExit(0 if success else 1)

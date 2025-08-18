@@ -14,7 +14,13 @@ selection when quantum modules are available.
 `generate_compliance_report`, combining clustering, pattern mining and
 compliance scoring for downstream analytics. Reports include remediation
 recommendations and deliver metrics to the dashboard while respecting
-monitoring signals to defer heavy processing during high system load.
+monitoring signals to defer heavy processing during high system load. The
+enhancer writes modular reports using a content hash in the filename to avoid
+duplicates and logs metadata (template count, compliance score, hash) to
+`workflow_events` in `analytics.db`. Re-running the enhancer with unchanged
+content reuses the existing report and skips new analytics entries. A
+`--dry-run` option is available for validating the process without mutating
+dashboard files or analytics.
 
 ## Curation Pipeline
 
