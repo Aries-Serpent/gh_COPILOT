@@ -43,11 +43,11 @@ def _compress_database(db_path: Path) -> None:
     db_path:
         Path to the database file to compress.
     """
+    orig_size = db_path.stat().st_size
     tmp_path = db_path.with_suffix(".tmp")
     with sqlite3.connect(db_path) as conn:
         conn.execute(f"VACUUM INTO '{tmp_path}'")
     if tmp_path.exists():
-        orig_size = db_path.stat().st_size
         new_size = tmp_path.stat().st_size
         if new_size <= orig_size:
             tmp_path.replace(db_path)

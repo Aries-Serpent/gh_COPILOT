@@ -15,7 +15,12 @@ from pathlib import Path
 from time import perf_counter
 from typing import Iterable
 
-from monitoring.performance_tracker import benchmark_queries
+try:  # pragma: no cover - optional dependency
+    from monitoring.performance_tracker import benchmark_queries
+except ModuleNotFoundError:  # pragma: no cover - graceful fallback
+    def benchmark_queries(*args, **kwargs):
+        """Fallback when monitoring package is unavailable."""
+        return None
 from db_tools.database_first_utils import ensure_db_reference
 from enterprise_modules.compliance import validate_enterprise_operation
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
