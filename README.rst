@@ -1595,8 +1595,8 @@ python scripts/database/database_consolidation_validator.py --all-databases
 # Performance bottleneck analysis
 python scripts/performance/bottleneck_analyzer.py --deep-analysis
 
-# Security vulnerability scan
-python scripts/security/vulnerability_scanner.py --full-scan
+# Security vulnerability scan (writes reports/vulnerability_scan.json)
+VULN_SCAN_ENABLED=1 python security/vulnerability_scanner.py --full-scan
 
 # ML model validation
 python scripts/ml/model_validator.py --all-models
