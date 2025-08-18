@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from decimal import Decimal, ROUND_HALF_UP
-from typing import Mapping
+from typing import Mapping, Tuple
 import math
 
 
@@ -21,19 +21,12 @@ class MetricsUpdater:
         default_factory=lambda: {"lint": 0.4, "tests": 0.4, "placeholders": 0.2}
     )
     precision: int = 2
+    _cache: dict[Tuple[Tuple[Tuple[str, float], ...], Tuple[Tuple[str, float], ...], int], float] = field(
+        default_factory=dict, init=False, repr=False
+    )
 
-    def composite(self, scores: Mapping[str, float]) -> float:
-        """Return the normalised weighted score for ``scores``.
-
-        Missing metrics simply contribute ``0``.  Non-numeric or non-finite
-        values (``NaN``/``inf``) are treated as ``0`` to prevent ``Decimal``
-        errors when computing the total.  The result is rounded to the number
-        of decimal places specified by ``precision``.  A ``0`` score is
-        returned when the total weight is ``0`` to avoid division errors.
-        """
-
-        if self.precision < 0:
-            raise ValueError("precision must be non-negative")
+    def _composite_uncached(self, scores: Mapping[str, float]) -> float:
+        """Internal helper implementing the composite calculation."""
 
         # Ignore non-positive weights so that callers can disable a metric by
         # setting its weight to ``0`` or a negative number.  This mirrors the
@@ -64,3 +57,27 @@ class MetricsUpdater:
         result = total / Decimal(str(total_weight))
         quant = Decimal("1").scaleb(-self.precision)
         return float(result.quantize(quant, rounding=ROUND_HALF_UP))
+
+    def composite(self, scores: Mapping[str, float]) -> float:
+        """Return the normalised weighted score for ``scores``.
+
+        Missing metrics simply contribute ``0``.  Non-numeric or non-finite
+        values (``NaN``/``inf``) are treated as ``0`` to prevent ``Decimal``
+        errors when computing the total.  The result is rounded to the number
+        of decimal places specified by ``precision``.  A ``0`` score is
+        returned when the total weight is ``0`` to avoid division errors.  A
+        small cache is used to speed up repeated evaluations for identical
+        inputs.
+        """
+
+        if self.precision < 0:
+            raise ValueError("precision must be non-negative")
+
+        key = (
+            tuple(sorted(self.weights.items())),
+            tuple(sorted(scores.items())),
+            self.precision,
+        )
+        if key not in self._cache:
+            self._cache[key] = self._composite_uncached(scores)
+        return self._cache[key]
