@@ -43,7 +43,7 @@ python scripts/run_checks.py  # runs Ruff, Pyright, pytest
 | Compliance | update_compliance_metrics.py | sox_compliance.py, hipaa_compliance.py, pci_compliance.py, gdpr_compliance.py | — |
 | Deployment | orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py | wrappers in scripts/deployment/* | legacy multi_* helpers |
 | Security | security/* () | — | security/* () |
-| ML | — | deploy_models.py, model_performance_monitor.py | — |
+| ML | deploy_models.py | model_performance_monitor.py | — |
 
 **CI:** pipeline pins Ruff, enforces a 90% test pass rate, and fails if coverage regresses relative to `main`.
 
@@ -270,6 +270,7 @@ sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
 python scripts/codex_log_db.py --init
 sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
+sqlite3 databases/analytics.db < databases/migrations/add_model_deployments.sql
 sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
 sqlite3 databases/analytics.db < databases/migrations/extend_todo_fixme_tracking.sql
 # Or run all migrations sequentially
@@ -684,6 +685,7 @@ sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
+sqlite3 databases/analytics.db < databases/migrations/add_model_deployments.sql
 sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
 sqlite3 databases/analytics.db < databases/migrations/extend_todo_fixme_tracking.sql
 ```
@@ -930,7 +932,9 @@ python scripts/ml/train_autonomous_models.py --model-type decision_tree
 python scripts/ml/train_autonomous_models.py --model-type neural_network
 
 # Deploy trained models
-python scripts/ml/deploy_models.py --environment production
+MODEL_REGISTRY_URI=/path/to/registry \
+MODEL_NAME=MyModel MODEL_VERSION=1 \
+python scripts/ml/deploy_models.py
 
 # Monitor model performance
 python scripts/ml/model_performance_monitor.py --days 7
@@ -1687,6 +1691,9 @@ Several small modules provide common helpers:
 ### ML & AI Utilities
 - `scripts.ml.autonomous_ml_optimizer.AutonomousMLOptimizer` – ML-powered optimization engine
 - `scripts.ml.model_performance_monitor.monitor_performance` – placeholder model performance monitoring
+- `scripts.ml.deploy_models.deploy_model` – fetches models from a registry,
+  stores artifacts with checksums, logs results, and rolls back on failed
+  health checks
 - `scripts.ml.training_pipeline_orchestrator.TrainingPipelineOrchestrator` – automated ML training workflows
 
 ### Quantum Computing Utilities

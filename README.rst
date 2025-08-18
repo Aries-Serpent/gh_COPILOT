@@ -867,7 +867,9 @@ python scripts/ml/train_autonomous_models.py --model-type decision_tree
 python scripts/ml/train_autonomous_models.py --model-type neural_network
 
 # Deploy trained models
-python scripts/ml/deploy_models.py --environment production
+MODEL_REGISTRY_URI=/path/to/registry \
+MODEL_NAME=MyModel MODEL_VERSION=1 \
+python scripts/ml/deploy_models.py
 
 # Monitor model performance
 python scripts/ml/model_performance_monitor.py --days 7
@@ -1664,6 +1666,8 @@ Several small modules provide common helpers:
 - `scripts.ml.autonomous_ml_optimizer.AutonomousMLOptimizer` – ML-powered optimization engine
 - `scripts.ml.model_validator.ModelValidator` – comprehensive ML model validation
 - `scripts.ml.training_pipeline_orchestrator.TrainingPipelineOrchestrator` – automated ML training workflows
+- `scripts.ml.deploy_models.deploy_model` – registry-backed deployment with
+  artifact checksum logging and rollback support
 
 ### Quantum Computing Utilities
 - `scripts.quantum.quantum_simulator_manager.QuantumSimulatorManager` – quantum simulation management

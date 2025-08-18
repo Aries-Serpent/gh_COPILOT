@@ -33,6 +33,7 @@ in the following order to satisfy foreign key constraints:
 19. `add_violation_logs.sql`
 20. `create_todo_fixme_tracking.sql`
 21. `extend_todo_fixme_tracking.sql`
+22. `add_model_deployments.sql`
 
 `extend_todo_fixme_tracking.sql` depends on both `create_todo_fixme_tracking.sql`
 and `add_placeholder_removals.sql` because it references the `placeholder_removals`
@@ -79,6 +80,7 @@ restoring a database backup.
 | `add_violation_logs.sql` | None | Drop `violation_logs` |
 | `create_todo_fixme_tracking.sql` | `add_placeholder_removals.sql` | Drop `todo_fixme_tracking` |
 | `extend_todo_fixme_tracking.sql` | `create_todo_fixme_tracking.sql` | Remove added columns |
+| `add_model_deployments.sql` | None | Drop `model_deployments` |
 
 ## Sample Commands
 
