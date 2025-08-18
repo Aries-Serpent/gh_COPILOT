@@ -8,12 +8,19 @@ from __future__ import annotations
 import os
 
 
+def is_quantum_enabled() -> bool:
+    """Return ``True`` when global quantum features are enabled."""
+
+    return os.getenv("QUANTUM_ENABLED", "0") == "1"
+
+
 IBM_HARDWARE_ENABLED = os.getenv("ENABLE_IBM_HARDWARE", "0") == "1"
 IONQ_HARDWARE_ENABLED = os.getenv("ENABLE_IONQ_HARDWARE", "0") == "1"
 DWAVE_HARDWARE_ENABLED = os.getenv("ENABLE_DWAVE_HARDWARE", "0") == "1"
 
 
 __all__ = [
+    "is_quantum_enabled",
     "IBM_HARDWARE_ENABLED",
     "IONQ_HARDWARE_ENABLED",
     "DWAVE_HARDWARE_ENABLED",
