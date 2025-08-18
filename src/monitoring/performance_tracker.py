@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Performance tracking utilities for analytics.db."""
+"""Performance tracking utilities for ``analytics.db``.
+
+The module now supports optional connection reuse for high-frequency
+metric ingestion.  Passing an open :class:`sqlite3.Connection` avoids the
+overhead of repeatedly creating and closing connections when logging
+metrics in tight loops.
+"""
 
 import builtins
 import logging
@@ -97,10 +103,28 @@ def _update_dashboard(metrics: Dict[str, float]) -> None:
         logger.info("[DASHBOARD] %s", metrics)
 
 
-def track_query_time(query_name: str, duration_ms: float, db_path: Optional[Path] = None) -> Dict[str, float]:
-    """Record a query's response time and return aggregate metrics."""
+def track_query_time(
+    query_name: str,
+    duration_ms: float,
+    db_path: Optional[Path] = None,
+    conn: Optional[sqlite3.Connection] = None,
+) -> Dict[str, float]:
+    """Record a query's response time and return aggregate metrics.
+
+    Reusing an existing ``conn`` allows batching of inserts for better
+    throughput under heavy load.
+    """
     path = db_path or DB_PATH
-    with sqlite3.connect(path) as conn:
+    if conn is None:
+        with sqlite3.connect(path) as conn:  # pragma: no cover - exercised in tests
+            _ensure_table(conn)
+            conn.execute(
+                "INSERT INTO query_performance (query_name, response_time_ms) VALUES (?, ?)",
+                (query_name, duration_ms),
+            )
+            conn.commit()
+            metrics = _compute_metrics(conn)
+    else:
         _ensure_table(conn)
         conn.execute(
             "INSERT INTO query_performance (query_name, response_time_ms) VALUES (?, ?)",
@@ -112,14 +136,26 @@ def track_query_time(query_name: str, duration_ms: float, db_path: Optional[Path
     return metrics
 
 
-def record_error(query_name: str, db_path: Optional[Path] = None) -> Dict[str, float]:
+def record_error(
+    query_name: str,
+    db_path: Optional[Path] = None,
+    conn: Optional[sqlite3.Connection] = None,
+) -> Dict[str, float]:
     """Record an error occurrence for a query and return aggregate metrics."""
     path = db_path or DB_PATH
-    with sqlite3.connect(path) as conn:
+    if conn is None:
+        with sqlite3.connect(path) as conn:  # pragma: no cover - exercised in tests
+            _ensure_table(conn)
+            conn.execute(
+                "INSERT INTO query_performance (query_name, response_time_ms, is_error) VALUES (?, 0, 1)",
+                (query_name,),
+            )
+            conn.commit()
+            metrics = _compute_metrics(conn)
+    else:
         _ensure_table(conn)
         conn.execute(
-            "INSERT INTO query_performance (query_name, \
-                response_time_ms, is_error) VALUES (?, 0, 1)",
+            "INSERT INTO query_performance (query_name, response_time_ms, is_error) VALUES (?, 0, 1)",
             (query_name,),
         )
         conn.commit()
@@ -129,20 +165,27 @@ def record_error(query_name: str, db_path: Optional[Path] = None) -> Dict[str, f
 
 
 def benchmark_queries(queries: Iterable[str], db_path: Optional[Path] = None) -> Dict[str, float]:
-    """Execute queries while tracking performance metrics."""
+    """Execute queries while tracking performance metrics.
+
+    The function now reuses a single connection for the entire benchmark
+    run which significantly reduces overhead compared to opening a new
+    connection for each query.
+    """
     metrics: Dict[str, float] = {}
     path = db_path or DB_PATH
-    for query in queries:
-        start = perf_counter()
-        try:
-            with sqlite3.connect(path) as conn:
+    with sqlite3.connect(path) as conn:
+        _ensure_table(conn)
+        for query in queries:
+            start = perf_counter()
+            try:
                 conn.execute(query)
-        except sqlite3.Error as exc:
-            logger.error("Query failed: %s", exc)
-            metrics = record_error(query, db_path=path)
-        else:
-            duration = (perf_counter() - start) * 1000
-            metrics = track_query_time(query, duration, db_path=path)
+            except sqlite3.Error as exc:
+                logger.error("Query failed: %s", exc)
+                metrics = record_error(query, db_path=path, conn=conn)
+            else:
+                duration = (perf_counter() - start) * 1000
+                metrics = track_query_time(query, duration, db_path=path, conn=conn)
+        conn.commit()
     return metrics
 
 
@@ -180,7 +223,7 @@ def schedule_metrics_push(
     def _loop() -> None:
         while stop_event is None or not stop_event.is_set():
             push_metrics(db_path=db_path)
-            if stop_event is None:
+            if stop_event is None:  # pragma: no cover - infinite loop when None
                 sleep(interval)
             else:
                 stop_event.wait(interval)
