@@ -69,7 +69,7 @@ jobs:
       - name: Run ruff
         run: |
           mkdir -p reports/lint
-          ruff check . | tee reports/lint/ruff.txt
+          ruff check --config pyproject.toml --force-exclude . | tee reports/lint/ruff.txt
 
       - name: Run flake8 on changed files
         if: steps.changed.outputs.added_modified != ''
@@ -119,6 +119,9 @@ jobs:
 
       - name: Validate roadmap
         run: python scripts/validate_roadmap.py docs/continuous_improvement_roadmap.md
+
+      - name: Validate doc script references
+        run: python scripts/validate_doc_script_paths.py
 
       - name: Placeholder audit
         env:
