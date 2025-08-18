@@ -3,12 +3,14 @@
 <h1>Dashboard</h1>
 <div id="progress"></div>
 <ul>
-  <li>Placeholder Removals: {{ metrics.get('placeholder_removal', 0) }}</li>
-  <li>Compliance Score: {{ '%.3f'|format(metrics.get('compliance_score', 0)) }}</li>
-  <li>Violations: {{ metrics.get('violation_count', 0) }}</li>
-  <li>Rollbacks: {{ metrics.get('rollback_count', 0) }}</li>
+  <li title="Number of placeholders removed across the repository">Placeholder Removals: {{ metrics.get('placeholder_removal', 0) }}</li>
+  <li title="Latest compliance composite score">Compliance Score: {{ '%.3f'|format(metrics.get('compliance_score', 0)) }}</li>
+  <li title="Current policy violations count">Violations: {{ metrics.get('violation_count', 0) }}</li>
+  <li title="Number of rollbacks performed">Rollbacks: {{ metrics.get('rollback_count', 0) }}</li>
 </ul>
+<canvas id="complianceChart" width="400" height="200"></canvas>
 <p><a href="/dashboard/compliance">Compliance Metrics</a></p>
 <p><a href="/dashboard/rollback">Rollback Logs</a></p>
 <p><a href="/dashboard/corrections">Correction History</a></p>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module" src="{{ url_for('static', filename='js/dashboard_intelligence.js') }}"></script>
