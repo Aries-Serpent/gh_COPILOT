@@ -2108,7 +2108,10 @@ Seamless integration with enterprise systems:
 
 ```bash
 # SAP integration
-python scripts/integration/sap_integration.py --rfc-connector --real-time-sync
+export SAP_API_URL=https://sap.example.com/api
+export SAP_API_KEY=your_sap_api_key
+export SAP_INTEGRATION_ENABLED=1
+python scripts/integration/sap_integration.py
 
 # Oracle ERP integration
 python scripts/integration/oracle_erp_integration.py --fusion-middleware --data-sync
