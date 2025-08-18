@@ -70,3 +70,32 @@ def test_cli_entrypoint(tmp_path, monkeypatch):
     with pytest.raises(SystemExit) as exc:
         runpy.run_module("security.validator", run_name="__main__")
     assert exc.value.code == 0
+
+
+def test_load_security_configs_handles_errors(tmp_path):
+    invalid = tmp_path / "bad.json"
+    invalid.write_text("{")
+    unreadable = tmp_path / "unreadable.json"
+    unreadable.write_text("{}")
+    unreadable.chmod(0)
+    configs = validator.load_security_configs(tmp_path)
+    assert configs["bad.json"] == {}
+    assert configs["unreadable.json"] == {}
+
+
+def test_main_permission_error(tmp_path, monkeypatch):
+    cfg = tmp_path / "security_audit_framework.json"
+    cfg.write_text("{\"audit_categories\": []}")
+
+    def fake_write_reports(results, report_dir):
+        raise PermissionError
+
+    monkeypatch.setattr(validator, "write_reports", fake_write_reports)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["validator", "--config-dir", str(tmp_path), "--report-dir", str(tmp_path)],
+    )
+    with pytest.raises(SystemExit) as exc:
+        validator.main()
+    assert exc.value.code == 1

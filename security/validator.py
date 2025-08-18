@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hmac
 import json
 import sys
 from pathlib import Path
@@ -33,8 +34,11 @@ def load_security_configs(config_dir: Path) -> Dict[str, Any]:
 
     configs: Dict[str, Any] = {}
     for path in config_dir.glob("*.json"):
-        with path.open(encoding="utf-8") as handle:
-            configs[path.name] = json.load(handle)
+        try:
+            with path.open(encoding="utf-8") as handle:
+                configs[path.name] = json.load(handle)
+        except (OSError, json.JSONDecodeError):
+            configs[path.name] = {}
     return configs
 
 
@@ -78,9 +82,15 @@ def main() -> None:
     args = parser.parse_args()
 
     results = validate_security_configs(args.config_dir)
-    write_reports(results, args.report_dir)
+    try:
+        write_reports(results, args.report_dir)
+    except OSError:
+        print("Unable to write reports.")
+        sys.exit(1)
 
-    has_failures = any(info["status"] == "fail" for info in results.values())
+    has_failures = any(
+        hmac.compare_digest(info["status"], "fail") for info in results.values()
+    )
     sys.exit(1 if has_failures else 0)
 
 
