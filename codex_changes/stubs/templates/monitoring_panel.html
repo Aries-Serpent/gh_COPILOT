@@ -10,7 +10,19 @@ async function fetch_monitoring_metrics() {
     const res = await fetch("/metrics/monitoring", { cache: "no-store" });
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
-    // wired by codex: update Chart.js gauge with `data.metrics.value`
+    const value = (data && data.metrics && typeof data.metrics.value === 'number')
+      ? data.metrics.value : 0;
+    const ds = gauge_monitoring.data.datasets?.[0];
+    if (ds) {
+      ds.data = [value, Math.max(0, 100 - value)];
+    }
+    if (gauge_monitoring.options?.plugins?.tooltip) {
+      gauge_monitoring.options.plugins.tooltip.enabled = true;
+    }
+    if (gauge_monitoring.options?.plugins?.thresholds) {
+      gauge_monitoring.options.plugins.thresholds.current = value;
+    }
+    gauge_monitoring.update();
   } catch (e) {
     console.error("Failed to fetch monitoring metrics:", e);
   }
