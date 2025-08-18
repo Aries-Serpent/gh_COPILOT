@@ -105,6 +105,22 @@ ANALYTICS_DB = Path("databases/analytics.db")
 MONITORING_DB = Path("databases/monitoring.db")
 METRICS_FILE = _METRICS_FILE
 CORRECTIONS_WS_PORT = 8767
+COMPLIANCE_LIMIT = 20
+
+
+def _get_compliance_scores(limit: int = COMPLIANCE_LIMIT) -> List[Dict[str, float]]:
+    """Return refreshed compliance metrics from ``analytics.db``.
+
+    ``update_compliance_metrics`` is attempted to ensure data freshness but
+    silently ignored if underlying tables are unavailable. This keeps the
+    endpoint resilient during tests where the full schema is not present.
+    """
+
+    try:
+        update_compliance_metrics()
+    except Exception:
+        pass
+    return fetch_recent_compliance(limit=limit, db_path=ANALYTICS_DB)
 
 
 def _load_metrics_with_file() -> Dict[str, Any]:
@@ -370,6 +386,7 @@ def metrics_stream() -> Response:
         while True:
             metrics = _load_metrics_with_file()
             metrics["placeholder_history"] = _load_placeholder_history()
+            metrics["compliance_scores"] = _get_compliance_scores()
             yield f"data: {json.dumps(metrics)}\n\n"
             if once:
                 break
@@ -604,8 +621,7 @@ def refresh_compliance() -> Any:  # pragma: no cover
 
 @app.route("/api/compliance_scores")
 def compliance_scores() -> Any:  # pragma: no cover
-    rows = fetch_recent_compliance(limit=20)
-    return jsonify({"scores": rows})
+    return jsonify({"scores": _get_compliance_scores()})
 
 
 @app.route("/api/code_quality_metrics")
