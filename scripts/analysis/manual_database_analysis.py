@@ -1,3 +1,4 @@
+import logging
 #!/usr/bin/env python3
 """
 Manual Database Analysis and Action Statement Generator
@@ -259,6 +260,7 @@ def main():
         return True
 
     except Exception as e:
+        logging.exception("analysis script error")
         print(f"[ERROR] Failed to generate action statement: {e}")
         return False
 

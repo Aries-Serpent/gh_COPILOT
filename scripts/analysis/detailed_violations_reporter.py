@@ -469,6 +469,7 @@ class DetailedViolationsReporter:
             self.logger.info(f"🌐 HTML REPORT GENERATED: {html_file}")
             return str(html_file)
         except Exception as e:
+            logging.exception("analysis script error")
             self.logger.error(f"❌ Failed to generate HTML report: {e}")
             return ""
 
@@ -483,6 +484,7 @@ def main():
         print("✅ Detailed violations reporter initialized successfully")
 
     except Exception as e:
+        logging.exception("analysis script error")
         print(f"❌ Error in detailed violations reporter: {e}")
         sys.exit(1)
 

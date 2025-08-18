@@ -324,6 +324,7 @@ def main():
         return True
 
     except Exception as e:
+        logging.exception("analysis script error")
         print(f"❌ Report generation failed: {e}")
         return False
 

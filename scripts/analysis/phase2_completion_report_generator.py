@@ -1,3 +1,4 @@
+import logging
 #!/usr/bin/env python3
 """
 # # 🎯 PHASE 2 COMPLETION REPORT GENERATOR
@@ -67,6 +68,7 @@ class Phase2CompletionReportGenerator:
             }
 
         except Exception as e:
+            logging.exception("analysis script error")
             print(f"Error scanning violations: {e}")
             return {
                 "f821_f401_violations": "Scan failed",
@@ -198,6 +200,7 @@ gh_COPILOT Toolkit - Phase 2 Systematic Processing Complete
             return True
 
         except Exception as e:
+            logging.exception("analysis script error")
             print(f"CRITICAL ERROR generating report: {e}")
             return False
 
@@ -211,6 +214,7 @@ def main():
         return 0 if success else 1
 
     except Exception as e:
+        logging.exception("analysis script error")
         print(f"CRITICAL ERROR: {e}")
         return 1
 

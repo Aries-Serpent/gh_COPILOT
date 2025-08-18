@@ -58,6 +58,7 @@ class EnterpriseFlake8Corrector:
             return validation_passed
 
         except Exception as e:
+            logging.exception("analysis script error")
             self.logger.error(f"{TEXT_INDICATORS['error']} Correction failed: {e}")
             return False
 
@@ -82,6 +83,7 @@ class EnterpriseFlake8Corrector:
             # Implementation for file correction
             return True
         except Exception as e:
+            logging.exception("analysis script error")
             self.logger.error(f"{TEXT_INDICATORS['error']} File correction failed: {e}")
             return False
 

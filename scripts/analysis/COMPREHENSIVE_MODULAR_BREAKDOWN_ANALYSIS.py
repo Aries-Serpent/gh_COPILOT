@@ -110,6 +110,7 @@ class ComprehensiveModularBreakdownAnalyzer:
                     self.logger.warning(f"⚠️ Strategic Implementation: {success_rate} - Analysis may be incomplete")
 
         except Exception as e:
+            logging.exception("analysis script error")
             self.logger.error(f"❌ Cannot validate strategic completion: {e}")
 
         return False
@@ -156,6 +157,7 @@ class ComprehensiveModularBreakdownAnalyzer:
             }
 
         except Exception as e:
+            logging.exception("analysis script error")
             self.logger.error(f"Error analyzing {script_path}: {e}")
             return {}
 
