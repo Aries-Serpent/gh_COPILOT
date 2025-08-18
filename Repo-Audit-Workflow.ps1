@@ -1,8 +1,8 @@
-# =====================================================================
-# Repo-Audit-Workflow.ps1
-# End-to-end audit & planning workflow for gh_COPILOT (no Actions activation)
-# Author: Chat (Codex-ready)
-# =====================================================================
+<# =====================================================================
+ Repo-Audit-Workflow.ps1
+ End-to-end audit & planning workflow for gh_COPILOT (no Actions activation)
+ Author: Chat (Codex-ready)
+===================================================================== #>
 
 [CmdletBinding()]
 param(
@@ -31,13 +31,14 @@ function New-ErrorQuestion {
     [string]$ErrorMessage,
     [string]$Context
   )
-  $q = @""
+  $q = @"
 Question for ChatGPT-5:
 While performing [$StepNumber:$StepDescription], encountered the following error:
 $ErrorMessage
 Context: $Context
 What are the possible causes, and how can this be resolved while preserving intended functionality?
-""@
+
+"@
   Add-Content -Path (Join-Path $script:OutDir "analysis\chatgpt5_questions.md") -Value $q
 }
 
@@ -127,7 +128,7 @@ function Build-Mappings {
         if ($matches.Count -gt 0) {
           $files += $matches.FullName
         } else {
-          $prune += [pscustomobject]@{ Component=$k; Pattern=$pattern; Rationale="No match after exhaustive search; candidate for deferral" }
+          $prune += [pscustomobject]@{ Component=$k; Pattern=$pattern; Rationale="No match after exhaustive search; candidate for deferral (control: map[$k])" }
         }
       }
       $found[$k] = $files
