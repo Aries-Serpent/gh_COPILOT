@@ -8,7 +8,20 @@ import threading
 from typing import Any, Callable, Dict, List
 import queue
 
-from monitoring import BaselineAnomalyDetector
+try:
+    from monitoring import BaselineAnomalyDetector
+except Exception:  # pragma: no cover - fallback when monitoring package missing
+    class BaselineAnomalyDetector:  # type: ignore[override]
+        def __init__(self, *a, **k) -> None:  # noqa: D401 - simple stub
+            """Fallback detector returning no anomalies."""
+
+        def zscores(self) -> list[float]:
+            return []
+
+        def detect(self) -> list[float]:
+            return []
+
+        threshold: float = 0.0
 
 try:  # pragma: no cover - Flask is optional for tests
     from flask import jsonify, render_template, Response, request
@@ -51,14 +64,52 @@ try:  # pragma: no cover - dashboard features are optional in tests
     _load_compliance_payload = cast(Any, _real_load_compliance_payload)
 except Exception:  # pragma: no cover - provide fallbacks
 
+    from types import SimpleNamespace
+
     class _DummyApp:
         view_functions: Dict[str, Callable[..., Any]] = {}
 
-        def route(self, *args: Any, **kwargs: Any) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+        def route(
+            self, path: str, *args: Any, **kwargs: Any
+        ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
             def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+                self.view_functions[path] = func
                 return func
 
             return decorator
+
+        def context_processor(self, func: Callable[..., Any]) -> Callable[..., Any]:
+            return func
+
+        def test_client(self) -> Any:  # pragma: no cover - simple test stub
+            app = self
+
+            class _Client:
+                def get(self, path: str) -> Any:
+                    func = app.view_functions.get(path)
+                    if func is None:
+                        return SimpleNamespace(
+                            status_code=404,
+                            get_json=lambda: {},
+                            data=b"",
+                        )
+                    result = func()
+                    data = result if isinstance(result, dict) else {"metrics": result}
+                    return SimpleNamespace(
+                        status_code=200,
+                        get_json=lambda: data,
+                        data=str(data).encode(),
+                    )
+
+            return _Client()
+
+        def register_blueprint(self, bp: Any, **kwargs: Any) -> None:
+            for func in getattr(bp, "deferred_functions", []):
+                func(self)
+
+        def add_url_rule(self, rule: str, endpoint: str | None = None, view_func: Callable[..., Any] | None = None, **options: Any) -> None:
+            if view_func is not None:
+                self.view_functions[rule] = view_func
 
     app = _DummyApp()
     dashboard_bp = app  # type: ignore[assignment]

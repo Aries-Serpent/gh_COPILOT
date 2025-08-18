@@ -16,13 +16,14 @@ import time
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
-from unified_monitoring_optimization_system import (
-    auto_heal_session as _auto_heal_session,
-    collect_metrics as _collect_metrics,
-    detect_anomalies as _detect_impl,
-    push_metrics,  # noqa: F401 - re-exported for tests
-    train_anomaly_model,  # noqa: F401 - re-exported for tests
-)
+import importlib
+
+_core = importlib.import_module("unified_monitoring_optimization_system")
+_auto_heal_session = _core.auto_heal_session
+_collect_metrics = _core.collect_metrics
+_detect_impl = _core.detect_anomalies
+push_metrics = _core.push_metrics  # noqa: F401 - re-exported for tests
+train_anomaly_model = _core.train_anomaly_model  # noqa: F401 - re-exported for tests
 
 # Exported public helpers
 __all__ = ["anomaly_detection_loop", "detect_anomalies"]

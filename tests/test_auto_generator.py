@@ -42,6 +42,15 @@ def test_auto_generator_cluster_representatives(tmp_path: Path, monkeypatch) -> 
     assert all(r in allowed for r in reps)
 
 
+def test_cluster_deterministic(tmp_path: Path, monkeypatch) -> None:
+    """Repeated initialisation should yield stable clustering."""
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    analytics_db, completion_db = create_test_dbs(tmp_path)
+    gen1 = TemplateAutoGenerator(analytics_db, completion_db)
+    gen2 = TemplateAutoGenerator(analytics_db, completion_db)
+    assert gen1.get_cluster_representatives() == gen2.get_cluster_representatives()
+
+
 def test_pattern_templates_loaded(tmp_path: Path) -> None:
     os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     analytics_db, completion_db = create_test_dbs(tmp_path)
