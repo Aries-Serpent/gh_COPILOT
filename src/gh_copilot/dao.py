@@ -37,14 +37,14 @@ def get_conn(db_path: Path, timeout: float = 30.0) -> sqlite3.Connection:
 class SQLiteAnalyticsDAO:
     def __init__(self, db_path: Path) -> None:
         self.db_path = db_path
+        # cache a single connection to avoid repeated sqlite3.connect overhead
+        self._conn_cache: sqlite3.Connection | None = None
 
     @contextmanager
     def _conn(self) -> Iterator[sqlite3.Connection]:
-        conn = get_conn(self.db_path)
-        try:
-            yield conn
-        finally:
-            conn.close()
+        if self._conn_cache is None:
+            self._conn_cache = get_conn(self.db_path)
+        yield self._conn_cache
 
     def log_placeholder(self, task: PlaceholderTask) -> None:
         with self._conn() as conn:

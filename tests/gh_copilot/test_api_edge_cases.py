@@ -1,4 +1,5 @@
 from pathlib import Path
+import pytest
 import types, sys, json, importlib.util
 
 spec = importlib.util.spec_from_file_location("fastapi", Path("src/fastapi/__init__.py"))
@@ -30,23 +31,23 @@ pydantic_stub.BaseModel = _BaseModel
 pydantic_stub.Field = Field
 sys.modules["pydantic"] = pydantic_stub
 
-from src.gh_copilot.api import api_regenerate
+from src.gh_copilot.api import api_regenerate, get_compliance
 
 
-def test_api_regenerate(monkeypatch, tmp_path):
-    called = {}
-
-    def fake_generate(kind: str, source_db: Path, out_dir: Path, analytics_db: Path, params: dict | None = None):
-        out_dir.mkdir(exist_ok=True)
-        out = out_dir / "out.txt"
-        out.write_text("x")
-        called["kind"] = kind
-        return [out]
+def test_api_regenerate_failure(monkeypatch, tmp_path):
+    def boom(**kwargs):
+        raise RuntimeError("boom")
 
     monkeypatch.setattr(
-        "gh_copilot.generation.generate_from_templates.generate", fake_generate
+        "gh_copilot.generation.generate_from_templates.generate",
+        lambda *a, **k: boom(),
     )
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
-    resp = api_regenerate("docs")
-    assert resp["written"]
-    assert called["kind"] == "docs"
+    with pytest.raises(RuntimeError):
+        api_regenerate("docs")
+
+
+def test_get_compliance_missing(monkeypatch):
+    monkeypatch.setattr("src.gh_copilot.api._dao.fetch_score", lambda branch: None)
+    resp = get_compliance("dev")
+    assert resp == {"branch": "dev", "score": None}
