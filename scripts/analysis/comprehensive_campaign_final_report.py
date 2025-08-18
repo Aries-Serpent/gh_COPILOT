@@ -319,9 +319,9 @@ class ComprehensiveMultiPhaseCampaignReport:
             with open(filename, "w", encoding="utf-8") as f:
                 json.dump(report_data, f, indent=2, ensure_ascii=False)
             print(f"\n# # 💾 Detailed report saved: {filename}")
-        except Exception as e:
+        except OSError:
             logging.exception("analysis script error")
-            print(f"# # ⚠️ Error saving report: {e}")
+            raise
 
 
 if __name__ == "__main__":

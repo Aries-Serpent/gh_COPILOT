@@ -446,7 +446,7 @@ class IntegrationScoreCalculator:
                     patterns_found = sum(1 for pattern in patterns if pattern in content)
                     if patterns_found >= len(patterns) // 2:  # At least half the patterns
                         files_with_patterns.append(str(py_file))
-                except Exception as e:
+                except (OSError, UnicodeDecodeError):
                     logging.exception("analysis script error")
                     continue
 
@@ -535,11 +535,12 @@ class IntegrationScoreCalculator:
                         component.evidence = []
                         component.recommendations = ["❌ No scripts tracked in database"]
 
-        except Exception as e:
+        except (sqlite3.Error, OSError) as exc:
             logging.exception("analysis script error")
             component.current_score = 0.0
             component.evidence = []
-            component.recommendations = [f"❌ Database error: {str(e)}"]
+            component.recommendations = [f"❌ Database error: {str(exc)}"]
+            raise
 
         return component
 
@@ -776,9 +777,10 @@ class IntegrationScoreCalculator:
 
                 self.logger.info("✅ Integration score calculation updated in database")
 
-        except Exception as e:
+        except (sqlite3.Error, OSError):
             logging.exception("analysis script error")
-            self.logger.error(f"❌ Database update failed: {str(e)}")
+            self.logger.error("❌ Database update failed")
+            raise
 
     def _generate_score_calculation_reports(self, result: IntegrationScoreResult) -> None:
         """📊 Generate comprehensive score calculation reports"""
@@ -841,42 +843,36 @@ class IntegrationScoreCalculator:
 def main():
     """🎯 Main execution function for integration score calculation"""
 
-    try:
-        # Initialize score calculator
-        calculator = IntegrationScoreCalculator()
+    # Initialize score calculator
+    calculator = IntegrationScoreCalculator()
 
-        # Execute comprehensive score calculation
-        result = calculator.calculate_comprehensive_integration_score()
+    # Execute comprehensive score calculation
+    result = calculator.calculate_comprehensive_integration_score()
 
-        # Display results summary
-        print("\n" + "=" * 80)
-        print("🧮 INTEGRATION SCORE CALCULATION SUMMARY")
-        print("=" * 80)
-        print(
-            f"📊 Overall Score: {result.percentage_score:.1f}% ({result.overall_score:.1f}/{result.maximum_possible_score:.1f})"
-        )
-        print(f"🏆 Achievement Level: {result.achievement_level}")
-        print(f"🎯 Integration Status: {result.lessons_learned_integration_status}")
-        print(f"✅ Calculation Status: {'PASSED' if result.calculation_passed else 'FAILED'}")
+    # Display results summary
+    print("\n" + "=" * 80)
+    print("🧮 INTEGRATION SCORE CALCULATION SUMMARY")
+    print("=" * 80)
+    print(
+        f"📊 Overall Score: {result.percentage_score:.1f}% ({result.overall_score:.1f}/{result.maximum_possible_score:.1f})"
+    )
+    print(f"🏆 Achievement Level: {result.achievement_level}")
+    print(f"🎯 Integration Status: {result.lessons_learned_integration_status}")
+    print(f"✅ Calculation Status: {'PASSED' if result.calculation_passed else 'FAILED'}")
 
-        if result.critical_disqualifiers:
-            print(f"🚨 Critical Disqualifiers: {len(result.critical_disqualifiers)}")
-            for disqualifier in result.critical_disqualifiers:
-                print(f"   - {disqualifier}")
+    if result.critical_disqualifiers:
+        print(f"🚨 Critical Disqualifiers: {len(result.critical_disqualifiers)}")
+        for disqualifier in result.critical_disqualifiers:
+            print(f"   - {disqualifier}")
 
-        print("=" * 80)
+    print("=" * 80)
 
-        if result.recommendations:
-            print("\n📋 KEY RECOMMENDATIONS:")
-            for i, recommendation in enumerate(result.recommendations, 1):
-                print(f"{i}. {recommendation}")
+    if result.recommendations:
+        print("\n📋 KEY RECOMMENDATIONS:")
+        for i, recommendation in enumerate(result.recommendations, 1):
+            print(f"{i}. {recommendation}")
 
-        return 0 if result.calculation_passed else 1
-
-    except Exception as e:
-        logging.exception("analysis script error")
-        print(f"❌ Integration score calculation failed: {str(e)}")
-        return 1
+    return 0 if result.calculation_passed else 1
 
 
 if __name__ == "__main__":

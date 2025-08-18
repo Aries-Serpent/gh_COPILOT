@@ -323,10 +323,9 @@ def main():
 
         return True
 
-    except Exception as e:
+    except (OSError, KeyError):
         logging.exception("analysis script error")
-        print(f"❌ Report generation failed: {e}")
-        return False
+        raise
 
 
 if __name__ == "__main__":

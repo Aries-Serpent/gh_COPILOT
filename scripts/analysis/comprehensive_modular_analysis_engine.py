@@ -114,9 +114,9 @@ class ComprehensiveModularAnalysisEngine:
                     progress = ((i + 1) / total_files) * 80  # 80% for script analysis
                     pbar.update(progress - pbar.n)
 
-                except Exception as e:
+                except (OSError, SyntaxError):
                     logging.exception("analysis script error")
-                    self.logger.warning(f"Error analyzing {script_path}: {e}")
+                    raise
 
             pbar.set_description("🧠 Identifying modularization opportunities")
             self.identify_modularization_opportunities()
@@ -191,17 +191,9 @@ class ComprehensiveModularAnalysisEngine:
                 "import_patterns": imports,
             }
 
-        except Exception as e:
+        except (OSError, SyntaxError):
             logging.exception("analysis script error")
-            self.logger.warning(f"Error parsing {script_path}: {e}")
-            return {
-                "file_size_lines": 0,
-                "functions_found": 0,
-                "classes_found": 0,
-                "imports_found": 0,
-                "complexity_score": 0,
-                "error": str(e),
-            }
+            raise
 
     def extract_function_patterns(self, tree: ast.AST, script_path: Path) -> List[Dict[str, Any]]:
         """🔧 Extract function patterns from AST"""
@@ -449,34 +441,28 @@ def main():
     print(f"📁 Target: Root-level script modularization analysis")
     print("=" * 80)
 
-    try:
-        # Initialize analyzer
-        analyzer = ComprehensiveModularAnalysisEngine()
+    # Initialize analyzer
+    analyzer = ComprehensiveModularAnalysisEngine()
 
-        # Perform comprehensive analysis
-        results = analyzer.analyze_all_root_scripts()
+    # Perform comprehensive analysis
+    results = analyzer.analyze_all_root_scripts()
 
-        # Save results
-        output_file = analyzer.save_analysis_results(results)
+    # Save results
+    output_file = analyzer.save_analysis_results(results)
 
-        # Final summary
-        duration = (datetime.now() - start_time).total_seconds()
-        print("=" * 80)
-        print("✅ COMPREHENSIVE MODULAR ANALYSIS COMPLETE")
-        print("=" * 80)
-        print(f"⏰ Total Duration: {duration:.2f} seconds")
-        print(f"📊 Scripts Analyzed: {results['total_scripts_analyzed']}")
-        print(f"💡 Modularization Opportunities: {results['modularization_opportunities']}")
-        print(f"💾 Estimated Total Savings: {results['estimated_total_savings']} lines")
-        print(f"📄 Results File: {output_file}")
-        print("=" * 80)
+    # Final summary
+    duration = (datetime.now() - start_time).total_seconds()
+    print("=" * 80)
+    print("✅ COMPREHENSIVE MODULAR ANALYSIS COMPLETE")
+    print("=" * 80)
+    print(f"⏰ Total Duration: {duration:.2f} seconds")
+    print(f"📊 Scripts Analyzed: {results['total_scripts_analyzed']}")
+    print(f"💡 Modularization Opportunities: {results['modularization_opportunities']}")
+    print(f"💾 Estimated Total Savings: {results['estimated_total_savings']} lines")
+    print(f"📄 Results File: {output_file}")
+    print("=" * 80)
 
-        return True
-
-    except Exception as e:
-        logging.exception("analysis script error")
-        print(f"❌ ANALYSIS ERROR: {e}")
-        return False
+    return True
 
 
 if __name__ == "__main__":
