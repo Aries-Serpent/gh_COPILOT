@@ -1,8 +1,9 @@
 from __future__ import annotations
-import json, sqlite3
+
+import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict, List
 
 from .dao import GenerationDAO
 
@@ -13,7 +14,8 @@ class TemplateRecord:
     content: str
 
 def _fetch_templates(db: Path, table: str) -> List[TemplateRecord]:
-    conn = sqlite3.connect(db); conn.row_factory = sqlite3.Row
+    conn = sqlite3.connect(db)
+    conn.row_factory = sqlite3.Row
     try:
         rows = conn.execute(f"SELECT id, path, content FROM {table}").fetchall()
         return [TemplateRecord(id=str(r['id']), path=r['path'], content=r['content']) for r in rows]

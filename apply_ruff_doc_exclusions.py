@@ -9,15 +9,14 @@ DO NOT ACTIVATE ANY GitHub Actions files.
 """
 
 from __future__ import annotations
-import os
-import re
-import sys
-import json
-import shutil
+
 import hashlib
+import json
+import re
 import subprocess
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
 
 # Python 3.11+: tomllib in stdlib; fall back to "toml" if unavailable
 try:
@@ -392,7 +391,7 @@ def main() -> int:
         summary.extend(f"  - {e}" for e in errors)
 
     # Symbolic confirmation of goal:
-    summary.append("\n**Symbolic Check:** Target set T' = T \ E, where E = {""*.md"", ""*.rst"", ""README.md""}.")
+    summary.append("\n**Symbolic Check:** Target set T' = T \\ E, where E = {\"*.md\", \"*.rst\", \"README.md\"}.")
     summary.append("Config now ensures Ruff excludes E globally via `extend-exclude`.")
 
     log_changelog(summary)

@@ -18,9 +18,16 @@ Grounding ref: Aries-Serpent/gh_COPILOT v0.4.6-alpha release notes mention:
 """
 
 from __future__ import annotations
-import re, sys, os, json, shutil, subprocess, textwrap
-from pathlib import Path
+
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import textwrap
 from datetime import datetime
+from pathlib import Path
 
 ROOT = Path(".").resolve()
 README = ROOT / "README.md"
