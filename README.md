@@ -53,7 +53,7 @@ python scripts/run_checks.py  # runs Ruff, Pyright, pytest
 
 **Governance:** see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards. New compliance routines and monitoring capabilities are detailed in [docs/white-paper.md](docs/white-paper.md).
 
-**Security:** configuration files live under the `security/` directory (). Run `python scripts/security/validator.py` to load and list these assets.
+**Security:** configuration files live under the `security/` directory. Run `python security/validator.py` to validate these assets and generate `reports/security_validator.json` and `reports/security_validator.csv`.
 
 **Documentation:** quantum preparation, executive guides, and certification workflows live under `docs/` — see [docs/quantum_preparation/README.md](docs/quantum_preparation/README.md), [docs/executive_guides/README.md](docs/executive_guides/README.md), and [docs/certification/README.md](docs/certification/README.md) for details and related module links.
 
@@ -1040,7 +1040,7 @@ python scripts/validation/comprehensive_session_integrity_validator.py --full-ch
 python scripts/utilities/emergency_c_temp_violation_prevention.py --emergency-cleanup
 
 # Security configuration validation
-python scripts/security/validator.py
+python security/validator.py
 ```
 
 ### Advanced Compliance Framework
@@ -1058,7 +1058,7 @@ Environment-specific compliance validators are under development and currently u
 python security/security_audit_comprehensive.py --generate-report
 
 # Load security configuration assets
-python scripts/security/validator.py
+python security/validator.py
 ```
 
 ---

@@ -123,6 +123,9 @@ jobs:
       - name: Validate doc script references
         run: python scripts/validate_doc_script_paths.py
 
+      - name: Validate security configurations
+        run: python security/validator.py
+
       - name: Placeholder audit
         env:
           GH_COPILOT_DISABLE_VALIDATION: "1"
