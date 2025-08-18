@@ -1,0 +1,43 @@
+{
+  "generated_at": "2025-08-18T22:29:08Z",
+  "alpha": 0.6,
+  "beta": 0.4,
+  "weights": {
+    "Active": 1.2,
+    "Development": 1.0
+  },
+  "component_scores": {
+    "Core Systems": 95.2,
+    "Database Layer": 96.6,
+    "ML Pipeline": 89.8,
+    "Quantum Simulation": 77.4,
+    "Security Framework": 98.2,
+    "Compliance Engine": 93.4,
+    "Performance Monitor": 90.8
+  },
+  "overall_after_recomputed": 92.03,
+  "projected_component_scores": {
+    "Core Systems": 95.2,
+    "Database Layer": 96.6,
+    "ML Pipeline": 93.8,
+    "Quantum Simulation": 84.2,
+    "Security Framework": 98.2,
+    "Compliance Engine": 93.4,
+    "Performance Monitor": 90.8
+  },
+  "projected_overall_after_roadmap": 93.38,
+  "assumptions": {
+    "Active": [
+      "Compliance Engine",
+      "Core Systems",
+      "Database Layer",
+      "Performance Monitor",
+      "Security Framework"
+    ],
+    "Development": [
+      "ML Pipeline",
+      "Quantum Simulation"
+    ],
+    "No CI touched": true
+  }
+}
