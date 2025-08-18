@@ -18,3 +18,4 @@ PyYAML
 schedule
 ruff
 PyPDF2>=3.0
+hypothesis
