@@ -41,7 +41,10 @@ recovery during continuous operation.
 
 `log_error_notifier.py` and `performance_tracker.py` can push metrics to
 `analytics.db` on a schedule. Each module exposes a helper that runs in a
-background thread and writes to the database at regular intervals:
+background thread and writes to the database at regular intervals.  For
+high-frequency ingestion, :mod:`performance_tracker` also accepts an
+existing :class:`sqlite3.Connection` so multiple calls can batch their
+writes without repeatedly opening new connections:
 
 ```python
 from pathlib import Path
