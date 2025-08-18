@@ -242,7 +242,7 @@ class FileMovementAssessment:
             return any(indicator in first_lines for indicator in script_indicators)
 
         except Exception as e:
-            logging.exception("script detection failed")
+            logging.exception("analysis script error")
             return False
 
     def _is_configuration_file(self, file_path):
@@ -410,6 +410,7 @@ def main():
         print("=" * 50)
 
     except Exception as e:
+        logging.exception("analysis script error")
         print(f"🚨 Assessment error: {str(e)}")
         logging.exception("Assessment failed")
         raise
