@@ -3,18 +3,20 @@
 This folder contains helper documentation for keeping repository metrics in sync.
 
 On every push the CI pipeline automatically runs
-`scripts/generate_docs_metrics.py` followed by
+`docs/generate_docs_metrics.py`, then `scripts/docs_status_reconciler.py` and
 `scripts/validate_docs_metrics.py` to ensure documentation statistics stay
-consistent with the production database. Sessions must run through `start_session` and `end_session` so successful wrap-ups contribute to the session success ratio used in the composite compliance score.
+consistent with the production database and to flag status drift. Sessions must
+run through `start_session` and `end_session` so successful wrap-ups contribute
+to the session success ratio used in the composite compliance score.
 
 ## Updating Metrics
 
-Run `python scripts/generate_docs_metrics.py` to refresh metrics in the main
+Run `python docs/generate_docs_metrics.py` to refresh metrics in the main
 `README.md` and under `documentation/generated/`. The script queries
 `databases/production.db` for the current number of tracked scripts and templates and counts
 database entries from `documentation/DATABASE_LIST.md`. Use the
-`--db-path` option to specify an alternate database file if needed.
-After regenerating metrics run:
+`--db-path` option to specify an alternate database file if needed. After
+regenerating metrics run `python scripts/docs_status_reconciler.py` followed by:
 ```bash
 python -m scripts.docs_metrics_validator
 python scripts/wlc_session_manager.py --db-path databases/production.db

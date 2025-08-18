@@ -70,6 +70,10 @@ frontend updates the `title` attribute for each metric, enabling native
 browser tooltips with definitions and timestamps. Clicking a gauge
 reveals these descriptions in an inline panel for quick drill-down.
 
+The `/metrics_stream` endpoint now streams a `compliance_scores` field
+that mirrors the data from `/api/compliance_scores`, keeping charts and
+tooltips synchronized with the latest database values.
+
 ---
 
 ## MODULE DIRECTORY STRUCTURE

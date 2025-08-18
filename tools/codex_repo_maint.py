@@ -21,14 +21,12 @@ from __future__ import annotations
 import argparse
 import os
 import re
-import sys
-import json
 import shutil
 import sqlite3
-import time
+import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable, List, Tuple, Optional
+from typing import Iterable, List, Optional, Tuple
 
 OLD_SCRIPT = "scripts/database/database_integrity_checker.py"
 NEW_SCRIPT = "scripts/database/database_consolidation_validator.py"
@@ -247,8 +245,8 @@ def ensure_db_with_recovery(db_path: str, create_tables_callable):
     dbp.parent.mkdir(parents=True, exist_ok=True)
 
     def _rename_to_corrupt(p: Path) -> Path:
-        suffix = datetime.now().strftime("%Y%m%d-%H%M%S")
-        cp = p.with_suffix(p.suffix + f".corrupt.{suffix}")
+        new_suffix = p.suffix + ".corrupt." + datetime.now().strftime("%Y%m%d-%H%M%S")
+        cp = p.with_suffix(new_suffix)
         if p.exists():
             p.rename(cp)
         return cp

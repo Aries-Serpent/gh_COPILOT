@@ -148,13 +148,14 @@ def ensure_in_requirements(path: Path, desired_spec: str):
     existing_line = None
     pat = re.compile(r"^\s*PyYAML\s*([<>=!~].*)?$", re.IGNORECASE)
 
+    existing_line: str | None = None
     for i, ln in enumerate(lines):
         if pat.match(ln):
             idx = i
             existing_line = ln.strip()
             break
 
-    if idx is None:
+    if idx is None or existing_line is None:
         lines.append(desired_spec)
         safe_write(path, "\n".join(lines) + "\n")
         return f"Added {desired_spec} to {path.name}", True
@@ -249,7 +250,7 @@ def update_docs_with_requirement(files, strategy, desired_spec):
         new_text = re.sub(r"\b(?<!Py)yaml package\b", "PyYAML package", text, flags=re.IGNORECASE)
 
         wanted = {"requirements": "pip", "pip-tools": "pip", "poetry": "poetry", "pyproject": "pip", "pipenv": "pipenv"}[strategy]
-        label, snippet = next((l, s) for (l, s) in INSTALL_SNIPPETS if l == wanted)
+        label, snippet = next((label, s) for (label, s) in INSTALL_SNIPPETS if label == wanted)
 
         if label == "pip":
             if "requirements.txt" in new_text and desired_spec in new_text:

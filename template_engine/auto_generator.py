@@ -271,7 +271,12 @@ class TemplateAutoGenerator:
         self.cluster_vectorizer = TfidfVectorizer()
         matrix = self.cluster_vectorizer.fit_transform(corpus)
         n_clusters = min(len(corpus), 2)
-        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=int(time.time()))
+        # Use a deterministic seed to ensure repeatable clustering results
+        # across invocations. Previous versions seeded the algorithm with the
+        # current timestamp which caused regenerated templates to differ on
+        # subsequent runs, breaking reproducibility guarantees relied upon by
+        # ``CompleteTemplateGenerator`` and its tests.
+        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=0)
         start_ts = time.time()
         with tqdm(total=1, desc="clustering", unit="step") as pbar:
             model.fit(matrix)

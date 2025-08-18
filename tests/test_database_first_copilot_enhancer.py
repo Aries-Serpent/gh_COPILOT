@@ -3,6 +3,7 @@ from pathlib import Path
 import sqlite3
 import pytest
 
+from template_engine.objective_similarity_scorer import compute_similarity_scores
 from scripts.database.database_first_copilot_enhancer import DatabaseFirstCopilotEnhancer
 
 
@@ -30,8 +31,8 @@ def test_similarity_ranking_and_confidence(tmp_path: Path, monkeypatch) -> None:
     total = sum(s for _, s in scores)
     top = max(s for _, s in scores)
     assert res["confidence_score"] == pytest.approx(top / total)
-    with sqlite3.connect(prod) as conn:
-        rows = conn.execute("SELECT COUNT(*) FROM similarity_scores").fetchone()[0]
+    with sqlite3.connect(analytics) as conn:
+        rows = conn.execute("SELECT COUNT(*) FROM objective_similarity").fetchone()[0]
     assert rows > 0
 
 

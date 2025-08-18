@@ -2329,8 +2329,8 @@ write(root / "Invoke-DbFirst.ps1", invoke_dbfirst_ps1)
 
 # ---------------- Create the ZIP ----------------
 with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as z:
-for p in root.rglob("*"):
-if p.is_file():
-z.write(p, arcname=str(p.relative_to(root)))
+    for p in root.rglob("*"):
+        if p.is_file():
+            z.write(p, arcname=str(p.relative_to(root)))
 
 print(json.dumps({"zip": str(zip_path), "files": sum(1 for _ in root.rglob('*') if _.is_file())}, indent=2))

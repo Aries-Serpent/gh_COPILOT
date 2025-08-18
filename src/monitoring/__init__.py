@@ -43,13 +43,21 @@ try:
 except Exception:  # pragma: no cover - missing optional deps
     pass
 
-try:
-    from .unified_monitoring_optimization_system import (
-        anomaly_detection_loop,
-        detect_anomalies,
-    )  # noqa: F401
+def anomaly_detection_loop(*args, **kwargs):
+    from unified_monitoring_optimization_system import (  # type: ignore
+        anomaly_detection_loop as _loop,
+    )
 
-    __all__ += ["anomaly_detection_loop", "detect_anomalies"]
-except Exception:  # pragma: no cover - missing optional deps
-    pass
+    return _loop(*args, **kwargs)
+
+
+def detect_anomalies(*args, **kwargs):
+    from unified_monitoring_optimization_system import (  # type: ignore
+        detect_anomalies as _detect,
+    )
+
+    return _detect(*args, **kwargs)
+
+
+__all__ += ["anomaly_detection_loop", "detect_anomalies"]
 
