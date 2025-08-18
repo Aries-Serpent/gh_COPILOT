@@ -176,9 +176,13 @@ jobs:
             python -m pip install --upgrade pip
             pip install -r requirements.txt
         - name: Generate docs metrics
-          run: python scripts/generate_docs_metrics.py
+          run: python docs/generate_docs_metrics.py --analytics-db databases/analytics.db
+        - name: Reconcile docs status
+          run: python scripts/docs_status_reconciler.py
         - name: Validate docs metrics
           run: python scripts/validate_docs_metrics.py
+        - name: Ensure documentation is current
+          run: git diff --exit-code
 
   docker-build:
     needs: lint-test
