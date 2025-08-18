@@ -2172,6 +2172,13 @@ git lfs fetch --all && git lfs fsck
 ```
 ---
 
+## Environment Requirements
+
+- Set `GH_COPILOT_BACKUP_ROOT` to an **absolute path outside this repository**.
+- Ensure the directory exists or is creatable by the current user.
+- This path is used for backups and recovery artifacts.
+
+
 ### CLI Notes (auto)
 Use Typer-based CLI via:
 - `python -m gh_copilot` (module mode), or
