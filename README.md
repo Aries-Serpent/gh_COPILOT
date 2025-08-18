@@ -131,14 +131,17 @@ This value is persisted to `analytics.db` () via `scripts/compliance/update_comp
 * `test_run_stats` – same ingestion script parses `pytest --json-report` results
 * `placeholder_audit_snapshots` – appended after each `scripts/code_placeholder_audit.py` run; `update_compliance_metrics` reads the latest snapshot, so run the audit before recomputing scores
 
-Stub entrypoints for specific regulatory frameworks are provided under `scripts/compliance/`:
+Regulation entrypoints are provided under `scripts/compliance/`:
 
 * `sox_compliance.py`
 * `hipaa_compliance.py`
 * `pci_compliance.py`
 * `gdpr_compliance.py`
 
-Each stub simply delegates to `update_compliance_metrics.py`, ensuring all compliance runs share the same composite scoring logic.
+Each script performs a lightweight regulation-specific audit before
+delegating to `update_compliance_metrics.py`. Invoke with
+`--export-dashboard` to write a JSON report under
+`dashboard/compliance/`.
 
 **Endpoints:**
 * `POST /api/refresh_compliance` – compute & persist a new composite score

@@ -106,6 +106,12 @@ This value is persisted to `analytics.db` (table `compliance_scores`) via `scrip
 * `test_run_stats` – same ingestion script parses `pytest --json-report` results
 * `placeholder_audit_snapshots` – appended after each `scripts/code_placeholder_audit.py` run; `update_compliance_metrics` reads the latest snapshot, so run the audit before recomputing scores
 
+Regulation-specific entrypoints (`sox_compliance.py`, `hipaa_compliance.py`,
+`pci_compliance.py`, `gdpr_compliance.py`) perform lightweight audits
+before invoking :func:`scripts.compliance.update_compliance_metrics`. Run
+them with ``--export-dashboard`` to persist JSON reports under
+``dashboard/compliance/``.
+
 **Endpoints:**
 * `POST /api/refresh_compliance` – compute & persist a new composite score
 * `GET /api/compliance_scores` – last 50 scores for trend visualization
