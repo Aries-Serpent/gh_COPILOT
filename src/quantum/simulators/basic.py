@@ -6,7 +6,7 @@ Refer to ``docs/quantum_integration.md`` for full setup and integration details.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Sequence
+from typing import Any, Dict, Optional, Sequence, Tuple
 
 from .base import QuantumSimulator
 
@@ -26,6 +26,8 @@ class BasicSimulator(QuantumSimulator):
     def __init__(self, shots: int = 1024, seed: Optional[int] = None) -> None:
         self.shots = shots
         self.seed = seed
+        # cache of results keyed by (qubit_count, shots)
+        self._cache: Dict[Tuple[int, int], Dict[str, int]] = {}
 
     def run(
         self,
@@ -46,6 +48,10 @@ class BasicSimulator(QuantumSimulator):
         See ``docs/quantum_integration.md`` for integration guidance.
         """
         qubits = list(circuit) if isinstance(circuit, Sequence) else [circuit]
-        zeros = "0" * len(qubits)
         shot_count = self.shots if shots is None else shots
-        return {zeros: shot_count}
+        key = (len(qubits), shot_count)
+        if key not in self._cache:
+            zeros = "0" * len(qubits)
+            self._cache[key] = {zeros: shot_count}
+        # return a copy to prevent accidental mutation of cache
+        return dict(self._cache[key])
