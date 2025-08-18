@@ -120,6 +120,9 @@ jobs:
       - name: Validate roadmap
         run: python scripts/validate_roadmap.py docs/continuous_improvement_roadmap.md
 
+      - name: Validate doc script references
+        run: python scripts/validate_doc_script_paths.py
+
       - name: Placeholder audit
         env:
           GH_COPILOT_DISABLE_VALIDATION: "1"

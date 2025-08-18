@@ -1581,7 +1581,7 @@ Set these variables in your `.env` file or shell before running scripts:
 # Comprehensive system diagnostics
 python scripts/diagnostics/system_diagnostics.py --comprehensive
 
-# Database integrity check
+# Database consolidation validation
 python scripts/database/database_consolidation_validator.py --all-databases
 
 # Performance bottleneck analysis

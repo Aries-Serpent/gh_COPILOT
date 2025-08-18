@@ -120,9 +120,9 @@ No errors encountered in this round for above scripts.
 
 ---
 
-### 2.7 Database Integrity Checker Gap
+### 2.7 Database Consolidation Validator Gap
 
-- README referenced `scripts/database/database_consolidation_validator.py --all-databases` (not found).
+- README referenced `scripts/database/database_consolidation_validator.py --all-databases`.
 - Mapped to `scripts/database/database_consolidation_validator.py` (last modified: 2025-07-31).
 - Ran validator; integrity routines executed.
 
@@ -145,7 +145,7 @@ No errors encountered in this round for above scripts.
 | G11 | Session DB Integrity           | sqlite3.DatabaseError: file is not a database                                              | Corrupted/misidentified file    | Investigation needed                     |
 | G12 | Diagnostics Script             | system_diagnostics.py missing                                                              | Stale documentation             | Reference removed                        |
 | G13 | Monitoring Runtime Error       | RuntimeError: Recursive folder violations                                                  | Directory recursion/guard cond. | Root-cause analysis needed               |
-| G14 | DB Integrity Script            | database_consolidation_validator.py not found                                                    | Renamed/removed w/o doc update  | Replacement mapped                       |
+| G14 | DB Integrity Script            | scripts/database/database_consolidation_validator.py referenced
 | G15 | Coverage Arguments             | pytest: unrecognized --cov args                                                            | Missing pytest-cov plugin       | Add/adjust config                        |
 | G16 | Validator Dependency           | ModuleNotFoundError: tqdm (secondary validator/session manager)                            | Unlisted dependency             | Add to requirements                      |
 | G17 | Lint Configuration             | Ruff invalid-syntax errors on README.md / README.rst (Markdown as Python)                  | Misconfigured include/exclude   | Exclude *.md/*.rst from Ruff             |
@@ -164,6 +164,7 @@ No errors encountered in this round for above scripts.
 - Documented backup and archival tool selection; improved retention/verification workflow.
 - Removed obsolete references:
   - `scripts/diagnostics/system_diagnostics.py`
+  - superseded database integrity checker script
   - `code_quality_analyzer.py`
   - Deprecated security scripts as listed above.
 - Documentation now reflects active tooling:
@@ -236,7 +237,7 @@ No errors encountered in this round for above scripts.
 13. While running tests (step 3.2), encountered missing dependency `typer`. Context: test suite requires `typer` but it is not installed. What are possible causes and how to resolve without adding new dependencies manually?
 14. During finalization (step 6.2), running session manager resulted in sqlite3.DatabaseError indicating file is not a database. Context: logging database may be corrupted or missing. What causes this and how to fix while keeping intended functionality?
 15. What are the possible causes, and how can this be resolved while preserving intended functionality? (RuntimeError: CRITICAL: Recursive folder violations)
-16. FileNotFoundError: database_consolidation_validator.py not found. Context: README references a non-existent script. What are the possible causes, and how can this be resolved while preserving intended functionality?
+16. Resolved: README now references `scripts/database/database_consolidation_validator.py`.
 17. pytest: error: unrecognized arguments: --cov=. --cov-report=term. Context: Missing pytest-cov dependency during test run. What are the possible causes, and how can this be resolved while preserving intended functionality?
 18. ModuleNotFoundError: No module named 'tqdm'. Context: Execution of secondary_copilot_validator.py requires additional dependency. What are the possible causes, and how can this be resolved while preserving intended functionality?
 19. SyntaxError: unexpected tokens when running `ruff check README.md`. Context: README.md contains Markdown not compatible with Python parser. What are the possible causes, and how can this be resolved while preserving intended functionality?
