@@ -24,6 +24,7 @@ sys.modules["unified_monitoring_optimization_system"] = types.SimpleNamespace(
     get_anomaly_summary=lambda **_: [],
     EnterpriseUtility=type("EnterpriseUtility", (), {}),
     push_metrics=lambda *args, **kwargs: None,
+    _update_dashboard=lambda *args, **kwargs: None,
 )
 
 sys.modules["scripts.monitoring.unified_monitoring_optimization_system"] = types.SimpleNamespace(
