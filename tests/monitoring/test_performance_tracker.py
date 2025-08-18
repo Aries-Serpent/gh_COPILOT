@@ -1,5 +1,3 @@
-import builtins
-import importlib.util
 import sqlite3
 import threading
 from pathlib import Path
@@ -7,6 +5,7 @@ from time import perf_counter, sleep
 
 import sys
 import types
+import builtins
 
 q_stub = types.ModuleType("quantum_algorithm_library_expansion")
 
@@ -14,15 +13,10 @@ def _quantum_score_stub(values):
     return float(sum(values))
 
 q_stub.quantum_score_stub = _quantum_score_stub
-sys.modules.setdefault("quantum_algorithm_library_expansion", q_stub)
-
-spec = importlib.util.spec_from_file_location(
-    "monitoring.performance_tracker",
-    Path(__file__).resolve().parents[2] / "src/monitoring/performance_tracker.py",
-)
-pt = importlib.util.module_from_spec(spec)
-assert spec.loader is not None
-spec.loader.exec_module(pt)  # type: ignore[arg-type]
+sys.modules["quantum_algorithm_library_expansion"] = q_stub
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
+sys.modules.pop("monitoring", None)
+import monitoring.performance_tracker as pt
 
 
 def test_alerting_and_dashboard(monkeypatch, tmp_path) -> None:
@@ -34,9 +28,10 @@ def test_alerting_and_dashboard(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(pt.logger, "info", lambda msg, m: called.setdefault("metrics", m))
 
     for _ in range(5):
-        pt.track_query_time("q", pt.RESPONSE_TIME_ALERT_MS + 10, db_path=db, conn=conn)
+        pt.track_query_time("q", pt.RESPONSE_TIME_ALERT_MS + 10, db_path=db, conn=conn, commit=False)
     for _ in range(6):
-        metrics = pt.record_error("q", db_path=db, conn=conn)
+        metrics = pt.record_error("q", db_path=db, conn=conn, commit=False)
+    conn.commit()
 
     assert metrics["response_time_alert"] is True
     assert metrics["error_rate_alert"] is True
@@ -83,13 +78,13 @@ def test_high_frequency_metric_ingestion(tmp_path) -> None:
     conn = sqlite3.connect(db)
     start = perf_counter()
     for i in range(200):
-        pt.track_query_time(f"q{i}", 1.0, db_path=db, conn=conn)
+        pt.track_query_time(f"q{i}", 1.0, db_path=db, conn=conn, commit=False)
     duration = perf_counter() - start
     assert duration < 2.0
-    metrics = pt.track_query_time("final", 1.0, db_path=db, conn=conn)
+    metrics = pt.track_query_time("final", 1.0, db_path=db, conn=conn, commit=False)
+    conn.commit()
     assert metrics["error_rate"] == 0
 
 
 def test_benchmark_exported() -> None:
     assert hasattr(builtins, "benchmark_queries")
-

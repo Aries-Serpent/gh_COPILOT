@@ -7,6 +7,7 @@ overhead of repeatedly creating and closing connections when logging
 metrics in tight loops.
 """
 
+import asyncio
 import builtins
 import logging
 import os
@@ -34,7 +35,9 @@ __all__ = [
     "record_error",
     "ensure_table",
     "benchmark_queries",
+    "benchmark_queries_async",
     "push_metrics",
+    "benchmark_metric_overhead",
     "schedule_metrics_push",
     "RESPONSE_TIME_ALERT_MS",
     "ERROR_RATE_ALERT",
@@ -108,6 +111,7 @@ def track_query_time(
     duration_ms: float,
     db_path: Optional[Path] = None,
     conn: Optional[sqlite3.Connection] = None,
+    commit: bool = True,
 ) -> Dict[str, float]:
     """Record a query's response time and return aggregate metrics.
 
@@ -130,7 +134,8 @@ def track_query_time(
             "INSERT INTO query_performance (query_name, response_time_ms) VALUES (?, ?)",
             (query_name, duration_ms),
         )
-        conn.commit()
+        if commit:
+            conn.commit()
         metrics = _compute_metrics(conn)
     _update_dashboard(metrics)
     return metrics
@@ -140,6 +145,7 @@ def record_error(
     query_name: str,
     db_path: Optional[Path] = None,
     conn: Optional[sqlite3.Connection] = None,
+    commit: bool = True,
 ) -> Dict[str, float]:
     """Record an error occurrence for a query and return aggregate metrics."""
     path = db_path or DB_PATH
@@ -158,7 +164,8 @@ def record_error(
             "INSERT INTO query_performance (query_name, response_time_ms, is_error) VALUES (?, 0, 1)",
             (query_name,),
         )
-        conn.commit()
+        if commit:
+            conn.commit()
         metrics = _compute_metrics(conn)
     _update_dashboard(metrics)
     return metrics
@@ -181,12 +188,64 @@ def benchmark_queries(queries: Iterable[str], db_path: Optional[Path] = None) ->
                 conn.execute(query)
             except sqlite3.Error as exc:
                 logger.error("Query failed: %s", exc)
-                metrics = record_error(query, db_path=path, conn=conn)
+                metrics = record_error(query, db_path=path, conn=conn, commit=False)
             else:
                 duration = (perf_counter() - start) * 1000
-                metrics = track_query_time(query, duration, db_path=path, conn=conn)
+                metrics = track_query_time(query, duration, db_path=path, conn=conn, commit=False)
         conn.commit()
     return metrics
+
+
+async def benchmark_queries_async(
+    queries: Iterable[str], db_path: Optional[Path] = None
+) -> Dict[str, float]:
+    """Asynchronous variant of :func:`benchmark_queries`."""
+
+    loop = asyncio.get_running_loop()
+    metrics: Dict[str, float] = {}
+    path = db_path or DB_PATH
+    with sqlite3.connect(path, check_same_thread=False) as conn:
+        _ensure_table(conn)
+        for query in queries:
+            start = perf_counter()
+            try:
+                await loop.run_in_executor(None, conn.execute, query)
+            except sqlite3.Error as exc:
+                logger.error("Query failed: %s", exc)
+                metrics = record_error(query, db_path=path, conn=conn, commit=False)
+            else:
+                duration = (perf_counter() - start) * 1000
+                metrics = track_query_time(
+                    query, duration, db_path=path, conn=conn, commit=False
+                )
+        conn.commit()
+    return metrics
+
+
+async def benchmark_metric_overhead(
+    samples: int = 100, db_path: Optional[Path] = None
+) -> float:
+    """Return the average time in milliseconds to log a metric asynchronously."""
+
+    loop = asyncio.get_running_loop()
+    path = db_path or DB_PATH
+    durations = []
+    with sqlite3.connect(path, check_same_thread=False) as conn:
+        _ensure_table(conn)
+        for i in range(samples):
+            start = perf_counter()
+            await loop.run_in_executor(
+                None,
+                track_query_time,
+                f"bench{i}",
+                1.0,
+                path,
+                conn,
+                False,
+            )
+            durations.append((perf_counter() - start) * 1000)
+        conn.commit()
+    return sum(durations) / len(durations)
 
 
 def push_metrics(db_path: Optional[Path] = None) -> Dict[str, float]:
