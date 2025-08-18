@@ -9,11 +9,14 @@ This guide describes the anomaly detection pipeline provided by
 2. Metrics are gathered via `collect_metrics` and stored in
    `databases/analytics.db`. Set `LOG_WEBSOCKET_ENABLED=1` to stream updates to
    the dashboard in real time.
-   `database_event_monitor` now posts event rate metrics to the dashboard as
-   soon as they are recorded.
+ `database_event_monitor` now posts event rate metrics to the dashboard as
+  soon as they are recorded.
 3. The `anomaly_detection_loop` periodically gathers metrics, evaluates them
    with an `IsolationForest` model, and triggers `auto_heal_session` when
    anomalies are detected.
+4. Additional metric sources can register callbacks via
+   `register_hook(callable)` which will be invoked during each
+   `collect_metrics` cycle.
 
 ## Tuning Parameters
 

@@ -22,15 +22,17 @@ _core = importlib.import_module("unified_monitoring_optimization_system")
 _auto_heal_session = _core.auto_heal_session
 _collect_metrics = _core.collect_metrics
 _detect_impl = _core.detect_anomalies
+_register_hook = _core.register_hook
 push_metrics = _core.push_metrics  # noqa: F401 - re-exported for tests
 train_anomaly_model = _core.train_anomaly_model  # noqa: F401 - re-exported for tests
 
 # Exported public helpers
-__all__ = ["anomaly_detection_loop", "detect_anomalies"]
+__all__ = ["anomaly_detection_loop", "detect_anomalies", "register_hook"]
 
 # re-exported for tests that patch these callables
 collect_metrics = _collect_metrics
 auto_heal_session = _auto_heal_session
+register_hook = _register_hook
 
 
 def detect_anomalies(
