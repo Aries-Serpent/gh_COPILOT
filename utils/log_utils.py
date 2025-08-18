@@ -103,6 +103,18 @@ TABLE_SCHEMAS: Dict[str, str] = {
         CREATE INDEX IF NOT EXISTS idx_event_log_timestamp
             ON event_log(timestamp);
     """,
+    "monitoring_cycles": """
+        CREATE TABLE IF NOT EXISTS monitoring_cycles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            cpu_percent REAL,
+            memory_percent REAL,
+            anomaly INTEGER,
+            note TEXT
+        );
+        CREATE INDEX IF NOT EXISTS idx_monitoring_cycles_timestamp
+            ON monitoring_cycles(timestamp);
+    """,
     "corrections": """
         CREATE TABLE IF NOT EXISTS corrections (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
