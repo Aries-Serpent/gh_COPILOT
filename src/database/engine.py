@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+import logging
 import sqlite3
 from pathlib import Path
 from threading import Lock
-from typing import Any, Callable, Dict, List
+from time import perf_counter
+from typing import Any, Callable, Dict, List, Tuple
 
 from src.schema.schema_mapper import SchemaMapper
+
+
+logger = logging.getLogger(__name__)
 
 
 class ChangeStream:
@@ -33,25 +38,33 @@ class ChangeStream:
 class Engine:
     """SQLite engine with change-stream triggers and bidirectional sync."""
 
-    def __init__(self, path: Path | str, mapper: SchemaMapper | None = None) -> None:
+    def __init__(
+        self,
+        path: Path | str,
+        mapper: SchemaMapper | None = None,
+        *,
+        log_queries: bool = False,
+    ) -> None:
         self.path = Path(path)
         self.conn = sqlite3.connect(self.path, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
         self.stream = ChangeStream()
         self.mapper = mapper or SchemaMapper({})
         self.conn.create_function("notify_change", 3, self._notify_change)
+        self.log_queries = log_queries
+        self._conn_lock = Lock()
 
     # ------------------------------------------------------------------
     # change stream handling
     def _notify_change(self, operation: str, table: str, rowid: int) -> None:
-        row = self.conn.execute(f"SELECT * FROM {table} WHERE id=?", (rowid,)).fetchone()
+        row = self.execute(f"SELECT * FROM {table} WHERE id=?", (rowid,)).fetchone()
         payload = dict(row) if row else {"id": rowid}
         self.stream.notify(operation, table, payload)
 
     def install_triggers(self, table: str) -> None:
         """Install change-stream triggers for ``table``."""
 
-        self.conn.execute(
+        self.execute(
             f"""
             CREATE TRIGGER IF NOT EXISTS {table}_notify_insert
             AFTER INSERT ON {table}
@@ -60,7 +73,7 @@ class Engine:
             END;
             """
         )
-        self.conn.execute(
+        self.execute(
             f"""
             CREATE TRIGGER IF NOT EXISTS {table}_notify_update
             AFTER UPDATE ON {table}
@@ -69,7 +82,7 @@ class Engine:
             END;
             """
         )
-        self.conn.execute(
+        self.execute(
             f"""
             CREATE TRIGGER IF NOT EXISTS {table}_notify_delete
             AFTER DELETE ON {table}
@@ -105,19 +118,19 @@ class Engine:
         """Bidirectionally synchronize this engine with ``other``."""
 
         tables_self = {
-            r[0] for r in self.conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            r[0] for r in self.execute("SELECT name FROM sqlite_master WHERE type='table'")
         }
         tables_other = {
-            r[0] for r in other.conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            r[0] for r in other.execute("SELECT name FROM sqlite_master WHERE type='table'")
         }
         for table in tables_self | tables_other:
             rows_self = (
-                {row["id"]: dict(row) for row in self.conn.execute(f"SELECT * FROM {table}")}
+                {row["id"]: dict(row) for row in self.execute(f"SELECT * FROM {table}")}
                 if table in tables_self
                 else {}
             )
             rows_other = (
-                {row["id"]: dict(row) for row in other.conn.execute(f"SELECT * FROM {table}")}
+                {row["id"]: dict(row) for row in other.execute(f"SELECT * FROM {table}")}
                 if table in tables_other
                 else {}
             )
@@ -135,4 +148,25 @@ class Engine:
                     self._upsert(self.conn, table, rows_other[pk])
         self.conn.commit()
         other.conn.commit()
+
+    # ------------------------------------------------------------------
+    # utility helpers
+    def execute(self, sql: str, params: Tuple[Any, ...] | None = None) -> sqlite3.Cursor:
+        """Execute ``sql`` while optionally logging its duration."""
+
+        with self._conn_lock:
+            start = perf_counter()
+            cur = self.conn.execute(sql, params or ())
+            duration = perf_counter() - start
+        if self.log_queries:
+            logger.info("SQL %.6f %s", duration, sql)
+        return cur
+
+    def ensure_index(self, table: str, column: str) -> None:
+        """Create an index on ``table`` for ``column`` if missing."""
+
+        self.execute(
+            f"CREATE INDEX IF NOT EXISTS idx_{table}_{column} ON {table} ({column})"
+        )
+        self.conn.commit()
 
