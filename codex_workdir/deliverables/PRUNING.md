@@ -8,9 +8,9 @@ Result:
 | Component | Evidence paths |
 |---|---:|
 | Core Systems | 3533 |
-| Quantum Simulation | 2739 |
-| Database Layer | 1740 |
-| ML Pipeline | 1224 |
-| Security Framework | 1060 |
-| Performance Monitor | 407 |
-| Compliance Engine | 340 |
+| Quantum Simulation | 2747 |
+| Database Layer | 1741 |
+| ML Pipeline | 1229 |
+| Security Framework | 1061 |
+| Performance Monitor | 412 |
+| Compliance Engine | 346 |
