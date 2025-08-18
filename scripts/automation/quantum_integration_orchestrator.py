@@ -9,6 +9,8 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import sys
