@@ -5,6 +5,7 @@ import os
 import uuid
 from pathlib import Path
 import sqlite3
+from functools import lru_cache
 import typer
 import importlib.util
 
@@ -20,8 +21,13 @@ def _db_path() -> Path:
     return Path(os.getenv("GH_COPILOT_ANALYTICS_DB", "analytics.db"))
 
 
+@lru_cache(maxsize=None)
 def _count_rows(db: Path, table: str) -> int:
-    """Return row count for ``table`` in ``db``."""
+    """Return row count for ``table`` in ``db``.
+
+    Results are cached to avoid repeated SQLite connection overhead when
+    callers request the same table multiple times within a process.
+    """
     with sqlite3.connect(db) as conn:
         try:
             cur = conn.execute(f"SELECT COUNT(*) FROM {table}")
@@ -106,6 +112,9 @@ def compute_score(
 ) -> None:
     """Compute and store a score snapshot for a branch."""
     from .models import ScoreInputs, ScoreSnapshot
+
+    if _dao is None:  # pragma: no cover - configuration error
+        raise RuntimeError("DAO unavailable")
     model = _dao.fetch_active_model(branch)
     inputs = ScoreInputs(
         run_id=str(uuid.uuid4()),
@@ -137,17 +146,13 @@ def ingest_cmd(
     kind: str = typer.Argument(..., help="docs|templates|har"),
     workspace: Path = typer.Option(Path("."), exists=True),
     src_dir: Path | None = None,
-    update_in_place: bool = typer.Option(
-        False, help="Overwrite existing rows instead of retaining version history"
-    ),
+    update_in_place: bool = typer.Option(False, help="Overwrite existing rows instead of retaining version history"),
 ) -> None:
     """Ingest assets into the enterprise database."""
     if kind == "docs":
         from scripts.database.documentation_ingestor import ingest_documentation
 
-        ingest_documentation(
-            workspace, src_dir, retain_history=not update_in_place
-        )
+        ingest_documentation(workspace, src_dir, retain_history=not update_in_place)
         table = "documentation_assets"
     elif kind == "templates":
         from scripts.database.template_asset_ingestor import ingest_templates
@@ -230,4 +235,4 @@ def audit_consistency(
 
 
 if __name__ == "__main__":
-    app()
+    app()  # type: ignore[misc]
