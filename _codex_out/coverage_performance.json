@@ -1,0 +1,51 @@
+{
+  "before": {
+    "coverage": {
+      "Core Systems": 94,
+      "Database Layer": 96,
+      "ML Pipeline": 87,
+      "Quantum Simulation": 73,
+      "Security Framework": 99,
+      "Compliance Engine": 92,
+      "Performance Monitor": 89
+    },
+    "performance": {
+      "Core Systems": 92,
+      "Database Layer": 95,
+      "ML Pipeline": 84,
+      "Quantum Simulation": 70,
+      "Security Framework": 96,
+      "Compliance Engine": 88,
+      "Performance Monitor": 86
+    }
+  },
+  "after": {
+    "coverage": {
+      "Core Systems": 96,
+      "Database Layer": 97,
+      "ML Pipeline": 91,
+      "Quantum Simulation": 79,
+      "Security Framework": 99,
+      "Compliance Engine": 95,
+      "Performance Monitor": 92
+    },
+    "performance": {
+      "Core Systems": 94,
+      "Database Layer": 96,
+      "ML Pipeline": 88,
+      "Quantum Simulation": 75,
+      "Security Framework": 97,
+      "Compliance Engine": 91,
+      "Performance Monitor": 89
+    }
+  },
+  "alpha": 0.6,
+  "beta": 0.4,
+  "weights": {
+    "Active": 1.2,
+    "Development": 1.0
+  },
+  "overall_before": 89.3,
+  "overall_after": 92.0,
+  "generated_at": "2025-08-18T20:36:00+00:00"
+}
