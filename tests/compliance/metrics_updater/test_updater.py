@@ -1,3 +1,5 @@
+import pytest
+
 from src.compliance.metrics.updater import MetricsUpdater
 
 
@@ -34,3 +36,10 @@ def test_non_numeric_scores_default_to_zero():
     updater = MetricsUpdater()
     scores = {"lint": float("nan"), "tests": float("inf"), "placeholders": None}
     assert updater.composite(scores) == 0.0
+
+
+def test_negative_precision_raises():
+    updater = MetricsUpdater(precision=-1)
+    with pytest.raises(ValueError):
+        updater.composite({"lint": 1})
+
