@@ -3,7 +3,6 @@ pytest
 pytest-cov
 pytest-timeout
 psutil
-tqdm
 numpy
 scikit-learn
 Flask==3.1.1
@@ -13,6 +12,9 @@ qiskit-machine-learning>=0.6.0
 qiskit-ibm-provider==0.7.0
 dill>=0.3.7
 py7zr
+typer[all]>=0.12
+tqdm
+PyYAML
 schedule
 ruff
 PyPDF2>=3.0

@@ -1,0 +1,74 @@
+<!-- Stub template for monitoring gauge panel -->
+<div class="card">
+  <h3>Monitoring Metrics</h3>
+  <canvas id="gauge_monitoring"></canvas>
+</div>
+
+<script>
+async function fetch_monitoring_metrics() {
+  try {
+    const res = await fetch("/metrics/monitoring", { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    const value = (data && data.metrics && typeof data.metrics.value === 'number')
+      ? data.metrics.value : 0;
+    const ds = gauge_monitoring.data.datasets?.[0];
+    if (ds) {
+      ds.data = [value, Math.max(0, 100 - value)];
+    }
+    if (gauge_monitoring.options?.plugins?.tooltip) {
+      gauge_monitoring.options.plugins.tooltip.enabled = true;
+    }
+    if (gauge_monitoring.options?.plugins?.thresholds) {
+      gauge_monitoring.options.plugins.thresholds.current = value;
+    }
+    gauge_monitoring.update();
+  } catch (e) {
+    console.error("Failed to fetch monitoring metrics:", e);
+  }
+}
+
+const ctx_monitoring = document.getElementById('gauge_monitoring').getContext('2d');
+const gauge_monitoring = new Chart(ctx_monitoring, {
+  type: 'doughnut',
+  data: {
+    labels: ['Value', 'Remainder'],
+    datasets: [{
+      data: [0, 100],
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '80%',
+    plugins: {
+      legend: { display: false }
+    }
+  }
+});
+
+setInterval(fetch_monitoring_metrics, 5000);
+fetch_monitoring_metrics();
+</script>
+
+<script>
+/* Auto-injected by codex_sequential_executor.py */
+function updateGauges(data) {
+  try {
+    const v = (data && data.metrics && typeof data.metrics.value === 'number')
+      ? data.metrics.value : 0;
+    // Example: assume a global Chart.js instance window.codexGauge
+    if (window.codexGauge && window.codexGauge.data && window.codexGauge.update) {
+      const ds = window.codexGauge.data.datasets?.[0];
+      if (ds) {
+        ds.data = [v, Math.max(0, 100 - v)];
+      }
+      if (window.codexGauge.options && window.codexGauge.options.plugins && window.codexGauge.options.plugins.tooltip) {
+        window.codexGauge.options.plugins.tooltip.enabled = true;
+      }
+      window.codexGauge.update();
+    }
+  } catch (e) {
+    console.error("Gauge update error:", e);
+  }
+}
+</script>

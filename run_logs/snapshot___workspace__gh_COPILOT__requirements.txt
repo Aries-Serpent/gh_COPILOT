@@ -1,0 +1,49 @@
+# ===========================
+# gh_COPILOT requirements
+# Finalized July 2025
+# ===========================
+
+# --- Core runtime dependencies (production & research) ---
+Flask==3.1.1                # Web UI and API orchestration
+requests==2.32.4            # HTTP orchestration and web hooks
+pandas==2.3.1               # Dataframe operations and analytics
+numpy==2.3.1                # Numerical optimization and simulation
+scikit-learn==1.7.0         # ML algorithms (e.g., clustering, MLP)
+qiskit>=0.44.1              # Quantum optimizer backend (requires ≥0.44.1)
+qiskit-ibm-provider==0.7.0  # IBM Quantum hardware access
+psutil==7.0.0               # System resource monitoring
+tqdm==4.67.1                # Progress bar for CLI and batch tasks
+PyYAML==6.0.2               # YAML config parsing
+toml==0.10.2                # TOML config parsing
+Jinja2==3.1.6               # Template generation for configs
+PyPDF2==3.0.1               # PDF processing
+
+# --- Optional platform support (install only on Windows) ---
+wmi==1.5.1; sys_platform == "win32"    # Hardware info on Windows
+pywin32==306; sys_platform == "win32"  # Windows API bindings
+
+# --- Development & testing tools (not needed in production) ---
+pytest==8.4.1
+coverage==7.9.2
+flake8==7.3.0
+mypy==1.16.1
+black==25.1.0
+isort==6.0.1
+autopep8==2.3.2
+ipython==9.4.0
+jupyter==1.1.1
+dill>=0.3.7
+
+# --- AWS/Cloud, if present in codebase ---
+boto3==1.39.3  # Omit if not actually imported/used
+
+# --- Quantum simulation (if used) ---
+qiskit-aer==0.17.1  # Omit if not imported
+
+# --- Any other verified code dependencies can go here ---
+py7zr>=0.20.0
+websockets>=10.4  # Optional real-time streaming
+
+# ===========================
+# End of requirements
+# ===========================

@@ -468,23 +468,19 @@ class DetailedViolationsReporter:
                 f.write(html_content)
             self.logger.info(f"🌐 HTML REPORT GENERATED: {html_file}")
             return str(html_file)
-        except Exception as e:
-            self.logger.error(f"❌ Failed to generate HTML report: {e}")
-            return ""
+        except OSError:
+            logging.exception("analysis script error")
+            self.logger.error("❌ Failed to generate HTML report")
+            raise
 
 
 def main():
     """🎯 Main execution function for detailed violations reporting"""
-    try:
-        print("🎯 DETAILED VIOLATIONS REPORTER")
-        print("=" * 50)
+    print("🎯 DETAILED VIOLATIONS REPORTER")
+    print("=" * 50)
 
-        DetailedViolationsReporter()
-        print("✅ Detailed violations reporter initialized successfully")
-
-    except Exception as e:
-        print(f"❌ Error in detailed violations reporter: {e}")
-        sys.exit(1)
+    DetailedViolationsReporter()
+    print("✅ Detailed violations reporter initialized successfully")
 
 
 if __name__ == "__main__":

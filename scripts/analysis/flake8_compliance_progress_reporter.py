@@ -57,9 +57,10 @@ class EnterpriseFlake8Corrector:
             self.logger.info(f"{TEXT_INDICATORS['success']} Correction completed in {duration:.1f}s")
             return validation_passed
 
-        except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Correction failed: {e}")
-            return False
+        except OSError:
+            logging.exception("analysis script error")
+            self.logger.error(f"{TEXT_INDICATORS['error']} Correction failed")
+            raise
 
     def scan_python_files(self) -> list:
         """Scan for Python files requiring correction"""
@@ -81,9 +82,10 @@ class EnterpriseFlake8Corrector:
         try:
             # Implementation for file correction
             return True
-        except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} File correction failed: {e}")
-            return False
+        except OSError:
+            logging.exception("analysis script error")
+            self.logger.error(f"{TEXT_INDICATORS['error']} File correction failed")
+            raise
 
     def validate_corrections(self, files: list) -> bool:
         """Validate that corrections were successful"""

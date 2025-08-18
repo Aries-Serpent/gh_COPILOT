@@ -130,9 +130,5 @@ def main():
 
 
 if __name__ == "__main__":
-    try:
-        success = main()
-        sys.exit(0 if success else 1)
-    except Exception as e:
-        print(f"[ERROR] Analysis failed: {e}")
-        sys.exit(1)
+    success = main()
+    sys.exit(0 if success else 1)

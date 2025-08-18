@@ -1,0 +1,14 @@
+{
+  "compliance": {
+    "api_path": "/metrics/compliance",
+    "exists": false
+  },
+  "synchronization": {
+    "api_path": "/metrics/synchronization",
+    "exists": false
+  },
+  "monitoring": {
+    "api_path": "/metrics/monitoring",
+    "exists": false
+  }
+}

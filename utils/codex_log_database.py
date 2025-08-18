@@ -53,7 +53,31 @@ def _ensure_db(db_path: Path) -> None:
                 );
                 """
             )
-    except (OSError, sqlite3.DatabaseError) as exc:
+    except sqlite3.DatabaseError as exc:
+        if "file is not a database" in str(exc).lower():
+            try:
+                db_path.unlink(missing_ok=True)
+                with sqlite3.connect(db_path) as conn:
+                    conn.execute(
+                        f"""
+                        CREATE TABLE IF NOT EXISTS {TABLE} (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            session_id TEXT,
+                            timestamp TEXT NOT NULL,
+                            action TEXT NOT NULL,
+                            statement TEXT
+                        );
+                        """
+                    )
+            except (OSError, sqlite3.DatabaseError) as inner_exc:
+                raise RuntimeError(
+                    f"Failed to rebuild Codex log database at {db_path}: {inner_exc}"
+                ) from inner_exc
+        else:
+            raise RuntimeError(
+                f"Failed to initialise Codex log database at {db_path}: {exc}"
+            ) from exc
+    except OSError as exc:
         raise RuntimeError(
             f"Failed to initialise Codex log database at {db_path}: {exc}"
         ) from exc

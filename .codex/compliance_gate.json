@@ -1,0 +1,47 @@
+{
+  "timestamp": "2025-08-16T07:39:57.210432+00:00",
+  "weights": {
+    "lint": 0.25,
+    "tests": 0.45,
+    "placeholder": 0.15,
+    "session": 0.15
+  },
+  "scores": {
+    "lint": 100.0,
+    "tests": 51.53,
+    "placeholder": 0.0,
+    "session": 80.0,
+    "composite": 60.188500000000005
+  },
+  "details": {
+    "lint": {
+      "errors": 0,
+      "warnings": 0,
+      "sources": []
+    },
+    "tests": {
+      "coverage_percent": 51.53,
+      "sources": [
+        "/workspace/gh_COPILOT/artifacts/coverage.xml"
+      ]
+    },
+    "placeholder": {
+      "placeholders": 206,
+      "sources": [
+        "/workspace/gh_COPILOT/db_tools/operations/compliance.py",
+        "/workspace/gh_COPILOT/db_tools/operations/compliance.py",
+        "/workspace/gh_COPILOT/src/gh_copilot/models.py",
+        "/workspace/gh_COPILOT/src/gh_copilot/models.py",
+        "/workspace/gh_COPILOT/config/audit_patterns.json",
+        "/workspace/gh_COPILOT/config/audit_patterns.json",
+        "/workspace/gh_COPILOT/codex_compliance_gate.py",
+        "/workspace/gh_COPILOT/codex_compliance_gate.py",
+        "/workspace/gh_COPILOT/codex_compliance_gate.py",
+        "/workspace/gh_COPILOT/.codex/readme_refs.rg"
+      ]
+    },
+    "session": {
+      "note": "fallback (no session metrics found)"
+    }
+  }
+}

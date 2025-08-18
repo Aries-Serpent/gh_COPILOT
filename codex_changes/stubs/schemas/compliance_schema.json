@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "compliance_metrics",
+  "type": "object",
+  "required": [
+    "panel",
+    "updated_at",
+    "status",
+    "metrics"
+  ],
+  "properties": {
+    "panel": {
+      "type": "string",
+      "const": "compliance"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string"
+    },
+    "metrics": {
+      "type": "object",
+      "required": [
+        "value",
+        "target",
+        "unit"
+      ],
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "target": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,3 +1,4 @@
+import logging
 #!/usr/bin/env python3
 """
 COMPREHENSIVE MULTI-PHASE ELIMINATION CAMPAIGN FINAL REPORT
@@ -318,8 +319,9 @@ class ComprehensiveMultiPhaseCampaignReport:
             with open(filename, "w", encoding="utf-8") as f:
                 json.dump(report_data, f, indent=2, ensure_ascii=False)
             print(f"\n# # 💾 Detailed report saved: {filename}")
-        except Exception as e:
-            print(f"# # ⚠️ Error saving report: {e}")
+        except OSError:
+            logging.exception("analysis script error")
+            raise
 
 
 if __name__ == "__main__":

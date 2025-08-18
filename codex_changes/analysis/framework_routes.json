@@ -1,0 +1,20 @@
+{
+  "framework": "flask",
+  "routes": [
+    "/anomalies",
+    "/api/code_quality_metrics",
+    "/api/compliance_scores",
+    "/api/dashboard/compliance",
+    "/api/placeholder_audit",
+    "/api/placeholder_history",
+    "/api/refresh_compliance",
+    "/audit_results",
+    "/corrections_stream",
+    "/dashboard/compliance",
+    "/dashboard/compliance/view",
+    "/metrics",
+    "/metrics_stream",
+    "/sync_events",
+    "/ws/corrections"
+  ]
+}

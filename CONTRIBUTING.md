@@ -4,6 +4,7 @@ Thank you for considering a contribution to gh_COPILOT. Please follow these guid
 
 - Review and follow the [Governance Standards](docs/GOVERNANCE_STANDARDS.md).
 - Run `bash setup.sh`, activate the virtual environment, and execute `ruff`, `pytest`, and `tools/pre-commit-lfs.sh` before committing.
+- Ruff checks Python source files only; documentation (`*.md`, `*.rst`) is excluded by configuration.
 - Use conventional commit messages and reference these standards in your pull requests.
 - Follow the [Git LFS recovery guide](docs/git_lfs_recovery.md) when restoring large binary files.
 
@@ -30,3 +31,14 @@ For daily white-paper updates, ensure the following:
 - [ ] `python tools/convert_daily_whitepaper.py` run to create Markdown copy and update the index
 
 See `documentation/generated/README.md` for detailed instructions.
+
+
+### Installation
+```bash
+pip install -r requirements.txt
+```
+
+> Note: This project requires `PyYAML>=6.0.1`.
+## Linting Scope
+- Ruff targets Python files.
+- Documentation files (`*.md`, `*.rst`, including `README.md`) are excluded via `extend-exclude`.

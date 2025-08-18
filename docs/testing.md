@@ -23,3 +23,23 @@ python scripts/run_tests_safe.py --target tests/integration --output artifacts/i
 ```
 
 The runner ensures consistent options and prevents long-running hangs by enforcing timeouts and sanitizing `PYTEST_ADDOPTS` when coverage plugins are missing.
+
+## Install test dependencies
+
+Use the development extras to install test tooling:
+
+```bash
+pip install .[dev]
+```
+
+
+## Run tests with coverage
+
+Run tests with coverage:
+
+```bash
+pytest --cov --cov-report=term-missing
+```
+
+> Tip: if your package uses a `src/` layout, consider `--cov=<top_level_package>`.
+

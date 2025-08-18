@@ -109,10 +109,9 @@ class ComprehensiveModularBreakdownAnalyzer:
                 else:
                     self.logger.warning(f"⚠️ Strategic Implementation: {success_rate} - Analysis may be incomplete")
 
-        except Exception as e:
-            self.logger.error(f"❌ Cannot validate strategic completion: {e}")
-
-        return False
+        except (OSError, json.JSONDecodeError):
+            logging.exception("analysis script error")
+            raise
 
     def analyze_script_functions(self, script_path: Path) -> Dict[str, Any]:
         """Analyze functions in a single script for modular patterns"""
@@ -155,9 +154,9 @@ class ComprehensiveModularBreakdownAnalyzer:
                 "function_count": len(functions),
             }
 
-        except Exception as e:
-            self.logger.error(f"Error analyzing {script_path}: {e}")
-            return {}
+        except (OSError, SyntaxError):
+            logging.exception("analysis script error")
+            raise
 
     def _extract_function_signature(self, func_node: ast.FunctionDef, content: str) -> FunctionSignature:
         """Extract detailed function signature for similarity analysis"""

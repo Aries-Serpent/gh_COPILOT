@@ -184,7 +184,7 @@ def load_code_quality_metrics(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
     return metrics
 
 
-@app.route("/dashboard/compliance")
+@app.route("/dashboard/compliance", endpoint="enterprise_dashboard_compliance")
 def dashboard_compliance() -> str:
     """Render compliance information directly from ``analytics.db``."""
     placeholders = 0
@@ -494,6 +494,91 @@ def placeholder_history() -> Any:
     """Expose placeholder snapshot history."""
 
     return jsonify({"history": _load_placeholder_history()})
+
+
+@app.route("/metrics/compliance", methods=["GET"])
+def metrics_compliance() -> Any:
+    """Return compliance metrics from ``analytics.db``."""
+
+    value = 0.0
+    updated_at = ""
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            cur = conn.execute(
+                "SELECT ts, composite_score FROM compliance_metrics_history ORDER BY ts DESC LIMIT 1"
+            )
+            row = cur.fetchone()
+            if row:
+                updated_at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(row[0]))
+                value = float(row[1] or 0.0)
+    data = {
+        "panel": "compliance",
+        "updated_at": updated_at,
+        "status": "ok",
+        "metrics": {"value": value, "target": 100, "unit": "%"},
+    }
+    return jsonify(data), 200
+
+
+@app.route("/metrics/monitoring", methods=["GET"])
+def metrics_monitoring() -> Any:
+    """Return monitoring metrics from ``analytics.db``."""
+
+    value = 0.0
+    updated_at = ""
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            cur = conn.execute(
+                "SELECT COALESCE(timestamp, strftime('%s','now')), metrics_json "
+                "FROM monitoring_metrics ORDER BY id DESC LIMIT 1"
+            )
+            row = cur.fetchone()
+            if row:
+                updated_at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(int(row[0])))
+                try:
+                    payload = json.loads(row[1] or "{}")
+                    value = float(
+                        payload.get("health_score")
+                        or payload.get("score")
+                        or payload.get("value")
+                        or 0.0
+                    )
+                except Exception:
+                    value = 0.0
+    data = {
+        "panel": "monitoring",
+        "updated_at": updated_at,
+        "status": "ok",
+        "metrics": {"value": value, "target": 100, "unit": "%"},
+    }
+    return jsonify(data), 200
+
+
+@app.route("/metrics/synchronization", methods=["GET"])
+def metrics_synchronization() -> Any:
+    """Return synchronization metrics from ``analytics.db``."""
+
+    value = 0.0
+    updated_at = ""
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            cur = conn.execute(
+                "SELECT SUM(CASE WHEN event_type='success' THEN 1 ELSE 0 END), "
+                "COUNT(*), MAX(event_time) FROM sync_events_log"
+            )
+            row = cur.fetchone()
+            if row:
+                successes, total, last_ts = row
+                value = float(successes) / total * 100.0 if total else 0.0
+                if last_ts:
+                    updated_at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(int(last_ts)))
+    data = {
+        "panel": "synchronization",
+        "updated_at": updated_at,
+        "status": "ok",
+        "metrics": {"value": value, "target": 100, "unit": "%"},
+    }
+    return jsonify(data), 200
 
 
 def index() -> str:
