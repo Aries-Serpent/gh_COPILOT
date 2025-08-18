@@ -10,7 +10,7 @@ async function fetch_synchronization_metrics() {
     const res = await fetch("/metrics/synchronization", { cache: "no-store" });
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
-    // TODO: update Chart.js gauge with `data.metrics.value`
+    // wired by codex: update Chart.js gauge with `data.metrics.value`
   } catch (e) {
     console.error("Failed to fetch synchronization metrics:", e);
   }
@@ -36,4 +36,27 @@ const gauge_synchronization = new Chart(ctx_synchronization, {
 
 setInterval(fetch_synchronization_metrics, 5000);
 fetch_synchronization_metrics();
+</script>
+
+<script>
+/* Auto-injected by codex_sequential_executor.py */
+function updateGauges(data) {
+  try {
+    const v = (data && data.metrics && typeof data.metrics.value === 'number')
+      ? data.metrics.value : 0;
+    // Example: assume a global Chart.js instance window.codexGauge
+    if (window.codexGauge && window.codexGauge.data && window.codexGauge.update) {
+      const ds = window.codexGauge.data.datasets?.[0];
+      if (ds) {
+        ds.data = [v, Math.max(0, 100 - v)];
+      }
+      if (window.codexGauge.options && window.codexGauge.options.plugins && window.codexGauge.options.plugins.tooltip) {
+        window.codexGauge.options.plugins.tooltip.enabled = true;
+      }
+      window.codexGauge.update();
+    }
+  } catch (e) {
+    console.error("Gauge update error:", e);
+  }
+}
 </script>

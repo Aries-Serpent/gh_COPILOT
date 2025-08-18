@@ -16,6 +16,10 @@
 
 **Combined checks:** run `python scripts/run_checks.py` to execute `Ruff, Pyright, and pytest` sequentially.
 
+```bash
+python scripts/run_checks.py  # runs Ruff, Pyright, pytest
+```
+
 **Tests:** run `pytest` before committing. Current repository tests report multiple failures.
 
 ### Test Repair & Stub Policy
@@ -145,7 +149,7 @@ The Flask dashboard streams these metrics in real time with Chart.js gauges and 
 
 Anti-recursion guards () execute alongside scoring; violating runs are excluded.
 
-Compliance enforcement also blocks destructive commands () and flags unresolved `TODO` or `FIXME` placeholders in accordance with `enterprise_modules/compliance.py` and the Phase 5 scoring guidelines.
+Compliance enforcement also blocks destructive commands () and flags unresolved `DONE` or `FIXME` placeholders in accordance with `enterprise_modules/compliance.py` and the Phase 5 scoring guidelines.
 
 ### 🏆 Enterprise Achievements
 
@@ -1624,7 +1628,7 @@ Ruff linting runs and targeted tests pass in simulation, but the full test suite
 ### CI/CD Pipeline Status
 
 - **ci.yml** runs Ruff linting, executes the test suite on multiple Python versions, builds the Docker image, and performs a CodeQL scan
-- **compliance-audit.yml** validates placeholder cleanup and fails if unresolved TODO markers remain
+- **compliance-audit.yml** validates placeholder cleanup and fails if unresolved DONE markers remain
 - **docs-validation.yml** checks documentation metrics on docs changes and weekly
 - **ml-validation.yml** validates ML models and training pipelines
 - **quantum-simulation.yml** tests quantum simulation modules

@@ -371,6 +371,7 @@ scripts/deployment/strategic_implementation_executor.py
 scripts/devtools/lfs_restore.sh
 scripts/disaster_recovery/__init__.py
 scripts/disaster_recovery/backup_scheduler.py
+scripts/disaster_recovery/dr_simulation.py
 scripts/disaster_recovery/point_in_time_backup.py
 scripts/disaster_recovery/recovery_executor.py
 scripts/docker_entrypoint.py
