@@ -19,6 +19,14 @@ def test_log_and_fetch() -> None:
         assert events[0]["statement"] == "statement"
 
 
+def test_ensure_db_recovers_from_corruption(tmp_path: Path) -> None:
+    db_path = tmp_path / "corrupt.db"
+    db_path.write_text("not a database")
+    cldb._ensure_db(db_path)
+    with sqlite3.connect(db_path) as conn:
+        conn.execute("SELECT 1")
+
+
 def test_log_codex_event_db_error(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     db_path = tmp_path / "db.sqlite"
     cldb._ensure_db(db_path)
