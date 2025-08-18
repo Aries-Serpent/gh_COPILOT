@@ -22,7 +22,7 @@ import logging
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, TYPE_CHECKING, Any
+from typing import Callable, Dict, Iterable, List, Optional, TYPE_CHECKING, Any
 
 from types import SimpleNamespace
 
@@ -60,16 +60,61 @@ MODEL_PATH = WORKSPACE_ROOT / "artifacts" / "anomaly_iforest.pkl"
 WEB_DASHBOARD_ENABLED = os.getenv("WEB_DASHBOARD_ENABLED") == "1"
 logger = logging.getLogger(__name__)
 
+try:  # pragma: no cover - optional performance monitor
+    from scripts.monitoring.performance_monitor import (
+        collect_cpu_usage as _pm_cpu,
+        collect_memory_usage as _pm_mem,
+    )
+except Exception:  # pragma: no cover - fall back to psutil
+    _pm_cpu = _pm_mem = None
+
+try:  # pragma: no cover - optional dashboard utilities
+    from utils.log_utils import send_dashboard_alert
+except Exception:  # pragma: no cover - stub when logging unavailable
+    def send_dashboard_alert(event, **_kw):  # type: ignore[unused-argument]
+        logger.debug("dashboard alerts unavailable")
+
+
+_METRIC_HOOKS: List[Callable[[], Dict[str, float]]] = []
+
+
+def register_hook(func: Callable[[], Dict[str, float]]) -> None:
+    """Register a metric hook to extend :func:`collect_metrics`.
+
+    Each ``func`` is expected to return a mapping of metric names to numeric
+    values. Failures inside hooks are logged and ignored so that one faulty
+    provider does not break overall collection.
+    """
+
+    _METRIC_HOOKS.append(func)
+
 
 def _update_dashboard(payload: Dict[str, float]) -> None:
-    """Emit payload to the dashboard when enabled."""
+    """Emit payload to the dashboard when enabled.
 
-    if WEB_DASHBOARD_ENABLED:
-        logger.info("[DASHBOARD] %s", payload)
+    When ``WEB_DASHBOARD_ENABLED`` is set, the payload is enriched with a
+    ``composite_score`` when possible and forwarded to the dashboard alert
+    stream for consumption by the web UI.
+    """
+
+    if not WEB_DASHBOARD_ENABLED:
+        return
+
+    data = dict(payload)
+    scores = [data.get("anomaly_score"), data.get("quantum_score")]
+    scores = [s for s in scores if isinstance(s, (int, float))]
+    if scores and "composite_score" not in data:
+        data["composite_score"] = sum(scores) / len(scores)
+    logger.info("[DASHBOARD] %s", data)
+    try:
+        send_dashboard_alert(data)
+    except Exception:
+        logger.debug("dashboard publish failed", exc_info=True)
 
 __all__ = [
     "EnterpriseUtility",
     "collect_metrics",
+    "register_hook",
     "push_metrics",
     "train_anomaly_model",
     "detect_anomalies",
@@ -201,16 +246,24 @@ def collect_metrics(
     Returns
     -------
     dict
-        Mapping of collected metric names to values.
+        Mapping of collected metric names to values including contributions
+        from any registered hooks.
     """
 
+    cpu = _pm_cpu() if _pm_cpu else psutil.cpu_percent(interval=1)
+    mem = _pm_mem() if _pm_mem else psutil.virtual_memory().percent
     metrics = {
-        "cpu_percent": psutil.cpu_percent(interval=1),
-        "memory_percent": psutil.virtual_memory().percent,
+        "cpu_percent": cpu,
+        "memory_percent": mem,
         "disk_percent": psutil.disk_usage("/").percent,
         "net_bytes_sent": psutil.net_io_counters().bytes_sent,
         "net_bytes_recv": psutil.net_io_counters().bytes_recv,
     }
+    for hook in list(_METRIC_HOOKS):
+        try:
+            metrics.update(hook())
+        except Exception:
+            logger.exception("metric hook failed")
     push_metrics(metrics, db_path=db_path, session_id=session_id)
     return metrics
 
