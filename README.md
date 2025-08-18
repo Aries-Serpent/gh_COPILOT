@@ -33,7 +33,7 @@ python scripts/run_checks.py  # runs Ruff, Pyright, pytest
 **Compliance:** run `python secondary_copilot_validator.py --validate` after critical changes to enforce dual-copilot and EnterpriseComplianceValidator checks.
 
 **Docs:** run `python scripts/docs_status_reconciler.py` to refresh `docs/task_stubs.md` and `docs/status_index.json` before committing documentation changes. This step is required after any documentation edit.
-**Preview features:** `scripts/ml/deploy_models.py`, `scripts/ml/model_performance_monitor.py`, `scripts/monitoring/performance_monitor.py`, `scripts/performance/bottleneck_analyzer.py`, `scripts/integration/sap_integration.py`, `scripts/integration/jira_integration.py`, `scripts/audit/audit_report_generator.py`, `security/validator.py`, and `security/vulnerability_scanner.py` provide early stubs for model deployment, monitoring, integration, audits, and security.
+**Preview features:** `scripts/ml/deploy_models.py`, `scripts/monitoring/performance_monitor.py`, `scripts/performance/bottleneck_analyzer.py`, `scripts/integration/sap_integration.py`, `scripts/integration/jira_integration.py`, `scripts/audit/audit_report_generator.py`, `security/validator.py`, and `security/vulnerability_scanner.py` provide early stubs for model deployment, monitoring, integration, audits, and security.
 
 ### Implemented vs. Planned Features ()
 
@@ -43,7 +43,7 @@ python scripts/run_checks.py  # runs Ruff, Pyright, pytest
 | Compliance | update_compliance_metrics.py | sox_compliance.py, hipaa_compliance.py, pci_compliance.py, gdpr_compliance.py | — |
 | Deployment | orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py | wrappers in scripts/deployment/* | legacy multi_* helpers |
 | Security | security/* () | — | security/* () |
-| ML | deploy_models.py | model_performance_monitor.py | — |
+| ML | deploy_models.py, model_performance_monitor.py | — |
 
 **CI:** pipeline pins Ruff, enforces a 90% test pass rate, and fails if coverage regresses relative to `main`.
 
@@ -939,8 +939,10 @@ MODEL_REGISTRY_URI=/path/to/registry \
 MODEL_NAME=MyModel MODEL_VERSION=1 \
 python scripts/ml/deploy_models.py
 
-# Monitor model performance
-python scripts/ml/model_performance_monitor.py --days 7
+# Monitor model performance with automatic rollback
+MODEL_NAME=MyModel WEB_DASHBOARD_ENABLED=1 \
+ACCURACY_THRESHOLD=0.95 LATENCY_THRESHOLD=100 \
+python scripts/ml/model_performance_monitor.py
 ```
 
 ---
@@ -1622,7 +1624,7 @@ python scripts/database/database_consolidation_validator.py
 VULN_SCAN_ENABLED=1 python security/vulnerability_scanner.py --full-scan
 
 # ML model performance monitoring
-python scripts/ml/model_performance_monitor.py
+MODEL_NAME=MyModel python scripts/ml/model_performance_monitor.py
 
 # Quantum simulation diagnostics
 python scripts/quantum/quantum_diagnostics.py --simulator-check
