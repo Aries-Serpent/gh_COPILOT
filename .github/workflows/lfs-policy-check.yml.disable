@@ -1,0 +1,53 @@
+name: LFS Policy Check
+
+on:
+  pull_request:
+
+jobs:
+  verify-lfs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Enforce LFS policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin "$GITHUB_BASE_REF" --depth=1
+          git diff --name-only --diff-filter=AM origin/"$GITHUB_BASE_REF"...HEAD > changed_files.txt
+
+          mapfile -t exts < <(grep -E '^  - \\.' .codex_lfs_policy.yaml | tr -d ' -')
+          tracked=$(git lfs ls-files -n)
+          missing=0
+
+          while IFS= read -r file; do
+            [[ ! -f "$file" ]] && continue
+            size_mb=$(du -m "$file" | cut -f1)
+            ext=".${file##*.}"
+            requires=0
+
+            if [[ "$size_mb" -ge 50 ]]; then
+              requires=1
+            else
+              for e in "${exts[@]}"; do
+                if [[ "$ext" == "$e" ]]; then
+                  requires=1
+                  break
+                fi
+              done
+            fi
+
+            if [[ $requires -eq 1 ]] && ! grep -Fxq "$file" <<<"$tracked"; then
+              echo "::error file=$file::File must be tracked by Git LFS"
+              missing=1
+            fi
+          done < changed_files.txt
+
+          if [[ $missing -eq 1 ]]; then
+            echo "LFS policy violations detected."
+            exit 1
+          fi
