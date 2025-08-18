@@ -415,3 +415,67 @@ def _minimal_behavior(example_input=None):
 
 def _not_impl(msg="Generated element requires explicit implementation."):
     raise NotImplementedError(msg)
+
+
+def generate_module(path: Path, functions=None, classes=None, minimal=True):
+    """Generate a Python module with deterministic stub content.
+
+    Parameters
+    ----------
+    path : Path
+        Destination for the generated module.
+    functions : list[str] | None
+        Optional names of functions to create.
+    classes : list[str] | None
+        Optional names of classes to create.
+    minimal : bool, default True
+        When ``True`` each callable delegates to ``_minimal_behavior`` so the
+        module provides predictable behavior. When ``False`` the callables raise
+        ``NotImplementedError`` with descriptive messages via ``_not_impl``.
+
+    Notes
+    -----
+    The generated source omits TODO comments to keep placeholder audits clean.
+    """
+
+    functions = functions or []
+    classes = classes or []
+
+    lines = [
+        '"""Auto-generated module."""',
+        "from codex_workflow import _minimal_behavior, _not_impl",
+        "",
+    ]
+
+    for name in functions:
+        if minimal:
+            lines.extend(
+                [f"def {name}(value=None):", "    return _minimal_behavior(value)", ""]
+            )
+        else:
+            lines.extend(
+                [
+                    f"def {name}(*args, **kwargs):",
+                    f"    _not_impl('Function {name} is not implemented')",
+                    "",
+                ]
+            )
+
+    for name in classes:
+        lines.append(f"class {name}:")
+        if minimal:
+            lines.extend(
+                ["    def run(self, value=None):", "        return _minimal_behavior(value)", ""]
+            )
+        else:
+            lines.extend(
+                [
+                    "    def run(self, *args, **kwargs):",
+                    f"        _not_impl('{name}.run is not implemented')",
+                    "",
+                ]
+            )
+
+    module_content = "\n".join(lines).rstrip() + "\n"
+    write_text(path, module_content, "G1", f"Generate module {path.name}")
+    return path
