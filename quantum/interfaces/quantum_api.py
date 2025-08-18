@@ -10,9 +10,13 @@ operation.
 """
 
 from typing import Any, Dict
+import os
 
 from quantum.framework import QuantumExecutor
 from quantum.framework.circuit import QuantumCircuit
+from quantum.feature_flags import is_quantum_enabled
+
+from .cost_model import estimate_cost
 
 
 def execute_quantum_task(task: Dict[str, Any]) -> Dict[str, Any]:
@@ -31,7 +35,11 @@ def execute_quantum_task(task: Dict[str, Any]) -> Dict[str, Any]:
         result.
     """
 
+    if not is_quantum_enabled() or os.getenv("QISKIT_IBM_TOKEN") is None:
+        raise RuntimeError("Quantum execution disabled")
+
     circuit = QuantumCircuit(str(task.get("circuit", "noop")))
     executor = QuantumExecutor()
-    result = executor.run(circuit)
-    return {"task": task, "result": result}
+    cost = estimate_cost(circuit)
+    result = executor.run(circuit, seed=task.get("seed", 0))
+    return {"task": task, "result": result, "cost": cost}

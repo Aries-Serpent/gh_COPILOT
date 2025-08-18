@@ -4,6 +4,7 @@ import os
 from typing import Any
 
 from .backend import QuantumBackend, SimulatorBackend
+from quantum.feature_flags import is_quantum_enabled
 from quantum.providers import get_provider
 
 
@@ -36,9 +37,15 @@ class QuantumExecutor:
 
     def run(self, circuit: Any, **kwargs: Any) -> Any:
         """Execute ``circuit`` using the configured backend."""
+        if not is_quantum_enabled():
+            raise RuntimeError("Quantum execution disabled")
+        if self.use_hardware and os.getenv("QISKIT_IBM_TOKEN") is None:
+            raise RuntimeError("QISKIT_IBM_TOKEN not set")
+
+        seed = kwargs.pop("seed", None)
         try:
-            return self.backend.run(circuit, **kwargs)
+            return self.backend.run(circuit, seed=seed, **kwargs)
         except Exception:
             self.backend = SimulatorBackend()
             self.use_hardware = False
-            return self.backend.run(circuit, **kwargs)
+            return self.backend.run(circuit, seed=seed, **kwargs)
