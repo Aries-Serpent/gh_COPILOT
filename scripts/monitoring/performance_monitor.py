@@ -12,6 +12,8 @@ from __future__ import annotations
 import argparse
 import time
 from datetime import datetime, timezone
+from dataclasses import dataclass
+from typing import Dict
 
 __all__ = ["main"]
 
@@ -34,10 +36,33 @@ def emit_prometheus_format(metrics: dict[str, float]) -> None:
         print(f"{key} {value}")
 
 
+@dataclass
+class MonitoringRequest:
+    """Contract for performance monitoring input."""
+
+    interval: int
+    prometheus: bool = False
+
+
+@dataclass
+class MonitoringOutput:
+    """Contract for performance monitoring output."""
+
+    metrics: Dict[str, float]
+
+
+def validate_monitoring_request(request: MonitoringRequest) -> None:
+    """Assert that the monitoring request complies with the contract."""
+
+    if request.interval <= 0:
+        raise ValueError("interval must be positive")
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run performance monitoring loop."""
     ap = argparse.ArgumentParser(
-        description="Run performance monitor loop and emit metrics.")
+        description="Run performance monitor loop and emit metrics."
+    )
     ap.add_argument(
         "--interval", type=int, default=60, help="Interval in seconds between samples"
     )
@@ -46,8 +71,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     ns = ap.parse_args(argv)
 
+    request = MonitoringRequest(interval=ns.interval, prometheus=ns.prometheus)
+    validate_monitoring_request(request)
+
     print(
-        f"[stub] performance_monitor starting @ {datetime.now(timezone.utc).isoformat()}, interval={ns.interval}s"
+        f"[stub] performance_monitor starting @ {datetime.now(timezone.utc).isoformat()}, interval={request.interval}s"
     )
     try:
         while True:
@@ -56,11 +84,11 @@ def main(argv: list[str] | None = None) -> int:
                 "memory_usage_percent": collect_memory_usage(),
                 "timestamp": time.time(),
             }
-            if ns.prometheus:
+            if request.prometheus:
                 emit_prometheus_format(metrics)
             else:
                 print(f"[stub] metrics: {metrics}")
-            time.sleep(ns.interval)
+            time.sleep(request.interval)
     except KeyboardInterrupt:
         print("[stub] performance_monitor stopped by user")
     return 0
