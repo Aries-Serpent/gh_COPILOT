@@ -41,14 +41,15 @@ python scripts/run_checks.py  # runs Ruff, Pyright, pytest
 
 **CI:** pipeline pins Ruff, enforces a 90% test pass rate, and fails if coverage regresses relative to `main`.
 
-**Quantum modules** default to simulation but can target IBM hardware when `QISKIT_IBM_TOKEN` and `IBM_BACKEND` are set. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Module completion status is tracked in [docs/STUB_MODULE_STATUS.md](docs/STUB_MODULE_STATUS.md). Compliance auditing is enforced via `EnterpriseComplianceValidator`, and composite scores combine lint, test, and placeholder metrics stored in `analytics.db`.
+**Quantum modules** default to simulation but can target IBM hardware when `QISKIT_IBM_TOKEN` and `IBM_BACKEND` are set. See docs/QUANTUM_PLACEHOLDERS.md and docs/PHASE5_TASKS_STARTED.md for progress details. Module completion status is tracked in docs/STUB_MODULE_STATUS.md. Compliance auditing is enforced via `EnterpriseComplianceValidator`, and composite scores combine lint, test, and placeholder metrics stored in `analytics.db`.
 
-**Integration plan:** [docs/quantum_integration_plan.md](docs/quantum_integration_plan.md) outlines staged hardware enablement while current builds remain simulator-only.
+**Integration plan:** docs/quantum_integration_plan.md outlines staged hardware enablement while current builds remain simulator-only.
 
-**Governance:** see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards. New compliance routines and monitoring capabilities are detailed in [docs/white-paper.md](docs/white-paper.md).
+**Governance:** see docs/GOVERNANCE_STANDARDS.md for organizational rules and coding standards. New compliance routines and monitoring capabilities are detailed in docs/white-paper.md.
 
 **Security:** configuration files live under the `security/` directory. Run `python security/validator.py` to validate these assets and generate `reports/security_validator.json` and `reports/security_validator.csv`.
 
+**Documentation:** quantum preparation, executive guides, and certification workflows live under `docs/` — see docs/quantum_preparation/README.md, docs/executive_guides/README.md, and docs/certification/README.md for details and related module links.
 
 **White-paper summary:** [documentation/generated/daily_state_update/gh_COPILOT_Project_White-Paper_Blueprint_Summary_().md]().md)
 
@@ -78,6 +79,7 @@ Advanced AI integration features operate in simulation mode by default and ignor
 - **Unified Monitoring Optimization:** `collect_metrics` and `auto_heal_session` enable anomaly detection with quantum-inspired scoring
 - **Automatic Git LFS Policy:** `.codex_lfs_policy.yaml` and `artifact_manager.py --sync-gitattributes` govern binary tracking
 - **Dual Copilot Enforcement:** automation scripts now trigger secondary validation via `SecondaryCopilotValidator` with aggregated results
+- **Archive Migration Executor:** dual-copilot validation added for log archival workflows
 - **Analytics Consolidation:** `database_consolidation_migration.py` now performs secondary validation after merging sources
 - **Full Validation Coverage:** ingestion, placeholder audits and migration scripts now run SecondaryCopilotValidator by default
 - **Visual Processing Indicators:** progress bar utilities implemented
@@ -100,7 +102,7 @@ Advanced AI integration features operate in simulation mode by default and ignor
 - **Dashboard Metrics View:** compliance, synchronization, and monitoring metrics refresh live when `WEB_DASHBOARD_ENABLED=1`
 - **Monitoring Pipeline:** anomaly detection results stored in `analytics.db` appear on the dashboard's monitoring panels and stream through `/metrics_stream` when the dashboard is enabled
 - **Dashboard Tooltips:** lint, test, and placeholder gauges now provide explanatory titles for quick reference
-- **Quantum Placeholder Utilities:** see [quantum/README.md](quantum/README.md) for simulated optimizer and search helpers. `quantum_optimizer.run_quantum_routine` includes placeholder hooks for annealing and search routines; entanglement correction is not implemented. These stubs run on Qiskit simulators and ignore `use_hardware=True` until real hardware integration lands. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) for current status
+- **Quantum Placeholder Utilities:** see quantum/README.md for simulated optimizer and search helpers. `quantum_optimizer.run_quantum_routine` includes placeholder hooks for annealing and search routines; entanglement correction is not implemented. These stubs run on Qiskit simulators and ignore `use_hardware=True` until real hardware integration lands. See docs/QUANTUM_PLACEHOLDERS.md for current status
 - **Phase 6 Quantum Demo:** `quantum_integration_orchestrator.py` demonstrates a simulated quantum database search. Hardware backend flags are accepted but remain no-ops until future phases implement real execution
 
 ### Compliance Scoring
@@ -166,14 +168,14 @@ Compliance enforcement also blocks destructive commands () and flags unresolved 
 | Monitoring | `databases/monitoring.db` | System health and performance telemetry |
 | Codex Logs | `databases/codex_logs.db` | Codex session and action logs |
 
-  - [ER Diagrams](docs/ER_DIAGRAMS.md) for key databases
+  - ER Diagrams for key databases
 - **Flask Enterprise Dashboard:** run `python web_gui_integration_system.py` to launch the metrics and compliance dashboard. The interface is protected by a `/login` endpoint that issues session tokens and supports optional MFA before displaying metrics.
 - **Template Intelligence Platform:** tracks generated scripts
 - **Enterprise HTML Templates:** reusable base layouts, components, mobile views, and email templates under `templates/`
 - **Documentation logs:** rendered templates saved under `logs/template_rendering/`
 - **Script Validation**: automated checks available
 - **Self-Healing Systems:** correction scripts
-- **Autonomous File Management:** see [Using AutonomousFileManager](docs/USING_AUTONOMOUS_FILE_MANAGER.md)
+- **Autonomous File Management:** see Using AutonomousFileManager
 - **Quantum Modules:** all quantum features execute on Qiskit simulators; hardware backends are currently disabled
 - **Continuous Operation Mode:** optional monitoring utilities
   - **Simulated Quantum Monitoring Scripts:** `scripts/monitoring/continuous_operation_monitor.py`, `scripts/monitoring/enterprise_compliance_monitor.py`, and `scripts/monitoring/unified_monitoring_optimization_system.py`. See [monitoring/README.md]() for details
@@ -235,7 +237,7 @@ ls -l /usr/local/bin/clw
 
 ### Reclone a Repository
 
-Use `scripts/reclone_repo.py` to create a fresh clone of any Git repository. This is helpful when a working copy becomes corrupted or when a clean re-clone is required. The utility can back up or remove an existing destination directory before cloning. See [docs/RECLONE_REPO_GUIDE.md](docs/RECLONE_REPO_GUIDE.md) for detailed instructions and examples.
+Use `scripts/reclone_repo.py` to create a fresh clone of any Git repository. This is helpful when a working copy becomes corrupted or when a clean re-clone is required. The utility can back up or remove an existing destination directory before cloning. See docs/RECLONE_REPO_GUIDE.md for detailed instructions and examples.
 
 ### Add Lessons After a Run
 
@@ -318,6 +320,7 @@ python scripts/ingest_test_and_lint_results.py
 python -m scripts.compliance.update_compliance_metrics
 ```
 
+### Documentation Update Workflow
 
 After modifying files in `docs/`, regenerate and validate metrics:
 
@@ -373,7 +376,7 @@ When streaming data from other processes or needing structured chunking, the Pyt
 some_command | python tools/output_chunker.py
 ```
 
-For pattern-aware splitting, `tools/output_pattern_chunker.py` provides customizable boundary detection while maintaining ANSI sequences. To wrap commands and automatically record session metadata, use `.github/scripts/session_wrapper.sh`, which employs `tools/shell_buffer_manager.sh` to enforce hard cutoffs and redirect overflow to temporary logs. See [docs/SESSION_WRAPPER_USAGE.md](docs/SESSION_WRAPPER_USAGE.md) for examples.
+For pattern-aware splitting, `tools/output_pattern_chunker.py` provides customizable boundary detection while maintaining ANSI sequences. To wrap commands and automatically record session metadata, use `.github/scripts/session_wrapper.sh`, which employs `tools/shell_buffer_manager.sh` to enforce hard cutoffs and redirect overflow to temporary logs. See docs/SESSION_WRAPPER_USAGE.md for examples.
 
 ### Basic Usage
 
@@ -405,7 +408,7 @@ The orchestrator always uses the simulator. Flags `--hardware` and `--backend` a
 python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
 ```
 
-IBM Quantum tokens and the `--token` flag are currently ignored; hardware execution is not implemented. See [docs/QUANTUM_HARDWARE_SETUP.md](docs/QUANTUM_HARDWARE_SETUP.md) for future configuration notes and [docs/STUB_MODULE_STATUS.md](docs/STUB_MODULE_STATUS.md) for module status.
+IBM Quantum tokens and the `--token` flag are currently ignored; hardware execution is not implemented. See docs/QUANTUM_HARDWARE_SETUP.md for future configuration notes and docs/STUB_MODULE_STATUS.md for module status.
 
 ### Quantum Placeholder Modules
 
@@ -413,10 +416,10 @@ The `scripts/quantum_placeholders` package offers simulation-only stubs that res
 
 #### Roadmap
 
-- [quantum_placeholder_algorithm](scripts/quantum_placeholders/quantum_placeholder_algorithm.py) → will evolve into a full optimizer engine
-- [quantum_annealing](scripts/quantum_placeholders/quantum_annealing.py) → planned hardware-backed annealing routine
-- [quantum_superposition_search](scripts/quantum_placeholders/quantum_superposition_search.py) → future superposition search module
-- [quantum_entanglement_correction](scripts/quantum_placeholders/quantum_entanglement_correction.py) → slated for robust entanglement error correction
+- quantum_placeholder_algorithm → will evolve into a full optimizer engine
+- quantum_annealing → planned hardware-backed annealing routine
+- quantum_superposition_search → future superposition search module
+- quantum_entanglement_correction → slated for robust entanglement error correction
 
 ### Run Template Matcher
 
@@ -426,7 +429,7 @@ echo "def foo(): pass" | python scripts/template_matcher.py
 
 ### Data Backup Feature
 
-The toolkit includes an enterprise-grade data backup feature. Set the `GH_COPILOT_BACKUP_ROOT` environment variable to an external directory and follow the steps in [docs/enterprise_backup_guide.md](docs/enterprise_backup_guide.md) to create and manage backups. This variable ensures backups never reside in the workspace, maintaining anti-recursion compliance. The `validate_enterprise_environment` helper enforces these settings at script startup.
+The toolkit includes an enterprise-grade data backup feature. Set the `GH_COPILOT_BACKUP_ROOT` environment variable to an external directory and follow the steps in docs/enterprise_backup_guide.md to create and manage backups. This variable ensures backups never reside in the workspace, maintaining anti-recursion compliance. The `validate_enterprise_environment` helper enforces these settings at script startup.
 
 Run scheduled backups and restore them with:
 
@@ -468,6 +471,7 @@ python scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py --SessionStart -AutoFi
 python scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py --SessionEnd
 ```
 
+Set `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT` before running. Use `SESSION_ID_SOURCE` if you supply your own session identifier. The log database is Git LFS-tracked; ensure `ALLOW_AUTOLFS=1` and verify with `git lfs status` before committing. See docs/codex_logging.md for the schema and commit workflow.
 
 ### Codex Log Database
 
@@ -481,6 +485,7 @@ Session tooling records actions in `databases/codex_log.db`. When `finalize_code
 - `SESSION_ID_SOURCE` – optional custom session identifier
 - `TEST_MODE` – set to `1` to disable writes during tests
 
+#### Commit workflow
 
 After calling `finalize_codex_log_db()` include the databases in your commit:
 
@@ -489,6 +494,7 @@ git add databases/codex_log.db databases/codex_session_logs.db
 git lfs status databases/codex_log.db
 ```
 
+See docs/codex_logging.md for full API usage and workflow details.
 
 ### Unified Deployment Orchestrator CLI
 
@@ -512,6 +518,7 @@ export GH_COPILOT_BACKUP_ROOT=/path/to/backups
 python scripts/file_management/workspace_optimizer.py
 ```
 
+### Git LFS workflow
 
 Use the helper scripts to automatically track binary or large files with Git LFS. Both variants accept `-h/--help` for usage information.
 
@@ -521,6 +528,7 @@ export ALLOW_AUTOLFS=1
 tools/git_safe_add_commit.py "your commit message" --push
 ```
 
+The shell version `tools/git_safe_add_commit.sh` behaves the same and can push when invoked with `--push`. See docs/GIT_LFS_WORKFLOW.md for details.
 
 ### LFS archive guard
 
@@ -552,7 +560,7 @@ some binaries were committed without Git LFS. Recover by migrating the files and
 5. `git rm --cached <file>.zip && git add <file>.zip`
 6. `git commit -m "fix: track zip via Git LFS"`
 
-Verify with `git lfs ls-files` or `git lfs status`. See GitHub's [LFS configuration guide](https://docs.github.com/en/github/managing-large-files/configuring-git-large-file-storage) for additional details.
+Verify with `git lfs ls-files` or `git lfs status`. See GitHub's LFS configuration guide for additional details.
 
 ### Docker Usage
 
@@ -566,7 +574,7 @@ docker run -p 5000:5000 \
   gh_copilot
 ```
 
-See [docs/Docker_Usage.md](docs/Docker_Usage.md) for details on all environment variables and the ports exposed by `docker-compose.yml`.
+See docs/Docker_Usage.md for details on all environment variables and the ports exposed by `docker-compose.yml`.
 
 `entrypoint.sh` expects `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT` to already be defined. The Docker image sets them to `/app` and `/backup`, but override these when running locally. The script initializes `enterprise_assets.db` only if missing, launches the background workers, and then `exec`s the dashboard command provided via `CMD`. Map `/backup` to a host directory so logs persist.
 
@@ -592,9 +600,9 @@ python scripts/wlc_session_manager.py --db-path databases/production.db
 
 Each run writes a timestamped log to `$GH_COPILOT_BACKUP_ROOT/logs/`.
 
-For more information see [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md). See [docs/WLC_QUICKSTART.md](docs/WLC_QUICKSTART.md) for a quickstart guide.
+For more information see docs/WLC_SESSION_MANAGER.md. See docs/WLC_QUICKSTART.md for a quickstart guide.
 
-Additional module overviews are available in [quantum/README.md](quantum/README.md) and [monitoring/README.md]().
+Additional module overviews are available in quantum/README.md and [monitoring/README.md]().
 
 ### Workspace Detection
 
@@ -602,7 +610,7 @@ Most scripts read the workspace path from the `GH_COPILOT_WORKSPACE` environment
 
 ### WLC Session Manager
 
-The [WLC Session Manager](docs/WLC_SESSION_MANAGER.md) implements the **Wrapping, Logging, and Compliance** methodology. Run it with:
+The WLC Session Manager implements the **Wrapping, Logging, and Compliance** methodology. Run it with:
 
 ```bash
 python scripts/wlc_session_manager.py --steps 2 --db-path databases/production.db --verbose
@@ -617,7 +625,7 @@ export API_SECRET_KEY=<generated_secret>
 python scripts/wlc_session_manager.py --steps 2 --db-path databases/production.db --verbose
 ```
 
-The manager validates required environment variables, executes the `UnifiedWrapUpOrchestrator` for comprehensive cleanup, and performs dual validation through the `SecondaryCopilotValidator`. It records each session in `production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`. Each run inserts a row into the `unified_wrapup_sessions` table with a compliance score for audit purposes. Ensure all command output is piped through `/usr/local/bin/clw` to avoid exceeding the line length limit. The scoring formula blends Ruff issues, pytest pass ratios, placeholder resolution, and session lifecycle success via `enterprise_modules.compliance.calculate_compliance_score` and the `SCORE_WEIGHTS` constants. See [docs/COMPLIANCE_METRICS.md](docs/COMPLIANCE_METRICS.md) for details. The table stores `session_id`, timestamps, status, compliance score, and optional error details so administrators can audit every session. The test suite includes `tests/test_wlc_session_manager.py` to verify this behavior. See [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md) for a full example showing environment variable setup, CLI options, log file location, and database updates.
+The manager validates required environment variables, executes the `UnifiedWrapUpOrchestrator` for comprehensive cleanup, and performs dual validation through the `SecondaryCopilotValidator`. It records each session in `production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`. Each run inserts a row into the `unified_wrapup_sessions` table with a compliance score for audit purposes. Ensure all command output is piped through `/usr/local/bin/clw` to avoid exceeding the line length limit. The scoring formula blends Ruff issues, pytest pass ratios, placeholder resolution, and session lifecycle success via `enterprise_modules.compliance.calculate_compliance_score` and the `SCORE_WEIGHTS` constants. See docs/COMPLIANCE_METRICS.md for details. The table stores `session_id`, timestamps, status, compliance score, and optional error details so administrators can audit every session. The test suite includes `tests/test_wlc_session_manager.py` to verify this behavior. See docs/WLC_SESSION_MANAGER.md for a full example showing environment variable setup, CLI options, log file location, and database updates.
 
 ---
 
@@ -654,6 +662,7 @@ template_consolidated.db
 template_documentation.db
 testing.db
 v3_self_learning_engine.db
+workflow_optimization.db
 compliance_audit.db
 quantum_hardware_config.db
 enterprise_assets.db
@@ -686,6 +695,7 @@ python scripts/run_migrations.py
 
 Automated tests perform these migrations in-memory with progress bars and DUAL COPILOT validation, leaving the on-disk database untouched.
 
+### Database-First Workflow
 
 1. **Connect Safely:** Use `get_validated_production_db_connection()` from `utils.database_utils` before performing filesystem changes
 2. **Query First:** Check production.db for existing solutions
@@ -696,6 +706,7 @@ Automated tests perform these migrations in-memory with progress bars and DUAL C
 
 ### Template Engine Modules
 
+Several helper scripts under `template_engine` implement the database-first workflow. They provide progress indicators, DUAL COPILOT validation and compliance logging. The main modules are:
 
 * **TemplateAutoGenerator** – clusters stored patterns with KMeans and produces representative templates
 * **DBFirstCodeGenerator** – generates code or documentation by querying `production.db`, `documentation.db` and `template_documentation.db`. It logs all generation events to `analytics.db`
@@ -703,6 +714,7 @@ Automated tests perform these migrations in-memory with progress bars and DUAL C
 * **PatternMiningEngine** – mines frequently used patterns from template archives
 * **PlaceholderUtils** – helper functions for finding and replacing placeholders using database mappings
 * **TemplatePlaceholderRemover** – strips unused placeholders from templates
+* **TemplateWorkflowEnhancer** – mines patterns from existing templates, computes compliance scores and writes dashboard-ready reports. This module provides advanced workflow optimization through machine learning pattern analysis and quantum-inspired scoring algorithms
 * **TemplateSynchronizer** – keeps generated templates synchronized across environments. The analytics database is created only when running with the `--real` flag. Templates may also be clustered via the `--cluster` flag to synchronize only representative examples
 * **Log Utilities** – unified `_log_event` helper under `utils.log_utils` logs events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in `analytics.db` with visual indicators and DUAL COPILOT validation
 * **Artifact Manager** – `artifact_manager.py` packages files created in the temporary directory () into archives stored under the directory defined by the `session_artifact_dir` setting in `.codex_lfs_policy.yaml`. Use `--package` to create an archive and `--commit` with `--message` to save it directly to Git. `--recover` restores the most recent archive back into the temporary directory. The temporary location may be overridden with `--tmp-dir`, and `.gitattributes` can be regenerated with `--sync-gitattributes`
@@ -763,6 +775,7 @@ Optimization and security scripts must invoke their main logic via `DualCopilotO
 
 ```python
 class PrimaryExecutorCopilot:
+    """Primary COPILOT: Executes main workflow with enterprise standards"""
     
     def execute_with_monitoring():
         # MANDATORY: Visual processing indicators
@@ -829,6 +842,7 @@ TEXT_INDICATORS = {
 
 ### Unified Logging Utility
 
+The toolkit provides a shared `_log_event` helper in `utils/log_utils.py`. This function writes events to a chosen table () within `analytics.db` and displays a brief progress bar. The helper returns `True` when the record is successfully inserted so callers can validate logging as part of the DUAL COPILOT workflow.
 
 Cross-database synchronization via `scripts/database/cross_database_sync_logger.py` automatically leverages this pipeline—each call to `log_sync_operation` now emits an analytics event so that sync activity is tracked centrally in `analytics.db`.
 
@@ -979,7 +993,7 @@ engine = SyncEngine()
 await engine.open_websocket()
 ```
 
-`apply_callback` should apply incoming changes locally. See [docs/realtime_sync.md](docs/realtime_sync.md) for more details.
+`apply_callback` should apply incoming changes locally. See docs/realtime_sync.md for more details.
 
 Synchronization outcomes are logged to `databases/analytics.db`, allowing the dashboard to surface live sync statistics.
 
@@ -1124,7 +1138,7 @@ The project tracks several learning patterns. Current integration status:
 ### Learning Pattern Categories
 
 1. **Process Learning Patterns** ()
-2. **Communication Excellence** () – see [Communication Excellence Guide](docs/COMMUNICATION_EXCELLENCE_GUIDE.md)
+2. **Communication Excellence** () – see Communication Excellence Guide
 3. **Technical Implementation** ()
 4. **Enterprise Standards** ()
 5. **Autonomous Operations** ()
@@ -1133,6 +1147,7 @@ The project tracks several learning patterns. Current integration status:
 
 ---
 
+## 🔧 DEVELOPMENT WORKFLOW
 
 ### Standard Development Pattern
 
@@ -1308,12 +1323,12 @@ python scripts/monitoring/resource_tracker.py
 
 ### Core Documentation
 
-- **[Lessons Learned Integration Report](docs/LESSONS_LEARNED_INTEGRATION_VALIDATION_REPORT.md)** - Comprehensive validation
-- **[DUAL COPILOT Pattern Guide](.github/instructions/DUAL_COPILOT_PATTERN.instructions.md)** - Implementation guide
-- **[Enterprise Context Guide](.github/instructions/ENTERPRISE_CONTEXT.instructions.md)** - System overview
-- **[Instruction Module Index](docs/INSTRUCTION_INDEX.md)** - Complete instruction listing
-- **[Quantum Template Generator](docs/quantum_template_generator.py)** - database-first template engine with optional quantum ranking
-- **[ChatGPT Bot Integration Guide](docs/chatgpt_bot_integration_guide.md)** - webhook and Copilot license setup
+- **Lessons Learned Integration Report** - Comprehensive validation
+- **DUAL COPILOT Pattern Guide** - Implementation guide
+- **Enterprise Context Guide** - System overview
+- **Instruction Module Index** - Complete instruction listing
+- **Quantum Template Generator** - database-first template engine with optional quantum ranking
+- **ChatGPT Bot Integration Guide** - webhook and Copilot license setup
 - **[Machine Learning Integration Guide]()** - ML pipeline documentation
 - **[Quantum Simulation Guide]()** - quantum computing integration
 - **[Security Framework Guide]()** - enterprise security documentation
@@ -1323,8 +1338,9 @@ python scripts/monitoring/resource_tracker.py
 
 - **[Multi-Environment Setup]()** - deployment across environments
 - **[Scaling Configuration]()** - enterprise scaling strategies
-- **[High Availability & Disaster Recovery](scripts/disaster_recovery/)** - backup scheduling and failover utilities via `unified_disaster_recovery_system.py`
-- **[Backup Compliance Guide](documentation/BACKUP_COMPLIANCE_GUIDE.md)** - external backup requirements and recovery procedures
+- **High Availability & Disaster Recovery** - backup scheduling and failover utilities via `unified_disaster_recovery_system.py`
+- **Backup Compliance Guide** - external backup requirements and recovery procedures
+- **[Compliance Certification Workflows]()** - certification procedures
 - **[API Documentation]()** - comprehensive API reference
 - **[WebSocket API Specifications]()** - real-time API documentation
 - **[Streaming API Details]()** - streaming data specifications
@@ -1345,7 +1361,7 @@ The toolkit includes 16 specialized instruction modules for GitHub Copilot integ
 
 ### GitHub Bot Integration
 
-See [ChatGPT Bot Integration Guide](docs/chatgpt_bot_integration_guide.md) for environment variables and usage of the webhook server and license assignment script.
+See ChatGPT Bot Integration Guide for environment variables and usage of the webhook server and license assignment script.
 
 ---
 
@@ -1393,7 +1409,7 @@ python scripts/analysis/flake8_compliance_progress_reporter.py  # see scripts/an
 
 ## 📄 LICENSE
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the MIT License.
 © 2025 - Enterprise Excellence Framework
 
 ---
@@ -1428,6 +1444,7 @@ python scripts/code_placeholder_audit.py --cleanup
 # Specify a custom summary path:
 python scripts/code_placeholder_audit.py --summary-json results/placeholder_summary.json
 
+# CI runs the audit via GitHub Actions using `actions/setup-python` and
 # the repository's setup script to ensure dependencies are present.
 
 # The audit automatically populates `code_audit_log` in analytics.db for
@@ -1441,6 +1458,7 @@ python scripts/code_placeholder_audit.py --test-mode
 # `scripts/correction_logger_and_rollback.py` records final corrections.
 # Check `/dashboard/compliance` to verify the placeholder count reaches zero.
 # Run `scripts/database/add_code_audit_log.py` if the table is missing.
+# The `compliance-audit.yml` workflow now installs dependencies, including
 # `tqdm`, using Python 3.11 before invoking this script.
 
 # Generate scored documentation templates
@@ -1500,12 +1518,13 @@ python scripts/compliance/certification_generator.py --framework sox,pci,hipaa
 python scripts/disaster_recovery/dr_simulation.py --scenario complete_failure
 ```
 
+For comprehensive synchronization workflows, see docs/DATABASE_SYNC_GUIDE.md and `database_first_synchronization_engine.py`.
 
 ### Contact & Support
 
 - **Documentation:** `docs/` directory
-- **Repository Guidelines:** [docs/REPOSITORY_GUIDELINES.md](docs/REPOSITORY_GUIDELINES.md)
-- **Root Maintenance Validator:** [docs/ROOT_MAINTENANCE_VALIDATOR.md](docs/ROOT_MAINTENANCE_VALIDATOR.md)
+- **Repository Guidelines:** docs/REPOSITORY_GUIDELINES.md
+- **Root Maintenance Validator:** docs/ROOT_MAINTENANCE_VALIDATOR.md
 - **Enterprise Support:** GitHub Issues with enterprise tag
 - **Learning Pattern Updates:** Automatic integration via autonomous systems
 - **Technical Support:** [docs/TECHNICAL_SUPPORT.md]()
@@ -1514,7 +1533,7 @@ python scripts/disaster_recovery/dr_simulation.py --scenario complete_failure
 
 ### WLC Methodology
 
-The **Wrapping, Logging, and Compliance ()** system ensures that long-running operations are recorded and validated for enterprise review. The session manager in [scripts/wlc_session_manager.py](scripts/wlc_session_manager.py) starts a session entry in `production.db`, logs progress to an external backup location, and finalizes the run with a compliance score. Each run inserts a record into the `unified_wrapup_sessions` table with `session_id`, timestamps, status, compliance score, and optional error details. Detailed usage instructions are available in [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
+The **Wrapping, Logging, and Compliance ()** system ensures that long-running operations are recorded and validated for enterprise review. The session manager in scripts/wlc_session_manager.py starts a session entry in `production.db`, logs progress to an external backup location, and finalizes the run with a compliance score. Each run inserts a record into the `unified_wrapup_sessions` table with `session_id`, timestamps, status, compliance score, and optional error details. Detailed usage instructions are available in docs/WLC_SESSION_MANAGER.md.
 
 ---
 
@@ -1605,6 +1624,7 @@ python scripts/quantum/quantum_diagnostics.py --simulator-check
 
 ## ✅ Project Status
 
+Ruff linting runs and targeted tests pass in simulation, but the full test suite still reports some failures. Outstanding tasks—including fixes for failing modules like `documentation_manager` and `cross_database_sync_logger`—are tracked in docs/STUB_MODULE_STATUS.md. Dual-copilot validation remains in place and quantum features continue to run in simulation mode. The repository uses GitHub Actions to automate linting, testing, and compliance checks.
 
 ### CI/CD Pipeline Status
 
@@ -1616,6 +1636,7 @@ python scripts/quantum/quantum_diagnostics.py --simulator-check
 - **security-audit.yml** performs security vulnerability scans
 - **performance-benchmark.yml** runs performance regression tests
 
+The CI workflow also triggers on documentation updates so linting and tests run for doc-focused pull requests.
 
 To mimic CI locally, run:
 
@@ -1662,6 +1683,7 @@ Several small modules provide common helpers:
 ### Advanced Processing Modules
 - `scripts.optimization.physics_optimization_engine.PhysicsOptimizationEngine` – provides simulated quantum-inspired helpers such as Grover search or Shor factorization for physics-oriented optimizations
 - `template_engine.pattern_clustering_sync.PatternClusteringSync` – cluster templates from `production.db` and synchronize them with compliance auditing
+- `template_engine.workflow_enhancer.TemplateWorkflowEnhancer` – enhance template workflows using clustering, pattern mining and dashboard reports
 
 ### ML & AI Utilities
 - `scripts.ml.autonomous_ml_optimizer.AutonomousMLOptimizer` – ML-powered optimization engine
@@ -1669,6 +1691,7 @@ Several small modules provide common helpers:
 - `scripts.ml.deploy_models.deploy_model` – fetches models from a registry,
   stores artifacts with checksums, logs results, and rolls back on failed
   health checks
+- `scripts.ml.training_pipeline_orchestrator.TrainingPipelineOrchestrator` – automated ML training workflows
 
 ### Quantum Computing Utilities
 - `scripts.quantum.quantum_simulator_manager.QuantumSimulatorManager` – quantum simulation management
@@ -1683,12 +1706,16 @@ Several small modules provide common helpers:
 Example usage:
 
 ```python
+from template_engine.workflow_enhancer import TemplateWorkflowEnhancer
 from scripts.ml.autonomous_ml_optimizer import AutonomousMLOptimizer
 from scripts.quantum.quantum_optimizer import QuantumOptimizer
 
+# Enhance workflow with ML and quantum optimization
+enhancer = TemplateWorkflowEnhancer()
 ml_optimizer = AutonomousMLOptimizer()
 quantum_optimizer = QuantumOptimizer()
 
+enhanced_workflow = enhancer.enhance()
 ml_optimized = ml_optimizer.optimize()
 quantum_optimized = quantum_optimizer.optimize()
 ```
@@ -1748,6 +1775,7 @@ Phase 6-10 development will introduce additional quantum features, expanded mach
 ### Phase 8: Compliance Framework Evolution
 - Stricter session validation and enterprise audit logging improvements
 - Industry-specific compliance frameworks ()
+- Automated compliance reporting and certification workflows
 - Real-time compliance monitoring and alerting
 
 ### Phase 9: Reporting Enhancements
@@ -1772,7 +1800,7 @@ base64 -d databases/analytics_db_zip.b64 | tee databases/analytics_db.zip >/dev/
 
 ## Future Work
 
-See [Continuous Improvement Roadmap](docs/continuous_improvement_roadmap.md), [Stakeholder Roadmap](documentation/continuous_improvement_roadmap.md) and [Project Roadmap](documentation/ROADMAP.md) for detailed milestones and status tracking.
+See Continuous Improvement Roadmap, Stakeholder Roadmap and Project Roadmap for detailed milestones and status tracking.
 
 ## gh_copilot skeleton
 
@@ -1803,6 +1831,7 @@ API endpoints:
 The enterprise API includes additional endpoints for comprehensive system management:
 
 * `GET /api/v1/health` - System health status with detailed metrics
+* `POST /api/v1/ml/train` - Trigger ML model training workflows
 * `GET /api/v1/ml/models` - List available ML models and their status
 * `POST /api/v1/quantum/simulate` - Execute quantum simulation jobs
 * `GET /api/v1/quantum/status` - Quantum simulation job status
@@ -1921,9 +1950,9 @@ python scripts/environment/migrate_environment.py --from dev --to staging --vali
 
 Enterprise deployments support high availability configurations through existing disaster recovery and failover tooling:
 
-- Backup scheduling and point-in-time restores live under [`scripts/disaster_recovery/`](scripts/disaster_recovery/).
-- [`unified_disaster_recovery_system.py`](unified_disaster_recovery_system.py) provides a stable interface for recording backup events and executing restores.
-- Service failover is coordinated by [`scripts/enterprise_orchestration_engine.py`](scripts/enterprise_orchestration_engine.py) using templates like [`config/production_failover_config.json`](config/production_failover_config.json).
+- Backup scheduling and point-in-time restores live under `scripts/disaster_recovery/`.
+- `unified_disaster_recovery_system.py` provides a stable interface for recording backup events and executing restores.
+- Service failover is coordinated by `scripts/enterprise_orchestration_engine.py` using templates like `config/production_failover_config.json`.
 
 #### Monitoring and Alerting
 
@@ -2203,6 +2232,7 @@ pytest -q
 
 and are safe to remove once the primary DR implementation supersedes them.
 
+**Safety:** DO NOT ACTIVATE ANY GitHub Actions files.
 
 ## Dependencies
 
@@ -2255,9 +2285,4 @@ SELECT session_id, COUNT(*) AS events FROM session_events GROUP BY session_id OR
 **Notes on concurrency**
 
 - SQLite **WAL** mode is enabled for improved concurrency; a **per-thread connection** and a global write lock are used for safety.
-
-## Coverage Performance — Updated & Projected
-
-* **Recomputed current overall_after:** 92.03 ≈ 92.0
-* **Projected after Phases 6–10 targeted uplift (ML + Quantum):** ≈ 93.4
 

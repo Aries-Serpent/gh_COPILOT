@@ -1,0 +1,170 @@
+# Integration Hints — Performance Monitor
+
+Discovered candidate locations (confidence 1.00):
+- `analytics/historical_metrics.json`
+- `builds/final/production/builds/artifacts/configuration/MEDIUM_regeneration_monitoring_config.json`
+- `builds/final/production/builds/artifacts/configuration/monitoring_optimization_consolidation_manifest.json`
+- `builds/final/production/builds/artifacts/configuration/monitoring_placeholders.json`
+- `builds/final/production/builds/artifacts/configuration/regeneration_monitoring_config.json`
+- `builds/final/production/builds/artifacts/documentation/MEDIUM_learning_monitor_er_diagram.md`
+- `builds/final/production/builds/artifacts/documentation/MEDIUM_learning_monitor_schema.md`
+- `builds/final/production/builds/artifacts/documentation/QUANTUM_PERFORMANCE_METRICS.md`
+- `builds/final/production/builds/artifacts/documentation/learning_monitor_er_diagram.md`
+- `builds/final/production/builds/artifacts/documentation/learning_monitor_schema.md`
+- `builds/production/builds/artifacts/configuration/MEDIUM_regeneration_monitoring_config.json`
+- `builds/production/builds/artifacts/configuration/monitoring_optimization_consolidation_manifest.json`
+- `builds/production/builds/artifacts/configuration/monitoring_placeholders.json`
+- `builds/production/builds/artifacts/configuration/regeneration_monitoring_config.json`
+- `builds/production/builds/artifacts/documentation/MEDIUM_learning_monitor_er_diagram.md`
+- `builds/production/builds/artifacts/documentation/MEDIUM_learning_monitor_schema.md`
+- `builds/production/builds/artifacts/documentation/QUANTUM_PERFORMANCE_METRICS.md`
+- `builds/production/builds/artifacts/documentation/learning_monitor_er_diagram.md`
+- `builds/production/builds/artifacts/documentation/learning_monitor_schema.md`
+- `codex_changes/patches/monitoring_endpoint.patch`
+- `codex_changes/stubs/schemas/monitoring_schema.json`
+- `codex_changes/stubs/templates/monitoring_panel.html`
+- `codex_workdir/deliverables/documentation/additional/monitoring`
+- `codex_workdir/deliverables/src/monitoring`
+- `config/enterprise_monitoring_config.json`
+- `config/production_monitoring_config.json`
+- `dashboard/compliance/metrics.json`
+- `dashboard/compliance_metrics_updater.py`
+- `dashboard/metrics.json`
+- `dashboard/templates/metrics.html`
+- `data/metrics`
+- `databases/learning_monitor.db`
+- `databases/monitoring.db`
+- `deployment/config/regeneration_monitoring_config.json`
+- `deployment/deployment_package_20250710_182951/configurations/enterprise_monitoring_config.json`
+- `deployment/deployment_package_20250710_182951/configurations/monitoring_optimization_consolidation_manifest.json`
+- `deployment/deployment_package_20250710_182951/configurations/production_monitoring_config.json`
+- `deployment/deployment_package_20250710_183234/configs/enterprise_monitoring_config.json`
+- `deployment/deployment_package_20250710_183234/configs/monitoring_optimization_consolidation_manifest.json`
+- `deployment/deployment_package_20250710_183234/configs/production_monitoring_config.json`
+- `deployment/regeneration_monitoring_config.json`
+- `docs/COMPLIANCE_METRICS.md`
+- `docs/DOCS_METRICS_VALIDATION_ROOT_CAUSE.md`
+- `docs/MONITORING_GUIDE.md`
+- `docs/MONITORING_OPTIMIZATION.md`
+- `docs/dashboard/metrics.b64`
+- `docs/diagrams/monitoring_er.dot`
+- `docs/issues/automate_documentation_metrics_ci_hooks.md`
+- `docs/prs/automate_documentation_metrics_ci_hooks.md`
+- `docs/quantum/QUANTUM_PERFORMANCE_METRICS.md`
+- `documentation/additional/er_diagrams/learning_monitor_er_diagram.md`
+- `documentation/additional/monitoring`
+- `documentation/additional/schemas/learning_monitor_schema.md`
+- `documentation/compliance_monitoring`
+- `documentation/compliance_monitoring/enterprise_compliance_monitor_system.md`
+- `documentation/monitoring_guidelines.md`
+- `documentation/validation/compliance_metrics.md`
+- `logs/autonomous_monitoring.log`
+- `logs/compliance_monitoring`
+- `logs/continuous_monitoring.log`
+- `misc/autonomous_monitoring_system.py.backup`
+- `ops/monitoring_setup.md`
+- `recovered_files_20250806_153341/dashboard_compliance_metrics_updater.py`
+- `recovered_files_20250806_153341/dashboard_compliance_metrics_updater.py.readable.txt`
+- `reports/archive/autonomous_monitoring_config_fix_report_20250716_173951.json`
+- `reports/enhanced_performance_metrics.json`
+- `reports/monitoring_optimization_consolidation_manifest.json`
+- `reports/success_metrics.md`
+- `roadmap/phase8_compliance_evolution/realtime_monitoring.py`
+- `scripts/automation/autonomous_monitoring_config_path_fixer.py`
+- `scripts/automation/autonomous_monitoring_system.py`
+- `scripts/automation/precise_autonomous_monitoring_config_fixer.py`
+- `scripts/benchmark_compliance_metrics.py`
+- `scripts/compliance/update_compliance_metrics.py`
+- `scripts/docs_metrics_validator.py`
+- `scripts/enterprise/enterprise_readiness_100_monitor.py`
+- `scripts/enterprise_compliance_monitor.py`
+- `scripts/generate_docs_metrics.py`
+- `scripts/ml/model_performance_monitor.py`
+- `scripts/monitoring`
+- `scripts/monitoring/continuous_monitoring_engine.py`
+- `scripts/monitoring/continuous_monitoring_system.py`
+- `scripts/monitoring/continuous_operation_monitor.py`
+- `scripts/monitoring/database_event_monitor.py`
+- `scripts/monitoring/enterprise_compliance_monitor.py`
+- `scripts/monitoring/performance_monitor.py`
+- `scripts/monitoring/unified_monitoring_optimization_system.py`
+- `scripts/regenerated/monitoring`
+- `scripts/validate_docs_metrics.py`
+- `session/session_lifecycle_metrics.py`
+- `src/compliance/metrics`
+- `src/monitoring`
+- `src/monitoring/compliance_monitor.py`
+- `src/monitoring/health_monitor.py`
+- `src/monitoring/unified_monitoring_optimization_system.py`
+- `templates/components/metrics_widgets.html`
+- `templates/html/compliance_metrics.html`
+- `templates/html/mobile/compliance_metrics.html`
+- `tests/compliance/metrics_updater`
+- `tests/compliance/test_session_lifecycle_metrics.py`
+- `tests/compliance/test_update_compliance_metrics.py`
+- `tests/dashboard/integration/test_event_metrics_dashboard.py`
+- `tests/dashboard/test_additional_metrics.py`
+- `tests/dashboard/test_compliance_metrics.py`
+- `tests/dashboard/test_compliance_metrics_updater.py`
+- `tests/dashboard/test_dashboard_metrics_complete.py`
+- `tests/dashboard/test_live_metrics.py`
+- `tests/dashboard/test_metrics_endpoints.py`
+- `tests/dashboard/test_metrics_stream_consistency.py`
+- `tests/dashboard/test_metrics_stream_fallback.py`
+- `tests/dashboard/test_placeholder_trend_metrics.py`
+- `tests/monitoring`
+- `tests/monitoring/test_performance_monitor.py`
+- `tests/monitoring/test_unified_monitoring_optimization_system.py`
+- `tests/monitoring_tests`
+- `tests/monitoring_tests/test_compliance_monitor.py`
+- `tests/monitoring_tests/test_continuous_monitoring_demo.py`
+- `tests/monitoring_tests/test_enterprise_compliance_monitor.py`
+- `tests/monitoring_tests/test_failure_monitoring.py`
+- `tests/monitoring_tests/test_unified_monitoring_optimization_system.py`
+- `tests/placeholder_audit/test_metrics_logging.py`
+- `tests/scripts/test_model_performance_monitor.py`
+- `tests/test_compliance_metrics_scheduler.py`
+- `tests/test_compliance_metrics_updater.py`
+- `tests/test_continuous_monitoring.py`
+- `tests/test_continuous_monitoring_engine.py`
+- `tests/test_continuous_operation_monitor.py`
+- `tests/test_dashboard_metrics.py`
+- `tests/test_dashboard_metrics_complete.py`
+- `tests/test_dashboard_placeholder_metrics.py`
+- `tests/test_database_event_monitor.py`
+- `tests/test_docs_metrics.py`
+- `tests/test_enterprise_compliance_monitor.py`
+- `tests/test_enterprise_compliance_monitor_wrapper.py`
+- `tests/test_health_monitor.py`
+- `tests/test_monitoring.py`
+- `tests/test_monitoring_ml.py`
+- `tests/test_monitoring_optimization_system.py`
+- `tests/test_unified_monitoring_optimization_system.py`
+- `tests/web_gui/test_dashboard_metrics.py`
+- `tests/web_gui/test_web_gui_monitoring_health_checks.py`
+- `unified_monitoring_optimization_system.py`
+- `web_gui/documentation/deployment/screenshots/metrics.png`
+- `web_gui/monitoring`
+- `web_gui/monitoring/compliance_monitoring.py`
+- `web_gui/monitoring/performance_metrics.py`
+- `web_gui/monitoring/quantum_metrics.py`
+- `web_gui/templates/components/metrics_widgets.html`
+- `web_gui/templates/html/compliance_metrics.html`
+- `web_gui/templates/html/mobile/compliance_metrics.html`
+- `web_gui/templates/metrics_table.html`
+
+## Interface Boundaries
+- Inputs: (define concrete datatypes)
+- Outputs: (define concrete datatypes)
+- Contracts: (pre/post-conditions)
+
+## Wiring Checklist
+- [ ] Identify primary orchestrator entrypoints
+- [ ] Document dependency injection polygon
+- [ ] Add unit tests for boundary seams
+- [ ] Add smoke test for end-to-end path
+
+## Recommended Adaptations
+- (none yet)
+
+Generated: 2025-08-18T20:36:00+00:00

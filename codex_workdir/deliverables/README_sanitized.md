@@ -5,6 +5,12 @@
 
 ## High-Performance HTTP Archive () Analysis with Advanced Enterprise Integration
 
+!GitHub Copilot Integration
+!Learning Patterns
+!DUAL COPILOT
+!Database First
+!Coverage
+!Ruff
 
 **Status:** Active development with incremental improvements. Disaster recovery now enforces external backup roots with verified restore tests, and session-management lifecycle APIs () are now available. Monitoring modules expose a unified metrics API via `unified_monitoring_optimization_system.collect_metrics` with optional quantum scoring hooks, and Git LFS rules are auto-synced from `.codex_lfs_policy.yaml` to ensure binary assets are tracked. The compliance metrics feature is fully implemented, combining lint, test, placeholder, and session lifecycle audits into a composite score persisted to `analytics.db` and exposed through `/api/refresh_compliance` () and `/api/compliance_scores` (). Dashboard gauges now include tooltips explaining lint, test, placeholder, and session success scores, and session wrap-ups log these metrics for every run.
 
@@ -49,6 +55,7 @@ python scripts/run_checks.py  # runs Ruff, Pyright, pytest
 
 **Security:** configuration files live under the `security/` directory. Run `python security/validator.py` to validate these assets and generate `reports/security_validator.json` and `reports/security_validator.csv`.
 
+**Documentation:** quantum preparation, executive guides, and certification workflows live under `docs/` — see [docs/quantum_preparation/README.md](docs/quantum_preparation/README.md), [docs/executive_guides/README.md](docs/executive_guides/README.md), and [docs/certification/README.md](docs/certification/README.md) for details and related module links.
 
 **White-paper summary:** [documentation/generated/daily_state_update/gh_COPILOT_Project_White-Paper_Blueprint_Summary_().md]().md)
 
@@ -78,6 +85,7 @@ Advanced AI integration features operate in simulation mode by default and ignor
 - **Unified Monitoring Optimization:** `collect_metrics` and `auto_heal_session` enable anomaly detection with quantum-inspired scoring
 - **Automatic Git LFS Policy:** `.codex_lfs_policy.yaml` and `artifact_manager.py --sync-gitattributes` govern binary tracking
 - **Dual Copilot Enforcement:** automation scripts now trigger secondary validation via `SecondaryCopilotValidator` with aggregated results
+- **Archive Migration Executor:** dual-copilot validation added for log archival workflows
 - **Analytics Consolidation:** `database_consolidation_migration.py` now performs secondary validation after merging sources
 - **Full Validation Coverage:** ingestion, placeholder audits and migration scripts now run SecondaryCopilotValidator by default
 - **Visual Processing Indicators:** progress bar utilities implemented
@@ -202,7 +210,7 @@ Compliance enforcement also blocks destructive commands () and flags unresolved 
 
 ```bash
 # 1. Clone and setup
-git clone https://github.com/your-org/gh_COPILOT.git
+git clone
 cd gh_COPILOT
 
 # 1b. Copy environment template
@@ -291,7 +299,7 @@ python scripts/database/complete_consolidation_orchestrator.py \
     --compression-level 5  # specify 7z compression level
 
 # The `complete_consolidation_orchestrator.py` script consolidates multiple databases into a single compressed database.
-# 
+#
 # **Parameters:**
 # - `--input-databases`: A list of input database files to consolidate.
 # - `--output-database`: The name of the output consolidated database file.
@@ -318,6 +326,7 @@ python scripts/ingest_test_and_lint_results.py
 python -m scripts.compliance.update_compliance_metrics
 ```
 
+### Documentation Update Workflow
 
 After modifying files in `docs/`, regenerate and validate metrics:
 
@@ -468,6 +477,7 @@ python scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py --SessionStart -AutoFi
 python scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py --SessionEnd
 ```
 
+Set `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT` before running. Use `SESSION_ID_SOURCE` if you supply your own session identifier. The log database is Git LFS-tracked; ensure `ALLOW_AUTOLFS=1` and verify with `git lfs status` before committing. See [docs/codex_logging.md](docs/codex_logging.md) for the schema and commit workflow.
 
 ### Codex Log Database
 
@@ -481,6 +491,7 @@ Session tooling records actions in `databases/codex_log.db`. When `finalize_code
 - `SESSION_ID_SOURCE` – optional custom session identifier
 - `TEST_MODE` – set to `1` to disable writes during tests
 
+#### Commit workflow
 
 After calling `finalize_codex_log_db()` include the databases in your commit:
 
@@ -489,6 +500,7 @@ git add databases/codex_log.db databases/codex_session_logs.db
 git lfs status databases/codex_log.db
 ```
 
+See [docs/codex_logging.md](docs/codex_logging.md) for full API usage and workflow details.
 
 ### Unified Deployment Orchestrator CLI
 
@@ -512,6 +524,7 @@ export GH_COPILOT_BACKUP_ROOT=/path/to/backups
 python scripts/file_management/workspace_optimizer.py
 ```
 
+### Git LFS workflow
 
 Use the helper scripts to automatically track binary or large files with Git LFS. Both variants accept `-h/--help` for usage information.
 
@@ -521,6 +534,7 @@ export ALLOW_AUTOLFS=1
 tools/git_safe_add_commit.py "your commit message" --push
 ```
 
+The shell version `tools/git_safe_add_commit.sh` behaves the same and can push when invoked with `--push`. See [docs/GIT_LFS_WORKFLOW.md](docs/GIT_LFS_WORKFLOW.md) for details.
 
 ### LFS archive guard
 
@@ -552,7 +566,7 @@ some binaries were committed without Git LFS. Recover by migrating the files and
 5. `git rm --cached <file>.zip && git add <file>.zip`
 6. `git commit -m "fix: track zip via Git LFS"`
 
-Verify with `git lfs ls-files` or `git lfs status`. See GitHub's [LFS configuration guide](https://docs.github.com/en/github/managing-large-files/configuring-git-large-file-storage) for additional details.
+Verify with `git lfs ls-files` or `git lfs status`. See GitHub's LFS configuration guide for additional details.
 
 ### Docker Usage
 
@@ -654,6 +668,7 @@ template_consolidated.db
 template_documentation.db
 testing.db
 v3_self_learning_engine.db
+workflow_optimization.db
 compliance_audit.db
 quantum_hardware_config.db
 enterprise_assets.db
@@ -686,6 +701,7 @@ python scripts/run_migrations.py
 
 Automated tests perform these migrations in-memory with progress bars and DUAL COPILOT validation, leaving the on-disk database untouched.
 
+### Database-First Workflow
 
 1. **Connect Safely:** Use `get_validated_production_db_connection()` from `utils.database_utils` before performing filesystem changes
 2. **Query First:** Check production.db for existing solutions
@@ -696,6 +712,7 @@ Automated tests perform these migrations in-memory with progress bars and DUAL C
 
 ### Template Engine Modules
 
+Several helper scripts under `template_engine` implement the database-first workflow. They provide progress indicators, DUAL COPILOT validation and compliance logging. The main modules are:
 
 * **TemplateAutoGenerator** – clusters stored patterns with KMeans and produces representative templates
 * **DBFirstCodeGenerator** – generates code or documentation by querying `production.db`, `documentation.db` and `template_documentation.db`. It logs all generation events to `analytics.db`
@@ -703,6 +720,7 @@ Automated tests perform these migrations in-memory with progress bars and DUAL C
 * **PatternMiningEngine** – mines frequently used patterns from template archives
 * **PlaceholderUtils** – helper functions for finding and replacing placeholders using database mappings
 * **TemplatePlaceholderRemover** – strips unused placeholders from templates
+* **TemplateWorkflowEnhancer** – mines patterns from existing templates, computes compliance scores and writes dashboard-ready reports. This module provides advanced workflow optimization through machine learning pattern analysis and quantum-inspired scoring algorithms
 * **TemplateSynchronizer** – keeps generated templates synchronized across environments. The analytics database is created only when running with the `--real` flag. Templates may also be clustered via the `--cluster` flag to synchronize only representative examples
 * **Log Utilities** – unified `_log_event` helper under `utils.log_utils` logs events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in `analytics.db` with visual indicators and DUAL COPILOT validation
 * **Artifact Manager** – `artifact_manager.py` packages files created in the temporary directory () into archives stored under the directory defined by the `session_artifact_dir` setting in `.codex_lfs_policy.yaml`. Use `--package` to create an archive and `--commit` with `--message` to save it directly to Git. `--recover` restores the most recent archive back into the temporary directory. The temporary location may be overridden with `--tmp-dir`, and `.gitattributes` can be regenerated with `--sync-gitattributes`
@@ -763,39 +781,40 @@ Optimization and security scripts must invoke their main logic via `DualCopilotO
 
 ```python
 class PrimaryExecutorCopilot:
-    
+    """Primary COPILOT: Executes main workflow with enterprise standards"""
+
     def execute_with_monitoring():
         # MANDATORY: Visual processing indicators
         with tqdm() as pbar:
             # Database-first query
             patterns = self.query_production_db()
             pbar.update()
-            
+
             # Execute with anti-recursion validation
             result = self.execute_safe_operation()
             pbar.update()
-            
+
             # Enterprise compliance check
             validated_result = self.validate_enterprise_standards()
             pbar.update()
-            
+
         return validated_result
 
 class SecondaryValidatorCopilot:
     """Secondary COPILOT: Quality validation and compliance"""
-    
+
     def validate_execution():
         validation = ValidationResult()
-        
+
         # Check visual indicators present
         validation.check_visual_processing()
-        
+
         # Verify database-first logic used
         validation.check_database_integration()
-        
+
         # Confirm enterprise compliance
         validation.check_enterprise_standards()
-        
+
         return validation
 ```
 
@@ -829,6 +848,7 @@ TEXT_INDICATORS = {
 
 ### Unified Logging Utility
 
+The toolkit provides a shared `_log_event` helper in `utils/log_utils.py`. This function writes events to a chosen table () within `analytics.db` and displays a brief progress bar. The helper returns `True` when the record is successfully inserted so callers can validate logging as part of the DUAL COPILOT workflow.
 
 Cross-database synchronization via `scripts/database/cross_database_sync_logger.py` automatically leverages this pipeline—each call to `log_sync_operation` now emits an analytics event so that sync activity is tracked centrally in `analytics.db`.
 
@@ -874,25 +894,25 @@ The underlying `FileHandler` uses delayed creation so log files aren't created u
 ```python
 class SelfHealingSelfLearningSystem:
     """Autonomous system with self-healing and learning capabilities"""
-    
+
     def __init__():
         self.system_id = f"AUTONOMOUS_{datetime.now().strftime()}"
         self.learning_patterns = self.load_learning_patterns()
         self.healing_protocols = self.initialize_healing_protocols()
-        
+
     def continuous_operation():
         """24/7 autonomous operation with self-healing"""
         while True:
             # Monitor system health
             health_status = self.assess_system_health()
-            
+
             # Apply autonomous corrections
             if health_status.requires_intervention:
                 self.apply_autonomous_healing()
-            
+
             # Learn from operations
             self.update_learning_patterns()
-            
+
             # Optimize performance
             self.optimize_system_performance()
 ```
@@ -950,7 +970,7 @@ python scripts/ml/model_performance_monitor.py
 # Start enterprise dashboard
 python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 
-# Access at: http://localhost:5000
+# Access at:
 # Features: Real-time metrics, database visualization, system monitoring
 ```
 
@@ -1133,6 +1153,7 @@ The project tracks several learning patterns. Current integration status:
 
 ---
 
+## 🔧 DEVELOPMENT WORKFLOW
 
 ### Standard Development Pattern
 
@@ -1325,6 +1346,7 @@ python scripts/monitoring/resource_tracker.py
 - **[Scaling Configuration]()** - enterprise scaling strategies
 - **[High Availability & Disaster Recovery](scripts/disaster_recovery/)** - backup scheduling and failover utilities via `unified_disaster_recovery_system.py`
 - **[Backup Compliance Guide](documentation/BACKUP_COMPLIANCE_GUIDE.md)** - external backup requirements and recovery procedures
+- **[Compliance Certification Workflows]()** - certification procedures
 - **[API Documentation]()** - comprehensive API reference
 - **[WebSocket API Specifications]()** - real-time API documentation
 - **[Streaming API Details]()** - streaming data specifications
@@ -1428,6 +1450,7 @@ python scripts/code_placeholder_audit.py --cleanup
 # Specify a custom summary path:
 python scripts/code_placeholder_audit.py --summary-json results/placeholder_summary.json
 
+# CI runs the audit via GitHub Actions using `actions/setup-python` and
 # the repository's setup script to ensure dependencies are present.
 
 # The audit automatically populates `code_audit_log` in analytics.db for
@@ -1441,6 +1464,7 @@ python scripts/code_placeholder_audit.py --test-mode
 # `scripts/correction_logger_and_rollback.py` records final corrections.
 # Check `/dashboard/compliance` to verify the placeholder count reaches zero.
 # Run `scripts/database/add_code_audit_log.py` if the table is missing.
+# The `compliance-audit.yml` workflow now installs dependencies, including
 # `tqdm`, using Python 3.11 before invoking this script.
 
 # Generate scored documentation templates
@@ -1500,6 +1524,7 @@ python scripts/compliance/certification_generator.py --framework sox,pci,hipaa
 python scripts/disaster_recovery/dr_simulation.py --scenario complete_failure
 ```
 
+For comprehensive synchronization workflows, see [docs/DATABASE_SYNC_GUIDE.md](docs/DATABASE_SYNC_GUIDE.md) and `database_first_synchronization_engine.py`.
 
 ### Contact & Support
 
@@ -1605,6 +1630,7 @@ python scripts/quantum/quantum_diagnostics.py --simulator-check
 
 ## ✅ Project Status
 
+Ruff linting runs and targeted tests pass in simulation, but the full test suite still reports some failures. Outstanding tasks—including fixes for failing modules like `documentation_manager` and `cross_database_sync_logger`—are tracked in [docs/STUB_MODULE_STATUS.md](docs/STUB_MODULE_STATUS.md). Dual-copilot validation remains in place and quantum features continue to run in simulation mode. The repository uses GitHub Actions to automate linting, testing, and compliance checks.
 
 ### CI/CD Pipeline Status
 
@@ -1616,6 +1642,7 @@ python scripts/quantum/quantum_diagnostics.py --simulator-check
 - **security-audit.yml** performs security vulnerability scans
 - **performance-benchmark.yml** runs performance regression tests
 
+The CI workflow also triggers on documentation updates so linting and tests run for doc-focused pull requests.
 
 To mimic CI locally, run:
 
@@ -1662,6 +1689,7 @@ Several small modules provide common helpers:
 ### Advanced Processing Modules
 - `scripts.optimization.physics_optimization_engine.PhysicsOptimizationEngine` – provides simulated quantum-inspired helpers such as Grover search or Shor factorization for physics-oriented optimizations
 - `template_engine.pattern_clustering_sync.PatternClusteringSync` – cluster templates from `production.db` and synchronize them with compliance auditing
+- `template_engine.workflow_enhancer.TemplateWorkflowEnhancer` – enhance template workflows using clustering, pattern mining and dashboard reports
 
 ### ML & AI Utilities
 - `scripts.ml.autonomous_ml_optimizer.AutonomousMLOptimizer` – ML-powered optimization engine
@@ -1669,6 +1697,7 @@ Several small modules provide common helpers:
 - `scripts.ml.deploy_models.deploy_model` – fetches models from a registry,
   stores artifacts with checksums, logs results, and rolls back on failed
   health checks
+- `scripts.ml.training_pipeline_orchestrator.TrainingPipelineOrchestrator` – automated ML training workflows
 
 ### Quantum Computing Utilities
 - `scripts.quantum.quantum_simulator_manager.QuantumSimulatorManager` – quantum simulation management
@@ -1683,12 +1712,16 @@ Several small modules provide common helpers:
 Example usage:
 
 ```python
+from template_engine.workflow_enhancer import TemplateWorkflowEnhancer
 from scripts.ml.autonomous_ml_optimizer import AutonomousMLOptimizer
 from scripts.quantum.quantum_optimizer import QuantumOptimizer
 
+# Enhance workflow with ML and quantum optimization
+enhancer = TemplateWorkflowEnhancer()
 ml_optimizer = AutonomousMLOptimizer()
 quantum_optimizer = QuantumOptimizer()
 
+enhanced_workflow = enhancer.enhance()
 ml_optimized = ml_optimizer.optimize()
 quantum_optimized = quantum_optimizer.optimize()
 ```
@@ -1748,6 +1781,7 @@ Phase 6-10 development will introduce additional quantum features, expanded mach
 ### Phase 8: Compliance Framework Evolution
 - Stricter session validation and enterprise audit logging improvements
 - Industry-specific compliance frameworks ()
+- Automated compliance reporting and certification workflows
 - Real-time compliance monitoring and alerting
 
 ### Phase 9: Reporting Enhancements
@@ -1785,7 +1819,7 @@ pip install .[dev]
 gh-copilot migrate
 gh-copilot seed-models
 gh-copilot compute-score --lint 0.9 --tests 0.8 --placeholders 0.95 --sessions 1.0
-gh-copilot serve  # http://127.0.0.1:8000/docs
+gh-copilot serve  #
 gh-copilot ingest docs --workspace . --src-dir documentation
 gh-copilot ingest templates --workspace . --src-dir prompts
 gh-copilot ingest har --workspace . --src-dir logs
@@ -1803,6 +1837,7 @@ API endpoints:
 The enterprise API includes additional endpoints for comprehensive system management:
 
 * `GET /api/v1/health` - System health status with detailed metrics
+* `POST /api/v1/ml/train` - Trigger ML model training workflows
 * `GET /api/v1/ml/models` - List available ML models and their status
 * `POST /api/v1/quantum/simulate` - Execute quantum simulation jobs
 * `GET /api/v1/quantum/status` - Quantum simulation job status
@@ -1882,14 +1917,14 @@ environments:
     quantum_simulation: enabled
     security_level: medium
     performance_monitoring: basic
-    
+
   staging:
     database_connections: 15
     ml_models: standard
     quantum_simulation: enabled
     security_level: high
     performance_monitoring: comprehensive
-    
+
   production:
     database_connections: 50
     ml_models: enterprise
@@ -2203,6 +2238,7 @@ pytest -q
 
 and are safe to remove once the primary DR implementation supersedes them.
 
+**Safety:** DO NOT ACTIVATE ANY GitHub Actions files.
 
 ## Dependencies
 
@@ -2255,9 +2291,3 @@ SELECT session_id, COUNT(*) AS events FROM session_events GROUP BY session_id OR
 **Notes on concurrency**
 
 - SQLite **WAL** mode is enabled for improved concurrency; a **per-thread connection** and a global write lock are used for safety.
-
-## Coverage Performance — Updated & Projected
-
-* **Recomputed current overall_after:** 92.03 ≈ 92.0
-* **Projected after Phases 6–10 targeted uplift (ML + Quantum):** ≈ 93.4
-
