@@ -1,0 +1,8 @@
+Component,Pattern,Rationale
+Core Systems,scripts/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py,Pattern not found; deferred
+Database Layer,analytics.db writers/readers,No explicit writers/readers located
+ML Pipeline,model deployment stubs,Preview stubs missing
+Quantum Simulation,quantum/**demo*.py,Demo placeholders absent
+Security Framework,additional policy docs,Not present
+Compliance Engine,/api/compliance_scores docs,Endpoint docs absent
+Performance Monitor,unified metrics API,Referenced in README but no file

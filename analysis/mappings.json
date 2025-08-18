@@ -1,0 +1,78 @@
+{
+  "Core Systems": {
+    "files": [
+      "src",
+      "utils",
+      "tools",
+      "scripts/unified_monitoring_optimization_system.py"
+    ],
+    "docs": [
+      "README_sanitized.md"
+    ],
+    "stubs": []
+  },
+  "Database Layer": {
+    "files": [
+      "db",
+      "databases",
+      "db_tools",
+      "analytics.db"
+    ],
+    "docs": [
+      "README_sanitized.md"
+    ],
+    "stubs": []
+  },
+  "ML Pipeline": {
+    "files": [
+      "ml_pattern_recognition",
+      "scripts/ml",
+      "scripts/model_performance_monitor.py"
+    ],
+    "docs": [
+      "README_sanitized.md"
+    ],
+    "stubs": []
+  },
+  "Quantum Simulation": {
+    "files": [
+      "quantum",
+      "copilot_qiskit_stubs"
+    ],
+    "docs": [
+      "docs/quantum_integration_plan.md",
+      "docs/QUANTUM_PLACEHOLDERS.md",
+      "docs/STUB_MODULE_STATUS.md"
+    ],
+    "stubs": []
+  },
+  "Security Framework": {
+    "files": [
+      "security"
+    ],
+    "docs": [],
+    "stubs": []
+  },
+  "Compliance Engine": {
+    "files": [
+      "update_compliance_metrics.py",
+      "secondary_copilot_validator.py",
+      "scripts/docs_status_reconciler.py"
+    ],
+    "docs": [
+      "docs/GOVERNANCE_STANDARDS.md",
+      "docs/white-paper.md"
+    ],
+    "stubs": []
+  },
+  "Performance Monitor": {
+    "files": [
+      "scripts/monitoring/performance_monitor.py",
+      "scripts/performance/bottleneck_analyzer.py"
+    ],
+    "docs": [
+      "README_sanitized.md"
+    ],
+    "stubs": []
+  }
+}
