@@ -1257,22 +1257,20 @@ python -m pytest tests/integration/test_performance.py -v
 - **ML Model Accuracy:** >95% for anomaly detection models
 - **Quantum Simulation Fidelity:** >98% for supported algorithms
 
-### Performance Monitoring ()
-
-> The following commands are preview stubs and currently do not provide full functionality.
+### Performance Monitoring
 
 ```bash
-# Real-time performance monitoring ()
-python scripts/monitoring/performance_monitor.py --real-time
+# Expose CPU/memory metrics for Prometheus scraping
+python scripts/monitoring/performance_monitor.py --port 8000
 
-# Historical performance analysis ()
-python scripts/monitoring/performance_analyzer.py --days 30
+# Analyze historical metrics and exit non-zero on threshold breach
+python scripts/monitoring/performance_analyzer.py --metric-file metrics.txt --threshold 80
 
-# Performance regression detection ()
-python scripts/monitoring/regression_detector.py --baseline main
+# Detect performance regressions and log to analytics.db
+python scripts/monitoring/regression_detector.py --metric-file metrics.txt --db-path analytics.db
 
-# Resource utilization tracking ()
-python scripts/monitoring/resource_tracker.py --metrics cpu,memory,disk,network
+# Print a disk and network usage snapshot
+python scripts/monitoring/resource_tracker.py
 ```
 
 ---
