@@ -260,6 +260,7 @@ TABLE_SCHEMAS: Dict[str, str] = {
             template_count INTEGER,
             cluster_count INTEGER,
             avg_score REAL,
+            hash TEXT,
             duration REAL,
             timestamp TEXT
         );
