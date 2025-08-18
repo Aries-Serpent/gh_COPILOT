@@ -15,9 +15,10 @@ import sys
 import time
 import hashlib
 import importlib
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import List, Iterable
+from typing import Iterable, List
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -78,6 +79,27 @@ logging.basicConfig(
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class CodegenRequest:
+    """Contract for code generation input."""
+
+    objective: str
+
+
+@dataclass
+class CodegenResult:
+    """Contract for code generation output."""
+
+    code: str
+
+
+def validate_codegen_request(request: CodegenRequest) -> None:
+    """Assert that the request complies with the contract."""
+
+    if not request.objective:
+        raise ValueError("objective must be provided")
 
 
 _TOKEN_RE = re.compile(r"{{\s*[A-Z0-9_]+\s*}}")
@@ -637,6 +659,12 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
             )
 
         return path
+
+    def generate_from_contract(self, request: CodegenRequest) -> CodegenResult:
+        """Generate code using a :class:`CodegenRequest` contract."""
+
+        validate_codegen_request(request)
+        return CodegenResult(code=self.generate(request.objective))
 
     def validate_scores(self, expected: int) -> bool:
         """Validate that ranking analytics contain at least ``expected`` rows.
