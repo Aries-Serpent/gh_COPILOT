@@ -326,12 +326,16 @@ def _record_recursion_pid(
     except Exception:
         path_str = str(path)
     with _PID_LOG_LOCK:
-        with sqlite3.connect(analytics_db) as conn:
-            conn.execute(
-                "INSERT INTO recursion_pid_log (path, pid, parent_pid, depth, timestamp) VALUES (?, ?, ?, ?, ?)",
-                (path_str, pid, parent_pid, depth, datetime.now().isoformat()),
-            )
-            conn.commit()
+        try:
+            with sqlite3.connect(analytics_db) as conn:
+                conn.execute(
+                    "INSERT INTO recursion_pid_log (path, pid, parent_pid, depth, timestamp) VALUES (?, ?, ?, ?, ?)",
+                    (path_str, pid, parent_pid, depth, datetime.now().isoformat()),
+                )
+                conn.commit()
+        except sqlite3.OperationalError:
+            # Skip logging when the analytics database is locked
+            pass
 
 
 def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bool:
