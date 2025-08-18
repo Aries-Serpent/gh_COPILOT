@@ -419,7 +419,7 @@ Session tooling records actions in `databases/codex_log.db`. When `finalize_code
 #### Environment variables
 
 - `GH_COPILOT_WORKSPACE` – path to the repository root
-- `GH_COPILOT_BACKUP_ROOT` – external backup directory
+- `GH_COPILOT_BACKUP_ROOT` – external backup directory outside the repository
 - `ALLOW_AUTOLFS` – set to `1` so the `.db` files are Git LFS‑tracked
 - `SESSION_ID_SOURCE` – optional custom session identifier
 - `TEST_MODE` – set to `1` to disable writes during tests
@@ -1513,7 +1513,7 @@ Set these variables in your `.env` file or shell before running scripts:
 
 ### Core Variables
 - `GH_COPILOT_WORKSPACE` – path to the repository root
-- `GH_COPILOT_BACKUP_ROOT` – external backup directory
+- `GH_COPILOT_BACKUP_ROOT` – external backup directory outside the repository
 - `API_SECRET_KEY` – secret key for API endpoints
 - `FLASK_SECRET_KEY` – Flask dashboard secret
 - `FLASK_RUN_PORT` – dashboard port (default `5000`)
@@ -1581,8 +1581,8 @@ Set these variables in your `.env` file or shell before running scripts:
 # Comprehensive system diagnostics
 python scripts/diagnostics/system_diagnostics.py --comprehensive
 
-# Database integrity check
-python scripts/database/database_integrity_checker.py --all-databases
+# Database consolidation validation
+python scripts/database/database_consolidation_validator.py --all-databases
 
 # Performance bottleneck analysis
 python scripts/performance/bottleneck_analyzer.py --deep-analysis
