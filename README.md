@@ -172,7 +172,7 @@ Compliance enforcement also blocks destructive commands () and flags unresolved 
 | Codex Logs | `databases/codex_logs.db` | Codex session and action logs |
 
   - [ER Diagrams](docs/ER_DIAGRAMS.md) for key databases
-- **Flask Enterprise Dashboard:** run `python web_gui_integration_system.py` to launch the metrics and compliance dashboard
+- **Flask Enterprise Dashboard:** run `python web_gui_integration_system.py` to launch the metrics and compliance dashboard. The interface is protected by a `/login` endpoint that issues session tokens and supports optional MFA before displaying metrics.
 - **Template Intelligence Platform:** tracks generated scripts
 - **Enterprise HTML Templates:** reusable base layouts, components, mobile views, and email templates under `templates/`
 - **Documentation logs:** rendered templates saved under `logs/template_rendering/`
