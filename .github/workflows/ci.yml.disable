@@ -232,6 +232,25 @@ jobs:
             -v ${{ github.workspace }}/artifacts:/app/artifacts \
             gh_copilot coverage xml -o /app/artifacts/coverage.xml
 
+      - name: Enforce coverage and pass rate
+        run: |
+          python - <<'PY'
+          import sys, xml.etree.ElementTree as ET
+          cov = ET.parse('artifacts/coverage.xml').getroot().get('line-rate')
+          cov = float(cov) * 100
+          if cov < 95:
+              print(f"Coverage {cov:.2f}% below 95%")
+              sys.exit(1)
+          t = ET.parse('artifacts/test-results.xml').getroot()
+          total = int(t.get('tests', 0))
+          failed = int(t.get('failures', 0)) + int(t.get('errors', 0))
+          rate = 100.0 if total == 0 else (total - failed) / total * 100
+          print(f"Pass rate {rate:.2f}%")
+          if rate < 90:
+              print('Pass rate below 90%')
+              sys.exit(1)
+          PY
+
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v3

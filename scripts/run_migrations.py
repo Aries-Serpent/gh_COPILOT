@@ -51,10 +51,18 @@ def apply_migrations(db_path: Path, migrations_dir: Path, log_path: Path | None 
         handlers.append(fh)
 
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(db_path) as conn, tqdm(total=len(sql_files), desc="migrations", unit="file") as bar:
+    try:
+        conn = sqlite3.connect(db_path)
         conn.execute(
             "CREATE TABLE IF NOT EXISTS schema_migrations (filename TEXT PRIMARY KEY)"
         )
+    except sqlite3.DatabaseError:
+        logger.warning("Skipping migrations: %s is not a valid database", db_path)
+        for handler in handlers:
+            logger.removeHandler(handler)
+            handler.close()
+        return
+    with conn, tqdm(total=len(sql_files), desc="migrations", unit="file") as bar:
         for sql_file in sql_files:
             name = sql_file.name
             applied = conn.execute(
