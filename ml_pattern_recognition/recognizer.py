@@ -10,7 +10,7 @@ from typing import Iterable, List
 from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from utils.lessons_learned_integrator import store_lesson
+from utils.lessons_learned_integrator import store_lessons
 
 
 """Pattern recognition utilities backed by production datasets."""
@@ -42,6 +42,8 @@ class PatternRecognizer:
 
     def __init__(self, model: SklearnPatternModel | None = None) -> None:
         self.model = model or SklearnPatternModel()
+        if not (hasattr(self.model, "fit") and hasattr(self.model, "predict")):
+            raise TypeError("model must implement fit and predict methods")
 
     def learn(self, data: Iterable[str]) -> None:
         """Train the underlying model on ``data``."""
@@ -51,18 +53,20 @@ class PatternRecognizer:
         """Return recognized patterns from ``data`` and record lessons."""
         predictions = self.model.predict(data)
         timestamp = datetime.utcnow().isoformat()
-        for label in predictions:
-            kwargs = {}
-            if db_path is not None:
-                kwargs["db_path"] = db_path
-            store_lesson(
-                description=f"Detected {label}",
-                source="ml_pattern_recognition",
-                timestamp=timestamp,
-                validation_status="pending",
-                tags="pattern_recognition",
-                **kwargs,
-            )
+        lessons = [
+            {
+                "description": f"Detected {label}",
+                "source": "ml_pattern_recognition",
+                "timestamp": timestamp,
+                "validation_status": "pending",
+                "tags": "pattern_recognition",
+            }
+            for label in predictions
+        ]
+        if db_path is not None:
+            store_lessons(lessons, db_path=db_path)
+        else:
+            store_lessons(lessons)
         return predictions
 
 
