@@ -1618,8 +1618,8 @@ Set these variables in your `.env` file or shell before running scripts:
 # Validate integrity of all databases
 python scripts/database/database_consolidation_validator.py
 
-# Security vulnerability scan
-python security/vulnerability_scanner.py --full-scan
+# Security vulnerability scan (writes reports/vulnerability_scan.json)
+VULN_SCAN_ENABLED=1 python security/vulnerability_scanner.py --full-scan
 
 # ML model performance monitoring
 python scripts/ml/model_performance_monitor.py
