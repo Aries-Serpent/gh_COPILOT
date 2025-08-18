@@ -1,0 +1,172 @@
+# Integration Hints — ML Pipeline
+
+Discovered candidate locations (confidence 1.00):
+- `.circleci/config.yml`
+- `.codex_lfs_policy.yaml`
+- `.github/workflows.disabled/artifact_lfs.yml.disable`
+- `.github/workflows.disabled/ci.yml.disable`
+- `.github/workflows.disabled/compliance-audit.yml.disable`
+- `.github/workflows.disabled/compliance-gate.yml.disable`
+- `.github/workflows.disabled/daily-whitepaper.yml.disable`
+- `.github/workflows.disabled/dashboard-compliance.yml.disable`
+- `.github/workflows.disabled/docs-status.yml.disable`
+- `.github/workflows.disabled/governance-gate.yml.disable`
+- `.github/workflows.disabled/governance.yml.disable`
+- `.github/workflows.disabled/lfs-guard.yml.disable`
+- `.github/workflows.disabled/lfs-policy-check.yml.disable`
+- `.github/workflows.disabled/lfs-zip-guard.yml.disable`
+- `.github/workflows.disabled/status-reconciler.yml.disable`
+- `.github/workflows.disabled/status_drift.yml.disable`
+- `.pre-commit-config.yaml`
+- `artifacts/coverage.xml`
+- `builds/final/production/builds/artifacts/configuration/MEDIUM_advanced_features_config.json`
+- `builds/final/production/builds/artifacts/configuration/advanced_features_config.json`
+- `builds/final/production/builds/artifacts/configuration/ci.yml`
+- `builds/final/production/builds/artifacts/configuration/config_template.yaml`
+- `builds/final/production/builds/artifacts/configuration/docker-compose.yml`
+- `builds/final/production/builds/artifacts/configuration/docker_template.yml`
+- `builds/final/production/builds/artifacts/configuration/lint.yml`
+- `builds/final/production/builds/artifacts/configuration/pyproject.toml`
+- `builds/final/production/builds/artifacts/configuration/remove-duplicate-advanced_features_config.json`
+- `builds/final/production/builds/artifacts/deployment/docker-compose.yml`
+- `builds/final/production/builds/artifacts/documentation/advanced_features_config_documentation.md`
+- `builds/final/production/builds/artifacts/documentation/requirements-ml.txt`
+- `builds/production/builds/artifacts/configuration/MEDIUM_advanced_features_config.json`
+- `builds/production/builds/artifacts/configuration/advanced_features_config.json`
+- `builds/production/builds/artifacts/configuration/ci.yml`
+- `builds/production/builds/artifacts/configuration/config_template.yaml`
+- `builds/production/builds/artifacts/configuration/docker-compose.yml`
+- `builds/production/builds/artifacts/configuration/docker_template.yml`
+- `builds/production/builds/artifacts/configuration/lint.yml`
+- `builds/production/builds/artifacts/configuration/pyproject.toml`
+- `builds/production/builds/artifacts/configuration/remove-duplicate-advanced_features_config.json`
+- `builds/production/builds/artifacts/deployment/docker-compose.yml`
+- `builds/production/builds/artifacts/documentation/advanced_features_config_documentation.md`
+- `builds/production/builds/artifacts/documentation/requirements-ml.txt`
+- `ci_examples/pytest_cov.yml.disabled`
+- `codex_changes/stubs/templates/compliance_panel.html`
+- `codex_changes/stubs/templates/monitoring_panel.html`
+- `codex_changes/stubs/templates/synchronization_panel.html`
+- `codex_sync_config.yaml`
+- `codex_task_pyyaml_upgrade.py`
+- `config/advanced_features_config.json`
+- `config/enterprise_ml_config.json`
+- `config/ml_training_results_69831afda018.json`
+- `dashboard/templates/audit_results.html`
+- `dashboard/templates/compliance.html`
+- `dashboard/templates/dashboard.html`
+- `dashboard/templates/footer.html`
+- `dashboard/templates/metrics.html`
+- `dashboard/templates/rollback_logs.html`
+- `dashboard/templates/sync_events.html`
+- `databases/enterprise_ml_engine.db`
+- `databases/ml_deployment_engine.db`
+- `deploy/dashboard.yaml`
+- `deployment/deployment_package_20250710_182951/configurations/advanced_features_config.json`
+- `deployment/deployment_package_20250710_182951/configurations/enterprise_ml_config.json`
+- `deployment/deployment_package_20250710_182951/documentation/advanced_features_config_documentation.md`
+- `deployment/deployment_package_20250710_182951/documentation/requirements-ml.txt`
+- `deployment/deployment_package_20250710_183234/configs/advanced_features_config.json`
+- `deployment/deployment_package_20250710_183234/configs/enterprise_ml_config.json`
+- `deployment/docker-compose.staging.yml`
+- `deployment/docker_compose.yml`
+- `deployment/k8s/deployment.yaml`
+- `deployment/k8s/ingress.yaml`
+- `deployment/k8s/service.yaml`
+- `docker-compose.yml`
+- `docs/issues/streamline_placeholder_remediation.md`
+- `docs/prs/streamline_placeholder_remediation.md`
+- `documentation/advanced_features_config_documentation.md`
+- `documentation/generated/daily_state_update/quantum_feature_status.md`
+- `documentation/generated/feature_matrix.csv`
+- `documentation/generated/feature_matrix.md`
+- `enterprise_modules/rust_extensions/infix_parser/Cargo.toml`
+- `logs/requirements-ml.txt`
+- `ml_pattern_recognition`
+- `policy_tests/waivers.yaml`
+- `pyproject.toml`
+- `quantum/feature_flags.py`
+- `quantum/ml_pattern_recognition.py`
+- `reports/test_results.xml`
+- `roadmap/phase6_advanced_quantum/qml_algorithms.py`
+- `roadmap/phase7_ml_pattern_recog`
+- `scripts/automation/ml_training_pipeline_orchestrator.py`
+- `scripts/deployment/ENHANCED_ML_STAGING_DEPLOYMENT_MISSION_COMPLETE.py`
+- `scripts/deployment/advanced_ai_ml_integration.py`
+- `scripts/enterprise/advanced_enterprise_features_expansion_framework.py`
+- `scripts/ml`
+- `scripts/regenerated/ml_models`
+- `src/monitoring/anomaly/pipeline.py`
+- `template_engine/template_curation_pipeline.py`
+- `templates/components/metrics_widgets.html`
+- `templates/components/navigation.html`
+- `templates/components/quantum_indicators.html`
+- `templates/components/security_indicators.html`
+- `templates/email/alert_notifications.html`
+- `templates/email/compliance_reports.html`
+- `templates/email/deployment_reports.html`
+- `templates/html`
+- `templates/html/base_enterprise.html`
+- `templates/html/compliance_metrics.html`
+- `templates/html/mobile/base_enterprise.html`
+- `templates/html/mobile/compliance_metrics.html`
+- `templates/html/mobile/quantum_dashboard.html`
+- `templates/html/mobile/rollback_logs.html`
+- `templates/html/quantum_dashboard.html`
+- `templates/html/rollback_logs.html`
+- `tests/compliance/test_compliance_pipeline_integration.py`
+- `tests/database/test_engine_features.py`
+- `tests/ml_pipeline`
+- `tests/monitoring_tests/anomaly/test_pipeline_artifact.py`
+- `tests/monitoring_tests/test_anomaly_pipeline.py`
+- `tests/quantum_tests/test_ml_pattern_recognition.py`
+- `tests/quantum_tests/test_quantum_compliance_engine_ml.py`
+- `tests/template_engine/test_template_curation_pipeline.py`
+- `tests/test_ingestion_pipeline.py`
+- `tests/test_ml_pattern_recognition.py`
+- `tests/test_monitoring_ml.py`
+- `tests/test_quantum_provider_feature_flags.py`
+- `tests/web_gui/test_alert_pipelines.py`
+- `validate_compliance_pipeline.py`
+- `web_gui/templates/backup_restore.html`
+- `web_gui/templates/components/metrics_widgets.html`
+- `web_gui/templates/components/navigation.html`
+- `web_gui/templates/components/quantum_indicators.html`
+- `web_gui/templates/components/security_indicators.html`
+- `web_gui/templates/corrections.html`
+- `web_gui/templates/dashboard.html`
+- `web_gui/templates/database.html`
+- `web_gui/templates/deployment.html`
+- `web_gui/templates/email/alert_notifications.html`
+- `web_gui/templates/email/compliance_reports.html`
+- `web_gui/templates/email/deployment_reports.html`
+- `web_gui/templates/html`
+- `web_gui/templates/html/base_enterprise.html`
+- `web_gui/templates/html/compliance_metrics.html`
+- `web_gui/templates/html/mobile/backup_restore.html`
+- `web_gui/templates/html/mobile/base.html`
+- `web_gui/templates/html/mobile/compliance_metrics.html`
+- `web_gui/templates/html/mobile/dashboard.html`
+- `web_gui/templates/html/mobile/database.html`
+- `web_gui/templates/html/mobile/deployment.html`
+- `web_gui/templates/html/mobile/migration.html`
+- `web_gui/templates/html/quantum_dashboard.html`
+- `web_gui/templates/html/rollback_logs.html`
+- `web_gui/templates/metrics_table.html`
+- `web_gui/templates/migration.html`
+
+## Interface Boundaries
+- Inputs: (define concrete datatypes)
+- Outputs: (define concrete datatypes)
+- Contracts: (pre/post-conditions)
+
+## Wiring Checklist
+- [ ] Identify primary orchestrator entrypoints
+- [ ] Document dependency injection polygon
+- [ ] Add unit tests for boundary seams
+- [ ] Add smoke test for end-to-end path
+
+## Recommended Adaptations
+- (none yet)
+
+Generated: 2025-08-18T20:36:00+00:00

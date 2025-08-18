@@ -1,0 +1,182 @@
+# Integration Hints — Core Systems
+
+Discovered candidate locations (confidence 1.00):
+- `.github/instructions/AGENTS_CORE_RULES.instructions.md`
+- `branch_push_orchestrator.py`
+- `builds/final/production/builds/artifacts/configuration/MEDIUM_enterprise_gh_copilot_deployment_orchestrator.py.metadata.json`
+- `builds/final/production/builds/artifacts/configuration/MEDIUM_enterprise_gh_copilot_deployment_orchestrator_windows.py.metadata.json`
+- `builds/final/production/builds/artifacts/configuration/MEDIUM_integrated_deployment_orchestrator.py.metadata.json`
+- `builds/final/production/builds/artifacts/configuration/MEDIUM_startup_report_ORCHESTRATOR_20250706_200715.json`
+- `builds/final/production/builds/artifacts/configuration/enterprise_gh_copilot_deployment_orchestrator.py.metadata.json`
+- `builds/final/production/builds/artifacts/configuration/enterprise_gh_copilot_deployment_orchestrator_windows.py.metadata.json`
+- `builds/final/production/builds/artifacts/configuration/integrated_deployment_orchestrator.py.metadata.json`
+- `builds/final/production/builds/artifacts/configuration/startup_report_ORCHESTRATOR_20250706_200715.json`
+- `builds/final/production/builds/artifacts/documentation/MEDIUM_UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATION_GUIDE.md`
+- `builds/final/production/builds/artifacts/documentation/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATION_GUIDE.md`
+- `builds/final/production/builds/artifacts/validation/UNIFIED_DEPLOYMENT_ORCHESTRATOR_TEST_SUITE.py`
+- `builds/final/production/builds/artifacts/validation/test_physics_engine.py`
+- `builds/production/builds/artifacts/configuration/MEDIUM_enterprise_gh_copilot_deployment_orchestrator.py.metadata.json`
+- `builds/production/builds/artifacts/configuration/MEDIUM_enterprise_gh_copilot_deployment_orchestrator_windows.py.metadata.json`
+- `builds/production/builds/artifacts/configuration/MEDIUM_integrated_deployment_orchestrator.py.metadata.json`
+- `builds/production/builds/artifacts/configuration/MEDIUM_startup_report_ORCHESTRATOR_20250706_200715.json`
+- `builds/production/builds/artifacts/configuration/enterprise_gh_copilot_deployment_orchestrator.py.metadata.json`
+- `builds/production/builds/artifacts/configuration/enterprise_gh_copilot_deployment_orchestrator_windows.py.metadata.json`
+- `builds/production/builds/artifacts/configuration/integrated_deployment_orchestrator.py.metadata.json`
+- `builds/production/builds/artifacts/configuration/startup_report_ORCHESTRATOR_20250706_200715.json`
+- `builds/production/builds/artifacts/documentation/MEDIUM_UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATION_GUIDE.md`
+- `builds/production/builds/artifacts/documentation/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATION_GUIDE.md`
+- `builds/production/builds/artifacts/validation/test_physics_engine.py`
+- `codex_workdir/deliverables/template_engine`
+- `copilot/core`
+- `copilot/core/enterprise_orchestrator.py`
+- `copilot/orchestrators`
+- `copilot/orchestrators/UNIFIED_DEPLOYMENT_ORCHESTRATOR_TEST_SUITE.py`
+- `copilot/orchestrators/final_enterprise_orchestrator.py`
+- `database_first_synchronization_engine.py`
+- `database_purification_engine.py`
+- `databases/enterprise_ml_engine.db`
+- `databases/ml_deployment_engine.db`
+- `databases/v3_self_learning_engine.db`
+- `db/engine`
+- `db_tools/core`
+- `db_tools/database_synchronization_engine.py`
+- `deployment/deployment_package_20250710_182951/documentation/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATION_GUIDE.md`
+- `deployment/deployment_package_20250710_182951/logs/quantum_orchestrator_20250710_101858.log`
+- `deployment/deployment_package_20250710_182951/logs/quantum_orchestrator_20250710_101906.log`
+- `deployment/deployment_package_20250710_182951/logs/quantum_orchestrator_20250710_101938.log`
+- `deployment/deployment_package_20250710_182951/logs/quantum_orchestrator_simplified_20250710_102126.log`
+- `deployment/deployment_package_20250710_182951/logs/quantum_orchestrator_simplified_20250710_102451.log`
+- `deployment/deployment_package_20250710_182951/scripts/database_first_synchronization_engine.py`
+- `deployment/deployment_package_20250710_182951/scripts/deployment_optimization_engine.py`
+- `deployment/deployment_package_20250710_182951/scripts/enterprise_optimization_engine.py`
+- `deployment/deployment_package_20250710_183234/scripts/deployment_optimization_engine_fixed.py`
+- `deployment/scripts/restoration_engine.py`
+- `disaster_recovery_orchestrator.py`
+- `docs/DEPLOYMENT_ORCHESTRATOR.md`
+- `docs/TEMPLATE_ENGINE_GUIDE.md`
+- `documentation/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATION_GUIDE.md`
+- `documentation/UNIFIED_WRAP_UP_ORCHESTRATOR_IMPLEMENTATION_COMPLETE.md`
+- `documentation/advanced_visual_processing_engine_system.md`
+- `documentation/analysis/integration_score_calculator_system.md`
+- `documentation/builds/template_engine_analytics_report.md`
+- `documentation/enterprise_orchestration_engine_system.md`
+- `documentation/enterprise_validation_orchestrator_system.md`
+- `documentation/validation/core_file_validation_system.md`
+- `dr/backup_orchestrator.py`
+- `dr_workflow_orchestrator.py`
+- `git_lfs_recovery_orchestrator.py`
+- `lfs_repair_orchestrator.py`
+- `logs/database_correction_engine.log`
+- `logs/enterprise_template_engine.log`
+- `logs/enterprise_validation_orchestrator_execution_log.md`
+- `logs/integration_scores`
+- `logs/integration_scores/integration_score_execution_log.md`
+- `logs/unified_wrapup_orchestrator.log`
+- `logs/validation/enterprise_validation_orchestrator.log`
+- `physics_optimization_engine.py`
+- `quantum/quantum_compliance_engine.py`
+- `quantum/quantum_integration_orchestrator.py`
+- `quantum_integration_orchestrator.py`
+- `reports/startup_report_ORCHESTRATOR_20250706_200715.json`
+- `scripts/advanced_visual_processing_engine.py`
+- `scripts/analysis/comprehensive_modular_analysis_engine.py`
+- `scripts/analysis/integration_score_calculator.py`
+- `scripts/archived_deployment_scripts/MIGRATION_20250707_061405/enterprise_gh_copilot_deployment_orchestrator.py.metadata.json`
+- `scripts/archived_deployment_scripts/MIGRATION_20250707_061405/enterprise_gh_copilot_deployment_orchestrator_windows.py.metadata.json`
+- `scripts/archived_deployment_scripts/MIGRATION_20250707_061405/integrated_deployment_orchestrator.py.metadata.json`
+- `scripts/automation/enterprise_file_relocation_orchestrator.py`
+- `scripts/automation/ml_training_pipeline_orchestrator.py`
+- `scripts/automation/quantum_integration_orchestrator.py`
+- `scripts/automation/strategic_implementation_orchestrator.py`
+- `scripts/comprehensive_validation_execution_engine.py`
+- `scripts/continuous_operation_orchestrator.py`
+- `scripts/database/complete_consolidation_orchestrator.py`
+- `scripts/database/database_first_correction_engine.py`
+- `scripts/database/database_purification_engine.py`
+- `scripts/database_migration_engine.py`
+- `scripts/database_synchronization_engine.py`
+- `scripts/enterprise_deployment_orchestrator.py`
+- `scripts/enterprise_gh_copilot_deployment_orchestrator.py`
+- `scripts/enterprise_orchestration_engine.py`
+- `scripts/enterprise_validation_orchestrator.py`
+- `scripts/monitoring/continuous_monitoring_engine.py`
+- `scripts/optimization/automated_optimization_engine.py`
+- `scripts/optimization/deployment_optimization_engine.py`
+- `scripts/optimization/physics_optimization_engine.py`
+- `scripts/orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py`
+- `scripts/orchestrators`
+- `scripts/orchestrators/unified_wrapup_orchestrator.py`
+- `scripts/regenerated/integrated_deployment_orchestrator.py`
+- `scripts/safe_database_migration_engine.py`
+- `scripts/session_wrap_up_engine.py`
+- `scripts/utilities/comprehensive_script_consolidation_engine.py`
+- `scripts/utilities/consolidation_implementation_engine.py`
+- `scripts/utilities/python_script_recovery_engine.py`
+- `scripts/validation/dual_copilot_orchestrator.py`
+- `scripts/validation/validate_core_files.py`
+- `simplified_quantum_integration_orchestrator.py`
+- `src/database/engine.py`
+- `src/sync/engine.py`
+- `template_engine`
+- `template_engine/objective_similarity_scorer.py`
+- `template_engine/pattern_mining_engine.py`
+- `tests/dashboard/test_composite_score_persistence.py`
+- `tests/dashboard/test_score_serialization.py`
+- `tests/database/test_engine_features.py`
+- `tests/db/sync/logging/test_engine_logging.py`
+- `tests/db/sync/logging/test_sqlite_engine_logging.py`
+- `tests/placeholder_audit/test_core_modules_clean.py`
+- `tests/quantum_tests/test_quantum_compliance_engine_logging.py`
+- `tests/quantum_tests/test_quantum_compliance_engine_logic.py`
+- `tests/quantum_tests/test_quantum_compliance_engine_ml.py`
+- `tests/quantum_tests/test_quantum_integration_orchestrator.py`
+- `tests/template_engine`
+- `tests/test_automated_optimization_engine.py`
+- `tests/test_backup_restore_engine.py`
+- `tests/test_code_quality_score.py`
+- `tests/test_complete_consolidation_orchestrator.py`
+- `tests/test_compliance_score.py`
+- `tests/test_continuous_monitoring_engine.py`
+- `tests/test_database_first_correction_engine.py`
+- `tests/test_database_first_synchronization_engine.py`
+- `tests/test_database_synchronization_engine.py`
+- `tests/test_disaster_recovery_orchestrator.py`
+- `tests/test_dual_copilot_orchestrator_scripts.py`
+- `tests/test_dual_orchestrator_scripts.py`
+- `tests/test_enterprise_deployment_orchestrator_abort.py`
+- `tests/test_enterprise_orchestrator.py`
+- `tests/test_enterprise_orchestrator_validation.py`
+- `tests/test_objective_similarity_scorer.py`
+- `tests/test_objective_similarity_scorer_fallback.py`
+- `tests/test_orchestrator_validation_calls.py`
+- `tests/test_orchestrator_wlc_integration.py`
+- `tests/test_pattern_mining_engine.py`
+- `tests/test_physics_engine.py`
+- `tests/test_primary_executor_orchestrator.py`
+- `tests/test_quantum_compliance_engine.py`
+- `tests/test_quantum_integration_orchestrator.py`
+- `tests/test_simplified_quantum_integration_orchestrator.py`
+- `tests/test_template_engine.py`
+- `tests/test_template_engine_imports.py`
+- `tests/test_unified_deployment_orchestrator_cli.py`
+- `tests/test_unified_wrapup_orchestrator_postinit.py`
+- `tests/test_unified_wrapup_orchestrator_validation.py`
+- `validation/core`
+- `web_gui/monitoring/alerting/notification_engine.py`
+- `web_gui/scripts/flask_apps/template_intelligence_engine.py`
+
+## Interface Boundaries
+- Inputs: (define concrete datatypes)
+- Outputs: (define concrete datatypes)
+- Contracts: (pre/post-conditions)
+
+## Wiring Checklist
+- [ ] Identify primary orchestrator entrypoints
+- [ ] Document dependency injection polygon
+- [ ] Add unit tests for boundary seams
+- [ ] Add smoke test for end-to-end path
+
+## Recommended Adaptations
+- (none yet)
+
+Generated: 2025-08-18T20:36:00+00:00
