@@ -32,6 +32,9 @@ class MetricsUpdater:
         returned when the total weight is ``0`` to avoid division errors.
         """
 
+        if self.precision < 0:
+            raise ValueError("precision must be non-negative")
+
         # Ignore non-positive weights so that callers can disable a metric by
         # setting its weight to ``0`` or a negative number.  This mirrors the
         # behaviour of the tests which expect a zero total weight to yield a
