@@ -37,10 +37,21 @@ def main() -> int:
 
     ensure_codex_log_tracked()
 
-    commands = [["ruff", "check", "."], ["pyright"], ["pytest", "-q"]]
+    commands = [
+        [
+            "ruff",
+            "check",
+            ".",
+            "--config",
+            str(ROOT / "pyproject.toml"),
+            "--force-exclude",
+        ],
+        ["pyright"],
+        ["pytest", "-q"],
+    ]
 
     for cmd in commands:
-        result = subprocess.run(cmd)
+        result = subprocess.run(cmd, cwd=ROOT)
         if result.returncode != 0:
             return result.returncode
     return 0
