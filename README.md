@@ -2244,3 +2244,51 @@ and are safe to remove once the primary DR implementation supersedes them.
 
 - This project now requires `tqdm>=4.0.0` as a base dependency for progress reporting.
 - Ensure your environment reflects this requirement (see `requirements.txt` or `pyproject.toml`).
+
+## Session Logging (codex_session_log.db)
+
+This repository now includes a lightweight session logger backed by SQLite.
+
+**Module**
+
+- `src/codex/logging/session_logger.py`
+
+**Schema**
+
+```sql
+CREATE TABLE IF NOT EXISTS session_events(
+  session_id TEXT,
+  timestamp  TEXT,
+  role       TEXT,
+  message    TEXT,
+  PRIMARY KEY(session_id, timestamp)
+);
+```
+
+**DB Path Override**
+
+- Set `CODEX_SESSION_DB=/path/to/db.sqlite` (default: `<repo>/codex_session_log.db`)
+
+**Wrapper Runner**
+Run any Python script with logging:
+
+```bash
+python scripts/with_session_logging.py -- -- scripts/run_checks.py
+# module mode
+python scripts/with_session_logging.py -- -m pytest -q
+```
+
+**Query Examples**
+
+```sql
+-- last 50 events
+SELECT * FROM session_events ORDER BY timestamp DESC LIMIT 50;
+
+-- group by session
+SELECT session_id, COUNT(*) AS events FROM session_events GROUP BY session_id ORDER BY events DESC;
+```
+
+**Notes on concurrency**
+
+- SQLite **WAL** mode is enabled for improved concurrency; a **per-thread connection** and a global write lock are used for safety.
+

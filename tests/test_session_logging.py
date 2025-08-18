@@ -1,28 +1,27 @@
-"""Verify codex logging includes timestamps and session IDs."""
+"""Tests for session_logger module."""
 
-from datetime import datetime
+import sqlite3
+import uuid
+from pathlib import Path
 
-import unified_session_management_system as usm
+from codex.logging.session_logger import SessionLogger
 
 
-def test_log_action_includes_timestamp(monkeypatch):
-    calls: dict[str, str] = {}
+def test_session_logger_inserts_rows(tmp_path: Path) -> None:
+    db_path = tmp_path / "test_codex_session_log.db"
+    sid = str(uuid.uuid4())
+    logger = SessionLogger(db_path=str(db_path), session_id=sid)
+    with logger.session_context():
+        logger.log_message("user", "Hello")
+        logger.log_message("assistant", "Hi")
 
-    def fake_log(session_id, action, statement, metadata=""):
-        calls.update(
-            session_id=session_id,
-            action=action,
-            statement=statement,
-            metadata=metadata,
+    con = sqlite3.connect(str(db_path))
+    rows = list(
+        con.execute(
+            "SELECT session_id, role, message FROM session_events WHERE session_id = ?", (sid,)
         )
+    )
+    assert len(rows) >= 3
+    roles = {r[1] for r in rows}
+    assert {"user", "assistant"} <= roles
 
-    monkeypatch.setattr(usm, "record_codex_action", fake_log)
-
-    usm.log_action("sess-1", "start", "message")
-
-    assert calls["session_id"] == "sess-1"
-    assert calls["action"] == "start"
-    assert calls["statement"] == "message"
-    # Ensure metadata contains a parseable timestamp
-    assert calls["metadata"]
-    datetime.fromisoformat(calls["metadata"])
