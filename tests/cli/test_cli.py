@@ -16,6 +16,7 @@ def _stub_validator():
     class _V:
         def validate_corrections(self, files):
             return True
+
     return _V()
 
 
@@ -56,7 +57,7 @@ def test_ingest_docs_cli(tmp_path, monkeypatch):
         ["ingest", "docs", "--workspace", str(tmp_path), "--src-dir", str(docs_dir)],
     )
     assert result.exit_code == 0
-    assert "\"ingested\": 1" in result.stdout
+    assert '"ingested": 1' in result.stdout
 
 
 def test_ingest_templates_cli(tmp_path, monkeypatch):
@@ -87,7 +88,7 @@ def test_ingest_templates_cli(tmp_path, monkeypatch):
         ],
     )
     assert result.exit_code == 0
-    assert "\"ingested\": 1" in result.stdout
+    assert '"ingested": 1' in result.stdout
 
 
 def test_ingest_har_cli(tmp_path, monkeypatch):
@@ -106,11 +107,9 @@ def test_ingest_har_cli(tmp_path, monkeypatch):
     monkeypatch.setattr(hi, "SecondaryCopilotValidator", _stub_validator)
     monkeypatch.setattr(hi, "tqdm", _DummyTqdm)
 
-    result = runner.invoke(
-        app, ["ingest", "har", "--workspace", str(tmp_path), "--src-dir", str(logs_dir)]
-    )
+    result = runner.invoke(app, ["ingest", "har", "--workspace", str(tmp_path), "--src-dir", str(logs_dir)])
     assert result.exit_code == 0
-    assert "\"ingested\": 1" in result.stdout
+    assert '"ingested": 1' in result.stdout
 
 
 def test_generate_docs_cli(tmp_path, monkeypatch):
@@ -147,4 +146,4 @@ def test_generate_docs_cli(tmp_path, monkeypatch):
         ],
     )
     assert result.exit_code == 0
-    assert "\"scripts\": 1" in result.stdout
+    assert '"scripts": 1' in result.stdout

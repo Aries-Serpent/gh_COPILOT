@@ -3,6 +3,7 @@ from __future__ import annotations
 import sqlite3
 from contextlib import contextmanager
 from datetime import datetime
+from functools import lru_cache
 from pathlib import Path
 from typing import Iterable
 
@@ -98,3 +99,10 @@ class ComplianceDAO:
             placeholders_open=placeholders_open,
             gauges=gauges,
         )
+
+    # Memoize compliance summaries to avoid repeated DB work for identical queries.
+    compliance_summary = lru_cache(maxsize=128)(compliance_summary)
+
+    def invalidate_cache(self) -> None:
+        """Clear cached compliance summaries after external DB updates."""
+        self.compliance_summary.cache_clear()

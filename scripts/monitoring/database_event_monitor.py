@@ -18,6 +18,7 @@ from typing import Iterable, Sequence
 
 from enterprise_modules.compliance import validate_enterprise_operation
 from utils.logging_utils import log_enterprise_operation, setup_enterprise_logging
+from unified_monitoring_optimization_system import _update_dashboard
 
 
 logger = logging.getLogger(__name__)
@@ -70,6 +71,7 @@ def collect_metrics(
                 continue
 
         _record_metrics(analytics_db, db_path, count)
+        _update_dashboard({"db_path": str(db_path), "event_count": count})
 
         previous = last_counts.get(db_path)
         if previous is not None and count - previous > threshold:

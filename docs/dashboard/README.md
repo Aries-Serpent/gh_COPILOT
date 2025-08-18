@@ -1,6 +1,6 @@
 # Dashboard Setup
 
-This dashboard provides visibility into compliance metrics and rollback history.
+This dashboard provides visibility into compliance metrics and rollback history. Access is secured by a `/login` endpoint that issues session tokens and supports optional MFA before metrics are shown.
 
 ## Setup
 

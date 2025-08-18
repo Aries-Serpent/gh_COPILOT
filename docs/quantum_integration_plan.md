@@ -24,6 +24,14 @@ system falls back to the simulator backend.
 | `ionq`   | `IONQ_API_KEY` | Supports `IONQ_BACKEND` for backend selection. |
 | `dwave`  | `DWAVE_API_TOKEN` | `DWAVE_SOLVER` selects the solver. |
 
+## Deterministic Simulation
+
+All simulator backends use a seeded pseudorandom number generator to ensure
+that repeated runs with the same ``seed`` yield identical results.  The default
+seed is ``0``.  Floating‑point results produced by these simulators are
+deterministic up to a precision of ``1e-8`` which is sufficient for unit tests
+and regression comparisons.
+
 ## Roadmap
 
 1. **Stub Backends:** Initial release ships with stub implementations so the

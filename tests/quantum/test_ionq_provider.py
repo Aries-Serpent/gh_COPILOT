@@ -1,7 +1,10 @@
 import importlib.util
 import pytest
 
-from quantum.providers.ionq_provider import IonQProvider
+ionq_provider = pytest.importorskip(
+    "quantum.providers.ionq_provider", reason="IonQ provider not available"
+)
+IonQProvider = ionq_provider.IonQProvider
 from quantum.framework.backend import QuantumBackend
 
 

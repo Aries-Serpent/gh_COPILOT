@@ -7,6 +7,25 @@ import pytest
 
 import types
 
+dummy_tqdm = types.ModuleType("tqdm")
+
+class _DummyTqdm:
+    def __init__(self, *a, **k):
+        pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def update(self, *a, **k):
+        pass
+
+
+dummy_tqdm.tqdm = _DummyTqdm
+sys.modules.setdefault("tqdm", dummy_tqdm)
+
 from scripts import generate_docs_metrics, validate_docs_metrics
 
 
@@ -129,8 +148,10 @@ def test_generate_and_validate_round_trip(tmp_path, monkeypatch):
     monkeypatch.setattr(validate_docs_metrics, "README_PATH", readme)
     monkeypatch.setattr(validate_docs_metrics, "GENERATED_README", generated_readme)
     monkeypatch.setattr(validate_docs_metrics, "WHITEPAPER_PATH", whitepaper)
-
-    generate_docs_metrics.main(["--db-path", str(db_path), "--analytics-db", str(tmp_path / "analytics.db")])
+    monkeypatch.setattr(generate_docs_metrics, "_log_event", lambda *a, **k: True)
+    generate_docs_metrics.main([
+        "--db-path", str(db_path), "--analytics-db", str(tmp_path / "analytics.db")
+    ])
     assert validate_docs_metrics.validate(db_path)
 
 
@@ -147,7 +168,7 @@ def test_generate_metrics_invokes_dual_copilot(tmp_path, monkeypatch):
 
     monkeypatch.setattr(generate_docs_metrics, "DATABASE_LIST", db_list)
     monkeypatch.setattr(generate_docs_metrics, "README_PATHS", [readme])
-
+    monkeypatch.setattr(generate_docs_metrics, "_log_event", lambda *a, **k: True)
     called = {}
 
     def fake_run(primary, secondary):
@@ -163,3 +184,45 @@ def test_generate_metrics_invokes_dual_copilot(tmp_path, monkeypatch):
         str(tmp_path / "analytics.db"),
     ])
     assert "primary" in called and "secondary" in called
+
+
+def test_validator_detects_discrepancies(tmp_path, monkeypatch):
+    db_path = _setup_db(tmp_path)
+    db_list = tmp_path / "DATABASE_LIST.md"
+    db_list.write_text("- a.db\n")
+    readme = tmp_path / "README.md"
+    readme.write_text(
+        "*Generated on 2000-01-01 00:00:00*\n"
+        "Script Validation: 0 scripts\n"
+        "0 Synchronized Databases\n"
+    )
+    generated_dir = tmp_path / "documentation" / "generated"
+    generated_dir.mkdir(parents=True)
+    generated_readme = generated_dir / "README.md"
+    generated_readme.write_text(
+        "*Generated on 2000-01-01 00:00:00*\n"
+        "Script Validation: 0 scripts\n"
+        "0 Synchronized Databases\n"
+    )
+    whitepaper = tmp_path / "documentation" / "COMPLETE_TECHNICAL_SPECIFICATIONS_WHITEPAPER.md"
+    whitepaper.write_text("0 Templates")
+
+    monkeypatch.setattr(validate_docs_metrics, "DATABASE_LIST", db_list)
+    monkeypatch.setattr(validate_docs_metrics, "README_PATH", readme)
+    monkeypatch.setattr(validate_docs_metrics, "GENERATED_README", generated_readme)
+    monkeypatch.setattr(validate_docs_metrics, "WHITEPAPER_PATH", whitepaper)
+
+    assert not validate_docs_metrics.validate(db_path)
+
+    from scripts import docs_metrics_validator
+
+    class DummyValidator:
+        def validate_corrections(self, files, primary_success=None):
+            return True
+
+    monkeypatch.setattr(
+        docs_metrics_validator, "SecondaryCopilotValidator", lambda: DummyValidator()
+    )
+    monkeypatch.setattr(docs_metrics_validator, "validate", validate_docs_metrics.validate)
+    exit_code = docs_metrics_validator.main(["--db-path", str(db_path)])
+    assert exit_code == 1

@@ -33,7 +33,7 @@ python scripts/run_checks.py  # runs Ruff, Pyright, pytest
 **Compliance:** run `python secondary_copilot_validator.py --validate` after critical changes to enforce dual-copilot and EnterpriseComplianceValidator checks.
 
 **Docs:** run `python scripts/docs_status_reconciler.py` to refresh `docs/task_stubs.md` and `docs/status_index.json` before committing documentation changes. This step is required after any documentation edit.
-**Preview features:** `scripts/ml/deploy_models.py`, `scripts/ml/model_performance_monitor.py`, `scripts/monitoring/performance_monitor.py`, `scripts/performance/bottleneck_analyzer.py`, `scripts/integration/sap_integration.py`, `scripts/integration/jira_integration.py`, `scripts/audit/audit_report_generator.py`, `security/validator.py`, and `security/vulnerability_scanner.py` provide early stubs for model deployment, monitoring, integration, audits, and security.
+**Preview features:** `scripts/ml/deploy_models.py`, `scripts/monitoring/performance_monitor.py`, `scripts/performance/bottleneck_analyzer.py`, `scripts/integration/sap_integration.py`, `scripts/integration/jira_integration.py`, `scripts/audit/audit_report_generator.py`, `security/validator.py`, and `security/vulnerability_scanner.py` provide early stubs for model deployment, monitoring, integration, audits, and security.
 
 ### Implemented vs. Planned Features ()
 
@@ -43,7 +43,7 @@ python scripts/run_checks.py  # runs Ruff, Pyright, pytest
 | Compliance | update_compliance_metrics.py | sox_compliance.py, hipaa_compliance.py, pci_compliance.py, gdpr_compliance.py | — |
 | Deployment | orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py | wrappers in scripts/deployment/* | legacy multi_* helpers |
 | Security | security/* () | — | security/* () |
-| ML | — | deploy_models.py, model_performance_monitor.py | — |
+| ML | deploy_models.py, model_performance_monitor.py | — |
 
 **CI:** pipeline pins Ruff, enforces a 90% test pass rate, and fails if coverage regresses relative to `main`.
 
@@ -53,7 +53,7 @@ python scripts/run_checks.py  # runs Ruff, Pyright, pytest
 
 **Governance:** see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards. New compliance routines and monitoring capabilities are detailed in [docs/white-paper.md](docs/white-paper.md).
 
-**Security:** configuration files live under the `security/` directory (). Run `python scripts/security/validator.py` to load and list these assets.
+**Security:** configuration files live under the `security/` directory. Run `python security/validator.py` to validate these assets and generate `reports/security_validator.json` and `reports/security_validator.csv`.
 
 **Documentation:** quantum preparation, executive guides, and certification workflows live under `docs/` — see [docs/quantum_preparation/README.md](docs/quantum_preparation/README.md), [docs/executive_guides/README.md](docs/executive_guides/README.md), and [docs/certification/README.md](docs/certification/README.md) for details and related module links.
 
@@ -131,14 +131,17 @@ This value is persisted to `analytics.db` () via `scripts/compliance/update_comp
 * `test_run_stats` – same ingestion script parses `pytest --json-report` results
 * `placeholder_audit_snapshots` – appended after each `scripts/code_placeholder_audit.py` run; `update_compliance_metrics` reads the latest snapshot, so run the audit before recomputing scores
 
-Stub entrypoints for specific regulatory frameworks are provided under `scripts/compliance/`:
+Regulation entrypoints are provided under `scripts/compliance/`:
 
 * `sox_compliance.py`
 * `hipaa_compliance.py`
 * `pci_compliance.py`
 * `gdpr_compliance.py`
 
-Each stub simply delegates to `update_compliance_metrics.py`, ensuring all compliance runs share the same composite scoring logic.
+Each script performs a lightweight regulation-specific audit before
+delegating to `update_compliance_metrics.py`. Invoke with
+`--export-dashboard` to write a JSON report under
+`dashboard/compliance/`.
 
 **Endpoints:**
 * `POST /api/refresh_compliance` – compute & persist a new composite score
@@ -172,7 +175,7 @@ Compliance enforcement also blocks destructive commands () and flags unresolved 
 | Codex Logs | `databases/codex_logs.db` | Codex session and action logs |
 
   - [ER Diagrams](docs/ER_DIAGRAMS.md) for key databases
-- **Flask Enterprise Dashboard:** run `python web_gui_integration_system.py` to launch the metrics and compliance dashboard
+- **Flask Enterprise Dashboard:** run `python web_gui_integration_system.py` to launch the metrics and compliance dashboard. The interface is protected by a `/login` endpoint that issues session tokens and supports optional MFA before displaying metrics.
 - **Template Intelligence Platform:** tracks generated scripts
 - **Enterprise HTML Templates:** reusable base layouts, components, mobile views, and email templates under `templates/`
 - **Documentation logs:** rendered templates saved under `logs/template_rendering/`
@@ -270,6 +273,7 @@ sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
 python scripts/codex_log_db.py --init
 sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
+sqlite3 databases/analytics.db < databases/migrations/add_model_deployments.sql
 sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
 sqlite3 databases/analytics.db < databases/migrations/extend_todo_fixme_tracking.sql
 # Or run all migrations sequentially
@@ -684,6 +688,7 @@ sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
+sqlite3 databases/analytics.db < databases/migrations/add_model_deployments.sql
 sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
 sqlite3 databases/analytics.db < databases/migrations/extend_todo_fixme_tracking.sql
 ```
@@ -930,10 +935,14 @@ python scripts/ml/train_autonomous_models.py --model-type decision_tree
 python scripts/ml/train_autonomous_models.py --model-type neural_network
 
 # Deploy trained models
-python scripts/ml/deploy_models.py --environment production
+MODEL_REGISTRY_URI=/path/to/registry \
+MODEL_NAME=MyModel MODEL_VERSION=1 \
+python scripts/ml/deploy_models.py
 
-# Monitor model performance
-python scripts/ml/model_performance_monitor.py --days 7
+# Monitor model performance with automatic rollback
+MODEL_NAME=MyModel WEB_DASHBOARD_ENABLED=1 \
+ACCURACY_THRESHOLD=0.95 LATENCY_THRESHOLD=100 \
+python scripts/ml/model_performance_monitor.py
 ```
 
 ---
@@ -1040,7 +1049,7 @@ python scripts/validation/comprehensive_session_integrity_validator.py --full-ch
 python scripts/utilities/emergency_c_temp_violation_prevention.py --emergency-cleanup
 
 # Security configuration validation
-python scripts/security/validator.py
+python security/validator.py
 ```
 
 ### Advanced Compliance Framework
@@ -1058,7 +1067,7 @@ Environment-specific compliance validators are under development and currently u
 python security/security_audit_comprehensive.py --generate-report
 
 # Load security configuration assets
-python scripts/security/validator.py
+python security/validator.py
 ```
 
 ---
@@ -1248,22 +1257,20 @@ python -m pytest tests/integration/test_performance.py -v
 - **ML Model Accuracy:** >95% for anomaly detection models
 - **Quantum Simulation Fidelity:** >98% for supported algorithms
 
-### Performance Monitoring ()
-
-> The following commands are preview stubs and currently do not provide full functionality.
+### Performance Monitoring
 
 ```bash
-# Real-time performance monitoring ()
-python scripts/monitoring/performance_monitor.py --real-time
+# Expose CPU/memory metrics for Prometheus scraping
+python scripts/monitoring/performance_monitor.py --port 8000
 
-# Historical performance analysis ()
-python scripts/monitoring/performance_analyzer.py --days 30
+# Analyze historical metrics and exit non-zero on threshold breach
+python scripts/monitoring/performance_analyzer.py --metric-file metrics.txt --threshold 80
 
-# Performance regression detection ()
-python scripts/monitoring/regression_detector.py --baseline main
+# Detect performance regressions and log to analytics.db
+python scripts/monitoring/regression_detector.py --metric-file metrics.txt --db-path analytics.db
 
-# Resource utilization tracking ()
-python scripts/monitoring/resource_tracker.py --metrics cpu,memory,disk,network
+# Print a disk and network usage snapshot
+python scripts/monitoring/resource_tracker.py
 ```
 
 ---
@@ -1611,11 +1618,11 @@ Set these variables in your `.env` file or shell before running scripts:
 # Validate integrity of all databases
 python scripts/database/database_consolidation_validator.py
 
-# Security vulnerability scan
-python security/vulnerability_scanner.py --full-scan
+# Security vulnerability scan (writes reports/vulnerability_scan.json)
+VULN_SCAN_ENABLED=1 python security/vulnerability_scanner.py --full-scan
 
 # ML model performance monitoring
-python scripts/ml/model_performance_monitor.py
+MODEL_NAME=MyModel python scripts/ml/model_performance_monitor.py
 
 # Quantum simulation diagnostics
 python scripts/quantum/quantum_diagnostics.py --simulator-check
@@ -1687,6 +1694,9 @@ Several small modules provide common helpers:
 ### ML & AI Utilities
 - `scripts.ml.autonomous_ml_optimizer.AutonomousMLOptimizer` – ML-powered optimization engine
 - `scripts.ml.model_performance_monitor.monitor_performance` – placeholder model performance monitoring
+- `scripts.ml.deploy_models.deploy_model` – fetches models from a registry,
+  stores artifacts with checksums, logs results, and rolls back on failed
+  health checks
 - `scripts.ml.training_pipeline_orchestrator.TrainingPipelineOrchestrator` – automated ML training workflows
 
 ### Quantum Computing Utilities
@@ -2234,3 +2244,51 @@ and are safe to remove once the primary DR implementation supersedes them.
 
 - This project now requires `tqdm>=4.0.0` as a base dependency for progress reporting.
 - Ensure your environment reflects this requirement (see `requirements.txt` or `pyproject.toml`).
+
+## Session Logging (codex_session_log.db)
+
+This repository now includes a lightweight session logger backed by SQLite.
+
+**Module**
+
+- `src/codex/logging/session_logger.py`
+
+**Schema**
+
+```sql
+CREATE TABLE IF NOT EXISTS session_events(
+  session_id TEXT,
+  timestamp  TEXT,
+  role       TEXT,
+  message    TEXT,
+  PRIMARY KEY(session_id, timestamp)
+);
+```
+
+**DB Path Override**
+
+- Set `CODEX_SESSION_DB=/path/to/db.sqlite` (default: `<repo>/codex_session_log.db`)
+
+**Wrapper Runner**
+Run any Python script with logging:
+
+```bash
+python scripts/with_session_logging.py -- -- scripts/run_checks.py
+# module mode
+python scripts/with_session_logging.py -- -m pytest -q
+```
+
+**Query Examples**
+
+```sql
+-- last 50 events
+SELECT * FROM session_events ORDER BY timestamp DESC LIMIT 50;
+
+-- group by session
+SELECT session_id, COUNT(*) AS events FROM session_events GROUP BY session_id ORDER BY events DESC;
+```
+
+**Notes on concurrency**
+
+- SQLite **WAL** mode is enabled for improved concurrency; a **per-thread connection** and a global write lock are used for safety.
+

@@ -59,5 +59,13 @@ def detect_anomalies(*args, **kwargs):
     return _detect(*args, **kwargs)
 
 
-__all__ += ["anomaly_detection_loop", "detect_anomalies"]
+def register_hook(func):
+    from unified_monitoring_optimization_system import (  # type: ignore
+        register_hook as _register,
+    )
+
+    return _register(func)
+
+
+__all__ += ["anomaly_detection_loop", "detect_anomalies", "register_hook"]
 

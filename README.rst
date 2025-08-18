@@ -106,6 +106,12 @@ This value is persisted to `analytics.db` (table `compliance_scores`) via `scrip
 * `test_run_stats` – same ingestion script parses `pytest --json-report` results
 * `placeholder_audit_snapshots` – appended after each `scripts/code_placeholder_audit.py` run; `update_compliance_metrics` reads the latest snapshot, so run the audit before recomputing scores
 
+Regulation-specific entrypoints (`sox_compliance.py`, `hipaa_compliance.py`,
+`pci_compliance.py`, `gdpr_compliance.py`) perform lightweight audits
+before invoking :func:`scripts.compliance.update_compliance_metrics`. Run
+them with ``--export-dashboard`` to persist JSON reports under
+``dashboard/compliance/``.
+
 **Endpoints:**
 * `POST /api/refresh_compliance` – compute & persist a new composite score
 * `GET /api/compliance_scores` – last 50 scores for trend visualization
@@ -867,7 +873,9 @@ python scripts/ml/train_autonomous_models.py --model-type decision_tree
 python scripts/ml/train_autonomous_models.py --model-type neural_network
 
 # Deploy trained models
-python scripts/ml/deploy_models.py --environment production
+MODEL_REGISTRY_URI=/path/to/registry \
+MODEL_NAME=MyModel MODEL_VERSION=1 \
+python scripts/ml/deploy_models.py
 
 # Monitor model performance
 python scripts/ml/model_performance_monitor.py --days 7
@@ -1587,8 +1595,8 @@ python scripts/database/database_consolidation_validator.py --all-databases
 # Performance bottleneck analysis
 python scripts/performance/bottleneck_analyzer.py --deep-analysis
 
-# Security vulnerability scan
-python scripts/security/vulnerability_scanner.py --full-scan
+# Security vulnerability scan (writes reports/vulnerability_scan.json)
+VULN_SCAN_ENABLED=1 python security/vulnerability_scanner.py --full-scan
 
 # ML model validation
 python scripts/ml/model_validator.py --all-models
@@ -1664,6 +1672,8 @@ Several small modules provide common helpers:
 - `scripts.ml.autonomous_ml_optimizer.AutonomousMLOptimizer` – ML-powered optimization engine
 - `scripts.ml.model_validator.ModelValidator` – comprehensive ML model validation
 - `scripts.ml.training_pipeline_orchestrator.TrainingPipelineOrchestrator` – automated ML training workflows
+- `scripts.ml.deploy_models.deploy_model` – registry-backed deployment with
+  artifact checksum logging and rollback support
 
 ### Quantum Computing Utilities
 - `scripts.quantum.quantum_simulator_manager.QuantumSimulatorManager` – quantum simulation management
@@ -2108,7 +2118,10 @@ Seamless integration with enterprise systems:
 
 ```bash
 # SAP integration
-python scripts/integration/sap_integration.py --rfc-connector --real-time-sync
+export SAP_API_URL=https://sap.example.com/api
+export SAP_API_KEY=your_sap_api_key
+export SAP_INTEGRATION_ENABLED=1
+python scripts/integration/sap_integration.py
 
 # Oracle ERP integration
 python scripts/integration/oracle_erp_integration.py --fusion-middleware --data-sync

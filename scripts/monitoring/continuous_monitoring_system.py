@@ -17,6 +17,11 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
+from unified_monitoring_optimization_system import (
+    _update_dashboard,
+    push_metrics,
+)
+
 from tqdm import tqdm
 
 # MANDATORY: Anti-recursion validation
@@ -455,47 +460,71 @@ class ContinuousMonitoringSystem:
 
     def run_monitoring_demo(self, duration_minutes: int = 2):
         """🎮 Run monitoring demonstration"""
+        lock_file = self.monitoring_dir / "monitoring.lock"
+        if lock_file.exists():
+            raise RuntimeError("monitoring demo already running")
+
         print(f"🎮 Running monitoring demo for {duration_minutes} minutes...")
+        lock_file.write_text(str(os.getpid()))
 
-        end_time = datetime.now() + timedelta(minutes=duration_minutes)
+        try:
+            end_time = datetime.now() + timedelta(minutes=duration_minutes)
 
-        # Take initial snapshot
-        initial_snapshot = self.collect_monitoring_snapshot()
-        print(f"📊 Initial State: {initial_snapshot.pending_violations:,} pending violations")
+            # Take initial snapshot
+            initial_snapshot = self.collect_monitoring_snapshot()
+            print(
+                f"📊 Initial State: {initial_snapshot.pending_violations:,} pending violations"
+            )
 
-        with tqdm(total=duration_minutes * 60, desc="# # # 🔄 Monitoring Demo", unit="s") as pbar:
-            while datetime.now() < end_time:
-                start_cycle = time.time()
+            with tqdm(total=duration_minutes * 60, desc="# # # 🔄 Monitoring Demo", unit="s") as pbar:
+                while datetime.now() < end_time:
+                    start_cycle = time.time()
 
-                # Run monitoring cycle
-                snapshot, alerts = self.monitor_cycle()
+                    # Run monitoring cycle
+                    snapshot, alerts = self.monitor_cycle()
 
-                if snapshot:
-                    pbar.set_description(
-                        f"# # # 🔄 Pending: {snapshot.pending_violations:,} | Health: {snapshot.health_score:.1f}%"
-                    )
+                    if snapshot:
+                        pbar.set_description(
+                            f"# # # 🔄 Pending: {snapshot.pending_violations:,} | Health: {snapshot.health_score:.1f}%"
+                        )
 
-                # Display alerts
-                for alert in alerts:
-                    tqdm.write(f"# ALERT {alert['severity']}: {alert['message']}")
+                    # Display alerts
+                    for alert in alerts:
+                        tqdm.write(f"# ALERT {alert['severity']}: {alert['message']}")
 
-                # Sleep for next cycle
-                elapsed = time.time() - start_cycle
-                sleep_time = min(30, end_time.timestamp() - time.time())  # 30s max or remaining time
+                    # Sleep for next cycle
+                    elapsed = time.time() - start_cycle
+                    sleep_time = min(
+                        30, end_time.timestamp() - time.time()
+                    )  # 30s max or remaining time
 
-                if sleep_time > 0:
-                    time.sleep(sleep_time)
-                    pbar.update(int(elapsed + sleep_time))
+                    if sleep_time > 0:
+                        time.sleep(sleep_time)
+                        pbar.update(int(elapsed + sleep_time))
 
-        # Final snapshot
-        final_snapshot = self.collect_monitoring_snapshot()
-        print(f"📊 Final State: {final_snapshot.pending_violations:,} pending violations")
+            # Final snapshot
+            final_snapshot = self.collect_monitoring_snapshot()
+            print(
+                f"📊 Final State: {final_snapshot.pending_violations:,} pending violations"
+            )
 
-        return {
-            "initial_snapshot": initial_snapshot,
-            "final_snapshot": final_snapshot,
-            "demo_duration_minutes": duration_minutes,
-        }
+            metrics = {
+                "pending_violations": float(final_snapshot.pending_violations),
+                "total_violations": float(final_snapshot.total_violations),
+                "health_score": float(final_snapshot.health_score),
+            }
+            push_metrics(metrics)
+            if os.getenv("WEB_DASHBOARD_ENABLED") == "1":
+                _update_dashboard(metrics)
+
+            return {
+                "initial_snapshot": initial_snapshot,
+                "final_snapshot": final_snapshot,
+                "demo_duration_minutes": duration_minutes,
+            }
+        finally:
+            if lock_file.exists():
+                lock_file.unlink()
 
 
 def main():

@@ -1,3 +1,5 @@
+import pytest
+
 from src.compliance.metrics.updater import MetricsUpdater
 
 
@@ -34,3 +36,38 @@ def test_non_numeric_scores_default_to_zero():
     updater = MetricsUpdater()
     scores = {"lint": float("nan"), "tests": float("inf"), "placeholders": None}
     assert updater.composite(scores) == 0.0
+
+
+def test_negative_precision_raises():
+    updater = MetricsUpdater(precision=-1)
+    with pytest.raises(ValueError):
+        updater.composite({"lint": 1})
+
+
+def test_missing_scores_default_to_zero():
+    """Scores for undefined metrics should be treated as ``0``."""
+    updater = MetricsUpdater(weights={"lint": 1, "tests": 1})
+    # 'tests' metric is missing and thus contributes 0 to the average
+    assert updater.composite({"lint": 0.5}) == 0.25
+
+
+def test_all_negative_weights_return_zero():
+    updater = MetricsUpdater(weights={"a": -1, "b": -2})
+    assert updater.composite({"a": 1, "b": 1}) == 0.0
+
+
+def test_caching_prevents_recomputation(monkeypatch):
+    updater = MetricsUpdater()
+    calls = []
+
+    def spy(scores):
+        calls.append(True)
+        return MetricsUpdater._composite_uncached(updater, scores)
+
+    monkeypatch.setattr(updater, "_composite_uncached", spy)
+    scores = {"lint": 0.3, "tests": 0.7, "placeholders": 0.5}
+    first = updater.composite(scores)
+    second = updater.composite(scores)
+    assert first == second == pytest.approx(0.5)
+    assert len(calls) == 1
+

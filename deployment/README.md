@@ -76,3 +76,17 @@ pytest
 
 Logs from deployment attempts are stored under `/tmp/gh_copilot_backups/`.
 
+## Production Deployment
+
+Use `deployment/scripts/deploy_to_production.py` to deploy the web GUI to the
+production environment. The script supports a `--dry-run` flag which prints the
+deployment plan without applying any changes. Concurrent executions are guarded
+by a lockfile to prevent conflicting deployments, and each run logs events to
+`analytics.db`'s `deployment_events` table.
+
+Example dry run:
+
+```bash
+python -m deployment.scripts.deploy_to_production --dry-run
+```
+
