@@ -88,6 +88,23 @@ def _strip_tokens(text: str) -> str:
     return _TOKEN_RE.sub("", text)
 
 
+def _artifact_exists(file_hash: str, output_dir: Path | None = None) -> bool:
+    """Return ``True`` if an artifact for ``file_hash`` already exists.
+
+    Parameters
+    ----------
+    file_hash:
+        SHA256 hash of the generated template content.
+    output_dir:
+        Directory where artifacts are stored. Defaults to the current working
+        directory when ``None``.
+    """
+
+    if output_dir is None:
+        output_dir = Path(".")
+    return (output_dir / f"{file_hash}.py").exists()
+
+
 def validate_no_recursive_folders() -> None:
     workspace_root = CrossPlatformPathManager.get_workspace_path()
     forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
@@ -480,15 +497,40 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
             )
 
             # Phase 3: file write
-            path = Path(f"{objective}.py")
+            file_hash = hashlib.sha256(stub.encode()).hexdigest()
+            path = Path(f"{file_hash}.py")
             tmp_path = path.with_suffix(path.suffix + ".tmp")
+            ts = datetime.utcnow().isoformat()
+
+            if _artifact_exists(file_hash):
+                _log_event(
+                    {
+                        "event": "artifact_exists",
+                        "path": str(path),
+                        "hash": file_hash,
+                        "timestamp": ts,
+                    },
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                    test_mode=False,
+                )
+                _log_event(
+                    {
+                        "event": "artifact_exists",
+                        "path": str(path),
+                        "hash": file_hash,
+                        "timestamp": ts,
+                    },
+                    table="correction_logs",
+                    db_path=self.analytics_db,
+                    test_mode=False,
+                )
+                return path
 
             try:
                 with sqlite3.connect(self.production_db) as conn:
                     conn.execute("BEGIN")
                     tmp_path.write_text(stub)
-                    file_hash = hashlib.sha256(stub.encode()).hexdigest()
-                    ts = datetime.utcnow().isoformat()
                     conn.execute(
                         "CREATE TABLE IF NOT EXISTS script_tracking (file_path TEXT, file_hash TEXT, last_modified TEXT)"
                     )
@@ -511,6 +553,8 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                         "event": "integration_ready_generated",
                         "objective": objective,
                         "path": str(path),
+                        "hash": file_hash,
+                        "timestamp": ts,
                         "requirement_map": {objective: str(path)},
                     },
                     table="generator_events",
@@ -522,6 +566,8 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                         "event": "code_generated",
                         "doc_id": objective,
                         "path": str(path),
+                        "hash": file_hash,
+                        "timestamp": ts,
                         "asset_type": "code_stub",
                         "compliance_score": 1.0,
                     },
@@ -532,6 +578,8 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 _log_event(
                     {
                         "event": "requirement_mapping",
+                        "hash": file_hash,
+                        "timestamp": ts,
                         "mapping": {
                             objective: {
                                 "path": str(path),
