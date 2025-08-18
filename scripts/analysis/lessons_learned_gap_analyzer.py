@@ -364,26 +364,9 @@ class LessonsLearnedGapAnalyzer:
                         )
                     )
 
-        except Exception as e:
+        except (sqlite3.Error, OSError):
             logging.exception("analysis script error")
-            gaps.append(
-                LessonsLearnedGap(
-                    gap_id=str(uuid.uuid4())[:8],
-                    category="database_first_architecture",
-                    severity="CRITICAL",
-                    description=f"Database connectivity error: {str(e)}",
-                    current_status="CONNECTION_ERROR",
-                    target_status="CONNECTED",
-                    remediation_actions=[
-                        "Fix database connectivity issues",
-                        "Verify database permissions",
-                        "Test database connection",
-                    ],
-                    integration_score_impact=-10.0,
-                    priority_score=90,
-                    estimated_effort_hours=3.0,
-                )
-            )
+            raise
 
         return gaps
 
@@ -434,7 +417,7 @@ class LessonsLearnedGapAnalyzer:
                 if "tqdm" in content and "progress" in content.lower():
                     visual_indicators_found = True
                     break
-            except Exception as e:
+            except (OSError, UnicodeDecodeError):
                 logging.exception("analysis script error")
                 continue
 
@@ -666,9 +649,10 @@ class LessonsLearnedGapAnalyzer:
 
                 self.logger.info("✅ Gap analysis results updated in database")
 
-        except Exception as e:
+        except (sqlite3.Error, OSError):
             logging.exception("analysis script error")
-            self.logger.error(f"❌ Database update failed: {str(e)}")
+            self.logger.error("❌ Database update failed")
+            raise
 
     def _generate_gap_analysis_reports(self, result: GapAnalysisResult) -> None:
         """📊 Generate comprehensive gap analysis reports"""
@@ -741,27 +725,22 @@ def main(argv: list[str] | None = None):
         print("Lesson stored")
         return 0
 
-    try:
-        analyzer = LessonsLearnedGapAnalyzer()
-        result = analyzer.execute_comprehensive_gap_analysis()
-        print("\n" + "=" * 80)
-        print("🔍 LESSONS LEARNED GAP ANALYSIS SUMMARY")
-        print("=" * 80)
-        print(f"📊 Total Gaps Found: {result.total_gaps_found}")
-        print(f"🚨 Critical Gaps: {result.critical_gaps}")
-        print(f"⚠️ High Priority Gaps: {result.high_priority_gaps}")
-        print(f"📉 Integration Score Impact: {result.overall_integration_score_impact:.1f}%")
-        print(f"✅ Analysis Status: {'PASSED' if result.analysis_passed else 'FAILED'}")
-        print("=" * 80)
-        if result.recommendations:
-            print("\n📋 KEY RECOMMENDATIONS:")
-            for i, recommendation in enumerate(result.recommendations, 1):
-                print(f"{i}. {recommendation}")
-        return 0 if result.analysis_passed else 1
-    except Exception as e:
-        logging.exception("analysis script error")
-        print(f"❌ Gap analysis failed: {str(e)}")
-        return 1
+    analyzer = LessonsLearnedGapAnalyzer()
+    result = analyzer.execute_comprehensive_gap_analysis()
+    print("\n" + "=" * 80)
+    print("🔍 LESSONS LEARNED GAP ANALYSIS SUMMARY")
+    print("=" * 80)
+    print(f"📊 Total Gaps Found: {result.total_gaps_found}")
+    print(f"🚨 Critical Gaps: {result.critical_gaps}")
+    print(f"⚠️ High Priority Gaps: {result.high_priority_gaps}")
+    print(f"📉 Integration Score Impact: {result.overall_integration_score_impact:.1f}%")
+    print(f"✅ Analysis Status: {'PASSED' if result.analysis_passed else 'FAILED'}")
+    print("=" * 80)
+    if result.recommendations:
+        print("\n📋 KEY RECOMMENDATIONS:")
+        for i, recommendation in enumerate(result.recommendations, 1):
+            print(f"{i}. {recommendation}")
+    return 0 if result.analysis_passed else 1
 
 
 if __name__ == "__main__":

@@ -241,9 +241,9 @@ class FileMovementAssessment:
 
             return any(indicator in first_lines for indicator in script_indicators)
 
-        except Exception as e:
+        except (OSError, UnicodeDecodeError):
             logging.exception("analysis script error")
-            return False
+            raise
 
     def _is_configuration_file(self, file_path):
         """Check if file is actually a configuration file"""
@@ -398,22 +398,15 @@ class FileMovementAssessment:
 
 def main():
     """🎯 Main execution function"""
-    try:
-        assessor = FileMovementAssessment()
-        assessor.execute_assessment()
+    assessor = FileMovementAssessment()
+    assessor.execute_assessment()
 
-        print("\n🧠 ENHANCED COGNITIVE PROCESSING SUMMARY:")
-        print("=" * 50)
-        print("OBJECTIVE: Identify and correct file movement errors")
-        print("STATUS: Assessment complete, awaiting user approval")
-        print("NEXT: Review Plan Issued Statement and approve corrections")
-        print("=" * 50)
-
-    except Exception as e:
-        logging.exception("analysis script error")
-        print(f"🚨 Assessment error: {str(e)}")
-        logging.exception("Assessment failed")
-        raise
+    print("\n🧠 ENHANCED COGNITIVE PROCESSING SUMMARY:")
+    print("=" * 50)
+    print("OBJECTIVE: Identify and correct file movement errors")
+    print("STATUS: Assessment complete, awaiting user approval")
+    print("NEXT: Review Plan Issued Statement and approve corrections")
+    print("=" * 50)
 
 
 if __name__ == "__main__":

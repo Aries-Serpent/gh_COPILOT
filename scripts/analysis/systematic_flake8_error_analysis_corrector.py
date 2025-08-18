@@ -197,9 +197,9 @@ class SystematicFlake8ErrorAnalyzer:
 
             logger.info("Analytics database initialized successfully")
 
-        except Exception as e:
+        except (sqlite3.Error, OSError):
             logging.exception("analysis script error")
-            logger.error(f"Failed to initialize analytics database: {e}")
+            logger.error("Failed to initialize analytics database")
             raise
 
     def run_comprehensive_flake8_scan(self) -> str:
@@ -251,10 +251,10 @@ class SystematicFlake8ErrorAnalyzer:
         except subprocess.TimeoutExpired:
             logger.error("Flake8 scan timed out after 5 minutes")
             return ""
-        except Exception as e:
+        except (subprocess.SubprocessError, OSError):
             logging.exception("analysis script error")
-            logger.error(f"Failed to run Flake8 scan: {e}")
-            return ""
+            logger.error("Failed to run Flake8 scan")
+            raise
 
     def parse_flake8_output(self, flake8_output: str) -> List[FlakeError]:
         """Parse Flake8 output into structured error objects"""
@@ -432,9 +432,10 @@ class SystematicFlake8ErrorAnalyzer:
 
             logger.info("Error analysis saved to database")
 
-        except Exception as e:
+        except (sqlite3.Error, OSError):
             logging.exception("analysis script error")
-            logger.error(f"Failed to save analysis to database: {e}")
+            logger.error("Failed to save analysis to database")
+            raise
 
     def execute_systematic_analysis(self) -> Dict[str, Any]:
         """Execute complete systematic error analysis"""
@@ -519,8 +520,6 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\nAnalysis interrupted by user")
         sys.exit(1)
-    except Exception as e:
+    except Exception:
         logging.exception("analysis script error")
-        print(f"\nAnalysis failed: {e}")
-        logger.error(f"Analysis failed: {e}")
-        sys.exit(1)
+        raise

@@ -67,15 +67,9 @@ class Phase2CompletionReportGenerator:
                 "scan_success": True,
             }
 
-        except Exception as e:
-            logging.exception("analysis script error")
-            print(f"Error scanning violations: {e}")
-            return {
-                "f821_f401_violations": "Scan failed",
-                "f821_f401_count": -1,
-                "all_violations": "Scan failed",
-                "scan_success": False,
-            }
+        except (subprocess.SubprocessError, OSError):
+            logging.exception("Error scanning violations")
+            raise
 
     def generate_completion_report(self):
         """# # 📊 Generate comprehensive Phase 2 completion report"""
@@ -199,24 +193,17 @@ gh_COPILOT Toolkit - Phase 2 Systematic Processing Complete
 
             return True
 
-        except Exception as e:
-            logging.exception("analysis script error")
-            print(f"CRITICAL ERROR generating report: {e}")
-            return False
+        except OSError:
+            logging.exception("CRITICAL ERROR generating report")
+            raise
 
 
 def main():
     """# # 🚀 Main execution function"""
-    try:
-        generator = Phase2CompletionReportGenerator()
-        success = generator.execute_report_generation()
+    generator = Phase2CompletionReportGenerator()
+    success = generator.execute_report_generation()
 
-        return 0 if success else 1
-
-    except Exception as e:
-        logging.exception("analysis script error")
-        print(f"CRITICAL ERROR: {e}")
-        return 1
+    return 0 if success else 1
 
 
 if __name__ == "__main__":
