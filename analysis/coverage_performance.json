@@ -1,0 +1,65 @@
+[
+  {
+    "Component": "Core Systems",
+    "Coverage": 94,
+    "Performance": 92,
+    "Composite": 93.2,
+    "GapCoverage": 6,
+    "GapPerformance": 8,
+    "GapComposite": 6.799999999999997
+  },
+  {
+    "Component": "Database Layer",
+    "Coverage": 96,
+    "Performance": 94,
+    "Composite": 95.2,
+    "GapCoverage": 4,
+    "GapPerformance": 6,
+    "GapComposite": 4.799999999999997
+  },
+  {
+    "Component": "ML Pipeline",
+    "Coverage": 87,
+    "Performance": 80,
+    "Composite": 84.2,
+    "GapCoverage": 13,
+    "GapPerformance": 20,
+    "GapComposite": 15.799999999999997
+  },
+  {
+    "Component": "Quantum Simulation",
+    "Coverage": 73,
+    "Performance": 70,
+    "Composite": 71.8,
+    "GapCoverage": 27,
+    "GapPerformance": 30,
+    "GapComposite": 28.200000000000003
+  },
+  {
+    "Component": "Security Framework",
+    "Coverage": 99,
+    "Performance": 95,
+    "Composite": 97.4,
+    "GapCoverage": 1,
+    "GapPerformance": 5,
+    "GapComposite": 2.5999999999999943
+  },
+  {
+    "Component": "Compliance Engine",
+    "Coverage": 92,
+    "Performance": 90,
+    "Composite": 91.2,
+    "GapCoverage": 8,
+    "GapPerformance": 10,
+    "GapComposite": 8.799999999999997
+  },
+  {
+    "Component": "Performance Monitor",
+    "Coverage": 89,
+    "Performance": 85,
+    "Composite": 87.4,
+    "GapCoverage": 11,
+    "GapPerformance": 15,
+    "GapComposite": 12.599999999999994
+  }
+]
