@@ -365,6 +365,7 @@ class LessonsLearnedGapAnalyzer:
                     )
 
         except Exception as e:
+            logging.exception("analysis script error")
             gaps.append(
                 LessonsLearnedGap(
                     gap_id=str(uuid.uuid4())[:8],
@@ -433,7 +434,8 @@ class LessonsLearnedGapAnalyzer:
                 if "tqdm" in content and "progress" in content.lower():
                     visual_indicators_found = True
                     break
-            except Exception:
+            except Exception as e:
+                logging.exception("analysis script error")
                 continue
 
         if not visual_indicators_found:
@@ -665,6 +667,7 @@ class LessonsLearnedGapAnalyzer:
                 self.logger.info("✅ Gap analysis results updated in database")
 
         except Exception as e:
+            logging.exception("analysis script error")
             self.logger.error(f"❌ Database update failed: {str(e)}")
 
     def _generate_gap_analysis_reports(self, result: GapAnalysisResult) -> None:
@@ -756,6 +759,7 @@ def main(argv: list[str] | None = None):
                 print(f"{i}. {recommendation}")
         return 0 if result.analysis_passed else 1
     except Exception as e:
+        logging.exception("analysis script error")
         print(f"❌ Gap analysis failed: {str(e)}")
         return 1
 

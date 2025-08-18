@@ -115,6 +115,7 @@ class ComprehensiveModularAnalysisEngine:
                     pbar.update(progress - pbar.n)
 
                 except Exception as e:
+                    logging.exception("analysis script error")
                     self.logger.warning(f"Error analyzing {script_path}: {e}")
 
             pbar.set_description("🧠 Identifying modularization opportunities")
@@ -191,6 +192,7 @@ class ComprehensiveModularAnalysisEngine:
             }
 
         except Exception as e:
+            logging.exception("analysis script error")
             self.logger.warning(f"Error parsing {script_path}: {e}")
             return {
                 "file_size_lines": 0,
@@ -472,6 +474,7 @@ def main():
         return True
 
     except Exception as e:
+        logging.exception("analysis script error")
         print(f"❌ ANALYSIS ERROR: {e}")
         return False
 

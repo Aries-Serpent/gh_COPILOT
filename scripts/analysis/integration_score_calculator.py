@@ -446,7 +446,8 @@ class IntegrationScoreCalculator:
                     patterns_found = sum(1 for pattern in patterns if pattern in content)
                     if patterns_found >= len(patterns) // 2:  # At least half the patterns
                         files_with_patterns.append(str(py_file))
-                except Exception:
+                except Exception as e:
+                    logging.exception("analysis script error")
                     continue
 
         # Calculate score based on pattern coverage
@@ -535,6 +536,7 @@ class IntegrationScoreCalculator:
                         component.recommendations = ["❌ No scripts tracked in database"]
 
         except Exception as e:
+            logging.exception("analysis script error")
             component.current_score = 0.0
             component.evidence = []
             component.recommendations = [f"❌ Database error: {str(e)}"]
@@ -775,6 +777,7 @@ class IntegrationScoreCalculator:
                 self.logger.info("✅ Integration score calculation updated in database")
 
         except Exception as e:
+            logging.exception("analysis script error")
             self.logger.error(f"❌ Database update failed: {str(e)}")
 
     def _generate_score_calculation_reports(self, result: IntegrationScoreResult) -> None:
@@ -871,6 +874,7 @@ def main():
         return 0 if result.calculation_passed else 1
 
     except Exception as e:
+        logging.exception("analysis script error")
         print(f"❌ Integration score calculation failed: {str(e)}")
         return 1
 
