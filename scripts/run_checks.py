@@ -47,7 +47,16 @@ def main() -> int:
             "--force-exclude",
         ],
         ["pyright"],
-        ["pytest", "-q"],
+        [
+            "pytest",
+            "--cov=scripts.run_migrations",
+            "--cov=utils.cross_platform_paths",
+            "--cov=scripts.database.unified_database_management_system",
+            "--cov=validation.core.rules",
+            "--cov-report=term",
+            "--cov-fail-under=95",
+            "-q",
+        ],
     ]
 
     for cmd in commands:
