@@ -50,13 +50,17 @@ class TestComplianceComponents:
             tests_passed=18,
             tests_total=20,
             placeholders_open=10,
-            placeholders_resolved=15
+            placeholders_resolved=15,
+            sessions_successful=2,
+            sessions_failed=1,
         )
         assert comp.ruff_issues == 5
         assert comp.tests_passed == 18
         assert comp.tests_total == 20
         assert comp.placeholders_open == 10
         assert comp.placeholders_resolved == 15
+        assert comp.sessions_successful == 2
+        assert comp.sessions_failed == 1
 
 
 class TestDatabaseFunctions:
@@ -93,14 +97,17 @@ class TestDatabaseFunctions:
                 "id": "INTEGER",
                 "timestamp": "INTEGER",
                 "L": "REAL",
-                "T": "REAL", 
+                "T": "REAL",
                 "P": "REAL",
                 "composite": "REAL",
                 "ruff_issues": "INTEGER",
                 "tests_passed": "INTEGER",
                 "tests_total": "INTEGER",
                 "placeholders_open": "INTEGER",
-                "placeholders_resolved": "INTEGER"
+                "placeholders_resolved": "INTEGER",
+                "session_score": "REAL",
+                "sessions_successful": "INTEGER",
+                "sessions_failed": "INTEGER",
             }
             
             for col, type_name in expected_columns.items():
@@ -126,6 +133,8 @@ class TestComponentFetching:
             assert comp.tests_total == 0
             assert comp.placeholders_open == 0
             assert comp.placeholders_resolved == 0
+            assert comp.sessions_successful == 0
+            assert comp.sessions_failed == 0
 
     def test_fetch_components_with_data(self, temp_db):
         """Test fetching components from populated database."""
@@ -152,13 +161,20 @@ class TestComponentFetching:
             conn.execute(
                 "INSERT INTO placeholder_audit_snapshots(timestamp, open_count, resolved_count) VALUES (2, 8, 18)"
             )
-            
+            conn.execute(
+                "CREATE TABLE session_lifecycle (status TEXT)"
+            )
+            conn.execute("INSERT INTO session_lifecycle VALUES ('success')")
+            conn.execute("INSERT INTO session_lifecycle VALUES ('failure')")
+
             comp = _fetch_components(conn)
             assert comp.ruff_issues == 3  # Latest issues
             assert comp.tests_passed == 15  # Latest passed
             assert comp.tests_total == 18   # Latest total
             assert comp.placeholders_open == 8    # Latest open count
             assert comp.placeholders_resolved == 18  # Latest resolved count
+            assert comp.sessions_successful == 1
+            assert comp.sessions_failed == 1
 
     def test_fetch_components_missing_tables(self, temp_db):
         """Test fetching components when some tables are missing."""
@@ -173,6 +189,8 @@ class TestComponentFetching:
             assert comp.tests_total == 0
             assert comp.placeholders_open == 0
             assert comp.placeholders_resolved == 0
+            assert comp.sessions_successful == 0
+            assert comp.sessions_failed == 0
 
 
 class TestScoreComputation:
@@ -185,13 +203,16 @@ class TestScoreComputation:
             tests_passed=20,
             tests_total=20,
             placeholders_open=0,
-            placeholders_resolved=10
+            placeholders_resolved=10,
+            sessions_successful=5,
+            sessions_failed=0,
         )
-        L, T, P, composite = _compute(comp)
-        
+        L, T, P, S, composite = _compute(comp)
+
         assert L == 100.0  # No ruff issues
         assert T == 100.0  # All tests passed
         assert P == 100.0  # No open placeholders
+        assert S == 100.0  # All sessions successful
         assert composite == 100.0  # Perfect composite
 
     def test_compute_zero_scores(self):
@@ -201,14 +222,17 @@ class TestScoreComputation:
             tests_passed=0,
             tests_total=20,
             placeholders_open=10,
-            placeholders_resolved=0
+            placeholders_resolved=0,
+            sessions_successful=0,
+            sessions_failed=5,
         )
-        L, T, P, composite = _compute(comp)
-        
+        L, T, P, S, composite = _compute(comp)
+
         assert L == 0.0   # Max(0, 100-150)
         assert T == 0.0   # 0/20 tests passed
         assert P == 0.0   # 0 resolved placeholders
-        assert composite == 0.0  # 0.3*0 + 0.5*0 + 0.2*0
+        assert S == 0.0   # No successful sessions
+        assert composite == 0.0  # All components zero
 
     def test_compute_mixed_scores(self):
         """Test computation with mixed scores."""
@@ -217,14 +241,17 @@ class TestScoreComputation:
             tests_passed=16,
             tests_total=20,
             placeholders_open=4,
-            placeholders_resolved=6
+            placeholders_resolved=6,
+            sessions_successful=3,
+            sessions_failed=2,
         )
-        L, T, P, composite = _compute(comp)
-        
+        L, T, P, S, composite = _compute(comp)
+
         assert L == 80.0  # 100-20
         assert T == 80.0  # 16/20 * 100
         assert P == 60.0  # 6/10 * 100
-        assert composite == pytest.approx(76.0)  # 0.3*80 + 0.5*80 + 0.2*60
+        assert S == 60.0  # 3/5 * 100
+        assert composite == pytest.approx(74.0)  # 0.3*80 + 0.4*80 + 0.2*60 + 0.1*60
 
     def test_compute_no_tests(self):
         """Test computation when no tests exist."""
@@ -233,14 +260,17 @@ class TestScoreComputation:
             tests_passed=0,
             tests_total=0,
             placeholders_open=2,
-            placeholders_resolved=8
+            placeholders_resolved=8,
+            sessions_successful=1,
+            sessions_failed=1,
         )
-        L, T, P, composite = _compute(comp)
-        
+        L, T, P, S, composite = _compute(comp)
+
         assert L == 95.0  # 100-5
         assert T == 0.0   # No tests to evaluate
         assert P == 80.0  # 8/10 * 100
-        assert composite == pytest.approx(44.5)  # 0.3*95 + 0.5*0 + 0.2*80
+        assert S == 50.0  # 1/2 * 100
+        assert composite == pytest.approx(49.5)  # 0.3*95 + 0.4*0 + 0.2*80 + 0.1*50
 
     def test_compute_no_placeholders(self):
         """Test computation when no placeholders exist."""
@@ -249,14 +279,17 @@ class TestScoreComputation:
             tests_passed=18,
             tests_total=20,
             placeholders_open=0,
-            placeholders_resolved=0
+            placeholders_resolved=0,
+            sessions_successful=4,
+            sessions_failed=1,
         )
-        L, T, P, composite = _compute(comp)
-        
+        L, T, P, S, composite = _compute(comp)
+
         assert L == 90.0   # 100-10
         assert T == 90.0   # 18/20 * 100
         assert P == 100.0  # No placeholders => placeholder score 100
-        assert composite == pytest.approx(92.0)  # 0.3*90 + 0.5*90 + 0.2*100
+        assert S == 80.0   # 4/5 * 100
+        assert composite == pytest.approx(91.0)  # 0.3*90 + 0.4*90 + 0.2*100 + 0.1*80
 
 
 class TestUpdateComplianceMetrics:
@@ -332,7 +365,7 @@ class TestUpdateComplianceMetrics:
             
             with patch.dict(os.environ, {"GH_COPILOT_WORKSPACE": str(workspace)}):
                 score = update_compliance_metrics()
-                assert score == 50.0  # Expected default score with no placeholders
+                assert score == 60.0  # Expected default score with no placeholders
                 with _connect(analytics_db) as conn:
                     cur = conn.execute(
                         "SELECT P FROM compliance_scores ORDER BY id DESC LIMIT 1"
@@ -348,7 +381,7 @@ class TestUpdateComplianceMetrics:
             pass  # Empty db
         
         score = update_compliance_metrics(str(temp_workspace), custom_db)
-        assert score == 50.0  # Expected default score with no placeholders
+        assert score == 60.0  # Expected default score with no placeholders
         with _connect(custom_db) as conn:
             cur = conn.execute(
                 "SELECT P FROM compliance_scores ORDER BY id DESC LIMIT 1"
@@ -374,12 +407,12 @@ class TestEdgeCases:
         with sqlite3.connect(analytics_db) as conn:
             _ensure_metrics_table(conn)
             conn.execute(
-                "INSERT INTO compliance_metrics_history (ts, ruff_issues, tests_passed, tests_total, placeholders_open, placeholders_resolved, lint_score, test_score, placeholder_score, composite_score, source, meta_json) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-                (1, 1, 1, 1, 0, 0, 99.0, 100.0, 0.0, 50.0, "test", None),
+                "INSERT INTO compliance_metrics_history (ts, ruff_issues, tests_passed, tests_total, placeholders_open, placeholders_resolved, sessions_successful, sessions_failed, lint_score, test_score, placeholder_score, session_score, composite_score, source, meta_json) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (1, 1, 1, 1, 0, 0, 2, 1, 99.0, 100.0, 0.0, 66.0, 50.0, "test", None),
             )
             conn.commit()
         rows = fetch_recent_compliance(workspace=str(temp_workspace))
-        assert rows and rows[0]["composite"] == 50.0
+        assert rows and rows[0]["session_score"] == 66.0
 
     def test_very_large_values(self):
         """Test computation with very large values."""
@@ -388,14 +421,17 @@ class TestEdgeCases:
             tests_passed=1000000,
             tests_total=1000000,
             placeholders_open=0,
-            placeholders_resolved=1000000
+            placeholders_resolved=1000000,
+            sessions_successful=1000000,
+            sessions_failed=0,
         )
-        L, T, P, composite = _compute(comp)
-        
+        L, T, P, S, composite = _compute(comp)
+
         assert L == 0.0     # Should be clamped to 0
         assert T == 100.0   # Perfect test score
         assert P == 100.0   # Perfect placeholder score
-        assert composite == 70.0  # 0.3*0 + 0.5*100 + 0.2*100
+        assert S == 100.0   # All sessions successful
+        assert composite == 70.0  # 0.3*0 + 0.4*100 + 0.2*100 + 0.1*100
 
     def test_negative_values(self):
         """Test computation handles negative values gracefully."""
@@ -404,9 +440,15 @@ class TestEdgeCases:
             tests_passed=-1, # Invalid but handled
             tests_total=10,
             placeholders_open=5,
-            placeholders_resolved=3
+            placeholders_resolved=3,
+            sessions_successful=0,
+            sessions_failed=0,
         )
-        L, T, P, composite = _compute(comp)
-        
+        L, T, P, S, composite = _compute(comp)
+
         # Negative ruff issue counts are clamped to 100%
         assert L == 100.0
+        assert T == -10.0
+        assert P == pytest.approx(37.5)
+        assert S == 100.0
+        assert composite == pytest.approx(43.5)

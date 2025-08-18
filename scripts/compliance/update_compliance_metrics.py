@@ -4,7 +4,8 @@ Composite score formula:
     L = max(0, 100 - ruff_issues)
     T = (tests_passed / tests_total) * 100
     P = (placeholders_resolved / (placeholders_open + placeholders_resolved)) * 100
-    composite = 0.3*L + 0.5*T + 0.2*P
+    S = (sessions_successful / (sessions_successful + sessions_failed)) * 100
+    composite = 0.3*L + 0.4*T + 0.2*P + 0.1*S
 
 Data sources (optional tables – treated as 0/100 defaults if absent):
     ruff_issue_log(issues)
@@ -39,6 +40,8 @@ class ComplianceComponents:
     tests_total: int
     placeholders_open: int
     placeholders_resolved: int
+    sessions_successful: int
+    sessions_failed: int
 
 
 def _connect(db: Path) -> sqlite3.Connection:
@@ -66,7 +69,10 @@ def _ensure_table(conn: sqlite3.Connection) -> None:
             tests_passed INTEGER NOT NULL,
             tests_total INTEGER NOT NULL,
             placeholders_open INTEGER NOT NULL,
-            placeholders_resolved INTEGER NOT NULL
+            placeholders_resolved INTEGER NOT NULL,
+            session_score REAL NOT NULL,
+            sessions_successful INTEGER NOT NULL,
+            sessions_failed INTEGER NOT NULL
         )
         """
     )
@@ -84,9 +90,12 @@ def _ensure_metrics_table(conn: sqlite3.Connection) -> None:
             tests_total INTEGER,
             placeholders_open INTEGER,
             placeholders_resolved INTEGER,
+            sessions_successful INTEGER,
+            sessions_failed INTEGER,
             lint_score REAL,
             test_score REAL,
             placeholder_score REAL,
+            session_score REAL,
             composite_score REAL,
             source TEXT,
             meta_json TEXT
@@ -129,16 +138,27 @@ def _fetch_components(conn: sqlite3.Connection) -> ComplianceComponents:
         tests_passed, tests_total = 0, 0
     # Use the most robust, compatible approach for placeholder audit snapshots
     placeholders_open, placeholders_resolved = get_latest_placeholder_snapshot(conn)
+    if _table_exists(conn, "session_lifecycle"):
+        sessions_successful = conn.execute(
+            "SELECT COUNT(*) FROM session_lifecycle WHERE status='success'"
+        ).fetchone()[0]
+        sessions_failed = conn.execute(
+            "SELECT COUNT(*) FROM session_lifecycle WHERE status!='success'"
+        ).fetchone()[0]
+    else:
+        sessions_successful = sessions_failed = 0
     return ComplianceComponents(
         int(ruff_issues or 0),
         int(tests_passed or 0),
         int(tests_total or 0),
         int(placeholders_open or 0),
         int(placeholders_resolved or 0),
+        int(sessions_successful or 0),
+        int(sessions_failed or 0),
     )
 
 
-def _compute(c: ComplianceComponents) -> Tuple[float, float, float, float]:
+def _compute(c: ComplianceComponents) -> Tuple[float, float, float, float, float]:
     L = min(100.0, max(0.0, 100.0 - float(c.ruff_issues)))
     T = (float(c.tests_passed) / c.tests_total * 100.0) if c.tests_total else 0.0
     denom = c.placeholders_open + c.placeholders_resolved
@@ -146,8 +166,15 @@ def _compute(c: ComplianceComponents) -> Tuple[float, float, float, float]:
         placeholder_score = 100.0
     else:
         placeholder_score = float(c.placeholders_resolved) / denom * 100.0
-    composite = 0.3 * L + 0.5 * T + 0.2 * placeholder_score
-    return L, T, placeholder_score, composite
+    sess_total = c.sessions_successful + c.sessions_failed
+    if sess_total == 0:
+        session_score = 100.0
+    else:
+        session_score = float(c.sessions_successful) / sess_total * 100.0
+    composite = (
+        0.3 * L + 0.4 * T + 0.2 * placeholder_score + 0.1 * session_score
+    )
+    return L, T, placeholder_score, session_score, composite
 
 
 def update_compliance_metrics(workspace: Optional[str] = None, db_path: Optional[Path] = None) -> float:
@@ -161,7 +188,7 @@ def update_compliance_metrics(workspace: Optional[str] = None, db_path: Optional
         _ensure_table(conn)
         _ensure_metrics_table(conn)
         comp = _fetch_components(conn)
-        L, T, placeholder_score, composite = _compute(comp)
+        L, T, placeholder_score, session_score, composite = _compute(comp)
         ts = int(time.time())
         # Write to unified history table
         conn.execute(
@@ -169,9 +196,10 @@ def update_compliance_metrics(workspace: Optional[str] = None, db_path: Optional
             INSERT INTO compliance_metrics_history (
                 ts, ruff_issues, tests_passed, tests_total,
                 placeholders_open, placeholders_resolved,
-                lint_score, test_score, placeholder_score,
+                sessions_successful, sessions_failed,
+                lint_score, test_score, placeholder_score, session_score,
                 composite_score, source, meta_json
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             """,
             (
                 ts,
@@ -180,9 +208,12 @@ def update_compliance_metrics(workspace: Optional[str] = None, db_path: Optional
                 comp.tests_total,
                 comp.placeholders_open,
                 comp.placeholders_resolved,
+                comp.sessions_successful,
+                comp.sessions_failed,
                 L,
                 T,
                 placeholder_score,
+                session_score,
                 composite,
                 "update_compliance",
                 None,
@@ -194,8 +225,9 @@ def update_compliance_metrics(workspace: Optional[str] = None, db_path: Optional
             INSERT INTO compliance_scores (
                 timestamp, L, T, P, composite,
                 ruff_issues, tests_passed, tests_total,
-                placeholders_open, placeholders_resolved
-            ) VALUES (?,?,?,?,?,?,?,?,?,?)
+                placeholders_open, placeholders_resolved,
+                session_score, sessions_successful, sessions_failed
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
             """,
             (
                 ts,
@@ -208,6 +240,9 @@ def update_compliance_metrics(workspace: Optional[str] = None, db_path: Optional
                 comp.tests_total,
                 comp.placeholders_open,
                 comp.placeholders_resolved,
+                session_score,
+                comp.sessions_successful,
+                comp.sessions_failed,
             ),
         )
         conn.commit()
@@ -229,12 +264,12 @@ def fetch_recent_compliance(
         _ensure_metrics_table(conn)
         cur = conn.execute(
             """
-            SELECT ts, composite_score, lint_score, test_score, placeholder_score
+            SELECT ts, composite_score, lint_score, test_score, placeholder_score, session_score
             FROM compliance_metrics_history ORDER BY ts DESC LIMIT ?
             """,
             (limit,),
         )
-        for ts, comp, l_score, t_score, p_score in cur.fetchall():
+        for ts, comp, l_score, t_score, p_score, s_score in cur.fetchall():
             rows.append(
                 {
                     "timestamp": ts,
@@ -242,6 +277,7 @@ def fetch_recent_compliance(
                     "lint_score": l_score,
                     "test_score": t_score,
                     "placeholder_score": p_score,
+                    "session_score": s_score,
                 }
             )
     return rows
