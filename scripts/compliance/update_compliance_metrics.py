@@ -19,6 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+import json
 import os
 import sqlite3
 import time
@@ -177,7 +178,43 @@ def _compute(c: ComplianceComponents) -> Tuple[float, float, float, float, float
     return L, T, placeholder_score, session_score, composite
 
 
-def update_compliance_metrics(workspace: Optional[str] = None, db_path: Optional[Path] = None) -> float:
+def _export_dashboard_report(
+    ws: Path,
+    name: str,
+    score: float,
+    details: Optional[Dict[str, object]] = None,
+) -> Path:
+    """Persist a JSON report under ``dashboard/compliance``.
+
+    Parameters
+    ----------
+    ws:
+        Workspace root.
+    name:
+        Report filename stem (e.g. ``"sox"``).
+    score:
+        Composite compliance score.
+    details:
+        Extra key/value pairs to include in the JSON document.
+    """
+    dash_dir = ws / "dashboard" / "compliance"
+    dash_dir.mkdir(parents=True, exist_ok=True)
+    payload = {"timestamp": int(time.time()), "composite_score": score}
+    if details:
+        payload.update(details)
+    out_path = dash_dir / f"{name}.json"
+    out_path.write_text(json.dumps(payload, indent=2))
+    return out_path
+
+
+def update_compliance_metrics(
+    workspace: Optional[str] = None,
+    db_path: Optional[Path] = None,
+    *,
+    export_dashboard: bool = False,
+    report_name: str = "compliance",
+    extra_details: Optional[Dict[str, object]] = None,
+) -> float:
     ws = Path(workspace or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
     analytics_db = db_path or ws / "databases" / "analytics.db"
     if not analytics_db.exists():  # pragma: no cover
@@ -246,7 +283,9 @@ def update_compliance_metrics(workspace: Optional[str] = None, db_path: Optional
             ),
         )
         conn.commit()
-        return composite
+    if export_dashboard:
+        _export_dashboard_report(ws, report_name, composite, extra_details)
+    return composite
 
 
 def fetch_recent_compliance(
@@ -288,8 +327,15 @@ def _cli():  # pragma: no cover
     p = argparse.ArgumentParser(description="Update composite compliance metrics")
     p.add_argument("--workspace", type=str, default=None)
     p.add_argument("--db", type=str, default=None)
+    p.add_argument("--export-dashboard", action="store_true")
+    p.add_argument("--report-name", type=str, default="compliance")
     a = p.parse_args()
-    score = update_compliance_metrics(a.workspace, Path(a.db) if a.db else None)
+    score = update_compliance_metrics(
+        a.workspace,
+        Path(a.db) if a.db else None,
+        export_dashboard=a.export_dashboard,
+        report_name=a.report_name,
+    )
     print(f"Composite compliance score recorded: {score:.2f}")
 
 
