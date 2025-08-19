@@ -4,7 +4,14 @@ import hashlib
 import sqlite3
 from pathlib import Path
 
-from template_engine.template_synchronizer import _compliance_score
+try:  # pragma: no cover - import guarded for optional dependency
+    import numpy  # noqa: F401
+    from template_engine.template_synchronizer import _compliance_score
+    HAS_NUMPY = True
+except ImportError:  # pragma: no cover - fallback when numpy is missing
+    numpy = None  # type: ignore
+    _compliance_score = None  # type: ignore
+    HAS_NUMPY = False
 from utils.log_utils import _log_event
 
 
@@ -47,9 +54,11 @@ class IngestionValidator:
             return False
         content = file_path.read_text(encoding="utf-8")
         digest = hashlib.sha256(content.encode()).hexdigest()
-        score = _compliance_score(content)
+        score = _compliance_score(content) if HAS_NUMPY and _compliance_score else None
         logged_score = self._fetch_logged_score(path)
-        ok = digest == stored_hash and (logged_score is None or logged_score == score)
+        ok = digest == stored_hash and (
+            not HAS_NUMPY or logged_score is None or logged_score == score
+        )
         if not ok:
             _log_event(
                 {
@@ -60,6 +69,7 @@ class IngestionValidator:
                     "actual_hash": digest,
                     "stored_score": logged_score,
                     "actual_score": score,
+                    "numpy_missing": not HAS_NUMPY,
                 },
                 table="correction_logs",
                 db_path=self.analytics_db,
