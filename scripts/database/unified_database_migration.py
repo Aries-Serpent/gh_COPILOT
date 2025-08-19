@@ -31,10 +31,6 @@ from scripts.validation.semantic_search_reference_validator import (
 )
 from secondary_copilot_validator import SecondaryCopilotValidator
 
-# Alias for legacy reference
-validate_database_size_reference = check_database_sizes
-
-
 def _compress_database(db_path: Path) -> None:
     """Compress the SQLite database in-place.
 
@@ -93,7 +89,10 @@ def compress_database(db_path: Path) -> None:
 
 def validate_database_size(databases_dir: Path, limit_mb: float = 99.9) -> None:
     """Raise ``RuntimeError`` if any database exceeds ``limit_mb``."""
-    sizes = check_database_sizes(databases_dir, threshold_mb=limit_mb)
+    sizes = {
+        p.name: p.stat().st_size / (1024 * 1024)
+        for p in databases_dir.rglob("*.db")
+    }
     oversized = {name: size for name, size in sizes.items() if size > limit_mb}
     if oversized:
         details = ", ".join(f"{name}: {size:.2f} MB" for name, size in oversized.items())
@@ -140,15 +139,11 @@ def run_migration(
             log_sync_operation(enterprise_db, f"completed_migrate_{src.name}", start_time=start_dt)
             _compress_database(enterprise_db)
             bar.update(1)
-            if monitor_size:
-                sizes = check_database_sizes(db_dir)
-                if any(size > 99.9 for size in sizes.values()):
-                    raise RuntimeError("Database size limit exceeded")
+            if monitor_size and not check_database_sizes(db_dir):
+                raise RuntimeError("Database size limit exceeded")
 
-    if monitor_size:
-        sizes = check_database_sizes(db_dir)
-        if any(size > 99.9 for size in sizes.values()):
-            raise RuntimeError("Database size limit exceeded")
+    if monitor_size and not check_database_sizes(db_dir):
+        raise RuntimeError("Database size limit exceeded")
 
     log_sync_operation(
         enterprise_db,
