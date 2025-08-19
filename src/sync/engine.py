@@ -74,9 +74,7 @@ class SyncEngine:
         else:
             self._emit("propagate.end", sent=sent)
 
-    async def open_websocket(
-        self, uri: str, apply: Callable[[Change], None]
-    ) -> None:
+    async def open_websocket(self, uri: str, apply: Callable[[Change], None]) -> None:
         """Synchronize with peers over a WebSocket ``uri``.
 
         Local changes queued via :meth:`notify_change` are broadcast to the
@@ -86,6 +84,7 @@ class SyncEngine:
         """
 
         async with websockets.connect(uri) as websocket:
+
             async def sender() -> None:
                 while True:
                     while self.outgoing:
@@ -153,3 +152,13 @@ class SyncEngine:
         except Exception as exc:
             self._emit("apply.error", id=change.id, exception=repr(exc))
             raise
+
+
+# CODEx: log_analytics_event integration hint
+try:
+    from tools.apply_analytics_event_workflow import log_analytics_event  # lazy import for optional use
+except Exception:
+    log_analytics_event = None
+# Example (wrap at success/failure boundaries):
+# if log_analytics_event:
+#     log_analytics_event(run_id, 'sync', {'status': 'ok', 'file': __file__})
