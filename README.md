@@ -2214,6 +2214,7 @@ pytest -q
 
 * SQLite file: `analytics.db`
 * Table: `events(event_time TEXT, level TEXT, event TEXT, details TEXT)`
+* Internal helper table: `analytics_events(run_id, kind, payload, ts)`
 
 ### Functions (auto-injected helpers)
 
