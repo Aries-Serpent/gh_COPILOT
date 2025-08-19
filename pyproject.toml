@@ -28,10 +28,10 @@ gh-copilot = "gh_copilot.cli:app"
 
 [tool.setuptools]
 # Map the root package to the source directory
-package-dir = {"" = "src"}
+package-dir = {"" = "."}
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["."]
 include = ["copilot", "monitoring"]
 exclude = ["scripts.quantum_placeholders"]
 
