@@ -28,6 +28,34 @@ def _ensure_stub(mod_name: str, submods: list[str] | None = None) -> None:
             sys.modules[full] = types.ModuleType(full)
 
 _ensure_stub('qiskit', ['algorithms','quantum_info','transpiler','providers'])
+
+# Minimal tqdm stub
+if 'tqdm' not in sys.modules:
+    class _TqdmStub:
+        def __init__(self, iterable=None, **kwargs):
+            self.iterable = iterable or []
+
+        def __iter__(self):
+            return iter(self.iterable)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def update(self, *args, **kwargs):
+            pass
+
+        def __getattr__(self, name):  # pragma: no cover - simple no-op
+            def _noop(*args, **kwargs):
+                return None
+
+            return _noop
+
+    tqdm_stub = types.ModuleType('tqdm')
+    tqdm_stub.tqdm = _TqdmStub
+    sys.modules['tqdm'] = tqdm_stub
 try:
     import scripts.wlc_session_manager as wsm
 except Exception:  # pragma: no cover - fallback when optional deps missing
@@ -38,27 +66,6 @@ except Exception:  # pragma: no cover - fallback when optional deps missing
                 "CREATE TABLE IF NOT EXISTS unified_wrapup_sessions (id INTEGER)"
             )
     wsm = _WsmStub()
-
-# Provide a stub monitoring module for tests to avoid optional dependency errors.
-monitoring_stub = types.ModuleType("monitoring")
-
-
-class BaselineAnomalyDetector:  # minimal placeholder
-    def __init__(self, db_path=None):
-        self.threshold = 0.0
-
-    def zscores(self):
-        return []
-
-    def detect(self):
-        return []
-
-
-monitoring_stub.BaselineAnomalyDetector = BaselineAnomalyDetector
-sys.modules["monitoring"] = monitoring_stub
-health_monitor_stub = types.ModuleType("monitoring.health_monitor")
-health_monitor_stub.gather_metrics = lambda *a, **k: []
-sys.modules["monitoring.health_monitor"] = health_monitor_stub
 
 # Enable test mode to prevent side effects such as database writes.
 os.environ.setdefault("TEST_MODE", "1")

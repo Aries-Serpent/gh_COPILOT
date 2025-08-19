@@ -44,7 +44,7 @@ def test_ingest_creates_new_version_for_updated_content(tmp_path, monkeypatch):
 
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     monkeypatch.setattr(ingestor_module, "enforce_anti_recursion", lambda ctx: None)
-    monkeypatch.setattr(ingestor_module, "validate_enterprise_operation", lambda: None)
+    monkeypatch.setattr(ingestor_module, "validate_enterprise_operation", lambda: True)
     monkeypatch.setattr(
         ingestor_module.SecondaryCopilotValidator,
         "validate_corrections",
@@ -73,7 +73,7 @@ def test_ingest_does_not_duplicate_when_unchanged(tmp_path, monkeypatch):
 
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     monkeypatch.setattr(ingestor_module, "enforce_anti_recursion", lambda ctx: None)
-    monkeypatch.setattr(ingestor_module, "validate_enterprise_operation", lambda: None)
+    monkeypatch.setattr(ingestor_module, "validate_enterprise_operation", lambda: True)
     monkeypatch.setattr(
         ingestor_module.SecondaryCopilotValidator,
         "validate_corrections",

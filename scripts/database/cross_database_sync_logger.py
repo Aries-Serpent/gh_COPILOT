@@ -23,6 +23,7 @@ from enterprise_modules.compliance import validate_enterprise_operation
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.log_utils import log_event
 from utils.logging_utils import setup_enterprise_logging
+from utils.analytics_events import log_analytics_event
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +43,7 @@ def log_sync_operation(
     *,
     status: str = "SUCCESS",
     start_time: datetime | None = None,
-    ) -> datetime:
+) -> datetime:
     """Insert a sync operation record and return the start timestamp.
 
     ``db_paths`` may be a single path or an iterable of paths.  The operation
@@ -56,9 +57,7 @@ def log_sync_operation(
     """
     validate_enterprise_operation()
 
-    paths: list[Path] = (
-        [db_paths] if isinstance(db_paths, Path) else [Path(p) for p in db_paths]
-    )
+    paths: list[Path] = [db_paths] if isinstance(db_paths, Path) else [Path(p) for p in db_paths]
 
     if start_time is not None and start_time.tzinfo is None:
         start_time = start_time.replace(tzinfo=timezone.utc)
@@ -120,6 +119,12 @@ def log_sync_operation(
             },
             db_path=analytics_db,
         )
+        log_analytics_event(
+            operation,
+            "sync_step",
+            {"status": status, "duration": duration},
+            timestamp,
+        )
     except Exception as exc:  # pragma: no cover - best effort analytics logging
         logger.error("Failed to log analytics event: %s", exc)
     return start_dt
@@ -140,17 +145,13 @@ def log_sync_operation_with_analytics(
     defaults to ``databases/analytics.db`` under the current workspace.
     """
 
-    start_dt = log_sync_operation(
-        db_paths, operation, status=status, start_time=start_time
-    )
+    start_dt = log_sync_operation(db_paths, operation, status=status, start_time=start_time)
     event = {
         "source": operation,
         "target": status,
         "ts": datetime.now(timezone.utc).isoformat(),
     }
-    db_path = analytics_db or (
-        CrossPlatformPathManager.get_workspace_path() / "databases" / "analytics.db"
-    )
+    db_path = analytics_db or (CrossPlatformPathManager.get_workspace_path() / "databases" / "analytics.db")
     log_event(event, table="sync_events_log", db_path=db_path)
     return start_dt
 
@@ -195,3 +196,13 @@ if __name__ == "__main__":
             log_sync_operation(args.database, op, status=args.status, start_time=start_dt)
     else:
         log_sync_operation(args.database, ops[0], status=args.status, start_time=start_dt)
+
+
+# CODEx: log_analytics_event integration hint
+try:
+    from tools.apply_analytics_event_workflow import log_analytics_event  # lazy import for optional use
+except Exception:
+    log_analytics_event = None
+# Example (wrap at success/failure boundaries):
+# if log_analytics_event:
+#     log_analytics_event(run_id, 'sync', {'status': 'ok', 'file': __file__})

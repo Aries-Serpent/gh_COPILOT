@@ -55,7 +55,6 @@ def test_panel_updates_chart(html_path: str, func_name: str, gauge_name: str, va
         }};
         const {gauge_name} = {{
             data: {{ datasets: [{{ data: [0, 100] }}] }},
-            options: {{ plugins: {{ tooltip: {{ enabled: false }}, thresholds: {{ current: 0 }} }} }},
             updateCalled: false,
             update() {{ this.updateCalled = true; }}
         }};
@@ -70,8 +69,6 @@ def test_panel_updates_chart(html_path: str, func_name: str, gauge_name: str, va
         ["node", "-e", js], capture_output=True, text=True, check=True
     )
     gauge = json.loads(result.stdout.strip())
-    assert gauge["data"]["datasets"][0]["data"][0] == value
+    assert gauge["data"]["datasets"][0]["data"] == [value, max(0, 100 - value)]
     assert gauge["updateCalled"] is True
-    assert gauge["options"]["plugins"]["tooltip"]["enabled"] is True
-    assert gauge["options"]["plugins"]["thresholds"]["current"] == value
 

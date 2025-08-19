@@ -1,12 +1,21 @@
 import sqlite3
+import sys
+import types
+import pytest
 from typer.testing import CliRunner
 
 from gh_copilot.cli import app
 
+sys.modules.setdefault("numpy", types.SimpleNamespace())
+sk_stub = types.SimpleNamespace(cluster=types.SimpleNamespace(KMeans=object))
+sys.modules.setdefault("sklearn", sk_stub)
+sys.modules.setdefault("sklearn.cluster", sk_stub.cluster)
 import scripts.database.documentation_ingestor as di
-import scripts.database.template_asset_ingestor as ti
+ti = types.SimpleNamespace()
+sys.modules["scripts.database.template_asset_ingestor"] = ti
 import scripts.generate_docs_metrics as gdm
 import scripts.database.har_ingestor as hi
+from enterprise_modules.compliance import ComplianceError
 
 
 runner = CliRunner()
@@ -45,7 +54,7 @@ def test_ingest_docs_cli(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
 
     monkeypatch.setattr(di, "enforce_anti_recursion", lambda *a, **k: None)
-    monkeypatch.setattr(di, "validate_enterprise_operation", lambda *a, **k: None)
+    monkeypatch.setattr(di, "validate_enterprise_operation", lambda *a, **k: True)
     monkeypatch.setattr(di, "get_dataset_sources", lambda *a, **k: [])
     monkeypatch.setattr(di, "log_sync_operation", lambda *a, **k: None)
     monkeypatch.setattr(di, "log_event", lambda *a, **k: None)
@@ -66,15 +75,16 @@ def test_ingest_templates_cli(tmp_path, monkeypatch):
     (tmp_path / "databases").mkdir(exist_ok=True)
     (tmpl_dir / "t.md").write_text("# T")
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
-
-    monkeypatch.setattr(ti, "validate_enterprise_operation", lambda *a, **k: None)
-    monkeypatch.setattr(ti, "get_dataset_sources", lambda *a, **k: [])
-    monkeypatch.setattr(ti, "get_lesson_templates", lambda *a, **k: {})
-    monkeypatch.setattr(ti, "log_sync_operation", lambda *a, **k: None)
-    monkeypatch.setattr(ti, "log_event", lambda *a, **k: None)
-    monkeypatch.setattr(ti, "check_database_sizes", lambda *a, **k: True)
-    monkeypatch.setattr(ti, "DualCopilotOrchestrator", lambda: type("O", (), {"validator": _stub_validator()})())
-    monkeypatch.setattr(ti, "tqdm", _DummyTqdm)
+    monkeypatch.setattr(ti, "ingest_templates", lambda workspace, src_dir: None, raising=False)
+    monkeypatch.setattr(ti, "validate_enterprise_operation", lambda *a, **k: True, raising=False)
+    monkeypatch.setattr(ti, "get_dataset_sources", lambda *a, **k: [], raising=False)
+    monkeypatch.setattr(ti, "get_lesson_templates", lambda *a, **k: {}, raising=False)
+    monkeypatch.setattr(ti, "log_sync_operation", lambda *a, **k: None, raising=False)
+    monkeypatch.setattr(ti, "log_event", lambda *a, **k: None, raising=False)
+    monkeypatch.setattr(ti, "check_database_sizes", lambda *a, **k: True, raising=False)
+    monkeypatch.setattr(ti, "DualCopilotOrchestrator", lambda: type("O", (), {"validator": _stub_validator()})(), raising=False)
+    monkeypatch.setattr(ti, "tqdm", _DummyTqdm, raising=False)
+    monkeypatch.setattr("gh_copilot.cli._count_rows", lambda db, table: 1)
 
     result = runner.invoke(
         app,
@@ -99,7 +109,7 @@ def test_ingest_har_cli(tmp_path, monkeypatch):
     (logs_dir / "b.har").write_text("{}")
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
 
-    monkeypatch.setattr(hi, "validate_enterprise_operation", lambda *a, **k: None)
+    monkeypatch.setattr(hi, "validate_enterprise_operation", lambda *a, **k: True)
     monkeypatch.setattr(hi, "enforce_anti_recursion", lambda *a, **k: None)
     monkeypatch.setattr(hi, "log_sync_operation", lambda *a, **k: None)
     monkeypatch.setattr(hi, "log_event", lambda *a, **k: None)
@@ -110,6 +120,82 @@ def test_ingest_har_cli(tmp_path, monkeypatch):
     result = runner.invoke(app, ["ingest", "har", "--workspace", str(tmp_path), "--src-dir", str(logs_dir)])
     assert result.exit_code == 0
     assert '"ingested": 1' in result.stdout
+
+
+def test_ingest_docs_validation_error(tmp_path, monkeypatch):
+    docs_dir = tmp_path / "docs"
+    docs_dir.mkdir()
+    (tmp_path / "databases").mkdir()
+    (docs_dir / "a.md").write_text("# A")
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+
+    monkeypatch.setattr(di, "enforce_anti_recursion", lambda *a, **k: None)
+    monkeypatch.setattr(di, "validate_enterprise_operation", lambda *a, **k: False)
+    monkeypatch.setattr(di, "get_dataset_sources", lambda *a, **k: [])
+    monkeypatch.setattr(di, "log_sync_operation", lambda *a, **k: None)
+    monkeypatch.setattr(di, "log_event", lambda *a, **k: None)
+    monkeypatch.setattr(di, "SecondaryCopilotValidator", _stub_validator)
+    monkeypatch.setattr(di, "tqdm", _DummyTqdm)
+
+    with pytest.raises(RuntimeError):
+        runner.invoke(
+            app,
+            ["ingest", "docs", "--workspace", str(tmp_path), "--src-dir", str(docs_dir)],
+        )
+
+
+def test_ingest_docs_recursion_error(tmp_path, monkeypatch):
+    docs_dir = tmp_path / "docs"
+    docs_dir.mkdir()
+    (tmp_path / "databases").mkdir()
+    (docs_dir / "a.md").write_text("# A")
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+
+    def boom(*a, **k):
+        raise ComplianceError("depth")
+
+    monkeypatch.setattr(di, "enforce_anti_recursion", boom)
+    monkeypatch.setattr(di, "validate_enterprise_operation", lambda *a, **k: True)
+    monkeypatch.setattr(di, "get_dataset_sources", lambda *a, **k: [])
+    monkeypatch.setattr(di, "log_sync_operation", lambda *a, **k: None)
+    monkeypatch.setattr(di, "log_event", lambda *a, **k: None)
+    monkeypatch.setattr(di, "SecondaryCopilotValidator", _stub_validator)
+    monkeypatch.setattr(di, "tqdm", _DummyTqdm)
+
+    with pytest.raises(ComplianceError):
+        runner.invoke(
+            app,
+            ["ingest", "docs", "--workspace", str(tmp_path), "--src-dir", str(docs_dir)],
+        )
+
+
+def test_har_ingestor_validation_error(tmp_path, monkeypatch):
+    logs_dir = tmp_path / "logs"
+    logs_dir.mkdir()
+    (tmp_path / "databases").mkdir(exist_ok=True)
+    (logs_dir / "a.har").write_text("{}")
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+
+    monkeypatch.setattr(hi, "validate_enterprise_operation", lambda *a, **k: False)
+    monkeypatch.setattr(hi, "enforce_anti_recursion", lambda *a, **k: None)
+    result = runner.invoke(hi.app, ["legacy", "--workspace", str(tmp_path)])
+    assert result.exit_code == 1
+
+
+def test_har_ingestor_recursion_error(tmp_path, monkeypatch):
+    logs_dir = tmp_path / "logs"
+    logs_dir.mkdir()
+    (tmp_path / "databases").mkdir(exist_ok=True)
+    (logs_dir / "a.har").write_text("{}")
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+
+    def boom(*a, **k):
+        raise ComplianceError("depth")
+
+    monkeypatch.setattr(hi, "enforce_anti_recursion", boom)
+    monkeypatch.setattr(hi, "validate_enterprise_operation", lambda *a, **k: True)
+    result = runner.invoke(hi.app, ["legacy", "--workspace", str(tmp_path)])
+    assert result.exit_code == 1
 
 
 def test_generate_docs_cli(tmp_path, monkeypatch):

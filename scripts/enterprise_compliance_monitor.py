@@ -70,42 +70,18 @@ try:  # pragma: no cover - psutil may not be available in minimal environments
     import psutil
 except Exception:  # pragma: no cover
     psutil = None
-try:  # pragma: no cover - tqdm is optional for tests
-    from tqdm import tqdm
-except Exception:  # pragma: no cover
-    class tqdm:  # type: ignore
-        def __init__(self, *args, **kwargs):
-            pass
 
-        def __enter__(self):
-            return self
-
-        def __exit__(self, *exc):
-            return False
-
-        def update(self, *args, **kwargs):
-            pass
-
-        def set_description(self, *args, **kwargs):
-            pass
+from tqdm import tqdm
 
 
 # Enterprise Imports
-# Fallback implementation for DualCopilotValidator if import fails
-class DualCopilotValidator:
-    def __init__(self):
-        pass
-
-    def validate_execution(self, *args, **kwargs):
-        # Fallback: Simulate validation result with required attributes
-        class ValidationResult:
-            def __init__(self):
-                self.passed = True
-                self.successes = ["Fallback validation passed"]
-                self.errors = []
-                self.warnings = []
-
-        return ValidationResult()
+try:
+    from secondary_copilot_validator import DualCopilotValidator
+except ImportError as exc:  # pragma: no cover - optional dependency
+    DualCopilotValidator = None  # type: ignore[assignment]
+    DUAL_COPILOT_IMPORT_ERROR = exc
+else:
+    DUAL_COPILOT_IMPORT_ERROR = None
 
 
 class ComplianceCategory(Enum):
@@ -226,7 +202,12 @@ class EnterpriseComplianceMonitor:
     Comprehensive real-time compliance monitoring and enforcement system
     """
 
-    def __init__(self, workspace_path: Optional[str] = None, config: Optional[ComplianceConfiguration] = None):
+    def __init__(
+        self,
+        workspace_path: Optional[str] = None,
+        config: Optional[ComplianceConfiguration] = None,
+        disable_progress: bool = False,
+    ) -> None:
         """Initialize Enterprise Compliance Monitor with comprehensive setup"""
 
         # 🚀 MANDATORY: Start time logging with enterprise formatting
@@ -247,6 +228,9 @@ class EnterpriseComplianceMonitor:
         self.monitoring_thread = None
         self.compliance_cache = {}
         self.last_compliance_check = None
+
+        # Progress bar control
+        self.disable_progress = disable_progress
 
         # 🔧 Setup logging
         self._setup_logging()
@@ -326,6 +310,12 @@ class EnterpriseComplianceMonitor:
 
     def _initialize_dual_copilot(self):
         """🤖🤖 Initialize DUAL COPILOT validation system"""
+        if DualCopilotValidator is None:
+            self.logger.warning(
+                f"⚠️  DUAL COPILOT validator import failed: {DUAL_COPILOT_IMPORT_ERROR}"
+            )
+            self.dual_copilot_validator = None
+            return
         try:
             self.dual_copilot_validator = DualCopilotValidator()
             self.logger.info("✅ DUAL COPILOT VALIDATOR INITIALIZED")
@@ -396,8 +386,29 @@ class EnterpriseComplianceMonitor:
     def start_compliance_monitoring(self) -> Dict[str, Any]:
         """🚀 Start comprehensive compliance monitoring with 6-phase validation"""
 
+        if self.dual_copilot_validator is None:
+            self.logger.warning(
+                "⚠️  DUAL COPILOT validator unavailable - aborting monitoring"
+            )
+            raise RuntimeError("DualCopilotValidator unavailable")
+        try:
+            validation = self.dual_copilot_validator.validate_execution()
+        except Exception as e:  # pragma: no cover - defensive
+            self.logger.error(f"❌ DUAL COPILOT validation error: {e}")
+            raise RuntimeError("DualCopilotValidator validation error") from e
+        if not getattr(validation, "passed", False):
+            self.logger.error(
+                f"❌ DUAL COPILOT validation failed: {getattr(validation, 'errors', [])}"
+            )
+            raise RuntimeError("DualCopilotValidator validation failed")
+
         # MANDATORY: Visual processing indicators
-        with tqdm(total=100, desc="🏢 Starting Compliance Monitoring", unit="%") as pbar:
+        with tqdm(
+            total=100,
+            desc="🏢 Starting Compliance Monitoring",
+            unit="%",
+            disable=self.disable_progress,
+        ) as pbar:
             # Phase 1: System Health Validation (15%)
             pbar.set_description("🔍 System Health Validation")
             self._validate_system_health()
@@ -1191,14 +1202,23 @@ class EnterpriseComplianceMonitor:
         """📊 Generate comprehensive compliance report"""
 
         # MANDATORY: Visual processing indicators
-        with tqdm(total=100, desc="📊 Generating Compliance Report", unit="%") as pbar:
+        with tqdm(
+            total=100,
+            desc="📊 Generating Compliance Report",
+            unit="%",
+            disable=self.disable_progress,
+        ) as pbar:
             pbar.set_description("📈 Calculating metrics")
             self._update_compliance_metrics()
             pbar.update(30)
 
             pbar.set_description("📋 Compiling results")
-            compliance_results = []
+            compliance_results: List[ComplianceResult] = []
+            step = 40 / max(len(self.compliance_cache), 1)
             for category, cache_data in self.compliance_cache.items():
+                pbar.set_description(
+                    f"📋 Compiling {category.value.replace('_', ' ').title()}"
+                )
                 result = ComplianceResult(
                     category=category,
                     score=cache_data.get("score", 0.0),
@@ -1214,7 +1234,7 @@ class EnterpriseComplianceMonitor:
                 if not self.validator.is_compliant(result) and self.config.auto_correction:
                     result = self.correction_engine.apply(result)
                 compliance_results.append(result)
-            pbar.update(40)
+                pbar.update(step)
 
             pbar.set_description("📊 Finalizing report")
             report = {
@@ -1354,7 +1374,12 @@ class EnterpriseComplianceMonitor:
         """🔚 Stop compliance monitoring with 4-phase termination"""
 
         # MANDATORY: Visual processing indicators
-        with tqdm(total=100, desc="🔚 Stopping Compliance Monitoring", unit="%") as pbar:
+        with tqdm(
+            total=100,
+            desc="🔚 Stopping Compliance Monitoring",
+            unit="%",
+            disable=self.disable_progress,
+        ) as pbar:
             # Phase 1: Stop background monitoring (25%)
             pbar.set_description("🛑 Stopping background monitoring")
             self.monitoring_active = False
@@ -1464,6 +1489,11 @@ def main():
     parser.add_argument("--threshold", type=float, default=80.0, help="Compliance threshold")
     parser.add_argument("--auto-fix", action="store_true", help="Enable automatic corrections")
     parser.add_argument("--dashboard", action="store_true", help="Enable compliance dashboard")
+    parser.add_argument(
+        "--no-progress",
+        action="store_true",
+        help="Disable progress bars for headless environments",
+    )
 
     args = parser.parse_args()
 
@@ -1477,7 +1507,11 @@ def main():
         )
 
         # Initialize monitor
-        monitor = EnterpriseComplianceMonitor(workspace_path=args.workspace, config=config)
+        monitor = EnterpriseComplianceMonitor(
+            workspace_path=args.workspace,
+            config=config,
+            disable_progress=args.no_progress,
+        )
 
         if args.action == "start":
             print("🚀 Starting Enterprise Compliance Monitoring...")

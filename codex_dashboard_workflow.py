@@ -16,12 +16,15 @@ HARD GUARD: Never touch .github/workflows/*
 
 import argparse
 import json
+import os
 import re
+import sqlite3
 import sys
 import textwrap
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+from src.analytics.metrics_reader import get_latest_panel_snapshot
 
 
 # ---------------------- Utilities ----------------------
@@ -64,7 +67,7 @@ def error_for_chatgpt5(errors_md: Path, step_number: str, step_desc: str, exc: E
         f"""
     **Question for ChatGPT-5:**
     While performing [{step_number}:{step_desc}], encountered the following error:
-    `{type(exc).__name__}: {str(exc)}`  
+    `{type(exc).__name__}: {str(exc)}`
     Context: {context}
     What are the possible causes, and how can this be resolved while preserving intended functionality?
 
@@ -77,6 +80,46 @@ def error_for_chatgpt5(errors_md: Path, step_number: str, step_desc: str, exc: E
 def add_changelog(changelog: Path, title: str, body: str):
     section = f"## {title}\n\n{body.strip()}\n\n"
     append_text(changelog, section)
+
+
+# Default path to analytics database used for dashboard metrics.
+ANALYTICS_DB = Path("analytics.db")
+
+
+def fetch_panel_metrics(panel: str, db_path: Path | None = None) -> Dict[str, object]:
+    """Return metrics for ``panel`` from ``analytics.db``.
+
+    Parameters
+    ----------
+    panel: str
+        Name of the dashboard panel to query.
+    db_path: Path | None
+        Optional override for the analytics database location.
+
+    Returns
+    -------
+    Dict[str, object]
+        Mapping with keys ``value``, ``target`` and ``unit``. Defaults are
+        returned if the database or row is missing.
+    """
+
+    db = Path(db_path) if db_path else ANALYTICS_DB
+    try:
+        with sqlite3.connect(db) as conn:
+            conn.row_factory = sqlite3.Row
+            row = conn.execute(
+                "SELECT value, target, unit FROM dashboard_metrics WHERE panel = ?",
+                (panel,),
+            ).fetchone()
+            if row:
+                return {
+                    "value": row["value"],
+                    "target": row["target"],
+                    "unit": row["unit"],
+                }
+    except Exception:
+        pass
+    return {"value": 0, "target": 100, "unit": "%"}
 
 
 # ---------------------- Analysis & Mapping ----------------------
@@ -157,68 +200,24 @@ def scan_for_chartjs(html_text: str) -> bool:
 # ---------------------- Patch & Stub Generators ----------------------
 
 
-def patch_for_panel(framework: str, panel: str, api_path: str, module_hint: str) -> str:
-    if framework == "flask":
-        body = f"""
-        # --- BEGIN SUGGESTED ADDITION: {panel} metrics endpoint ---
-        @app.route(\"{api_path}\", methods=[\"GET\"])
-        def metrics_{panel}():
-            \"\"\"Return JSON metrics for {panel}.
-            TODO: Replace mock with real metrics. Keep schema stable.
-            \"\"\"
-            data = {{
-                \"panel\": \"{panel}\",
-                \"updated_at\": \"{now_iso()}\",
-                \"status\": \"ok\",
-                \"metrics\": {{
-                    \"value\": 0,
-                    \"target\": 100,
-                    \"unit\": \"%\"
-                }}
-            }}
-            return jsonify(data), 200
-        # --- END SUGGESTED ADDITION ---
-        """
-    elif framework == "fastapi":
-        body = f"""
-        # --- BEGIN SUGGESTED ADDITION: {panel} metrics endpoint ---
-        @router.get(\"{api_path}\")
-        async def metrics_{panel}():
-            \"\"\"Return JSON metrics for {panel}.
-            TODO: Replace mock with real metrics. Keep schema stable.
-            \"\"\"
-            return {{
-                \"panel\": \"{panel}\",
-                \"updated_at\": \"{now_iso()}\",
-                \"status\": \"ok\",
-                \"metrics\": {{
-                    \"value\": 0,
-                    \"target\": 100,
-                    \"unit\": \"%\"
-                }}
-            }}
-        # --- END SUGGESTED ADDITION ---
-        """
-    else:
-        body = f"""
-        # Framework unknown. Provide a generic WSGI-style hint for {panel}:
-        # GET {api_path} -> JSON: {{
-        #   \"panel\": \"{panel}\",
-        #   \"updated_at\": ISO8601,
-        #   \"status\": \"ok\",
-        #   \"metrics\": {{\"value\":0,\"target\":100,\"unit\":\"%\"}}
-        # }}
-        """
-
-    diff = textwrap.dedent(
-        f"""\
-    --- a/{module_hint}
-    +++ b/{module_hint} (suggested patch)
-    @@
-    {textwrap.indent(textwrap.dedent(body).strip(), ' ')}
-    """
+def patch_for_panel(
+    framework: str,
+    panel: str,
+    api_path: str,
+    module_hint: str,
+) -> Dict[str, object]:
+    """Return analytics snapshot for a panel with structured error handling."""
+    db_path = Path(
+        os.getenv(
+            "ANALYTICS_DB_PATH",
+            Path("databases") / "analytics.db",
+        )
     )
-    return diff
+    test_mode = os.getenv("TEST_MODE", "0") in ("1", "true", "True")
+    result = get_latest_panel_snapshot(panel, db_path, test_mode=test_mode)
+    if result.get("ok"):
+        return {"ok": True, "panel": panel, "data": result}
+    return {"ok": False, "panel": panel, "error": result.get("error")}
 
 
 def template_stub_for_panel(panel: str, api_path: str) -> str:
@@ -236,7 +235,13 @@ def template_stub_for_panel(panel: str, api_path: str) -> str:
         const res = await fetch(\"{api_path}\", {{ cache: \"no-store\" }});
         if (!res.ok) throw new Error(\"HTTP \" + res.status);
         const data = await res.json();
-        // TODO: update Chart.js gauge with `data.metrics.value`
+        const value = (data && data.metrics && typeof data.metrics.value === 'number')
+          ? data.metrics.value : 0;
+        const ds = gauge_{panel}.data.datasets?.[0];
+        if (ds) {{
+          ds.data = [value, Math.max(0, 100 - value)];
+        }}
+        gauge_{panel}.update();
       }} catch (e) {{
         console.error(\"Failed to fetch {panel} metrics:\", e);
       }}
@@ -480,9 +485,9 @@ def main():
                 continue
 
             try:
-                patch_text = patch_for_panel(framework, panel, api_path, module_hint)
-                patch_file = dirs["patches"] / f"{panel}_endpoint.patch"
-                write_text(patch_file, patch_text)
+                result = patch_for_panel(framework, panel, api_path, module_hint)
+                patch_file = dirs["patches"] / f"{panel}_endpoint.json"
+                write_text(patch_file, json.dumps(result, indent=2))
 
                 t_stub = template_stub_for_panel(panel, api_path)
                 t_file = dirs["stubs"] / "templates" / f"{panel}_panel.html"
@@ -591,4 +596,3 @@ if __name__ == "__main__":
     except Exception:
         pass
     sys.exit(main() or 0)
-
