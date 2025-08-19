@@ -3,20 +3,13 @@ import threading
 from pathlib import Path
 from time import perf_counter, sleep
 
-import sys
-import types
 import builtins
+import sys
 
-q_stub = types.ModuleType("quantum_algorithm_library_expansion")
-
-def _quantum_score_stub(values):
-    return float(sum(values))
-
-q_stub.quantum_score_stub = _quantum_score_stub
-sys.modules["quantum_algorithm_library_expansion"] = q_stub
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 sys.modules.pop("monitoring", None)
+
 import monitoring.performance_tracker as pt
+from monitoring.quantum_score import quantum_score
 
 
 def test_alerting_and_dashboard(monkeypatch, tmp_path) -> None:
@@ -41,8 +34,9 @@ def test_alerting_and_dashboard(monkeypatch, tmp_path) -> None:
 def test_ml_and_quantum() -> None:
     metrics = {"avg_response_time_ms": 200.0, "error_rate": 0.5}
     assert pt.ml_anomaly_detect(metrics) is True
+    expected = quantum_score([metrics["avg_response_time_ms"], metrics["error_rate"] * 100])
     pt.quantum_hook(metrics)
-    assert "quantum_score" in metrics
+    assert metrics["quantum_score"] == expected
 
 
 def test_benchmark_and_push_metrics(tmp_path) -> None:

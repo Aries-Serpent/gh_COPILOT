@@ -20,7 +20,7 @@ except Exception:  # pragma: no cover - fallback stub
         net_io_counters=lambda: SimpleNamespace(bytes_sent=0, bytes_recv=0),
     )
 
-from quantum_algorithm_library_expansion import quantum_score_stub
+from .quantum_score import quantum_score
 
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "analytics.db"
@@ -90,7 +90,7 @@ def quantum_hook(metrics: Dict[str, float]) -> float:
     """Compute a quantum-inspired score for system metrics."""
 
     values = [metrics["cpu_percent"], metrics["memory_percent"], metrics["disk_percent"]]
-    score = quantum_score_stub(values)
+    score = quantum_score(values)
     metrics["quantum_score"] = score
     return score
 
