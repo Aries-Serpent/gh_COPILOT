@@ -27,6 +27,7 @@ unified-deployment-orchestrator = "copilot.orchestrators.unified_deployment_orch
 gh-copilot = "gh_copilot.cli:app"
 
 [tool.setuptools]
+# Map the root package to the source directory
 package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
