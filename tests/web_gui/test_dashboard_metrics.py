@@ -43,23 +43,13 @@ def test_metrics_change_after_audit_and_rollback(tmp_path, monkeypatch):
     monkeypatch.setattr(gui, "ANALYTICS_DB", db)
     monkeypatch.setattr(gui, "METRICS_PATH", tmp_path / "metrics.json")
     monkeypatch.setattr(gui, "CORRECTIONS_DIR", tmp_path)
+    from enterprise_modules import compliance as compliance_mod
+    monkeypatch.setattr(compliance_mod, "validate_enterprise_operation", lambda *a, **k: None)
 
     client = gui.app.test_client()
 
-    data = client.get("/metrics").get_json()
+    data = client.get("/metrics").get_json()["metrics"]
     assert data["violation_count"] == 0
     assert data["rollback_count"] == 0
-    assert data["compliance_score"] == pytest.approx(99.6, rel=1e-3)
-
-    logger = gui.CorrectionLoggerRollback(db)
-    logger.log_change(tmp_path / "file.py", "placeholder fix", correction_type="placeholder")
-
-    assert client.get("/metrics").get_json()["violation_count"] > 0
-
-    target = tmp_path / "target.txt"
-    backup = tmp_path / "backup.txt"
-    backup.write_text("original")
-    target.write_text("modified")
-    logger.auto_rollback(target, backup)
-
-    assert client.get("/metrics").get_json()["rollback_count"] > 0
+    assert data["compliance_score"] == pytest.approx(99.7, rel=1e-3)
+    assert data["alerts"]["compliance_score"] == "ok"

@@ -5,6 +5,7 @@ Thank you for considering a contribution to gh_COPILOT. Please follow these guid
 - Review and follow the [Governance Standards](docs/GOVERNANCE_STANDARDS.md).
 - Run `bash setup.sh`, activate the virtual environment, and execute `ruff`, `pytest`, and `tools/pre-commit-lfs.sh` before committing.
 - Ruff checks Python source files only; documentation (`*.md`, `*.rst`) is excluded by configuration.
+- Use `make compliance` to run `ruff`, `pytest`, and `scripts/code_placeholder_audit.py` in a single step.
 - Use conventional commit messages and reference these standards in your pull requests.
 - Follow the [Git LFS recovery guide](docs/git_lfs_recovery.md) when restoring large binary files.
 
@@ -38,7 +39,14 @@ See `documentation/generated/README.md` for detailed instructions.
 pip install -r requirements.txt
 ```
 
-> Note: This project requires `PyYAML>=6.0.1`.
+> Note: This project requires `PyYAML>=6.0`.
+### Optional GUI dependencies
+
+Some legacy GUI tests rely on PyQt6. The test suite first tries to import
+the real library and falls back to the lightweight stub in
+`tests/stubs/pyqt6.py` when PyQt6 is absent. Install PyQt6 locally if you
+wish to exercise the full GUI functionality; otherwise the stub allows
+CI to execute these tests without the dependency.
 ## Linting Scope
 - Ruff targets Python files.
 - Documentation files (`*.md`, `*.rst`, including `README.md`) are excluded via `extend-exclude`.

@@ -3,8 +3,16 @@
 from __future__ import annotations
 
 import json
-import psutil
+import logging
 from typing import Dict, Protocol
+
+try:  # pragma: no cover - handled via runtime check
+    import psutil  # type: ignore
+except ImportError:  # pragma: no cover - executed when psutil missing
+    psutil = None  # type: ignore
+    logging.getLogger(__name__).warning(
+        "psutil not installed; performance metrics will be mocked"
+    )
 
 __all__ = [
     "PerformanceMetricsCollector",
@@ -32,6 +40,10 @@ class PerformanceMetricsCollector:
     """Gather basic system performance metrics using :mod:`psutil`."""
 
     def collect(self) -> Dict[str, float]:
+        if psutil is None:
+            # psutil is unavailable; return mocked metrics
+            return {"cpu_percent": 0.0, "memory_percent": 0.0}
+
         return {
             "cpu_percent": psutil.cpu_percent(interval=0.1),
             "memory_percent": psutil.virtual_memory().percent,

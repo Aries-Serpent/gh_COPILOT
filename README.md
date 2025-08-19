@@ -125,6 +125,8 @@ This value is persisted to `analytics.db`  via `scripts/compliance/update_compli
 * `test_run_stats` – same ingestion script parses `pytest --json-report` results
 * `placeholder_audit_snapshots` – appended after each `scripts/code_placeholder_audit.py` run; `update_compliance_metrics` reads the latest snapshot, so run the audit before recomputing scores
 
+Run `python scripts/compliance_score.py` to print the most recent composite score stored in `analytics.db`.
+
 Regulation entrypoints are provided under `scripts/compliance/`:
 
 * `sox_compliance.py`
@@ -1338,6 +1340,7 @@ python scripts/monitoring/resource_tracker.py
 
 ### Core Documentation
 
+- **[Compliance Pipeline](docs/COMPLIANCE_PIPELINE.md)** - Overview of compliance stages and responsibilities
 - **[Lessons Learned Integration Report](docs/LESSONS_LEARNED_INTEGRATION_VALIDATION_REPORT.md)** - Comprehensive validation
 - **[DUAL COPILOT Pattern Guide](.github/instructions/DUAL_COPILOT_PATTERN.instructions.md)** - Implementation guide
 - **[Enterprise Context Guide](.github/instructions/ENTERPRISE_CONTEXT.instructions.md)** - System overview
@@ -1562,6 +1565,8 @@ Set these variables in your `.env` file or shell before running scripts:
 - `API_SECRET_KEY` – secret key for API endpoints
 - `FLASK_SECRET_KEY` – Flask dashboard secret
 - `FLASK_RUN_PORT` – dashboard port
+- `WEB_GUI_DEBUG` – set to `1` to enable Web GUI debug mode; defaults to off.
+  See [docs/development.md](docs/development.md) for usage.
 
 ### AI & ML Variables
 - `OPENAI_API_KEY` – enables optional OpenAI features
@@ -2208,7 +2213,7 @@ Use Typer-based CLI via:
 - After install: the generated console script declared in pyproject `[project.scripts]` (if present).
 
 
-> Note: This project requires `PyYAML>=6.0.1`.
+> Note: This project requires `PyYAML>=6.0`.
 
 See **Compliance Model**: `docs/governance/COMPLIANCE.md`.
 

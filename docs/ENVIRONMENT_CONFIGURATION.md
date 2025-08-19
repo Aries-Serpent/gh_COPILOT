@@ -54,7 +54,7 @@ tools/install_clw.sh
 ls -l /usr/local/bin/clw
 ```
 
-PyYAML is required for `artifact_manager.py` to read `.codex_lfs_policy.yaml`; ensure the package is installed in your environment.
+PyYAML>=6.0 is required for `artifact_manager.py` to read `.codex_lfs_policy.yaml`; ensure the package is installed in your environment.
 
 ## Archival Databases
 `archive.db` and `staging.db` are no longer included by default. They have been moved to `archived_databases/` and are also available in the project's GitHub releases. Download them if legacy analysis is required and place them under the `archived_databases/` directory.

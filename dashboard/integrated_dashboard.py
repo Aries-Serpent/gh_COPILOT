@@ -35,6 +35,7 @@ METRICS_FILE = Path(__file__).with_name("metrics.json")
 METRICS_PATH = METRICS_FILE  # Backward compatibility
 CORRECTIONS_DIR = Path("dashboard/compliance")
 ANALYTICS_DB = Path("databases/analytics.db")
+THRESHOLDS_FILE = Path(__file__).with_name("thresholds.json")
 
 
 # Blueprint definition
@@ -44,6 +45,27 @@ _dashboard = Blueprint(
     template_folder=str(Path(__file__).parent / "templates"),
     static_folder=str(Path(__file__).parent / "static"),
 )
+
+
+def _load_thresholds() -> dict[str, dict[str, float]]:
+    """Load metric threshold configuration if available."""
+    if THRESHOLDS_FILE.exists():
+        try:
+            return json.loads(THRESHOLDS_FILE.read_text())
+        except json.JSONDecodeError:
+            logging.error("Thresholds decode error", exc_info=True)
+    return {}
+
+
+def _compute_alert(value: float, bounds: dict[str, float]) -> str:
+    """Return alert level for *value* based on *bounds* mapping."""
+    warning = bounds.get("warning")
+    critical = bounds.get("critical")
+    if critical is not None and value < critical:
+        return "critical"
+    if warning is not None and value < warning:
+        return "warning"
+    return "ok"
 
 
 def _load_metrics() -> dict[str, Any]:
@@ -159,6 +181,13 @@ def _load_metrics() -> dict[str, Any]:
                     pass
         except sqlite3.Error:
             pass
+    thresholds = _load_thresholds()
+    alerts: dict[str, str] = {}
+    for name, bounds in thresholds.items():
+        value = metrics.get(name)
+        if isinstance(value, (int, float)):
+            alerts[name] = _compute_alert(float(value), bounds)
+    metrics["alerts"] = alerts
     return metrics
 
 
@@ -360,27 +389,46 @@ def get_violations() -> Any:
     return jsonify({"violations": logs})
 
 
-@_dashboard.get("/placeholder-audit")
-def get_placeholder_audit() -> Any:
-    entries: list[dict[str, Any]] = []
+def _load_placeholder_audit(limit: int = 50) -> dict[str, Any]:
+    """Return placeholder trend history, totals, and unresolved entries."""
+
+    history = _load_placeholder_history(limit)
+    totals = {
+        "open": history[-1]["open"] if history else 0,
+        "resolved": history[-1]["resolved"] if history else 0,
+    }
+    unresolved: list[dict[str, Any]] = []
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
             try:
                 cur = conn.execute(
-                    "SELECT file_path, line_number, placeholder_type, context FROM placeholder_audit ORDER BY id DESC LIMIT 100",
+                    "SELECT file_path, line_number, placeholder_type, context FROM placeholder_audit ORDER BY id DESC LIMIT ?",
+                    (limit,),
                 )
-                entries = [
+                unresolved = [
                     {
-                        "file_path": row[0],
-                        "line_number": row[1],
-                        "placeholder_type": row[2],
+                        "file": row[0],
+                        "line": int(row[1]),
+                        "type": row[2],
                         "context": row[3],
                     }
                     for row in cur.fetchall()
                 ]
             except sqlite3.Error:
                 pass
-    return jsonify({"results": entries})
+    return {"history": history, "totals": totals, "unresolved": unresolved}
+
+
+@_dashboard.get("/placeholder-audit")
+def get_placeholder_audit() -> Any:
+    return jsonify({"results": _load_placeholder_audit()["unresolved"]})
+
+
+@_dashboard.get("/api/placeholder_audit")
+def api_placeholder_audit() -> Any:
+    """Expose placeholder audit history and counts for the dashboard."""
+
+    return jsonify(_load_placeholder_audit())
 
 
 @_dashboard.post("/rollback")

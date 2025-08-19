@@ -251,6 +251,36 @@ def load_code_quality_metrics(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
     return metrics
 
 
+def load_code_quality_history(
+    limit: int = 20, db_path: Path | None = None
+) -> Dict[str, list]:
+    """Return historical code quality metrics for sparkline charts."""
+    if db_path is None:
+        db_path = ANALYTICS_DB
+    history: Dict[str, list] = {
+        "lint_score": [],
+        "test_score": [],
+        "placeholder_score": [],
+        "composite_score": [],
+        "timestamps": [],
+    }
+    if db_path.exists():
+        with sqlite3.connect(db_path) as conn:
+            cur = conn.execute(
+                "SELECT lint_score, test_score, placeholder_score, composite_score, ts "
+                "FROM code_quality_metrics ORDER BY id DESC LIMIT ?",
+                (limit,),
+            )
+            rows = cur.fetchall()
+        for row in reversed(rows):
+            history["lint_score"].append(float(row[0]))
+            history["test_score"].append(float(row[1]))
+            history["placeholder_score"].append(float(row[2]))
+            history["composite_score"].append(float(row[3]))
+            history["timestamps"].append(row[4])
+    return history
+
+
 @app.route("/dashboard/compliance", endpoint="enterprise_dashboard_compliance")
 def dashboard_compliance() -> str:
     """Render compliance information directly from ``analytics.db``."""
@@ -679,6 +709,12 @@ def compliance_scores() -> Any:  # pragma: no cover
 def code_quality_metrics() -> Any:
     """Expose latest code quality metrics."""
     return jsonify(load_code_quality_metrics())
+
+
+@app.route("/api/code_quality_history")
+def code_quality_history() -> Any:
+    """Expose historical code quality metrics arrays."""
+    return jsonify(load_code_quality_history())
 
 
 app.view_functions["dashboard.index"] = index

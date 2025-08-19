@@ -2,13 +2,8 @@
 from __future__ import annotations
 
 import math
-import sys
-from pathlib import Path
 from dataclasses import dataclass
 from typing import Tuple
-
-# Add the scripts directory to path for direct import
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 
 @dataclass

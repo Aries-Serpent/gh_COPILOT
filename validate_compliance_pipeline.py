@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
 """Simple validation script for compliance pipeline functionality"""
 
-import sys
 import tempfile
 import json
 import sqlite3
 from pathlib import Path
-
-# Add scripts to path
-sys.path.insert(0, str(Path.cwd() / 'scripts'))
 
 def test_compliance_components():
     """Test ComplianceComponents dataclass"""

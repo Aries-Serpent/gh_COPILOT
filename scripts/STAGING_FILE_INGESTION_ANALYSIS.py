@@ -10,6 +10,7 @@ Enterprise Standards Compliance:
 """
 
 import sys
+import os
 
 import logging
 from pathlib import Path
@@ -24,7 +25,7 @@ TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]
 class EnterpriseUtility:
     """Enterprise utility class"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: str = os.environ.get("WORKSPACE", Path.cwd())):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 

@@ -36,6 +36,18 @@
             chart.data.datasets[0].data = [value, 100 - value];
             chart.update();
         }
+        function applyAlert(id, level){
+            const el = document.getElementById(id);
+            if(!el) return;
+            el.classList.remove('status-green','status-yellow','status-red');
+            if(level === 'critical'){
+                el.classList.add('status-red');
+            }else if(level === 'warning'){
+                el.classList.add('status-yellow');
+            }else if(level){
+                el.classList.add('status-green');
+            }
+        }
         // Metrics sourced from /api/compliance_scores (analytics.db)
         function updateMetrics(data){
         document.getElementById('placeholder_removal').textContent = data.placeholder_removal;
@@ -62,8 +74,11 @@
         const comp = data.composite_score ?? data.compliance_score;
         const alert = document.getElementById('compliance_alert');
         alert.textContent = comp.toFixed(2);
-        alert.className = 'status-indicator ' +
-            (comp >= 90 ? 'status-green' : comp >= 80 ? 'status-yellow' : 'status-red');
+        const alerts = data.alerts || {};
+        applyAlert('lint_score', alerts.lint_score);
+        applyAlert('test_score', alerts.test_score);
+        applyAlert('placeholder_score', alerts.placeholder_score);
+        applyAlert('compliance_alert', alerts.composite_score || alerts.compliance_score);
         document.getElementById('open_placeholders').textContent = data.open_placeholders || 0;
             document.getElementById('resolved_placeholders').textContent = data.resolved_placeholders || 0;
             const prog = data.progress !== undefined ? (data.progress * 100).toFixed(1) + '%' : '0%';

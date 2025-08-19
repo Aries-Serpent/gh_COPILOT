@@ -1,76 +1,13 @@
 import asyncio
 from builtins import anext
 from pathlib import Path
-import json
 import os
-import sys
-import types
-import tempfile
 import sqlite3
+import tempfile
 
-if "pydantic" not in sys.modules:
-    class BaseModel:
-        def __init__(self, **data):
-            for k, v in data.items():
-                setattr(self, k, v)
+import pytest
 
-        def model_dump(self):
-            result = {}
-            for k, v in self.__dict__.items():
-                if isinstance(v, BaseModel):
-                    result[k] = v.model_dump()
-                elif isinstance(v, list):
-                    result[k] = [i.model_dump() if isinstance(i, BaseModel) else i for i in v]
-                else:
-                    result[k] = v
-            return result
-
-        def model_dump_json(self):
-            return json.dumps(self.model_dump())
-
-        @classmethod
-        def model_validate_json(cls, data: str):
-            return cls(**json.loads(data))
-
-    def Field(default_factory=None, default=None):  # noqa: D401 - simple stub
-        return default if default is not None else default_factory()
-
-    pydantic_module = types.ModuleType("pydantic")
-    pydantic_module.BaseModel = BaseModel
-    pydantic_module.Field = Field
-    sys.modules["pydantic"] = pydantic_module
-
-if "starlette" not in sys.modules:
-    class JSONResponse:  # minimal stub
-        def __init__(self, content):
-            self.body = json.dumps(content).encode()
-
-    class StreamingResponse:  # minimal stub
-        def __init__(self, gen, media_type="text/event-stream"):
-            self.gen = gen
-
-    starlette_responses = types.ModuleType("starlette.responses")
-    starlette_responses.JSONResponse = JSONResponse
-    starlette_responses.StreamingResponse = StreamingResponse
-    sys.modules["starlette"] = types.ModuleType("starlette")
-    sys.modules["starlette.responses"] = starlette_responses
-
-    class FastAPI:  # minimal stub for routing decorators
-        def __init__(self, **_):
-            pass
-
-        def get(self, _path):
-            def decorator(func):
-                return func
-            return decorator
-
-    def Query(default=None):
-        return default
-
-    fastapi_module = types.ModuleType("fastapi")
-    fastapi_module.FastAPI = FastAPI
-    fastapi_module.Query = Query
-    sys.modules["fastapi"] = fastapi_module
+pytest.importorskip("fastapi", minversion="0")
 
 tmp_db = tempfile.NamedTemporaryFile(delete=False)
 with sqlite3.connect(tmp_db.name) as _conn:
