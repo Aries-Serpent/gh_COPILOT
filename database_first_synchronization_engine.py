@@ -24,6 +24,7 @@ import threading
 import time
 from pathlib import Path
 from typing import Any, Callable, Dict, List
+from utils.analytics_logger import log_analytics_event as record_analytics_event
 
 
 _TABLE_RE = re.compile(r"^[A-Za-z0-9_]+$")
@@ -47,6 +48,19 @@ class SchemaMapper:
 
     def map(self, source: sqlite3.Connection, target: sqlite3.Connection) -> None:
         """Ensure tables from ``source`` exist in ``target``."""
+
+        try:
+            record_analytics_event(
+                "databases/analytics.db",
+                level="INFO",
+                step="map",
+                phase="schema_diff_reconcile",
+                event="enter_function",
+                details={"file": "database_first_synchronization_engine.py", "function": "map"},
+                fallback_file="run_logs/analytics_fallback.ndjson",
+            )
+        except Exception:
+            pass
 
         for name, sql in source.execute("SELECT name, sql FROM sqlite_master WHERE type='table'"):
             exists = target.execute(
@@ -115,6 +129,19 @@ class SyncManager:
         ``resolver`` is deprecated; pass ``policy`` instead.  The conflict policy
         resolves differing rows deterministically and triggers conflict logging.
         """
+
+        try:
+            record_analytics_event(
+                "databases/analytics.db",
+                level="INFO",
+                step="sync",
+                phase="schema_diff_reconcile",
+                event="enter_function",
+                details={"file": "database_first_synchronization_engine.py", "function": "sync"},
+                fallback_file="run_logs/analytics_fallback.ndjson",
+            )
+        except Exception:
+            pass
 
         db_a = Path(db_a)
         db_b = Path(db_b)
