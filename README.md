@@ -1338,6 +1338,7 @@ python scripts/monitoring/resource_tracker.py
 
 ### Core Documentation
 
+- **[Compliance Pipeline](docs/COMPLIANCE_PIPELINE.md)** - Overview of compliance stages and responsibilities
 - **[Lessons Learned Integration Report](docs/LESSONS_LEARNED_INTEGRATION_VALIDATION_REPORT.md)** - Comprehensive validation
 - **[DUAL COPILOT Pattern Guide](.github/instructions/DUAL_COPILOT_PATTERN.instructions.md)** - Implementation guide
 - **[Enterprise Context Guide](.github/instructions/ENTERPRISE_CONTEXT.instructions.md)** - System overview
