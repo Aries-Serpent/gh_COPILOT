@@ -40,6 +40,13 @@ pip install -r requirements.txt
 ```
 
 > Note: This project requires `PyYAML>=6.0`.
+### Optional GUI dependencies
+
+Some legacy GUI tests rely on PyQt6. The test suite first tries to import
+the real library and falls back to the lightweight stub in
+`tests/stubs/pyqt6.py` when PyQt6 is absent. Install PyQt6 locally if you
+wish to exercise the full GUI functionality; otherwise the stub allows
+CI to execute these tests without the dependency.
 ## Linting Scope
 - Ruff targets Python files.
 - Documentation files (`*.md`, `*.rst`, including `README.md`) are excluded via `extend-exclude`.

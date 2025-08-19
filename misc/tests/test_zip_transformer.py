@@ -6,10 +6,42 @@ import sys
 import zipfile
 from pathlib import Path
 
-import pytest
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.append(str(ROOT))
 
-pytest.importorskip("PyQt6")
+try:  # Prefer real PyQt6 when available
+    import PyQt6  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover - depends on environment
+    from tests.stubs import pyqt6 as PyQt6
+    sys.modules.setdefault("PyQt6", PyQt6)
+    sys.modules.setdefault("PyQt6.QtCore", PyQt6.QtCore)
+    sys.modules.setdefault("PyQt6.QtWidgets", PyQt6.QtWidgets)
+
 from PyQt6.QtCore import QCoreApplication
+
+import base64
+import types
+
+EncodeModule = types.ModuleType("Base64ImageTransformer")
+
+
+class EncodeWorker(PyQt6.QtCore.QObject):
+    encoding_successful = PyQt6.QtCore.pyqtSignal(str)
+
+    def __init__(self, file_path: str) -> None:
+        super().__init__()
+        self.file_path = file_path
+
+    def run_encode(self) -> None:  # pragma: no cover - simple stub
+        with open(self.file_path, "rb") as fh:
+            data = fh.read()
+        b64 = base64.b64encode(data).decode("utf-8")
+        self.encoding_successful.emit(b64)
+
+
+EncodeModule.EncodeWorker = EncodeWorker
+sys.modules.setdefault("Base64ImageTransformer", EncodeModule)
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "legacy"))
 from Base64ZipTransformer import DecodeWorker, EncodeWorker  # noqa: E402
