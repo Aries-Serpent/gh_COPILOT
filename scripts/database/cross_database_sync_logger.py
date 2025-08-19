@@ -23,6 +23,7 @@ from enterprise_modules.compliance import validate_enterprise_operation
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.log_utils import log_event
 from utils.logging_utils import setup_enterprise_logging
+from utils.analytics_events import log_analytics_event
 
 logger = logging.getLogger(__name__)
 
@@ -117,6 +118,12 @@ def log_sync_operation(
                 "timestamp": timestamp,
             },
             db_path=analytics_db,
+        )
+        log_analytics_event(
+            operation,
+            "sync_step",
+            {"status": status, "duration": duration},
+            timestamp,
         )
     except Exception as exc:  # pragma: no cover - best effort analytics logging
         logger.error("Failed to log analytics event: %s", exc)

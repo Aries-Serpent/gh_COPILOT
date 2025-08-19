@@ -2214,6 +2214,7 @@ pytest -q
 
 * SQLite file: `analytics.db`
 * Table: `events(event_time TEXT, level TEXT, event TEXT, details TEXT)`
+* Internal helper table: `analytics_events(run_id, kind, payload, ts)`
 
 These entries are written via `log_event(...)` and `log_sync_operation(...)`.
 When `TEST_MODE=1` and `ANALYTICS_DB_PATH` is not set, an in-memory database is used to avoid side effects.
