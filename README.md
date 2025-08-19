@@ -2208,7 +2208,7 @@ Use Typer-based CLI via:
 - After install: the generated console script declared in pyproject `[project.scripts]` (if present).
 
 
-> Note: This project requires `PyYAML>=6.0.1`.
+> Note: This project requires `PyYAML>=6.0`.
 
 See **Compliance Model**: `docs/governance/COMPLIANCE.md`.
 
