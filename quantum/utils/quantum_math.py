@@ -1,9 +1,31 @@
-"""
-Quantum mathematical utilities.
+"""Quantum mathematical utilities.
+
+This module optionally depends on :mod:`numpy`.  When ``numpy`` is not
+available the functions fall back to the standard :mod:`math` module with
+reduced precision where appropriate.
 """
 
-import numpy as np
 from typing import Tuple
+
+try:  # pragma: no cover - optional dependency
+    import numpy as np
+
+    _PI = np.pi
+    _SQRT = np.sqrt
+    _SIN = np.sin
+    _ARCSIN = np.arcsin
+    _EXP = np.exp
+    HAS_NUMPY = True
+except ImportError:  # pragma: no cover - fallback
+    import math
+
+    np = None  # type: ignore[assignment]
+    _PI = math.pi
+    _SQRT = math.sqrt
+    _SIN = math.sin
+    _ARCSIN = math.asin
+    _EXP = math.exp
+    HAS_NUMPY = False
 
 
 class QuantumMath:
@@ -14,7 +36,7 @@ class QuantumMath:
         """Calculate optimal number of Grover iterations for n items"""
         if n_items <= 1:
             return 1
-        return max(1, int(np.pi / 4 * np.sqrt(n_items)))
+        return max(1, int(_PI / 4 * _SQRT(n_items)))
     
     @staticmethod
     def calculate_quantum_advantage(classical_time: float, quantum_time: float) -> float:
@@ -39,14 +61,14 @@ class QuantumMath:
         if n_items <= 1:
             return 1.0
         
-        theta = np.arcsin(1 / np.sqrt(n_items))
+        theta = _ARCSIN(1 / _SQRT(n_items))
         angle = (2 * iterations + 1) * theta
-        return np.sin(angle) ** 2
+        return _SIN(angle) ** 2
     
     @staticmethod
     def optimize_circuit_depth(n_qubits: int, gate_count: int) -> Tuple[int, float]:
         """Estimate optimal circuit depth and error rate"""
         # Simple heuristic for circuit optimization
         optimal_depth = max(1, gate_count // n_qubits)
-        error_rate = 1 - np.exp(-gate_count * 0.001)  # Simple error model
+        error_rate = 1 - _EXP(-gate_count * 0.001)  # Simple error model
         return optimal_depth, error_rate
