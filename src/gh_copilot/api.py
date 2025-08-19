@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import Any
+
 from fastapi import BackgroundTasks, FastAPI, Query
 
 from .dao import SQLiteAnalyticsDAO
@@ -18,12 +20,12 @@ def health() -> dict[str, bool]:
 
 
 @app.get("/api/v1/placeholders")
-def get_placeholders(status: str = Query("open")):
+def get_placeholders(status: str = Query("open")) -> list[dict[str, Any]]:
     return [p.model_dump() for p in _dao.fetch_placeholders(status=status)]
 
 
 @app.get("/api/v1/compliance")
-def get_compliance(branch: str = Query("main")):
+def get_compliance(branch: str = Query("main")) -> dict[str, Any]:
     snap = _dao.fetch_score(branch)
     return snap.model_dump() if snap else {"branch": branch, "score": None}
 

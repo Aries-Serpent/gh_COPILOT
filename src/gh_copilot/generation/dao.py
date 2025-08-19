@@ -17,7 +17,8 @@ def get_conn(db: Path) -> sqlite3.Connection:
     return c
 
 class GenerationDAO:
-    def __init__(self, analytics_db: Path): self.analytics_db = analytics_db
+    def __init__(self, analytics_db: Path) -> None:
+        self.analytics_db = analytics_db
     @contextmanager
     def _conn(self) -> Iterator[sqlite3.Connection]:
         c = get_conn(self.analytics_db)
