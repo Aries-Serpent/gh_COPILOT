@@ -91,21 +91,13 @@ except Exception:  # pragma: no cover
 
 
 # Enterprise Imports
-# Fallback implementation for DualCopilotValidator if import fails
-class DualCopilotValidator:
-    def __init__(self):
-        pass
-
-    def validate_execution(self, *args, **kwargs):
-        # Fallback: Simulate validation result with required attributes
-        class ValidationResult:
-            def __init__(self):
-                self.passed = True
-                self.successes = ["Fallback validation passed"]
-                self.errors = []
-                self.warnings = []
-
-        return ValidationResult()
+try:
+    from secondary_copilot_validator import DualCopilotValidator
+except ImportError as exc:  # pragma: no cover - optional dependency
+    DualCopilotValidator = None  # type: ignore[assignment]
+    DUAL_COPILOT_IMPORT_ERROR = exc
+else:
+    DUAL_COPILOT_IMPORT_ERROR = None
 
 
 class ComplianceCategory(Enum):
@@ -326,6 +318,12 @@ class EnterpriseComplianceMonitor:
 
     def _initialize_dual_copilot(self):
         """🤖🤖 Initialize DUAL COPILOT validation system"""
+        if DualCopilotValidator is None:
+            self.logger.warning(
+                f"⚠️  DUAL COPILOT validator import failed: {DUAL_COPILOT_IMPORT_ERROR}"
+            )
+            self.dual_copilot_validator = None
+            return
         try:
             self.dual_copilot_validator = DualCopilotValidator()
             self.logger.info("✅ DUAL COPILOT VALIDATOR INITIALIZED")
@@ -395,6 +393,22 @@ class EnterpriseComplianceMonitor:
 
     def start_compliance_monitoring(self) -> Dict[str, Any]:
         """🚀 Start comprehensive compliance monitoring with 6-phase validation"""
+
+        if self.dual_copilot_validator is None:
+            self.logger.warning(
+                "⚠️  DUAL COPILOT validator unavailable - aborting monitoring"
+            )
+            raise RuntimeError("DualCopilotValidator unavailable")
+        try:
+            validation = self.dual_copilot_validator.validate_execution()
+        except Exception as e:  # pragma: no cover - defensive
+            self.logger.error(f"❌ DUAL COPILOT validation error: {e}")
+            raise RuntimeError("DualCopilotValidator validation error") from e
+        if not getattr(validation, "passed", False):
+            self.logger.error(
+                f"❌ DUAL COPILOT validation failed: {getattr(validation, 'errors', [])}"
+            )
+            raise RuntimeError("DualCopilotValidator validation failed")
 
         # MANDATORY: Visual processing indicators
         with tqdm(total=100, desc="🏢 Starting Compliance Monitoring", unit="%") as pbar:

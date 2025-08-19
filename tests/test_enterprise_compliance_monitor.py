@@ -1,6 +1,10 @@
 import subprocess
 from pathlib import Path
 
+import pytest
+
+pytest.importorskip("tqdm")
+
 SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "monitoring" / "enterprise_compliance_monitor.py"
 
 
