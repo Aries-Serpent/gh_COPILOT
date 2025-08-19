@@ -25,6 +25,14 @@ import time
 from pathlib import Path
 from typing import List, Tuple, Dict, Optional
 
+from database_first_synchronization_engine import (
+    compare_schema,
+    compute_row_signature,
+    diff_rows,
+    attempt_reconcile,
+    perform_recovery,
+)
+
 # ---------- Constants & Paths ----------
 ROOT = Path.cwd()
 ART_DIR = ROOT / "artifacts"
@@ -174,39 +182,6 @@ def locate_modules() -> Tuple[Optional[Path], List[Path]]:
     return dfse, related
 
 
-STUBS = {
-    "compare_schema": "def compare_schema(conn_a, conn_b):\n    # TODO[Codex-BestEffort]: compare table/column shapes\n    return {}\n",
-    "compute_row_signature": "def compute_row_signature(row: tuple) -> str:\n    # TODO[Codex-BestEffort]: robust hash for row identity\n    return hashlib.sha256(str(row).encode('utf-8')).hexdigest()\n",
-    "diff_rows": "def diff_rows(sig_set_a, sig_set_b):\n    # TODO[Codex-BestEffort]: return (only_in_a, only_in_b)\n    return sig_set_a - sig_set_b, sig_set_b - sig_set_a\n",
-    "attempt_reconcile": "def attempt_reconcile(conn_src, conn_dst, diffs, policy='report_only'):\n    # TODO[Codex-BestEffort]: implement idempotent upsert based on policy\n    return {'applied': 0, 'policy': policy}\n",
-    "perform_recovery": "def perform_recovery(context):\n    # TODO[Codex-BestEffort]: rollback/restore strategy\n    return {'recovered': True}\n",
-    "log_analytics_event": "def log_analytics_event(cnx, run_id, kind, payload):\n    # TODO[Codex-BestEffort]: write to analytics tables\n    pass\n",
-}
-
-
-@step_guard("P3.1", "Insert best-effort stubs if missing")
-def best_effort_insert_stubs(dfse: Optional[Path]):
-    if dfse is None:
-        # Create a new companion module to avoid invasive change
-        target = ROOT / "database_first_synchronization_ext.py"
-        content = "# Auto-generated stubs for DFSE best-effort completion\nimport hashlib\n\n" + "\n".join(STUBS.values())
-        target.write_text(content, encoding="utf-8")
-        log_change(f"Created {safe_rel(target)} with best-effort stubs (DFSE missing).")
-        return target
-    text = dfse.read_text(encoding="utf-8")
-    original = text
-    for name, body in STUBS.items():
-        if re.search(rf"def\s+{name}\s*\(", text) is None:
-            text += "\n\n" + body
-            log_change(f"Inserted stub `{name}()` into {safe_rel(dfse)}.")
-    if "hashlib" not in text:
-        text = "import hashlib\n" + text
-        log_change(f"Inserted import `hashlib` into {safe_rel(dfse)}.")
-    if text != original:
-        dfse.write_text(text, encoding="utf-8")
-    return dfse
-
-
 # ---------- Analytics DB ----------
 def connect_sqlite(path: Path) -> sqlite3.Connection:
     cnx = sqlite3.connect(str(path))
@@ -343,9 +318,6 @@ def main():
     # P2.1 Locate DFSE and related
     dfse, related = locate_modules()
 
-    # P3.1 Insert stubs if missing
-    be_target = best_effort_insert_stubs(dfse)
-
     # Analytics DB
     analytics_path = ROOT / args.analytics
     with connect_sqlite(analytics_path) as ac:
@@ -391,7 +363,7 @@ def main():
             "started_at": "",  # kept minimal; full detail in DB
             "finished_at": now_iso(),
             "policy": args.policy,
-            "dfse": safe_rel(be_target) if be_target else "N/A",
+            "dfse": safe_rel(dfse) if dfse else "N/A",
             "related_count": len(related),
             "db_pairs": [(safe_rel(a), safe_rel(b)) for (a,b) in db_pairs]
         })

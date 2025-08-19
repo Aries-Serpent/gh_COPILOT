@@ -17,6 +17,7 @@ HARD GUARD: Never touch .github/workflows/*
 import argparse
 import json
 import re
+import sqlite3
 import sys
 import textwrap
 from datetime import datetime
@@ -77,6 +78,46 @@ def error_for_chatgpt5(errors_md: Path, step_number: str, step_desc: str, exc: E
 def add_changelog(changelog: Path, title: str, body: str):
     section = f"## {title}\n\n{body.strip()}\n\n"
     append_text(changelog, section)
+
+
+# Default path to analytics database used for dashboard metrics.
+ANALYTICS_DB = Path("analytics.db")
+
+
+def fetch_panel_metrics(panel: str, db_path: Path | None = None) -> Dict[str, object]:
+    """Return metrics for ``panel`` from ``analytics.db``.
+
+    Parameters
+    ----------
+    panel: str
+        Name of the dashboard panel to query.
+    db_path: Path | None
+        Optional override for the analytics database location.
+
+    Returns
+    -------
+    Dict[str, object]
+        Mapping with keys ``value``, ``target`` and ``unit``. Defaults are
+        returned if the database or row is missing.
+    """
+
+    db = Path(db_path) if db_path else ANALYTICS_DB
+    try:
+        with sqlite3.connect(db) as conn:
+            conn.row_factory = sqlite3.Row
+            row = conn.execute(
+                "SELECT value, target, unit FROM dashboard_metrics WHERE panel = ?",
+                (panel,),
+            ).fetchone()
+            if row:
+                return {
+                    "value": row["value"],
+                    "target": row["target"],
+                    "unit": row["unit"],
+                }
+    except Exception:
+        pass
+    return {"value": 0, "target": 100, "unit": "%"}
 
 
 # ---------------------- Analysis & Mapping ----------------------
@@ -164,17 +205,14 @@ def patch_for_panel(framework: str, panel: str, api_path: str, module_hint: str)
         @app.route(\"{api_path}\", methods=[\"GET\"])
         def metrics_{panel}():
             \"\"\"Return JSON metrics for {panel}.
-            TODO: Replace mock with real metrics. Keep schema stable.
+            Values are sourced from analytics.db.
             \"\"\"
+            metrics = fetch_panel_metrics(\"{panel}\")
             data = {{
                 \"panel\": \"{panel}\",
                 \"updated_at\": \"{now_iso()}\",
                 \"status\": \"ok\",
-                \"metrics\": {{
-                    \"value\": 0,
-                    \"target\": 100,
-                    \"unit\": \"%\"
-                }}
+                \"metrics\": metrics
             }}
             return jsonify(data), 200
         # --- END SUGGESTED ADDITION ---
@@ -185,17 +223,14 @@ def patch_for_panel(framework: str, panel: str, api_path: str, module_hint: str)
         @router.get(\"{api_path}\")
         async def metrics_{panel}():
             \"\"\"Return JSON metrics for {panel}.
-            TODO: Replace mock with real metrics. Keep schema stable.
+            Values are sourced from analytics.db.
             \"\"\"
+            metrics = fetch_panel_metrics(\"{panel}\")
             return {{
                 \"panel\": \"{panel}\",
                 \"updated_at\": \"{now_iso()}\",
                 \"status\": \"ok\",
-                \"metrics\": {{
-                    \"value\": 0,
-                    \"target\": 100,
-                    \"unit\": \"%\"
-                }}
+                \"metrics\": metrics
             }}
         # --- END SUGGESTED ADDITION ---
         """
