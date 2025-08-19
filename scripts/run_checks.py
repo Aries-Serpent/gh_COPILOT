@@ -5,6 +5,7 @@ from __future__ import annotations
 import subprocess
 import sys
 from pathlib import Path
+import importlib.util
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -37,6 +38,17 @@ def main() -> int:
 
     ensure_codex_log_tracked()
 
+    pytest_cmd = ["pytest", "-q"]
+    if importlib.util.find_spec("pytest_cov") is not None:
+        pytest_cmd[1:1] = [
+            "--cov=scripts.run_migrations",
+            "--cov=utils.cross_platform_paths",
+            "--cov=scripts.database.unified_database_management_system",
+            "--cov=validation.core.rules",
+            "--cov-report=term",
+            "--cov-fail-under=95",
+        ]
+
     commands = [
         [
             "ruff",
@@ -47,16 +59,7 @@ def main() -> int:
             "--force-exclude",
         ],
         ["pyright"],
-        [
-            "pytest",
-            "--cov=scripts.run_migrations",
-            "--cov=utils.cross_platform_paths",
-            "--cov=scripts.database.unified_database_management_system",
-            "--cov=validation.core.rules",
-            "--cov-report=term",
-            "--cov-fail-under=95",
-            "-q",
-        ],
+        pytest_cmd,
     ]
 
     for cmd in commands:
