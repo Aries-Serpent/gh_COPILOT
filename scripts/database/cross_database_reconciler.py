@@ -24,6 +24,7 @@ from typing import Iterable, List, Sequence, Tuple
 
 from enterprise_modules.compliance import validate_enterprise_operation
 from utils.logging_utils import log_enterprise_operation, setup_enterprise_logging
+from utils.analytics_logger import log_analytics_event
 
 from .cross_database_sync_logger import log_sync_operation
 
@@ -50,6 +51,18 @@ def reconcile_once(db_paths: Sequence[Path]) -> None:
     Any rows missing from a database are copied from the first database in the
     list.  Schema mismatches are reported via the enterprise logging system.
     """
+    try:
+        log_analytics_event(
+            "databases/analytics.db",
+            level="INFO",
+            step="reconcile_once",
+            phase="schema_diff_reconcile",
+            event="enter_function",
+            details={"file": "scripts/database/cross_database_reconciler.py", "function": "reconcile_once"},
+            fallback_file="run_logs/analytics_fallback.ndjson",
+        )
+    except Exception:
+        pass
     validate_enterprise_operation()
 
     states: List[DBState] = []
