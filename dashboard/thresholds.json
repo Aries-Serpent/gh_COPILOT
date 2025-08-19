@@ -1,0 +1,7 @@
+{
+  "lint_score": {"warning": 80, "critical": 50},
+  "test_score": {"warning": 80, "critical": 50},
+  "placeholder_score": {"warning": 80, "critical": 50},
+  "compliance_score": {"warning": 80, "critical": 50},
+  "composite_score": {"warning": 80, "critical": 50}
+}
