@@ -34,7 +34,13 @@ from pathlib import Path
 if __package__ is None:
     sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from tqdm import tqdm
+try:  # pragma: no cover - optional dependency
+    from tqdm import tqdm
+except Exception:  # pragma: no cover - graceful fallback if tqdm is missing
+    logging.getLogger(__name__).warning("tqdm not installed; progress bars disabled")
+
+    def tqdm(iterable, **_kwargs):  # type: ignore[misc]
+        return iterable
 
 try:
     from gh_copilot.validation.secondary_copilot_validator import SecondaryCopilotValidator
@@ -102,12 +108,30 @@ def ensure_session_table(conn: sqlite3.Connection) -> None:
     conn.commit()
 
 
+logger = logging.getLogger(__name__)
+
+
 def initialize_database(db_path: Path) -> None:
-    """Pre-run check to ensure required tables exist."""
+    """Ensure session database exists and recover from corruption."""
     if os.getenv("TEST_MODE"):
+        logger.debug("TEST_MODE=1; skipping database initialization")
         return
-    with get_connection(db_path) as conn:
-        ensure_session_table(conn)
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with get_connection(db_path) as conn:
+            ensure_session_table(conn)
+            logger.debug("Database initialized at %s", db_path)
+    except sqlite3.DatabaseError:
+        logger.warning("Database at %s is corrupted; recreating", db_path)
+        try:
+            corrupted = db_path.with_suffix(db_path.suffix + ".corrupt")
+            db_path.rename(corrupted)
+            logger.info("Moved corrupted database to %s", corrupted)
+        except OSError:
+            logger.exception("Failed to move corrupted database")
+        with get_connection(db_path) as conn:
+            ensure_session_table(conn)
+            logger.debug("Database reinitialized at %s", db_path)
 
 
 def setup_logging(verbose: bool) -> Path:
