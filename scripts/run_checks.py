@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import importlib.util
+import os
 import subprocess
 import sys
 from pathlib import Path
-import importlib.util
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -48,6 +49,11 @@ def main() -> int:
             "--cov-report=term",
             "--cov-fail-under=95",
         ]
+    else:
+        # Remove any coverage options from environment when plugin is missing
+        addopts = os.environ.get("PYTEST_ADDOPTS", "").split()
+        addopts = [opt for opt in addopts if not opt.startswith("--cov")]
+        os.environ["PYTEST_ADDOPTS"] = " ".join(addopts)
 
     commands = [
         [
