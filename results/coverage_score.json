@@ -1,0 +1,15 @@
+{
+  "weights": {
+    "db": 0.3,
+    "pbar_validator": 0.2,
+    "halt": 0.25,
+    "tests": 0.25
+  },
+  "components": {
+    "db": 0.6,
+    "pbar_validator": 0.8,
+    "halt": 0.85,
+    "tests": 0.6
+  },
+  "score": 70.25
+}
