@@ -47,3 +47,7 @@
 }
 
 - Additional notes: `pytest` failed due to missing `typer`; `scripts/wlc_session_manager.py` failed with sqlite3.DatabaseError.
+## 2025-08-19 - Add codex workflow automation script
+- Added codex_workflow.py implementing read-only database connectors, stub replacement, and halt logic.
+- Introduced tests/test_metrics_flow.py verifying halt behavior.
+
