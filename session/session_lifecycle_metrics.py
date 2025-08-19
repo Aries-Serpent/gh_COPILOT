@@ -41,12 +41,29 @@ def _ensure(conn: sqlite3.Connection) -> None:
 
 
 def _ensure_db_path(db_path: Path) -> None:
-    """Ensure the database path and parent directories exist."""
+    """Ensure ``db_path`` exists and is a valid SQLite database.
+
+    If the file is missing it is created. If it exists but is not a valid
+    SQLite database, the corrupted file is moved aside and a fresh database is
+    created in its place. This mirrors the behaviour of other parts of the
+    project that automatically recover from database corruption.
+    """
+
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    if not db_path.exists():
-        # Create empty database file
-        with sqlite3.connect(str(db_path)) as conn:
-            conn.execute("SELECT 1")  # Just create the file
+    if db_path.exists():
+        try:
+            with db_path.open("rb") as fh:
+                header = fh.read(16)
+            if header[:16] != b"SQLite format 3\000":
+                raise sqlite3.DatabaseError("invalid header")
+        except sqlite3.DatabaseError:
+            backup = db_path.with_suffix(db_path.suffix + ".corrupt")
+            try:
+                db_path.replace(backup)
+            except OSError:
+                db_path.unlink(missing_ok=True)
+    # if db_path does not exist or was moved aside due to corruption, it will
+    # be created automatically when a connection is opened later
 
 
 def _retry(operation: Callable[[], None], retries: int = 3, delay: float = 0.1) -> None:
