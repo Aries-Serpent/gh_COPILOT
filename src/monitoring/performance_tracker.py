@@ -17,7 +17,7 @@ from pathlib import Path
 from time import perf_counter, sleep
 from typing import Dict, Iterable, Optional
 
-from .quantum_score import quantum_score
+from .quantum_score import normalized_variance
 
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "analytics.db"
@@ -96,7 +96,7 @@ def quantum_hook(metrics: Dict[str, float]) -> float:
     """Compute a quantum-inspired score for performance metrics."""
 
     values = [metrics["avg_response_time_ms"], metrics["error_rate"] * 100]
-    score = quantum_score(values)
+    score = normalized_variance(values)
     metrics["quantum_score"] = score
     return score
 
@@ -196,9 +196,7 @@ def benchmark_queries(queries: Iterable[str], db_path: Optional[Path] = None) ->
     return metrics
 
 
-async def benchmark_queries_async(
-    queries: Iterable[str], db_path: Optional[Path] = None
-) -> Dict[str, float]:
+async def benchmark_queries_async(queries: Iterable[str], db_path: Optional[Path] = None) -> Dict[str, float]:
     """Asynchronous variant of :func:`benchmark_queries`."""
 
     loop = asyncio.get_running_loop()
@@ -215,16 +213,12 @@ async def benchmark_queries_async(
                 metrics = record_error(query, db_path=path, conn=conn, commit=False)
             else:
                 duration = (perf_counter() - start) * 1000
-                metrics = track_query_time(
-                    query, duration, db_path=path, conn=conn, commit=False
-                )
+                metrics = track_query_time(query, duration, db_path=path, conn=conn, commit=False)
         conn.commit()
     return metrics
 
 
-async def benchmark_metric_overhead(
-    samples: int = 100, db_path: Optional[Path] = None
-) -> float:
+async def benchmark_metric_overhead(samples: int = 100, db_path: Optional[Path] = None) -> float:
     """Return the average time in milliseconds to log a metric asynchronously."""
 
     loop = asyncio.get_running_loop()
