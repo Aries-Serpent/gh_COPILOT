@@ -1565,8 +1565,9 @@ Set these variables in your `.env` file or shell before running scripts:
 - `API_SECRET_KEY` – secret key for API endpoints
 - `FLASK_SECRET_KEY` – Flask dashboard secret
 - `FLASK_RUN_PORT` – dashboard port
-- `WEB_GUI_DEBUG` – set to `1` to enable Web GUI debug mode; defaults to off.
-  See [docs/development.md](docs/development.md) for usage.
+- `WEB_GUI_DEBUG` – set to `1` to enable Web GUI debug mode; defaults to off
+  (`DEBUG=False`). Use only for development. See
+  [docs/development.md](docs/development.md) for usage.
 
 ### AI & ML Variables
 - `OPENAI_API_KEY` – enables optional OpenAI features

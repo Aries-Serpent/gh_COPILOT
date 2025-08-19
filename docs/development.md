@@ -11,4 +11,5 @@ To enable debug output while developing, set the variable to ``1``:
 export WEB_GUI_DEBUG=1
 ```
 
-Avoid using this setting in production deployments.
+Use this setting only during development. Production deployments should
+leave ``DEBUG`` at its default of ``False``.
