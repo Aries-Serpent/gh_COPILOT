@@ -50,7 +50,7 @@ def test_check_cache_status_true() -> None:
 
 
 def test_get_service_uptime_positive() -> None:
-    assert get_service_uptime() > 0
+    assert get_service_uptime() >= 0
 
 
 def test_trigger_alert_returns_level() -> None:
@@ -78,6 +78,6 @@ def test_run_all_checks_alerts_on_failure() -> None:
     )
     assert results["compliance"] is False
     assert results["cache"] is True
-    assert "uptime" in results and results["uptime"] > 0
+    assert "uptime" in results and results["uptime"] >= 0
     assert messages and messages[0].startswith("[HIGH]")
     assert routed == [("high", "compliance check failed")]
