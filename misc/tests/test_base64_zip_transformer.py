@@ -11,13 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))
 
-try:  # Attempt to use real PyQt6 if present
-    import PyQt6  # type: ignore
-except ModuleNotFoundError:  # pragma: no cover - depends on environment
-    from tests.stubs import pyqt6 as PyQt6  # fallback stub
-    sys.modules.setdefault("PyQt6", PyQt6)
-    sys.modules.setdefault("PyQt6.QtCore", PyQt6.QtCore)
-    sys.modules.setdefault("PyQt6.QtWidgets", PyQt6.QtWidgets)
+import PyQt6  # type: ignore
 
 import base64
 import types
