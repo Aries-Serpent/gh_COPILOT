@@ -12,13 +12,12 @@ scikit-learn==1.7.0         # ML algorithms (e.g., clustering, MLP)
 qiskit>=0.44.1              # Quantum optimizer backend (requires ≥0.44.1)
 qiskit-ibm-provider==0.7.0  # IBM Quantum hardware access
 psutil==7.0.0               # System resource monitoring
-tqdm>=4.0                   # Progress bar for CLI and batch tasks
-PyYAML>=6.0                 # YAML config parsing
+tqdm==4.67.1                # Progress bar for CLI and batch tasks
+PyYAML==6.0.2               # YAML config parsing
 typer[all]>=0.12            # CLI framework for gh_COPILOT tools
 toml==0.10.2                # TOML config parsing
 Jinja2==3.1.6               # Template generation for configs
 PyPDF2==3.0.1               # PDF processing
-typer[all]>=0.12            # CLI interface toolkit
 
 # --- Optional platform support (install only on Windows) ---
 wmi==1.5.1; sys_platform == "win32"    # Hardware info on Windows
@@ -36,12 +35,6 @@ autopep8==2.3.2
 ipython==9.4.0
 jupyter==1.1.1
 dill>=0.3.7
-
-# --- AWS/Cloud, if present in codebase ---
-boto3==1.39.3  # Omit if not actually imported/used
-
-# --- Quantum simulation (if used) ---
-qiskit-aer==0.17.1  # Omit if not imported
 
 # --- Any other verified code dependencies can go here ---
 py7zr>=0.20.0

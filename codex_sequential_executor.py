@@ -96,8 +96,16 @@ def _minimal_behavior(example_input=None):
     """
     return example_input
 
-def _not_impl(msg="Generated element requires explicit implementation."):
-    raise NotImplementedError(msg)
+def _not_impl(msg="Generated element requires explicit implementation.", example_input=None):
+    """Fallback used when auto-generated code lacks an implementation.
+
+    The function logs a warning and returns ``example_input`` so that
+    calling pipelines can proceed without crashing, making the missing
+    behavior explicit in the logs.
+    """
+
+    logging.getLogger(__name__).warning(msg)
+    return example_input
 '''
 
 DB_HELPERS_PATCH = r'''
