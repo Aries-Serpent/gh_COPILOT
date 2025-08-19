@@ -14,7 +14,7 @@
 python scripts/run_checks.py  # runs Ruff, Pyright, pytest
 ```
 
-**Tests:** run `pytest` before committing. Current repository tests report multiple failures.
+**Tests:** run `pytest` before committing. Current repository tests report a failure in `tests/database/test_ingestor_concurrency.py`.
 
 ### Test Repair & Stub Policy
 

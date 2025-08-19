@@ -1,26 +1,15 @@
-# Test run on 2025-08-12 05:22:20Z UTC
-===================================================== test session starts ======================================================
-platform linux -- Python 3.12.10, pytest-8.4.1, pluggy-1.6.0
-rootdir: /workspace/gh_COPILOT
-configfile: pytest.ini
-plugins: anyio-4.10.0, cov-6.2.1, timeout-2.4.0
-timeout: 120.0s
-timeout method: signal
-timeout func_only: False
-collected 236 items / 1 error / 2 skipped
-
-============================================================ ERRORS ============================================================
-________________________________ ERROR collecting tests/monitoring_tests/anomaly/test_model.py _________________________________
-ImportError while importing test module '/workspace/gh_COPILOT/tests/monitoring_tests/anomaly/test_model.py'.
-Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /root/.pyenv/versions/3.12.10/lib/python3.12/importlib/__init__.py:90: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/monitoring_tests/anomaly/test_model.py:1: in <module>
-    from monitoring.anomaly import StatisticalAnomalyDetector
-E   ModuleNotFoundError: No module named 'monitoring.anomaly'; 'monitoring' is not a package
+tests/database/test_ingestor_concurrency.py:6: in <module>
+    from scripts.database.template_asset_ingestor import ingest_templates
+E   ImportError: cannot import name 'ingest_templates' from '<unknown module name>' (unknown location)
 ======================================================= warnings summary =======================================================
+codex_changes/tests/test_dashboard_endpoints.py:4
+  /workspace/gh_COPILOT/codex_changes/tests/test_dashboard_endpoints.py:4: PytestUnknownMarkWarning: Unknown pytest.mark.smoke - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.smoke
+
 .venv/lib/python3.12/site-packages/qiskit/transpiler/passmanager.py:70
   /workspace/gh_COPILOT/.venv/lib/python3.12/site-packages/qiskit/transpiler/passmanager.py:70: DeprecationWarning: The property ``qiskit.dagcircuit.dagcircuit.DAGCircuit.duration`` is deprecated as of qiskit 1.3.0. It will be removed in Qiskit 2.0.0.
     out_program = dag_to_circuit(passmanager_ir, copy_operations=False)
@@ -29,13 +18,23 @@ E   ModuleNotFoundError: No module named 'monitoring.anomaly'; 'monitoring' is n
   /workspace/gh_COPILOT/.venv/lib/python3.12/site-packages/qiskit/transpiler/passmanager.py:70: DeprecationWarning: The property ``qiskit.dagcircuit.dagcircuit.DAGCircuit.unit`` is deprecated as of qiskit 1.3.0. It will be removed in Qiskit 2.0.0.
     out_program = dag_to_circuit(passmanager_ir, copy_operations=False)
 
+tests/compliance/test_dao.py:29
+tests/compliance/test_dao.py:29
+tests/compliance/test_dao.py:29
+tests/compliance/test_dao.py:29
+  /workspace/gh_COPILOT/tests/compliance/test_dao.py:29: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    return default if default is not None else default_factory()
+
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 ======================================================== Skipped tests =========================================================
-misc/tests/test_base64_zip_transformer.py - ('/workspace/gh_COPILOT/misc/tests/test_base64_zip_transformer.py', 12, "Skipped: could not import 'PyQt6': No module named 'PyQt6'")
-misc/tests/test_zip_transformer.py - ('/workspace/gh_COPILOT/misc/tests/test_zip_transformer.py', 11, "Skipped: could not import 'PyQt6': No module named 'PyQt6'")
+tests/compliance/test_api.py - ('/workspace/gh_COPILOT/tests/compliance/test_api.py', 10, "Skipped: module 'fastapi' has __version__ None, required is: '0'")
+tests/dashboard/integration/test_auth_flow.py - ('/workspace/gh_COPILOT/tests/dashboard/integration/test_auth_flow.py', 5, "Skipped: could not import 'pyotp': No module named 'pyotp'")
+tests/dashboard/integration/test_dashboard_workflow.py - ('/workspace/gh_COPILOT/tests/dashboard/integration/test_dashboard_workflow.py', 8, "Skipped: could not import 'pyotp': No module named 'pyotp'")
+tests/dashboard/test_auth.py - ('/workspace/gh_COPILOT/tests/dashboard/test_auth.py', 3, "Skipped: could not import 'pyotp': No module named 'pyotp'")
+tests/dashboard/test_auth_mfa.py - ('/workspace/gh_COPILOT/tests/dashboard/test_auth_mfa.py', 5, "Skipped: could not import 'pyotp': No module named 'pyotp'")
 ========================================================= Future work ==========================================================
 Consider extending artifact_manager tests for additional edge cases and CI integration.
 =================================================== short test summary info ====================================================
-ERROR tests/monitoring_tests/anomaly/test_model.py
+ERROR tests/database/test_ingestor_concurrency.py
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-=========================================== 2 skipped, 2 warnings, 1 error in 5.47s ============================================
+=========================================== 5 skipped, 7 warnings, 1 error in 3.49s ============================================

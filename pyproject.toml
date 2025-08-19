@@ -10,11 +10,11 @@ authors = [{name = "gh_COPILOT Team"}]
 requires-python = ">=3.8"
 dependencies = [
     "PyPDF2==3.0.1",
-    "fastapi>=0.110",
-    "uvicorn[standard]>=0.23",
-    "pydantic>=2.6",
-    "PyYAML>=6.0.1",
-    "tqdm>=4.0.0",
+    "fastapi==0.110.0",
+    "uvicorn[standard]==0.23.0",
+    "pydantic==2.6.0",
+    "PyYAML==6.0.2",
+    "tqdm==4.67.1",
 ]
 
 [project.optional-dependencies]
@@ -58,8 +58,6 @@ extend-exclude = [
     "db_tools/*",
     "enterprise_modules/*",
     "quantum_optimizer.py",
-    "databases/*.db",
-    "*.log",
     "recovered_files_*",
       "*.md",
       "*.rst",
