@@ -360,27 +360,46 @@ def get_violations() -> Any:
     return jsonify({"violations": logs})
 
 
-@_dashboard.get("/placeholder-audit")
-def get_placeholder_audit() -> Any:
-    entries: list[dict[str, Any]] = []
+def _load_placeholder_audit(limit: int = 50) -> dict[str, Any]:
+    """Return placeholder trend history, totals, and unresolved entries."""
+
+    history = _load_placeholder_history(limit)
+    totals = {
+        "open": history[-1]["open"] if history else 0,
+        "resolved": history[-1]["resolved"] if history else 0,
+    }
+    unresolved: list[dict[str, Any]] = []
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
             try:
                 cur = conn.execute(
-                    "SELECT file_path, line_number, placeholder_type, context FROM placeholder_audit ORDER BY id DESC LIMIT 100",
+                    "SELECT file_path, line_number, placeholder_type, context FROM placeholder_audit ORDER BY id DESC LIMIT ?",
+                    (limit,),
                 )
-                entries = [
+                unresolved = [
                     {
-                        "file_path": row[0],
-                        "line_number": row[1],
-                        "placeholder_type": row[2],
+                        "file": row[0],
+                        "line": int(row[1]),
+                        "type": row[2],
                         "context": row[3],
                     }
                     for row in cur.fetchall()
                 ]
             except sqlite3.Error:
                 pass
-    return jsonify({"results": entries})
+    return {"history": history, "totals": totals, "unresolved": unresolved}
+
+
+@_dashboard.get("/placeholder-audit")
+def get_placeholder_audit() -> Any:
+    return jsonify({"results": _load_placeholder_audit()["unresolved"]})
+
+
+@_dashboard.get("/api/placeholder_audit")
+def api_placeholder_audit() -> Any:
+    """Expose placeholder audit history and counts for the dashboard."""
+
+    return jsonify(_load_placeholder_audit())
 
 
 @_dashboard.post("/rollback")
