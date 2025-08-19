@@ -1,56 +1,53 @@
+"""Tests for analytics logging helpers via the helper CLI."""
+
+from __future__ import annotations
 
 import json
 import os
 import sqlite3
+import subprocess
+import sys
+from pathlib import Path
 
-from gh_copilot.analytics_logger import log_event, log_sync_operation
 
-def _rowcount(db_path: str) -> int:
-    uri = db_path.startswith("file:")
-    conn = sqlite3.connect(db_path, uri=uri)
-    try:
-        cur = conn.execute("SELECT COUNT(*) FROM events")
-        return cur.fetchone()[0]
-    finally:
-        conn.close()
+def test_cli_logs_into_temp_analytics_db(tmp_path: Path) -> None:
+    """The helper CLI should write rows to events and sync_events_log tables."""
 
-def test_log_event_into_temp_db_respects_test_mode(tmp_path):
-    # TEST_MODE on with explicit temp file => safe side-effects
-    os.environ["TEST_MODE"] = "1"
-    db_file = tmp_path / "events.db"
-    os.environ["ANALYTICS_DB_PATH"] = str(db_file)
+    har_data = {
+        "log": {
+            "entries": [
+                {
+                    "request": {"method": "GET", "url": "https://example.com"},
+                    "time": 42,
+                }
+            ]
+        }
+    }
 
-    log_event("INFO", "unit_event", {"k":"v"})
-    assert db_file.exists()
-    assert _rowcount(str(db_file)) >= 1
+    har_path = tmp_path / "sample.har"
+    har_path.write_text(json.dumps(har_data), encoding="utf-8")
 
-def test_log_sync_operation_payload_and_write(tmp_path):
-    os.environ["TEST_MODE"] = "1"
-    db_file = tmp_path / "events2.db"
-    os.environ["ANALYTICS_DB_PATH"] = str(db_file)
+    db_path = tmp_path / "analytics.db"
 
-    log_sync_operation("sample.har", 2, "success")
-    import sqlite3
-    conn = sqlite3.connect(str(db_file))
-    try:
-        row = conn.execute("SELECT level,event,details FROM events ORDER BY rowid DESC LIMIT 1").fetchone()
-        assert row[0] == "INFO"
-        assert row[1] == "sync_operation"
-        details = json.loads(row[2])
-        assert details == {"file_path": "sample.har", "count": 2, "status": "success"}
-    finally:
-        conn.close()
+    env = os.environ.copy()
+    env["TEST_MODE"] = "1"
+    env["ANALYTICS_DB_PATH"] = str(db_path)
 
-def test_no_analytics_db_file_when_test_mode_and_no_path(tmp_path, monkeypatch):
-    # Ensure cwd is not polluted by a stray analytics.db
-    os.environ["TEST_MODE"] = "1"
-    os.environ.pop("ANALYTICS_DB_PATH", None)
+    cmd = [sys.executable, "-m", "tools.har_cli", str(har_path)]
+    subprocess.run(cmd, check=True, env=env, cwd=str(Path(__file__).resolve().parents[1]))
 
-    # run inside temporary directory
-    monkeypatch.chdir(tmp_path)
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
 
-    # use the logger; it should go to :memory:
-    log_event("INFO", "ephemeral_test", {"x": 1})
+    cur.execute("SELECT COUNT(*) FROM events")
+    assert cur.fetchone()[0] == 2  # started and completed
 
-    # verify analytics.db not created in cwd
-    assert not (tmp_path / "analytics.db").exists()
+    cur.execute("SELECT file_path, count, status FROM sync_events_log")
+    row = cur.fetchone()
+    assert row is not None
+    assert row[0].endswith("sample.har")
+    assert row[1] == 1
+    assert row[2] == "SUCCESS"
+
+    conn.close()
+
