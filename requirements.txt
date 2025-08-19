@@ -12,7 +12,7 @@ scikit-learn==1.7.0         # ML algorithms (e.g., clustering, MLP)
 qiskit>=0.44.1              # Quantum optimizer backend (requires ≥0.44.1)
 qiskit-ibm-provider==0.7.0  # IBM Quantum hardware access
 psutil==7.0.0               # System resource monitoring
-tqdm==4.67.1                # Progress bar for CLI and batch tasks
+tqdm>=4.0                   # Progress bar for CLI and batch tasks
 PyYAML>=6.0                 # YAML config parsing
 typer[all]>=0.12            # CLI framework for gh_COPILOT tools
 toml==0.10.2                # TOML config parsing
