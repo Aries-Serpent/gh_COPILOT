@@ -25,21 +25,45 @@ import json
 import sys
 from pathlib import Path
 from typing import List, Optional
+from types import SimpleNamespace
 
 import typer
 
-# Placeholder functions for compatibility with tests
+from enterprise_modules import compliance
+from utils.log_utils import (
+    DEFAULT_ANALYTICS_DB,
+    log_event as _log_event,
+)
+
+
 def validate_enterprise_operation(*args, **kwargs):
-    pass
+    result = compliance.validate_enterprise_operation(*args, **kwargs)
+    _log_event({"event": "validate_enterprise_operation"}, db_path=DEFAULT_ANALYTICS_DB)
+    return result
+
 
 def enforce_anti_recursion(*args, **kwargs):
-    pass
+    result = compliance.enforce_anti_recursion(*args, **kwargs)
+    _log_event({"event": "enforce_anti_recursion"}, db_path=DEFAULT_ANALYTICS_DB)
+    return result
+
 
 def log_sync_operation(*args, **kwargs):
-    pass
+    func = getattr(compliance, "log_sync_operation", None)
+    if func is None:  # pragma: no cover - fallback for missing attr
+        from scripts.database.cross_database_sync_logger import (
+            log_sync_operation as func,  # type: ignore
+        )
+    result = func(*args, **kwargs)
+    _log_event({"event": "log_sync_operation"}, db_path=DEFAULT_ANALYTICS_DB)
+    return result
+
 
 def log_event(*args, **kwargs):
-    pass
+    func = getattr(compliance, "log_event", _log_event)
+    result = func(*args, **kwargs)
+    _log_event({"event": "log_event"}, db_path=DEFAULT_ANALYTICS_DB)
+    return result
 
 def check_database_sizes(*args, **kwargs):
     return True
@@ -92,6 +116,10 @@ def main(
     """Modern mode ingestion (explicit file/dir arguments)."""
     if ingest_har_entries is None:  # type: ignore
         raise typer.Exit(code=1)
+    validate_enterprise_operation(str(db))
+    enforce_anti_recursion(SimpleNamespace())
+    log_sync_operation(db, "har_ingestion_start")
+    log_event({"event": "har_ingestion_start"})
     res = ingest_har_entries(db, path, checkpoint=checkpoint)  # type: ignore
     print(json.dumps(res.__dict__, indent=2))
 
