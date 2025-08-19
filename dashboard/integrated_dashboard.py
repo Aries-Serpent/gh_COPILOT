@@ -188,6 +188,7 @@ def _load_metrics() -> dict[str, Any]:
         if isinstance(value, (int, float)):
             alerts[name] = _compute_alert(float(value), bounds)
     metrics["alerts"] = alerts
+    metrics["thresholds"] = thresholds
     return metrics
 
 

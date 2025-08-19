@@ -48,6 +48,17 @@
                 el.classList.add('status-green');
             }
         }
+        function computeAlert(value, bounds){
+            if(bounds && typeof bounds === 'object'){
+                if(bounds.critical !== undefined && value < bounds.critical){
+                    return 'critical';
+                }
+                if(bounds.warning !== undefined && value < bounds.warning){
+                    return 'warning';
+                }
+            }
+            return 'ok';
+        }
         // Metrics sourced from /api/compliance_scores (analytics.db)
         function updateMetrics(data){
         document.getElementById('placeholder_removal').textContent = data.placeholder_removal;
@@ -74,11 +85,12 @@
         const comp = data.composite_score ?? data.compliance_score;
         const alert = document.getElementById('compliance_alert');
         alert.textContent = comp.toFixed(2);
-        const alerts = data.alerts || {};
-        applyAlert('lint_score', alerts.lint_score);
-        applyAlert('test_score', alerts.test_score);
-        applyAlert('placeholder_score', alerts.placeholder_score);
-        applyAlert('compliance_alert', alerts.composite_score || alerts.compliance_score);
+        const thresholds = data.thresholds || {};
+        applyAlert('lint_score', computeAlert(data.lint_score ?? 0, thresholds.lint_score));
+        applyAlert('test_score', computeAlert(data.test_score ?? 0, thresholds.test_score));
+        applyAlert('placeholder_score', computeAlert(data.placeholder_score ?? 0, thresholds.placeholder_score));
+        const compBounds = thresholds.composite_score || thresholds.compliance_score;
+        applyAlert('compliance_alert', computeAlert(comp, compBounds));
         document.getElementById('open_placeholders').textContent = data.open_placeholders || 0;
             document.getElementById('resolved_placeholders').textContent = data.resolved_placeholders || 0;
             const prog = data.progress !== undefined ? (data.progress * 100).toFixed(1) + '%' : '0%';
