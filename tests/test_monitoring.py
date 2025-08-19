@@ -10,7 +10,7 @@ from monitoring.performance_tracker import (
     record_error,
     quantum_hook as perf_quantum_hook,
 )
-from monitoring.quantum_score import quantum_score
+from monitoring.quantum_score import quantum_score, normalized_variance
 
 
 def test_health_monitor_anomaly_detection():
@@ -30,7 +30,7 @@ def test_performance_tracker_alerts(tmp_path):
     assert metrics["ml_anomaly"]
     assert "quantum_score" in metrics
     metrics = record_error("slow_query", db_path=db)
-    expected = quantum_score([metrics["avg_response_time_ms"], metrics["error_rate"] * 100])
+    expected = normalized_variance([metrics["avg_response_time_ms"], metrics["error_rate"] * 100])
     assert metrics["error_rate_alert"]
     assert perf_quantum_hook(metrics) == expected
     assert metrics["quantum_score"] == expected

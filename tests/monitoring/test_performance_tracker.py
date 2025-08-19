@@ -1,6 +1,5 @@
 import sqlite3
 import threading
-from pathlib import Path
 from time import perf_counter, sleep
 
 import builtins
@@ -9,7 +8,7 @@ import sys
 sys.modules.pop("monitoring", None)
 
 import monitoring.performance_tracker as pt
-from monitoring.quantum_score import quantum_score
+from monitoring.quantum_score import normalized_variance
 
 
 def test_alerting_and_dashboard(monkeypatch, tmp_path) -> None:
@@ -34,7 +33,7 @@ def test_alerting_and_dashboard(monkeypatch, tmp_path) -> None:
 def test_ml_and_quantum() -> None:
     metrics = {"avg_response_time_ms": 200.0, "error_rate": 0.5}
     assert pt.ml_anomaly_detect(metrics) is True
-    expected = quantum_score([metrics["avg_response_time_ms"], metrics["error_rate"] * 100])
+    expected = normalized_variance([metrics["avg_response_time_ms"], metrics["error_rate"] * 100])
     pt.quantum_hook(metrics)
     assert metrics["quantum_score"] == expected
 
