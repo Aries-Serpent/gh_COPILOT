@@ -7,7 +7,10 @@ import tempfile
 
 import pytest
 
-pytest.importorskip("fastapi", minversion="0")
+try:
+    import fastapi  # noqa: F401
+except ImportError:  # pragma: no cover
+    pytest.skip("fastapi not installed", allow_module_level=True)
 
 tmp_db = tempfile.NamedTemporaryFile(delete=False)
 with sqlite3.connect(tmp_db.name) as _conn:
