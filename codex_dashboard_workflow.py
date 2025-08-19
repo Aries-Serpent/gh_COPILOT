@@ -16,6 +16,7 @@ HARD GUARD: Never touch .github/workflows/*
 
 import argparse
 import json
+import os
 import re
 import sqlite3
 import sys
@@ -23,6 +24,7 @@ import textwrap
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+from src.analytics.metrics_reader import get_latest_panel_snapshot
 
 
 # ---------------------- Utilities ----------------------
@@ -65,7 +67,7 @@ def error_for_chatgpt5(errors_md: Path, step_number: str, step_desc: str, exc: E
         f"""
     **Question for ChatGPT-5:**
     While performing [{step_number}:{step_desc}], encountered the following error:
-    `{type(exc).__name__}: {str(exc)}`  
+    `{type(exc).__name__}: {str(exc)}`
     Context: {context}
     What are the possible causes, and how can this be resolved while preserving intended functionality?
 
@@ -198,62 +200,24 @@ def scan_for_chartjs(html_text: str) -> bool:
 # ---------------------- Patch & Stub Generators ----------------------
 
 
-def patch_for_panel(framework: str, panel: str, api_path: str, module_hint: str) -> str:
-    if framework == "flask":
-        body = f"""
-        # --- BEGIN SUGGESTED ADDITION: {panel} metrics endpoint ---
-        @app.route(\"{api_path}\", methods=[\"GET\"])
-        def metrics_{panel}():
-            \"\"\"Return JSON metrics for {panel}.
-            Values are sourced from analytics.db.
-            \"\"\"
-            metrics = fetch_panel_metrics(\"{panel}\")
-            data = {{
-                \"panel\": \"{panel}\",
-                \"updated_at\": \"{now_iso()}\",
-                \"status\": \"ok\",
-                \"metrics\": metrics
-            }}
-            return jsonify(data), 200
-        # --- END SUGGESTED ADDITION ---
-        """
-    elif framework == "fastapi":
-        body = f"""
-        # --- BEGIN SUGGESTED ADDITION: {panel} metrics endpoint ---
-        @router.get(\"{api_path}\")
-        async def metrics_{panel}():
-            \"\"\"Return JSON metrics for {panel}.
-            Values are sourced from analytics.db.
-            \"\"\"
-            metrics = fetch_panel_metrics(\"{panel}\")
-            return {{
-                \"panel\": \"{panel}\",
-                \"updated_at\": \"{now_iso()}\",
-                \"status\": \"ok\",
-                \"metrics\": metrics
-            }}
-        # --- END SUGGESTED ADDITION ---
-        """
-    else:
-        body = f"""
-        # Framework unknown. Provide a generic WSGI-style hint for {panel}:
-        # GET {api_path} -> JSON: {{
-        #   \"panel\": \"{panel}\",
-        #   \"updated_at\": ISO8601,
-        #   \"status\": \"ok\",
-        #   \"metrics\": {{\"value\":0,\"target\":100,\"unit\":\"%\"}}
-        # }}
-        """
-
-    diff = textwrap.dedent(
-        f"""\
-    --- a/{module_hint}
-    +++ b/{module_hint} (suggested patch)
-    @@
-    {textwrap.indent(textwrap.dedent(body).strip(), ' ')}
-    """
+def patch_for_panel(
+    framework: str,
+    panel: str,
+    api_path: str,
+    module_hint: str,
+) -> Dict[str, object]:
+    """Return analytics snapshot for a panel with structured error handling."""
+    db_path = Path(
+        os.getenv(
+            "ANALYTICS_DB_PATH",
+            Path("databases") / "analytics.db",
+        )
     )
-    return diff
+    test_mode = os.getenv("TEST_MODE", "0") in ("1", "true", "True")
+    result = get_latest_panel_snapshot(panel, db_path, test_mode=test_mode)
+    if result.get("ok"):
+        return {"ok": True, "panel": panel, "data": result}
+    return {"ok": False, "panel": panel, "error": result.get("error")}
 
 
 def template_stub_for_panel(panel: str, api_path: str) -> str:
@@ -521,9 +485,9 @@ def main():
                 continue
 
             try:
-                patch_text = patch_for_panel(framework, panel, api_path, module_hint)
-                patch_file = dirs["patches"] / f"{panel}_endpoint.patch"
-                write_text(patch_file, patch_text)
+                result = patch_for_panel(framework, panel, api_path, module_hint)
+                patch_file = dirs["patches"] / f"{panel}_endpoint.json"
+                write_text(patch_file, json.dumps(result, indent=2))
 
                 t_stub = template_stub_for_panel(panel, api_path)
                 t_file = dirs["stubs"] / "templates" / f"{panel}_panel.html"
@@ -632,4 +596,3 @@ if __name__ == "__main__":
     except Exception:
         pass
     sys.exit(main() or 0)
-
