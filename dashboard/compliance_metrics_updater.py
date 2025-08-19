@@ -26,13 +26,15 @@ import threading
 try:  # pragma: no cover - tested via import failure simulation
     from tqdm import tqdm
 except ImportError:  # pragma: no cover - graceful degradation
-    class _TqdmNoOp:
+    logging.getLogger(__name__).warning("tqdm not installed; progress bars disabled")
+
+    class TqdmNoOp:
         """Simple stand-in that mimics the subset of tqdm's interface used here."""
 
         def __init__(self, *args: Any, **kwargs: Any) -> None:
             self.iterable = args[0] if args else kwargs.get("iterable")
 
-        def __enter__(self) -> "_TqdmNoOp":
+        def __enter__(self) -> "TqdmNoOp":
             return self
 
         def __exit__(self, exc_type: Optional[type], exc: Optional[BaseException], tb: Optional[Any]) -> bool:
@@ -51,7 +53,7 @@ except ImportError:  # pragma: no cover - graceful degradation
             return
 
     def tqdm(*args: Any, **kwargs: Any):  # type: ignore[misc]
-        return _TqdmNoOp(*args, **kwargs)
+        return TqdmNoOp(*args, **kwargs)
 
 from utils.log_utils import ensure_tables, insert_event
 from enterprise_modules.compliance import (
