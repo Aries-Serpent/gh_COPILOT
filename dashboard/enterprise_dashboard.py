@@ -157,6 +157,7 @@ MONITORING_DB = Path("databases/monitoring.db")
 METRICS_FILE = _METRICS_FILE
 CORRECTIONS_WS_PORT = 8767
 COMPLIANCE_LIMIT = 20
+HISTORICAL_METRICS_FILE = Path("analytics/historical_metrics.json")
 
 
 def _get_compliance_scores(limit: int = COMPLIANCE_LIMIT) -> List[Dict[str, float]]:
@@ -279,6 +280,22 @@ def load_code_quality_history(
             history["composite_score"].append(float(row[3]))
             history["timestamps"].append(row[4])
     return history
+
+
+def load_metrics_trend(path: Path | None = None) -> Dict[str, list]:
+    """Return historical metric values for sparkline charts."""
+    if path is None:
+        path = HISTORICAL_METRICS_FILE
+    trend: Dict[str, list] = {"metrics": [], "timestamps": []}
+    if path.exists():
+        try:
+            raw = json.loads(path.read_text())
+        except Exception:
+            raw = {}
+        metrics = raw.get("metrics", [])
+        trend["metrics"] = [float(m) for m in metrics]
+        trend["timestamps"] = list(range(len(metrics)))
+    return trend
 
 
 @app.route("/dashboard/compliance", endpoint="enterprise_dashboard_compliance")
@@ -715,6 +732,12 @@ def code_quality_metrics() -> Any:
 def code_quality_history() -> Any:
     """Expose historical code quality metrics arrays."""
     return jsonify(load_code_quality_history())
+
+
+@app.route("/api/metrics/trend")
+def metrics_trend() -> Any:
+    """Expose historical metric trend values."""
+    return jsonify(load_metrics_trend())
 
 
 app.view_functions["dashboard.index"] = index
