@@ -32,7 +32,7 @@ package-dir = {"" = "."}
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["copilot", "monitoring"]
+include = ["copilot", "monitoring", "scripts"]
 exclude = ["scripts.quantum_placeholders"]
 
 [tool.ruff]
