@@ -28,6 +28,12 @@ def _ensure_stub(mod_name: str, submods: list[str] | None = None) -> None:
             sys.modules[full] = types.ModuleType(full)
 
 _ensure_stub('qiskit', ['algorithms','quantum_info','transpiler','providers'])
+
+# Minimal tqdm stub
+if 'tqdm' not in sys.modules:
+    tqdm_stub = types.ModuleType('tqdm')
+    tqdm_stub.tqdm = lambda iterable=None, **kwargs: iterable
+    sys.modules['tqdm'] = tqdm_stub
 try:
     import scripts.wlc_session_manager as wsm
 except Exception:  # pragma: no cover - fallback when optional deps missing
