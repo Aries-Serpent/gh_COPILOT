@@ -35,6 +35,7 @@ METRICS_FILE = Path(__file__).with_name("metrics.json")
 METRICS_PATH = METRICS_FILE  # Backward compatibility
 CORRECTIONS_DIR = Path("dashboard/compliance")
 ANALYTICS_DB = Path("databases/analytics.db")
+THRESHOLDS_FILE = Path(__file__).with_name("thresholds.json")
 
 
 # Blueprint definition
@@ -44,6 +45,27 @@ _dashboard = Blueprint(
     template_folder=str(Path(__file__).parent / "templates"),
     static_folder=str(Path(__file__).parent / "static"),
 )
+
+
+def _load_thresholds() -> dict[str, dict[str, float]]:
+    """Load metric threshold configuration if available."""
+    if THRESHOLDS_FILE.exists():
+        try:
+            return json.loads(THRESHOLDS_FILE.read_text())
+        except json.JSONDecodeError:
+            logging.error("Thresholds decode error", exc_info=True)
+    return {}
+
+
+def _compute_alert(value: float, bounds: dict[str, float]) -> str:
+    """Return alert level for *value* based on *bounds* mapping."""
+    warning = bounds.get("warning")
+    critical = bounds.get("critical")
+    if critical is not None and value < critical:
+        return "critical"
+    if warning is not None and value < warning:
+        return "warning"
+    return "ok"
 
 
 def _load_metrics() -> dict[str, Any]:
@@ -159,6 +181,13 @@ def _load_metrics() -> dict[str, Any]:
                     pass
         except sqlite3.Error:
             pass
+    thresholds = _load_thresholds()
+    alerts: dict[str, str] = {}
+    for name, bounds in thresholds.items():
+        value = metrics.get(name)
+        if isinstance(value, (int, float)):
+            alerts[name] = _compute_alert(float(value), bounds)
+    metrics["alerts"] = alerts
     return metrics
 
 
