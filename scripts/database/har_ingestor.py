@@ -22,12 +22,14 @@ In legacy mode:
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 from typing import List, Optional
 from types import SimpleNamespace
 
 import typer
+from tqdm import tqdm  # noqa: F401
 
 # --- Compliance & Logging Imports (merged) ---
 try:
@@ -120,9 +122,6 @@ class SecondaryCopilotValidator:
 
 _RECURSION_CTX = SimpleNamespace()
 
-def tqdm(iterable=None, **k):
-    return iterable or []
-
 app = typer.Typer(add_completion=False, help="HAR ingestor (WAL, busy_timeout, batching)")
 
 # --- Canonical ingestion import with fallback ---
@@ -156,6 +155,11 @@ def main(
     path: List[Path] = typer.Argument(
         ..., metavar="PATH...", help="HAR files or directories (modern mode)"
     ),
+    progress: bool = typer.Option(
+        not bool(os.getenv("CI")),
+        "--progress/--no-progress",
+        help="Show progress bar during ingestion",
+    ),
 ) -> None:
     """Modern mode ingestion (explicit file/dir arguments)."""
     if ingest_har_entries is None:  # type: ignore
@@ -177,7 +181,7 @@ def main(
     except Exception as exc:
         typer.echo(f"Compliance check failed: {exc}", err=True)
         raise typer.Exit(code=1)
-    res = ingest_har_entries(db, path, checkpoint=checkpoint)  # type: ignore
+    res = ingest_har_entries(db, path, checkpoint=checkpoint, show_progress=progress)  # type: ignore
     print(json.dumps(res.__dict__, indent=2))
     if getattr(_RECURSION_CTX, "recursion_depth", 0) > 0:
         _RECURSION_CTX.recursion_depth -= 1
@@ -199,6 +203,11 @@ def legacy(
     ),
     checkpoint: bool = typer.Option(
         False, "--checkpoint", help="Run WAL checkpoint in legacy DB"
+    ),
+    progress: bool = typer.Option(
+        not bool(os.getenv("CI")),
+        "--progress/--no-progress",
+        help="Show progress bar during ingestion",
     ),
 ) -> None:
     """
@@ -228,7 +237,7 @@ def legacy(
     db_path = db_dir / "enterprise_assets.db"
 
     files = _legacy_discover(workspace, har_dir)
-    res = ingest_har_entries(db_path, files, checkpoint=checkpoint)  # type: ignore
+    res = ingest_har_entries(db_path, files, checkpoint=checkpoint, show_progress=progress)  # type: ignore
     print(json.dumps({"workspace": str(workspace), **res.__dict__}, indent=2))
     if getattr(_RECURSION_CTX, "recursion_depth", 0) > 0:
         _RECURSION_CTX.recursion_depth -= 1

@@ -24,6 +24,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, Optional
 
+from tqdm import tqdm
+
 # Optional DAO import for analytics / event logging
 try:
     from .dao import IngestDAO  # type: ignore
@@ -129,6 +131,7 @@ def ingest_har_entries(
     *,
     checkpoint: bool = False,
     dao: Optional['IngestDAO'] = None,  # type: ignore
+    show_progress: bool = True,
 ) -> IngestResult:
     """
     Ingest provided HAR files (or directory trees) into the database.
@@ -143,6 +146,8 @@ def ingest_har_entries(
         If True, attempt WAL checkpoint(TRUNCATE) after insert.
     dao : IngestDAO | None
         Optional explicit DAO (if not provided, instantiated if available).
+    show_progress : bool
+        Display a progress bar during ingestion.
 
     Returns
     -------
@@ -173,7 +178,7 @@ def ingest_har_entries(
         except Exception:
             existing_hashes = set()
 
-        for f in files:
+        for f in tqdm(files, desc="HAR files", unit="file", disable=not show_progress):
             try:
                 digest = _sha256_file(f)
                 metrics = _parse_metrics(f)
