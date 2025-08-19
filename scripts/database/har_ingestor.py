@@ -25,15 +25,15 @@ import json
 import sys
 from pathlib import Path
 from typing import List, Optional
+from types import SimpleNamespace
 
 import typer
 
-# Placeholder functions for compatibility with tests
-def validate_enterprise_operation(*args, **kwargs):
-    pass
-
-def enforce_anti_recursion(*args, **kwargs):
-    pass
+from enterprise_modules.compliance import (
+    ComplianceError,
+    enforce_anti_recursion,
+    validate_enterprise_operation,
+)
 
 def log_sync_operation(*args, **kwargs):
     pass
@@ -49,6 +49,9 @@ class SecondaryCopilotValidator:
         return True
 
 
+_RECURSION_CTX = SimpleNamespace()
+
+
 def tqdm(iterable=None, **k):
     return iterable or []
 
@@ -62,7 +65,7 @@ except Exception:
     try:
         from gh_copilot.ingest.har import ingest_har_entries, IngestResult  # type: ignore
     except Exception as exc:  # pragma: no cover
-        typer.secho(f"Failed to import ingest_har_entries: {exc}", fg=typer.colors.RED, err=True)
+        typer.echo(f"Failed to import ingest_har_entries: {exc}", err=True)
         ingest_har_entries = None  # type: ignore
         IngestResult = None  # type: ignore
 
@@ -92,8 +95,24 @@ def main(
     """Modern mode ingestion (explicit file/dir arguments)."""
     if ingest_har_entries is None:  # type: ignore
         raise typer.Exit(code=1)
+    try:
+        enforce_anti_recursion(_RECURSION_CTX)
+        if not validate_enterprise_operation():
+            typer.echo(
+                "Enterprise operation validation failed",
+                err=True,
+            )
+            raise typer.Exit(code=1)
+    except ComplianceError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1)
     res = ingest_har_entries(db, path, checkpoint=checkpoint)  # type: ignore
     print(json.dumps(res.__dict__, indent=2))
+    if getattr(_RECURSION_CTX, "recursion_depth", 0) > 0:
+        _RECURSION_CTX.recursion_depth -= 1
+        ancestors = getattr(_RECURSION_CTX, "ancestors", [])
+        if ancestors:
+            ancestors.pop()
 
 
 @app.command("legacy")
@@ -117,6 +136,17 @@ def legacy(
     """
     if ingest_har_entries is None:  # type: ignore
         raise typer.Exit(code=1)
+    try:
+        enforce_anti_recursion(_RECURSION_CTX)
+        if not validate_enterprise_operation():
+            typer.echo(
+                "Enterprise operation validation failed",
+                err=True,
+            )
+            raise typer.Exit(code=1)
+    except ComplianceError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1)
 
     db_dir = workspace / "databases"
     db_dir.mkdir(parents=True, exist_ok=True)
@@ -125,6 +155,11 @@ def legacy(
     files = _legacy_discover(workspace, har_dir)
     res = ingest_har_entries(db_path, files, checkpoint=checkpoint)  # type: ignore
     print(json.dumps({"workspace": str(workspace), **res.__dict__}, indent=2))
+    if getattr(_RECURSION_CTX, "recursion_depth", 0) > 0:
+        _RECURSION_CTX.recursion_depth -= 1
+        ancestors = getattr(_RECURSION_CTX, "ancestors", [])
+        if ancestors:
+            ancestors.pop()
 
 
 if __name__ == "__main__":

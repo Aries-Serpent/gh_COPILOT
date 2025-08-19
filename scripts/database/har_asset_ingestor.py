@@ -64,9 +64,9 @@ def ingest_har_entries(workspace: Path, har_dir: Path | None = None) -> None:
         ``workspace / 'logs'``.
     """
 
-    validate_enterprise_operation()
+    if not validate_enterprise_operation():
+        raise RuntimeError("Enterprise operation validation failed")
     enforce_anti_recursion(_RECURSION_CTX)
-    _RECURSION_CTX.recursion_depth += 1
 
     db_dir = workspace / "databases"
     db_path = db_dir / "enterprise_assets.db"

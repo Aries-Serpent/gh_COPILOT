@@ -20,7 +20,7 @@ def test_ingest_db_error(monkeypatch, tmp_path):
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
 
     monkeypatch.setattr(di, "enforce_anti_recursion", lambda *a, **k: None)
-    monkeypatch.setattr(di, "validate_enterprise_operation", lambda *a, **k: None)
+    monkeypatch.setattr(di, "validate_enterprise_operation", lambda *a, **k: True)
     monkeypatch.setattr(di, "get_dataset_sources", lambda *a, **k: [])
     monkeypatch.setattr(di, "log_sync_operation", lambda *a, **k: None)
     monkeypatch.setattr(di, "log_event", lambda *a, **k: None)

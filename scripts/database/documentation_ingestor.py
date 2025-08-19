@@ -53,8 +53,9 @@ def ingest_documentation(
 ) -> None:
     """Ingest Markdown files into ``enterprise_assets.db``."""
 
+    if not validate_enterprise_operation():
+        raise RuntimeError("Enterprise operation validation failed")
     enforce_anti_recursion(_RECURSION_CTX)
-    validate_enterprise_operation()
 
     validator = SecondaryCopilotValidator()
 
