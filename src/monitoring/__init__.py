@@ -16,9 +16,13 @@ from .baseline_anomaly_detector import BaselineAnomalyDetector  # noqa: F401
 __all__.append("BaselineAnomalyDetector")
 
 try:  # Optional dependency on psutil via health_monitor
-    from .health_monitor import record_system_health  # noqa: F401
+    from .health_monitor import (  # noqa: F401
+        record_system_health,
+        check_alerts,
+        gather_metrics,
+    )
 
-    __all__.append("record_system_health")
+    __all__ += ["record_system_health", "check_alerts", "gather_metrics"]
 except Exception:  # pragma: no cover - missing optional deps
     pass
 
