@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any, Callable
+
 __all__: list[str] = []
 
 try:  # Optional dependency on requests
@@ -47,7 +49,7 @@ try:
 except Exception:  # pragma: no cover - missing optional deps
     pass
 
-def anomaly_detection_loop(*args, **kwargs):
+def anomaly_detection_loop(*args: Any, **kwargs: Any) -> Any:
     from unified_monitoring_optimization_system import (  # type: ignore
         anomaly_detection_loop as _loop,
     )
@@ -55,7 +57,7 @@ def anomaly_detection_loop(*args, **kwargs):
     return _loop(*args, **kwargs)
 
 
-def detect_anomalies(*args, **kwargs):
+def detect_anomalies(*args: Any, **kwargs: Any) -> Any:
     from unified_monitoring_optimization_system import (  # type: ignore
         detect_anomalies as _detect,
     )
@@ -63,7 +65,7 @@ def detect_anomalies(*args, **kwargs):
     return _detect(*args, **kwargs)
 
 
-def register_hook(func):
+def register_hook(func: Callable[..., Any]) -> Any:
     from unified_monitoring_optimization_system import (  # type: ignore
         register_hook as _register,
     )
