@@ -29,11 +29,11 @@ from secondary_copilot_validator import SecondaryCopilotValidator
 from utils.log_utils import log_event
 from tqdm import tqdm
 
-from .cross_database_sync_logger import log_sync_operation
-from .ingestion_utils import AssetIngestor, IngestorConfig
-from .size_compliance_checker import check_database_sizes
-from .schema_validators import ensure_documentation_schema
-from .unified_database_initializer import initialize_database
+from scripts.database.cross_database_sync_logger import log_sync_operation
+from scripts.database.ingestion_utils import AssetIngestor, IngestorConfig
+from scripts.database.size_compliance_checker import check_database_sizes
+from scripts.database.schema_validators import ensure_documentation_schema
+from scripts.database.unified_database_initializer import initialize_database
 
 __all__ = ["ingest_documentation", "pid_recursion_guard", "_PID_GUARD_AVAILABLE"]
 

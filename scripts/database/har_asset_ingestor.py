@@ -34,9 +34,9 @@ except Exception:  # pragma: no cover - fallback to no-op
 
 from secondary_copilot_validator import SecondaryCopilotValidator
 
-from .cross_database_sync_logger import _table_exists, log_sync_operation
-from .size_compliance_checker import check_database_sizes
-from .unified_database_initializer import initialize_database
+from scripts.database.cross_database_sync_logger import _table_exists, log_sync_operation
+from scripts.database.size_compliance_checker import check_database_sizes
+from scripts.database.unified_database_initializer import initialize_database
 from utils.log_utils import log_event
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")

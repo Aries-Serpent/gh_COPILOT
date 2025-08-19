@@ -11,7 +11,7 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from .size_compliance_checker import check_database_sizes
+from scripts.database.size_compliance_checker import check_database_sizes
 from utils.log_utils import _log_event
 
 logger = logging.getLogger(__name__)
