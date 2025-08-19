@@ -271,7 +271,13 @@ def template_stub_for_panel(panel: str, api_path: str) -> str:
         const res = await fetch(\"{api_path}\", {{ cache: \"no-store\" }});
         if (!res.ok) throw new Error(\"HTTP \" + res.status);
         const data = await res.json();
-        // TODO: update Chart.js gauge with `data.metrics.value`
+        const value = (data && data.metrics && typeof data.metrics.value === 'number')
+          ? data.metrics.value : 0;
+        const ds = gauge_{panel}.data.datasets?.[0];
+        if (ds) {{
+          ds.data = [value, Math.max(0, 100 - value)];
+        }}
+        gauge_{panel}.update();
       }} catch (e) {{
         console.error(\"Failed to fetch {panel} metrics:\", e);
       }}
