@@ -57,6 +57,7 @@ The `template_engine.auto_generator` module clusters stored patterns using KMean
 - [WORKSPACE_OPTIMIZER.md](WORKSPACE_OPTIMIZER.md) explains how to archive unused files and log optimization metrics.
 - [DEPLOYMENT_ORCHESTRATOR.md](DEPLOYMENT_ORCHESTRATOR.md) describes the unified deployment orchestration workflow.
 - [timeline_risk_plan.md](timeline_risk_plan.md) provides week-by-week milestones and a risk mitigation plan for disaster recovery, GUI, and the synchronization engine.
+- [COMPLIANCE_PIPELINE.md](COMPLIANCE_PIPELINE.md) outlines each stage of the compliance pipeline and the responsibilities for maintaining repository standards.
 
 For validation details see [validation/Database_First_Validation.md](validation/Database_First_Validation.md). Copilot-specific notes are available under [.github/docs/Database_First_Copilot.md](../.github/docs/Database_First_Copilot.md).
 
