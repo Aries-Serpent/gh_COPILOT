@@ -13,7 +13,7 @@ qiskit>=0.44.1              # Quantum optimizer backend (requires ≥0.44.1)
 qiskit-ibm-provider==0.7.0  # IBM Quantum hardware access
 psutil==7.0.0               # System resource monitoring
 tqdm==4.67.1                # Progress bar for CLI and batch tasks
-PyYAML==6.0.2               # YAML config parsing
+PyYAML>=6.0                 # YAML config parsing
 typer[all]>=0.12            # CLI framework for gh_COPILOT tools
 toml==0.10.2                # TOML config parsing
 Jinja2==3.1.6               # Template generation for configs
