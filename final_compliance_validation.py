@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 """Simple final validation for compliance pipeline"""
 
-import sys
 from pathlib import Path
-
-# Add scripts to path
-sys.path.insert(0, str(Path.cwd() / 'scripts'))
 
 def main():
     """Final validation of compliance pipeline components"""
