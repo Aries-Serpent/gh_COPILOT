@@ -17,7 +17,7 @@ def test_start_session_multiple_updates(tmp_path):
     workspace = tmp_path
 
     start_session(session_id, workspace=str(workspace))
-    db_path = workspace / "databases" / "analytics.db"
+    db_path = workspace / "databases" / "production.db"
     with sqlite3.connect(db_path) as conn:
         first_ts = conn.execute(
             "SELECT start_ts FROM session_lifecycle WHERE session_id=?",
