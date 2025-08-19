@@ -1,4 +1,7 @@
-"""scripts package"""
+"""Scripts package.
+
+Exposes utilities used by various tooling.
+"""
 
 from pathlib import Path
 import sys
