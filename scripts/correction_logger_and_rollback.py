@@ -179,6 +179,16 @@ class CorrectionLoggerRollback:
                     timestamp TEXT
                 )"""
             )
+            conn.execute(
+                """CREATE TABLE IF NOT EXISTS correction_rollback_events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    event_type TEXT NOT NULL,
+                    target TEXT NOT NULL,
+                    backup TEXT,
+                    status TEXT,
+                    timestamp TEXT NOT NULL
+                )"""
+            )
             existing = {row[1] for row in conn.execute("PRAGMA table_info(corrections)")}
             required = {
                 "correction_type": "TEXT",
@@ -255,6 +265,16 @@ class CorrectionLoggerRollback:
                     "correction",
                     str(file_path),
                     compliance_score,
+                    "logged",
+                    datetime.utcnow().isoformat(),
+                ),
+            )
+            conn.execute(
+                "INSERT INTO correction_rollback_events (event_type, target, backup, status, timestamp) VALUES (?, ?, ?, ?, ?)",
+                (
+                    correction_type,
+                    str(file_path),
+                    rollback_reference,
                     "logged",
                     datetime.utcnow().isoformat(),
                 ),

@@ -305,10 +305,11 @@
 </head>
 <body>
 <h1>Compliance Dashboard</h1>
-<nav>
-    <a href="/corrections/view">Corrections</a>
+    <nav>
+        <a href="/corrections/view">Corrections</a>
     <a href="/api/compliance_scores">Compliance</a>
-</nav>
+    <a href="/rollbacks">Rollbacks</a>
+    </nav>
 <div>
     <strong>Placeholder Removals:</strong> <span id="placeholder_removal">{{ metrics.placeholder_removal | default(0) }}</span><br>
     <strong>Compliance Score:</strong> <span id="compliance_score">{{ metrics.compliance_score | default(0) }}</span><br>

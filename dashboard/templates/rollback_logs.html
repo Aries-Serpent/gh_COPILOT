@@ -1,14 +1,19 @@
 <!doctype html>
 <html>
 <head>
-    <title>Rollback Logs</title>
+    <title>Correction & Rollback History</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<h1>Rollback Logs</h1>
+<h1>Correction & Rollback History</h1>
+<form method="post" action="{{ url_for('dashboard_rollbacks.perform_rollback') }}">
+    <input type="text" name="target" placeholder="Target file" required>
+    <input type="text" name="backup" placeholder="Backup path">
+    <button type="submit">Rollback</button>
+</form>
 <ul>
 {% for log in logs %}
-    <li>{{ log.timestamp }} - {{ log.target }}{% if log.backup %} ({{ log.backup }}){% endif %}</li>
+    <li>{{ log.timestamp }} - {{ log.event_type }} - {{ log.target }}{% if log.backup %} ({{ log.backup }}){% endif %}</li>
 {% endfor %}
 </ul>
 {% include 'footer.html' %}
