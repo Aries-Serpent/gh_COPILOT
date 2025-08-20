@@ -288,7 +288,7 @@ def load_code_quality_history(
 
 
 def load_metrics_trend(path: Path | None = None) -> Dict[str, list]:
-    """Return historical metric values for sparkline charts."""
+    """Return historical metric values and timestamps for sparkline charts."""
     if path is None:
         path = HISTORICAL_METRICS_FILE
     trend: Dict[str, list] = {"metrics": [], "timestamps": []}
@@ -298,8 +298,12 @@ def load_metrics_trend(path: Path | None = None) -> Dict[str, list]:
         except Exception:
             raw = {}
         metrics = raw.get("metrics", [])
+        timestamps = raw.get("timestamps")
         trend["metrics"] = [float(m) for m in metrics]
-        trend["timestamps"] = list(range(len(metrics)))
+        if isinstance(timestamps, list) and timestamps:
+            trend["timestamps"] = list(timestamps)
+        else:
+            trend["timestamps"] = list(range(len(metrics)))
     return trend
 
 

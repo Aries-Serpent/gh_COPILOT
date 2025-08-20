@@ -29,6 +29,10 @@ python scripts/run_checks.py  # runs Ruff, Pyright, pytest
 **Docs:** run `python scripts/docs_status_reconciler.py` to refresh `docs/task_stubs.md` and `docs/status_index.json` before committing documentation changes. This step is required after any documentation edit.
 **Preview features:** `scripts/ml/deploy_models.py`, `scripts/monitoring/performance_monitor.py`, `scripts/performance/bottleneck_analyzer.py`, `scripts/integration/sap_integration.py`, `scripts/integration/jira_integration.py`, `scripts/audit/audit_report_generator.py`, `security/validator.py`, and `security/vulnerability_scanner.py` provide early stubs for model deployment, monitoring, integration, audits, and security.
 
+### Compliance Pipeline
+
+See [COMPLIANCE_PIPELINE.md](COMPLIANCE_PIPELINE.md) for the ingestion, validation, and reporting workflow.
+
 ### Implemented vs. Planned Features
 
 | Area | Implemented | Preview  | Deprecated |
@@ -1455,6 +1459,12 @@ python scripts/code_placeholder_audit.py \
     --analytics-db databases/analytics.db \
     --production-db databases/production.db \
     --exclude-dir builds --exclude-dir archive
+
+# Or run via helper script suitable for cron
+bash scripts/run_placeholder_audit.sh
+# Example daily cron at 02:30:
+# 30 2 * * * /path/to/repo/scripts/run_placeholder_audit.sh \
+#   >> /var/log/gh_copilot_placeholder_audit.log 2>&1
 
 # Automatically clean placeholders:
 python scripts/code_placeholder_audit.py --cleanup
