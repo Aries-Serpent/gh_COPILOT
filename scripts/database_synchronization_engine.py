@@ -21,7 +21,10 @@ from typing import Any, Callable, Dict
 # mapping can be extended by callers for additional databases.
 DATABASE_SCHEMA_MAP: Dict[str, Dict[str, str]] = {
     "production.db": {
-        "generated_solutions": "id INTEGER PRIMARY KEY, content TEXT, updated_at INTEGER",
+        "generated_solutions": (
+            "id INTEGER PRIMARY KEY, objective TEXT, template_name TEXT, "
+            "code TEXT, session_id TEXT, created_at TEXT"
+        ),
     },
     "analytics.db": {
         "sync_audit_log": ("id INTEGER PRIMARY KEY, source_db TEXT, target_db TEXT, action TEXT, timestamp INTEGER"),
