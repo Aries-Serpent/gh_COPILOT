@@ -1,21 +1,17 @@
-# Compliance Pipeline
+## Compliance Pipeline
 
-This document outlines the repository's compliance pipeline and the key
-responsibilities at each step.
+The compliance pipeline ensures every contribution meets organizational and
+regulatory expectations. It flows through three primary phases:
 
-1. **Policy Definition** – Establish regulatory requirements and internal
-   standards. Update documentation and configuration to reflect these rules.
-2. **Static Analysis** – Run formatters, linters and dependency checks to ensure
-   code quality and proper binary tracking.
-3. **Dynamic Testing** – Execute unit and integration tests along with security
-   scans. Validate runtime behaviour and safeguard coverage.
-4. **Audit Review** – Collect outputs from automated checks and perform manual
-   inspection. Apply the dual‑copilot pattern for independent verification and
-   record findings.
-5. **Reporting & Certification** – Compile results into compliance reports,
-   update logs and publish summaries for stakeholders. Archive artifacts for
-   traceability.
-6. **Continuous Monitoring** – Track compliance metrics over time and feed
-   results back into the pipeline. Schedule periodic reassessments to maintain
-   alignment with evolving standards.
+### Ingestion
+- Collect source artifacts and metadata.
+- Securely store submissions for downstream evaluation.
+
+### Validation
+- Execute automated checks, linters, and tests.
+- Perform dual‑copilot review to confirm policy adherence.
+
+### Reporting
+- Summarize validation outcomes and compliance metrics.
+- Archive logs and deliver reports to stakeholders.
 

@@ -29,6 +29,10 @@ python scripts/run_checks.py  # runs Ruff, Pyright, pytest
 **Docs:** run `python scripts/docs_status_reconciler.py` to refresh `docs/task_stubs.md` and `docs/status_index.json` before committing documentation changes. This step is required after any documentation edit.
 **Preview features:** `scripts/ml/deploy_models.py`, `scripts/monitoring/performance_monitor.py`, `scripts/performance/bottleneck_analyzer.py`, `scripts/integration/sap_integration.py`, `scripts/integration/jira_integration.py`, `scripts/audit/audit_report_generator.py`, `security/validator.py`, and `security/vulnerability_scanner.py` provide early stubs for model deployment, monitoring, integration, audits, and security.
 
+### Compliance Pipeline
+
+See [COMPLIANCE_PIPELINE.md](COMPLIANCE_PIPELINE.md) for the ingestion, validation, and reporting workflow.
+
 ### Implemented vs. Planned Features
 
 | Area | Implemented | Preview  | Deprecated |
