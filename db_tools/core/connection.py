@@ -3,11 +3,19 @@ Unified database connection management for the gh_COPILOT toolkit.
 Extracted from database access layer, cleanup processor, and compliance checker.
 """
 
-import sqlite3
 import logging
-from pathlib import Path
-from typing import Optional, Union, Any, Dict
+import sqlite3
 from contextlib import contextmanager
+from pathlib import Path
+from typing import Any, Optional, Union
+
+try:  # pragma: no cover - optional dependency
+    import psycopg2  # type: ignore
+except ImportError:  # pragma: no cover - fallback to SQLite
+    psycopg2 = None  # type: ignore
+    logging.getLogger(__name__).info(
+        "psycopg2 not installed; PostgreSQL support disabled. Falling back to SQLite."
+    )
 
 from .exceptions import DatabaseConnectionError, DatabaseQueryError
 from .models import DatabaseConfig
@@ -27,10 +35,20 @@ class DatabaseConnection:
         """Get database connection with automatic cleanup"""
         conn = None
         try:
-            conn = sqlite3.connect(
-                self.config.database_path,
-                timeout=self.config.timeout
-            )
+            db_target = str(self.config.database_path)
+            if db_target.startswith(("postgres://", "postgresql://")) and psycopg2:
+                conn = psycopg2.connect(db_target)
+            elif db_target.startswith(("postgres://", "postgresql://")) and not psycopg2:
+                self.logger.warning(
+                    "psycopg2 missing; using in-memory SQLite database instead of %s",
+                    db_target,
+                )
+                conn = sqlite3.connect(":memory:", timeout=self.config.timeout)
+            else:
+                conn = sqlite3.connect(
+                    self.config.database_path,
+                    timeout=self.config.timeout,
+                )
             conn.row_factory = sqlite3.Row  # Enable column access by name
             yield conn
         except sqlite3.Error as e:
