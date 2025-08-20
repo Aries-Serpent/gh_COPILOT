@@ -14,7 +14,7 @@ import os
 import sqlite3
 import logging
 from pathlib import Path
-from typing import Optional, List, Dict, Any, Tuple, Union
+from typing import Optional, List, Dict, Any, Tuple, Union, Iterator
 from contextlib import contextmanager
 
 from enterprise_modules.compliance import (
@@ -71,7 +71,7 @@ def get_enterprise_database_connection(
 def enterprise_database_context(
     db_path: str = "production.db",
     timeout: float = 30.0
-):
+) -> Iterator[sqlite3.Connection]:
     """
     Context manager for enterprise database operations
     """
