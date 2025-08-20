@@ -255,7 +255,10 @@
             });
         }
         function pollCompliance(){
-            fetch('/dashboard/compliance').then(r=>r.json()).then(updateCompliance);
+            fetch('/dashboard/compliance')
+                .then(r=>r.json())
+                .then(updateCompliance)
+                .catch(err => console.error('Failed to load compliance data', err));
         }
         function pollExtras(){
             fetch('/sync_events').then(r=>r.json()).then(updateSyncEvents);
