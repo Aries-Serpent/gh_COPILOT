@@ -1,4 +1,4 @@
-.PHONY: create-env setup test lint clean-logs compliance
+.PHONY: create-env setup test lint clean-logs compliance check-requirements
 
 create-env:
 	python scripts/setup_environment.py
@@ -17,9 +17,13 @@ clean-logs:
 	bash scripts/clean_zero_logs.sh logs
 
 compliance:
-	$(MAKE) lint
-	$(MAKE) test
-	python scripts/code_placeholder_audit.py
+        $(MAKE) lint
+        $(MAKE) test
+        python scripts/code_placeholder_audit.py
+        $(MAKE) check-requirements
+
+check-requirements:
+        python tools/check_requirements.py
 
 .PHONY: convert-daily-whitepaper
 convert-daily-whitepaper:
