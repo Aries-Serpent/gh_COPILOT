@@ -9,25 +9,18 @@ import re
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-# Extend sys.path so the script can import project utilities when executed
-# directly as ``python scripts/generate_docs_metrics.py``.
-sys.path.append(str(ROOT))
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 from utils.log_utils import DEFAULT_ANALYTICS_DB, _log_event
-from secondary_copilot_validator import SecondaryCopilotValidator, run_dual_copilot_validation
-
-if __package__ in {None, ""}:
-    SCRIPT_DIR = Path(__file__).resolve().parent
-    sys.path.insert(0, str(SCRIPT_DIR))
-    import validate_docs_metrics  # type: ignore
-else:  # pragma: no cover
-    from . import validate_docs_metrics
+from scripts.validation.secondary_copilot_validator import (
+    SecondaryCopilotValidator,
+    run_dual_copilot_validation,
+)
+from scripts import validate_docs_metrics
 
 # The production database resides under ``databases/``. Using this path avoids
 # accidental creation of an empty database when ``production.db`` does not exist

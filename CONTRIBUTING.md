@@ -8,6 +8,8 @@ Thank you for considering a contribution to gh_COPILOT. Please follow these guid
 - Use `make compliance` to run `ruff`, `pytest`, and `scripts/code_placeholder_audit.py` in a single step.
 - Use conventional commit messages and reference these standards in your pull requests.
 - Follow the [Git LFS recovery guide](docs/git_lfs_recovery.md) when restoring large binary files.
+- Run helper scripts via module syntax (``python -m scripts.<name>``) instead of
+  invoking paths directly. For example, ``python -m scripts.generate_docs_metrics``.
 
 ## Safe ripgrep usage for large repositories
 
