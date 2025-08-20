@@ -241,7 +241,7 @@ def anti_recursion_guard(func: Callable) -> Callable:
     pid_file = _LOCK_DIR / f"{func.__name__}.pid"
 
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         current_pid = os.getpid()
         if lock_file.exists():
             raise RuntimeError("Anti-recursion guard triggered")
