@@ -40,6 +40,15 @@ def get_backend() -> Any:
     return SimpleNamespace(sample_qubo=lambda Q, **k: SimpleNamespace(first=None))
 
 
+def _finalize(result: Dict[str, Any]) -> Dict[str, Any]:
+    """Ensure the result dictionary contains stable keys."""
+
+    result.setdefault("status", "unknown")
+    result.setdefault("backend", None)
+    result.setdefault("record", None)
+    return result
+
+
 def run_sample_circuit() -> Dict[str, Any]:
     """Solve a trivial QUBO using the selected sampler."""
     sampler = get_backend()
@@ -48,12 +57,20 @@ def run_sample_circuit() -> Dict[str, Any]:
         response = sampler.sample_qubo(Q, num_reads=10)
         record = getattr(response, "first", None)
     except Exception as exc:  # pragma: no cover - runtime issues
-        return {"status": "execution-failed", "error": str(exc)}
-    return {
-        "status": "ok",
-        "backend": sampler.__class__.__name__,
-        "record": record,
-    }
+        return _finalize(
+            {
+                "status": "execution-failed",
+                "backend": sampler.__class__.__name__,
+                "error": str(exc),
+            }
+        )
+    return _finalize(
+        {
+            "status": "ok",
+            "backend": sampler.__class__.__name__,
+            "record": record,
+        }
+    )
 
 
 __all__ = ["load_token", "get_backend", "run_sample_circuit"]
