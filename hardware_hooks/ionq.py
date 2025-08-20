@@ -38,18 +38,27 @@ def get_backend() -> Any:
     return None
 
 
+def _finalize(result: Dict[str, Any]) -> Dict[str, Any]:
+    """Ensure the result dictionary exposes the expected keys."""
+
+    result.setdefault("status", "unknown")
+    result.setdefault("backend", None)
+    result.setdefault("counts", None)
+    return result
+
+
 def run_sample_circuit() -> Dict[str, Any]:
     """Execute a small circuit on the selected backend.
 
-    Returns a dictionary describing the execution result. When neither the
-    provider nor the simulator is available, the dictionary notes the
-    unavailability instead of raising an exception.
+    The returned dictionary always contains ``status``, ``backend`` and
+    ``counts`` keys with fallback values when a backend or provider is
+    unavailable.
     """
     if QuantumCircuit is None:
-        return {"status": "qiskit-unavailable"}
+        return _finalize({"status": "qiskit-unavailable"})
     backend = get_backend()
     if backend is None:
-        return {"status": "backend-unavailable"}
+        return _finalize({"status": "backend-unavailable"})
     qc = QuantumCircuit(1, 1)
     qc.x(0)
     qc.measure(0, 0)
@@ -58,12 +67,22 @@ def run_sample_circuit() -> Dict[str, Any]:
         result = job.result() if hasattr(job, "result") else job
         counts = result.get_counts() if hasattr(result, "get_counts") else None
     except Exception as exc:  # pragma: no cover - runtime issues
-        return {"status": "execution-failed", "error": str(exc)}
-    return {
-        "status": "ok",
-        "backend": getattr(backend, "name", lambda: str(backend))(),
-        "counts": counts,
-    }
+        return _finalize(
+            {
+                "status": "execution-failed",
+                "backend": getattr(backend, "name", lambda: str(backend))()
+                if backend
+                else None,
+                "error": str(exc),
+            }
+        )
+    return _finalize(
+        {
+            "status": "ok",
+            "backend": getattr(backend, "name", lambda: str(backend))(),
+            "counts": counts,
+        }
+    )
 
 
 __all__ = ["load_token", "get_backend", "run_sample_circuit"]
