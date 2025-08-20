@@ -59,12 +59,18 @@ class DatabaseWebConnector:
                 self.logger.error("query failed: %s", exc)
                 return []
 
-    def fetch_enterprise_metrics(self) -> Dict[str, Any]:
-        """Return enterprise metrics as a dictionary."""
+    def fetch_enterprise_metrics(self) -> Dict[str, Dict[str, Any]]:
+        """Return enterprise metrics including their measurement units."""
         rows = self.execute_query(
-            "SELECT metric_name, metric_value FROM enterprise_metrics"
+            "SELECT metric_name, metric_value, metric_unit FROM enterprise_metrics"
         )
-        return {r["metric_name"]: r["metric_value"] for r in rows}
+        return {
+            r["metric_name"]: {
+                "value": r["metric_value"],
+                "unit": r["metric_unit"],
+            }
+            for r in rows
+        }
 
     def fetch_recent_scripts(self, limit: int = 10) -> List[Dict[str, Any]]:
         """Return recent script activity."""
