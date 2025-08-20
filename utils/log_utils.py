@@ -592,7 +592,7 @@ def stream_events(
     table: str = DEFAULT_LOG_TABLE,
     *,
     db_path: Path = DEFAULT_ANALYTICS_DB,
-):
+) -> Iterable[str]:
     """Yield events formatted for Server-Sent Events."""
     if not db_path.exists():
         return
