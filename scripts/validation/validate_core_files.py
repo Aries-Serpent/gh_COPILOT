@@ -18,7 +18,6 @@ Sprint Day: 1 - Infrastructure Validation Phase
 Critical Priority: MANDATORY SCRIPT CREATION
 """
 
-import sys
 import json
 import sqlite3
 import logging
@@ -27,10 +26,6 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass, field
 from tqdm import tqdm
-
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
 
 
 @dataclass
