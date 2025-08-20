@@ -24,59 +24,12 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from scripts.monitoring.unified_monitoring_optimization_system import (
     EnterpriseUtility,
+    main as monitoring_main,
 )
 
 from ml_pattern_recognition import PatternRecognizer
 from utils.validation_utils import anti_recursion_guard, run_compliance_gates
-
-# Progress bar with graceful fallback
-try:
-    from tqdm import tqdm
-
-    from scripts.monitoring.unified_monitoring_optimization_system import (
-        main as monitoring_main,
-    )
-except ImportError:
-
-    class Tqdm:  # type: ignore
-        """Fallback tqdm implementation for environments without tqdm."""
-
-        def __init__(self, total: Optional[int] = None, desc: Optional[str] = None, unit: Optional[str] = None) -> None:
-            """Initialize fallback progress bar."""
-            self.total = total
-            self.desc = desc
-            self.unit = unit
-            self.current = 0
-            print(f"Starting {desc or 'process'}: 0/{total or '?'} {unit or ''}")
-
-        def update(self, n: int = 1) -> None:
-            """Update progress bar."""
-            self.current += n
-            if self.total:
-                print(f"Progress: {self.current}/{self.total}")
-            else:
-                print(f"Progress: {self.current}")
-
-        def set_description(self, desc: str) -> None:
-            """Set progress bar description."""
-            self.desc = desc
-            print(f"Updated: {desc}")
-
-        def close(self) -> None:
-            """Close progress bar."""
-            print(f"Completed: {self.desc or 'process'}")
-
-        def __enter__(self) -> "Tqdm":
-            """Context manager entry."""
-            return self
-
-        def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
-            """Context manager exit."""
-            # Parameters are required by context manager protocol but not used
-            _ = exc_type, exc_val, exc_tb
-            self.close()
-
-    tqdm = Tqdm
+from utils.progress import tqdm
 
 # Machine learning with graceful fallback
 try:
@@ -1428,7 +1381,7 @@ class AutonomousDatabaseHealthOptimizer:
     def run_autonomous_optimization(self, progress_callback=tqdm) -> Dict[str, Any]:
         """Run the optimization cycle with a progress callback."""
         total = len(self.database_registry)
-        pbar = progress_callback(total, "Autonomous Optimization")
+        pbar = progress_callback(total=total, desc="Autonomous Optimization")
         try:
             results = self.autonomous_database_improvement()
             pbar.update(total)

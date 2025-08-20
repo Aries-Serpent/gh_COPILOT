@@ -47,6 +47,7 @@ from enterprise_modules.compliance import pid_recursion_guard
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.validation_utils import run_dual_copilot_validation
 from secondary_copilot_validator import SecondaryCopilotValidator
+from utils.progress import tqdm
 
 
 # 🚨 CRITICAL: Anti-recursion validation
@@ -245,56 +246,57 @@ class EnterpriseDeploymentOrchestrator:
 
         print("\n🚀 EXECUTING ENTERPRISE DEPLOYMENT PHASES:")
         print("=" * 70)
-
+        total_weight = sum(weight for _, _, weight in deployment_phases)
         total_progress = 0
         phase_results = {}
 
-        for phase_name, phase_description, weight in deployment_phases:
-            print(f"\n{phase_name}")
-            print(f"Description: {phase_description}")
-            print(f"Progress: {total_progress}% -> {total_progress + weight}%")
-            print("Status: EXECUTING...", end="", flush=True)
+        with tqdm(total=total_weight, desc="Deployment Progress", unit="%") as progress_bar:
+            for phase_name, phase_description, weight in deployment_phases:
+                print(f"\n{phase_name}")
+                print(f"Description: {phase_description}")
+                print("Status: EXECUTING...", end="", flush=True)
 
-            # MANDATORY: Timeout protection (5 minutes per phase)
-            phase_start = datetime.now()
-            timeout_seconds = 300
+                # MANDATORY: Timeout protection (5 minutes per phase)
+                phase_start = datetime.now()
+                timeout_seconds = 300
 
-            try:
-                # Execute deployment phase
-                if "Pre-Deployment" in phase_name:
-                    phase_result = _run_phase(self._execute_pre_deployment_validation)
-                elif "Core Systems" in phase_name:
-                    phase_result = _run_phase(self._deploy_core_systems)
-                elif "Database Systems" in phase_name:
-                    phase_result = _run_phase(self._deploy_database_systems)
-                elif "Integration Systems" in phase_name:
-                    phase_result = _run_phase(self._deploy_integration_systems)
-                elif "Security Systems" in phase_name:
-                    phase_result = _run_phase(self._deploy_security_systems)
-                elif "Monitoring Systems" in phase_name:
-                    phase_result = _run_phase(self._deploy_monitoring_systems)
-                elif "Post-Deployment" in phase_name:
-                    phase_result = _run_phase(self._execute_post_deployment_validation)
-                else:
-                    phase_result = {"status": "COMPLETED", "score": 95.0}
+                try:
+                    # Execute deployment phase
+                    if "Pre-Deployment" in phase_name:
+                        phase_result = _run_phase(self._execute_pre_deployment_validation)
+                    elif "Core Systems" in phase_name:
+                        phase_result = _run_phase(self._deploy_core_systems)
+                    elif "Database Systems" in phase_name:
+                        phase_result = _run_phase(self._deploy_database_systems)
+                    elif "Integration Systems" in phase_name:
+                        phase_result = _run_phase(self._deploy_integration_systems)
+                    elif "Security Systems" in phase_name:
+                        phase_result = _run_phase(self._deploy_security_systems)
+                    elif "Monitoring Systems" in phase_name:
+                        phase_result = _run_phase(self._deploy_monitoring_systems)
+                    elif "Post-Deployment" in phase_name:
+                        phase_result = _run_phase(self._execute_post_deployment_validation)
+                    else:
+                        phase_result = {"status": "COMPLETED", "score": 95.0}
 
-                # Check timeout
-                phase_duration = (datetime.now() - phase_start).total_seconds()
-                if phase_duration > timeout_seconds:
-                    raise TimeoutError(f"Phase exceeded {timeout_seconds} second timeout")
+                    # Check timeout
+                    phase_duration = (datetime.now() - phase_start).total_seconds()
+                    if phase_duration > timeout_seconds:
+                        raise TimeoutError(f"Phase exceeded {timeout_seconds} second timeout")
 
-                # Update metrics
-                phase_results[phase_name] = phase_result
-                self.metrics.systems_deployed += 1
-                total_progress += weight
+                    # Update metrics
+                    phase_results[phase_name] = phase_result
+                    self.metrics.systems_deployed += 1
+                    total_progress += weight
+                    progress_bar.update(weight)
 
-                print(f"\rStatus: ✅ COMPLETED - {phase_result.get('score', 95):.1f}% score")
+                    print(f"\rStatus: ✅ COMPLETED - {phase_result.get('score', 95):.1f}% score")
 
-            except Exception as e:
-                print(f"\rStatus: ❌ FAILED - {str(e)}")
-                logging.error(f"Phase failed: {phase_name} - {e}")
-                phase_results[phase_name] = {"status": "FAILED", "score": 0.0, "error": str(e)}
-                raise
+                except Exception as e:
+                    print(f"\rStatus: ❌ FAILED - {str(e)}")
+                    logging.error(f"Phase failed: {phase_name} - {e}")
+                    phase_results[phase_name] = {"status": "FAILED", "score": 0.0, "error": str(e)}
+                    raise
 
         # Calculate deployment excellence
         deployment_results["phase_results"] = phase_results
