@@ -17,10 +17,6 @@ import hashlib
 from pathlib import Path
 from typing import Iterable, List, Dict, Tuple, Callable, Any
 import sqlite3
-import sys
-
-if __name__ == "__main__" and __package__ is None:
-    sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from scripts.database.cross_database_sync_logger import _table_exists
 from scripts.database.unified_database_initializer import initialize_database

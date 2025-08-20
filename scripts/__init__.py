@@ -8,8 +8,12 @@ imports without triggering heavy side effects during package import.
 from pathlib import Path
 import sys
 
-_SRC = Path(__file__).resolve().parent.parent / "src"
+_ROOT = Path(__file__).resolve().parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
+_SRC = _ROOT / "src"
 if str(_SRC) not in sys.path:
-    sys.path.insert(0, str(_SRC))
+    sys.path.insert(1, str(_SRC))
 
 __all__ = []

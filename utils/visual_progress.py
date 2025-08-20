@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from datetime import datetime
-from typing import Iterator
+from typing import Any, Iterator
 
-from tqdm import tqdm
+from utils.progress import tqdm
 
 
 def start_indicator(name: str) -> datetime:
@@ -17,8 +17,8 @@ def start_indicator(name: str) -> datetime:
 
 
 @contextmanager
-def progress_bar(total: int, **kwargs) -> Iterator[tqdm]:
-    """Context manager yielding a ``tqdm`` progress bar."""
+def progress_bar(total: int, **kwargs) -> Iterator[Any]:
+    """Context manager yielding a ``tqdm``-like progress bar."""
     with tqdm(total=total, **kwargs) as bar:
         yield bar
 
