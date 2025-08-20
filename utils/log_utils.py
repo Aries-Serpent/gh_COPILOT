@@ -18,14 +18,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, Optional
 
-# ``tqdm`` is optional; provide a no-op fallback if unavailable.
-try:  # pragma: no cover - import guard for optional dependency
-    from tqdm import tqdm  # type: ignore[assignment]
-except ModuleNotFoundError:  # pragma: no cover
-    def tqdm(
-        iterable: Optional[Iterable[Any]] = None, **kwargs: Any
-    ) -> Iterable[Any]:  # type: ignore[override]
-        return iterable if iterable is not None else []
+from utils.progress import tqdm
 
 # Default analytics DB path (test-only, never created here)
 DEFAULT_ANALYTICS_DB = Path(os.environ.get("ANALYTICS_DB", "databases/analytics.db"))
