@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import importlib.util
 import os
 import subprocess
 import sys
@@ -13,6 +12,10 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from utils.validation_utils import anti_recursion_guard
+from scripts.run_tests_safe import (
+    _write_coverage_absence_log,
+    check_pytest_cov_available,
+)
 
 
 def ensure_codex_log_tracked() -> None:
@@ -40,7 +43,7 @@ def main() -> int:
     ensure_codex_log_tracked()
 
     pytest_cmd = ["pytest", "-q"]
-    if importlib.util.find_spec("pytest_cov") is not None:
+    if check_pytest_cov_available():
         pytest_cmd[1:1] = [
             "--cov=scripts.run_migrations",
             "--cov=utils.cross_platform_paths",
@@ -54,6 +57,7 @@ def main() -> int:
         addopts = os.environ.get("PYTEST_ADDOPTS", "").split()
         addopts = [opt for opt in addopts if not opt.startswith("--cov")]
         os.environ["PYTEST_ADDOPTS"] = " ".join(addopts)
+        _write_coverage_absence_log()
 
     commands = [
         [
