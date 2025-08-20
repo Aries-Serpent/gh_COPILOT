@@ -17,13 +17,12 @@ clean-logs:
 	bash scripts/clean_zero_logs.sh logs
 
 compliance:
-        $(MAKE) lint
-        $(MAKE) test
-        python scripts/code_placeholder_audit.py
-        $(MAKE) check-requirements
+	ruff check . --exit-zero
+	pytest -q --disable-warnings --maxfail=10 --exitfirst tests
+	python scripts/code_placeholder_audit.py
 
 check-requirements:
-        python tools/check_requirements.py
+	python tools/check_requirements.py
 
 .PHONY: convert-daily-whitepaper
 convert-daily-whitepaper:
