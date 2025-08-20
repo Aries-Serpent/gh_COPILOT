@@ -1456,6 +1456,12 @@ python scripts/code_placeholder_audit.py \
     --production-db databases/production.db \
     --exclude-dir builds --exclude-dir archive
 
+# Or run via helper script suitable for cron
+bash scripts/run_placeholder_audit.sh
+# Example daily cron at 02:30:
+# 30 2 * * * /path/to/repo/scripts/run_placeholder_audit.sh \
+#   >> /var/log/gh_copilot_placeholder_audit.log 2>&1
+
 # Automatically clean placeholders:
 python scripts/code_placeholder_audit.py --cleanup
 
