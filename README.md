@@ -1,9 +1,9 @@
-# 🎯 gh_COPILOT Toolkit v4.0 Enterprise
+# 🎯 copilot v0.1.0
 
 > Ruff is configured for Python files only; docs (*.md, *.rst) are excluded.
 
 
-## High-Performance HTTP Archive  Analysis with Advanced Enterprise Integration
+## Reusable modules and orchestrators for gh_COPILOT
 
 
 **Status:** Active development with incremental improvements. Disaster recovery now enforces external backup roots with verified restore tests, and session-management lifecycle APIs  are now available. Monitoring modules expose a unified metrics API via `unified_monitoring_optimization_system.collect_metrics` with optional quantum scoring hooks, and Git LFS rules are auto-synced from `.codex_lfs_policy.yaml` to ensure binary assets are tracked. The compliance metrics feature is fully implemented, combining lint, test, placeholder, and session lifecycle audits into a composite score persisted to `analytics.db` and exposed through `/api/refresh_compliance`  and `/api/compliance_scores` . Dashboard gauges now include tooltips explaining lint, test, placeholder, and session success scores, and session wrap-ups log these metrics for every run.
@@ -2172,8 +2172,8 @@ python scripts/deployment/enterprise_deployment_validator.py
 
 ---
 
-**🏆 gh_COPILOT Toolkit v4.0 Enterprise**
-*Complete High-Performance HTTP Archive  Analysis with Advanced Enterprise Integration*
+**🏆 copilot v0.1.0**
+*Reusable modules and orchestrators for gh_COPILOT*
 
 **Final Statistics:**
 - **Total Lines:** 1,154,390
