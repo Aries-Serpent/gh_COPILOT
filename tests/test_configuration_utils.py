@@ -1,6 +1,11 @@
 import json
 import os
-import yaml
+import pytest
+
+try:  # pragma: no cover - optional dependency
+    import yaml
+except ImportError:  # pragma: no cover
+    pytest.skip("PyYAML is required for configuration utils tests", allow_module_level=True)
 
 from utils.configuration_utils import load_enterprise_configuration, operations___init__
 
