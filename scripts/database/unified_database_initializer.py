@@ -24,7 +24,7 @@ from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.logging_utils import setup_enterprise_logging
 from utils.validation_utils import anti_recursion_guard, detect_zero_byte_files, validate_path
 
-from .cross_database_sync_logger import log_sync_operation
+from scripts.database.cross_database_sync_logger import log_sync_operation
 
 # Database paths
 PRODUCTION_DB = CrossPlatformPathManager.get_workspace_path() / "databases" / "production.db"

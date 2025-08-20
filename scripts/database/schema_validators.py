@@ -12,7 +12,7 @@ import re
 import sqlite3
 from pathlib import Path
 
-from .unified_database_initializer import TABLES
+from scripts.database.unified_database_initializer import TABLES
 
 
 def _expected_columns(table: str) -> list[str]:
