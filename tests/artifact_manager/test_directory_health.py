@@ -79,6 +79,21 @@ def test_check_directory_health_non_writable(
     assert any("not writable" in message for message in caplog.messages)
 
 
+def test_check_directory_health_rejects_file(
+    repo: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Existing files should be treated as invalid directories."""
+
+    file_path = repo / "codex_sessions"
+    file_path.write_text("not a directory", encoding="utf-8")
+
+    with caplog.at_level(logging.ERROR):
+        ok = check_directory_health(file_path, repo)
+
+    assert not ok
+    assert any("Failed to create" in message for message in caplog.messages)
+
+
 def test_recover_latest_session_no_archives(
     repo: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
