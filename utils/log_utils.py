@@ -20,9 +20,11 @@ from typing import Any, Dict, Iterable, Optional
 
 # ``tqdm`` is optional; provide a no-op fallback if unavailable.
 try:  # pragma: no cover - import guard for optional dependency
-    from tqdm import tqdm
+    from tqdm import tqdm  # type: ignore[assignment]
 except ModuleNotFoundError:  # pragma: no cover
-    def tqdm(iterable=None, **kwargs):  # type: ignore[override]
+    def tqdm(
+        iterable: Optional[Iterable[Any]] = None, **kwargs: Any
+    ) -> Iterable[Any]:  # type: ignore[override]
         return iterable if iterable is not None else []
 
 # Default analytics DB path (test-only, never created here)
@@ -379,7 +381,8 @@ def insert_event(
                     tuple(filtered.values()),
                 )
                 conn.commit()
-                return int(cur.lastrowid)
+                last_id = cur.lastrowid
+                return int(last_id) if last_id is not None else -1
         except sqlite3.OperationalError as exc:
             if "locked" in str(exc).lower():
                 time.sleep(0.1)
