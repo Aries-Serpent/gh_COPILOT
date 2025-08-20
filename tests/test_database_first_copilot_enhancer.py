@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import datetime
 
 import sqlite3
 import pytest
@@ -79,14 +80,17 @@ def test_generate_integration_ready_code_logs(monkeypatch, tmp_path: Path) -> No
     tpl_dir.mkdir()
     (tpl_dir / "greet.tmpl").write_text("print('hi')", encoding="utf-8")
     enhancer = DatabaseFirstCopilotEnhancer(workspace_path=str(tmp_path))
+    monkeypatch.setenv("SESSION_ID_SOURCE", "test-session")
     code = enhancer.generate_integration_ready_code("greet")
     assert isinstance(code, str)
     with sqlite3.connect(prod) as conn:
         row = conn.execute(
-            "SELECT template_name, code FROM generated_solutions WHERE objective=?",
+            "SELECT template_name, code, session_id, created_at FROM generated_solutions WHERE objective=?",
             ("greet",),
         ).fetchone()
-    assert row == ("greet", "print('hi')")
+    assert row[0:2] == ("greet", "print('hi')")
+    assert row[2] == "test-session"
+    assert datetime.fromisoformat(row[3])
     with sqlite3.connect(analytics) as conn:
         duration = conn.execute(
             "SELECT duration FROM generation_log WHERE objective=?", ("greet",)
@@ -94,11 +98,12 @@ def test_generate_integration_ready_code_logs(monkeypatch, tmp_path: Path) -> No
         steps = [
             r[0]
             for r in conn.execute(
-                "SELECT step FROM generation_progress WHERE objective=? ORDER BY step", ("greet",)
+                "SELECT step FROM generation_progress WHERE objective=? ORDER BY step",
+                ("greet",),
             ).fetchall()
         ]
     assert duration is not None
-    assert steps == [1, 2, 3]
+    assert steps == [1, 2, 3, 4]
     assert str(prod) in calls and str(analytics) in calls
 
 
