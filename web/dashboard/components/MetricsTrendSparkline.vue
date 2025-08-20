@@ -10,7 +10,7 @@ export default {
       .then(r => r.json())
       .then(d => {
         const data = d.metrics || [];
-        const labels = d.timestamps || [];
+        const labels = (d.timestamps || []).map(ts => new Date(ts).toLocaleTimeString());
         /* global Chart */
         new Chart(this.$refs.canvas.getContext('2d'), {
           type: 'line',

@@ -232,6 +232,28 @@
                 }
             });
         }
+        function loadMetricsTrend(){
+            fetch('/api/metrics/trend').then(r=>r.json()).then(d=>{
+                const ctx = document.getElementById('metricsTrend').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: d.timestamps,
+                        datasets: [{
+                            data: d.metrics,
+                            borderColor: '#e74c3c',
+                            fill: false,
+                            tension: 0.3,
+                        }],
+                    },
+                    options: {
+                        plugins: { legend: { display: false } },
+                        scales: { x: { display: false }, y: { display: false } },
+                        elements: { point: { radius: 0 } },
+                    },
+                });
+            });
+        }
         function pollCompliance(){
             fetch('/dashboard/compliance').then(r=>r.json()).then(updateCompliance);
         }
@@ -270,9 +292,11 @@
             pollCompliance();
             pollExtras();
             loadComplianceChart();
+            loadMetricsTrend();
             setInterval(pollCompliance,5000);
             setInterval(pollExtras,5000);
             setInterval(loadComplianceChart,30000); // Update chart every 30 seconds
+            setInterval(loadMetricsTrend,30000);
         };
     </script>
 </head>
@@ -318,6 +342,8 @@
     <ul id="placeholder_breakdown"></ul>
     <h3>Compliance Trend</h3>
     <ul id="compliance_trend"></ul>
+    <h3>Metrics Trend</h3>
+    <canvas id="metricsTrend" width="100" height="30"></canvas>
     <h3>Placeholder History</h3>
     <div>
         Open: <span id="placeholderOpenCount">0</span>
