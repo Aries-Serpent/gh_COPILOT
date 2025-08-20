@@ -53,6 +53,7 @@ try:  # pragma: no cover - dashboard features are optional in tests
         _load_metrics as _real_load_metrics,
         get_rollback_logs as _real_get_rollback_logs,
         _load_sync_events as _real_load_sync_events,
+        _load_thresholds as _real_load_thresholds,
         _compliance_payload as _real_compliance_payload,
         METRICS_FILE as _METRICS_FILE,
         _load_compliance_payload as _real_load_compliance_payload,
@@ -60,6 +61,7 @@ try:  # pragma: no cover - dashboard features are optional in tests
     _load_metrics = cast(Any, _real_load_metrics)
     get_rollback_logs = cast(Any, _real_get_rollback_logs)
     _load_sync_events = cast(Any, _real_load_sync_events)
+    _load_thresholds = cast(Any, _real_load_thresholds)
     _compliance_payload = cast(Any, _real_compliance_payload)
     _load_compliance_payload = cast(Any, _real_load_compliance_payload)
 except Exception:  # pragma: no cover - provide fallbacks
@@ -127,6 +129,9 @@ except Exception:  # pragma: no cover - provide fallbacks
         return []
 
     def _compliance_payload(*args: Any, **kwargs: Any) -> Dict[str, Any]:  # type: ignore[override]
+        return {}
+
+    def _load_thresholds(*args: Any, **kwargs: Any):  # type: ignore[override]
         return {}
 
     _METRICS_FILE = Path("metrics.json")
@@ -736,6 +741,12 @@ def code_quality_metrics() -> Any:
 def code_quality_history() -> Any:
     """Expose historical code quality metrics arrays."""
     return jsonify(load_code_quality_history())
+
+
+@app.route("/api/thresholds")
+def api_thresholds() -> Any:
+    """Expose configured metric alert thresholds."""
+    return jsonify(_load_thresholds())
 
 
 @app.route("/api/metrics/trend")
