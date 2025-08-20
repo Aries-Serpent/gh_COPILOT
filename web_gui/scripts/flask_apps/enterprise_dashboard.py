@@ -26,6 +26,7 @@ from config.secret_manager import get_secret
 from utils.cross_platform_paths import CrossPlatformPathManager
 from enterprise_modules.compliance import get_latest_compliance_score
 from web_gui import middleware
+from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 
 workspace_root = CrossPlatformPathManager.get_workspace_path()
 ANALYTICS_DB = Path(os.getenv("ANALYTICS_DB", workspace_root / "databases" / "analytics.db"))
@@ -364,6 +365,26 @@ def reports() -> Any:
     etc = f"ETC: {calculate_etc(start, 1, 1)}"
     logging.info("Reports served | %s", etc)
     return jsonify(data)
+
+
+@app.get("/rollback_logs")
+def rollback_logs() -> Any:
+    """Expose recent rollback events as JSON."""
+    return jsonify(_fetch_rollbacks())
+
+
+@app.post("/rollback")
+def rollback() -> Any:
+    """Trigger a rollback for the provided target."""
+    data = request.get_json(silent=True) or {}
+    target = data.get("target")
+    backup = data.get("backup")
+    if not target:
+        return jsonify({"error": "target required"}), 400
+    CorrectionLoggerRollback(ANALYTICS_DB).auto_rollback(
+        Path(target), Path(backup) if backup else None
+    )
+    return jsonify({"status": "ok"})
 
 
 @app.get("/realtime_metrics")
