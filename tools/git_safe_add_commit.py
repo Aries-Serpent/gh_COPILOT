@@ -20,10 +20,10 @@ from pathlib import Path
 from typing import Iterable, List
 import argparse
 
-try:
+try:  # pragma: no cover - optional dependency
     import yaml  # type: ignore
-except Exception:  # pragma: no cover - PyYAML always installed via requirements
-    yaml = None
+except ImportError as exc:  # pragma: no cover
+    raise ImportError("PyYAML is required for git_safe_add_commit. Install PyYAML to proceed.") from exc
 
 POLICY_FILE = Path(".codex_lfs_policy.yaml")
 SIZE_LIMIT = 50 * 1024 * 1024

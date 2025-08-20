@@ -1,4 +1,5 @@
 """Pytest configuration for governance policy tests."""
+
 from __future__ import annotations
 
 import datetime as dt
@@ -6,7 +7,11 @@ from pathlib import Path
 from typing import Any, Dict
 
 import pytest
-import yaml
+
+try:  # pragma: no cover - optional dependency
+    import yaml
+except ImportError as exc:  # pragma: no cover
+    raise ImportError("PyYAML is required for policy tests. Install PyYAML to proceed.") from exc
 
 import sys
 
