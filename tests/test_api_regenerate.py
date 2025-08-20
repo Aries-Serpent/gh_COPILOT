@@ -1,7 +1,10 @@
 from pathlib import Path
 import pytest
 
-pytest.importorskip("fastapi", minversion="0")
+try:
+    import fastapi  # noqa: F401
+except ImportError:  # pragma: no cover
+    pytest.skip("fastapi not installed", allow_module_level=True)
 
 from src.gh_copilot.api import api_regenerate
 
