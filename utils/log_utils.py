@@ -10,6 +10,7 @@
 import json
 import logging
 import os
+import re
 import sqlite3
 import sys
 import threading
@@ -24,6 +25,13 @@ from utils.progress import tqdm
 DEFAULT_ANALYTICS_DB = Path(os.environ.get("ANALYTICS_DB", "databases/analytics.db"))
 DEFAULT_LOG_TABLE = "event_log"
 _log_lock = threading.Lock()
+
+EMAIL_RE = re.compile(r"[A-Za-z0-9_.+-]+@[A-Za-z0-9-]+\.[A-Za-z0-9-.]+")
+
+
+def _mask_pii(text: str) -> str:
+    """Mask known PII patterns such as email addresses."""
+    return EMAIL_RE.sub("[REDACTED_EMAIL]", text)
 
 # Standard table schemas for analytics.db. These are used when real writes are
 # explicitly requested. The tables mirror the SQL migrations under
@@ -542,7 +550,8 @@ def _log_plain(
     Simulate logging a plain text message (optionally to file), always with timestamp.
     """
     timestamp = datetime.utcnow().isoformat()
-    line = f"{timestamp} [{logging.getLevelName(level)}] {msg} [SIMULATED]"
+    sanitized = _mask_pii(msg)
+    line = f"{timestamp} [{logging.getLevelName(level)}] {sanitized} [SIMULATED]"
     if log_file:
         tqdm.write(f"[TEST] Would write to log file: {log_file}")
     if echo:
