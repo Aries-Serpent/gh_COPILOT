@@ -8,16 +8,7 @@ from typing import Any, Dict
 
 import pytest
 
-try:  # pragma: no cover - optional dependency
-    import yaml
-except ImportError as exc:  # pragma: no cover
-    raise ImportError("PyYAML is required for policy tests. Install PyYAML to proceed.") from exc
-
-import sys
-
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+yaml = pytest.importorskip("yaml", reason="PyYAML is required for policy tests")
 
 from analytics.analytics_db_inspector import record_governance_check
 
@@ -40,7 +31,9 @@ def pytest_runtest_setup(item: pytest.Item) -> None:
     if not waiver:
         return
     expires = dt.datetime.fromisoformat(waiver["expires"])
-    if dt.datetime.utcnow() >= expires:
+    if expires.tzinfo is None:
+        expires = expires.replace(tzinfo=dt.timezone.utc)
+    if dt.datetime.now(dt.timezone.utc) >= expires:
         return
     reason = waiver.get("reason", "waived policy check")
     action = waiver.get("action", "skip")
