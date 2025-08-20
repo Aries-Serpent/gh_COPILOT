@@ -12,48 +12,17 @@ MANDATORY REQUIREMENTS:
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import sqlite3
+import threading
 import time
-import json
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, Optional
-import threading
 
-# tqdm is optional; provide a no-op fallback if it's unavailable.
-try:  # pragma: no cover - tested via import failure simulation
-    from tqdm import tqdm
-except ImportError:  # pragma: no cover - graceful degradation
-    logging.getLogger(__name__).warning("tqdm not installed; progress bars disabled")
-
-    class TqdmNoOp:
-        """Simple stand-in that mimics the subset of tqdm's interface used here."""
-
-        def __init__(self, *args: Any, **kwargs: Any) -> None:
-            self.iterable = args[0] if args else kwargs.get("iterable")
-
-        def __enter__(self) -> "TqdmNoOp":
-            return self
-
-        def __exit__(self, exc_type: Optional[type], exc: Optional[BaseException], tb: Optional[Any]) -> bool:
-            return False
-
-        def update(self, n: int = 1) -> None:  # noqa: D401 - no-op
-            pass
-
-        def set_description(self, *args: Any, **kwargs: Any) -> None:
-            pass
-
-        def __iter__(self):
-            if self.iterable is not None:
-                for item in self.iterable:
-                    yield item
-            return
-
-    def tqdm(*args: Any, **kwargs: Any):  # type: ignore[misc]
-        return TqdmNoOp(*args, **kwargs)
+from utils.progress import tqdm
 
 from utils.log_utils import ensure_tables, insert_event
 from enterprise_modules.compliance import (

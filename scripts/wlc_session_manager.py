@@ -26,26 +26,13 @@ import argparse
 import logging
 import os
 import sqlite3
-import sys
 import time
 from datetime import UTC, datetime
 from pathlib import Path
 
-if __package__ is None:
-    sys.path.append(str(Path(__file__).resolve().parents[1]))
+from utils.progress import tqdm
 
-try:  # pragma: no cover - optional dependency
-    from tqdm import tqdm
-except Exception:  # pragma: no cover - graceful fallback if tqdm is missing
-    logging.getLogger(__name__).warning("tqdm not installed; progress bars disabled")
-
-    def tqdm(iterable, **_kwargs):  # type: ignore[misc]
-        return iterable
-
-try:
-    from gh_copilot.validation.secondary_copilot_validator import SecondaryCopilotValidator
-except Exception:
-    from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator  # type: ignore
+from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.validation_utils import anti_recursion_guard, validate_enterprise_environment
 from utils.lessons_learned_integrator import (

@@ -125,7 +125,7 @@ This value is persisted to `analytics.db`  via `scripts/compliance/update_compli
 * `test_run_stats` – same ingestion script parses `pytest --json-report` results
 * `placeholder_audit_snapshots` – appended after each `scripts/code_placeholder_audit.py` run; `update_compliance_metrics` reads the latest snapshot, so run the audit before recomputing scores
 
-Run `python scripts/compliance_score_cli.py` to print the most recent composite score stored in `analytics.db` as JSON. Use `--db` to specify an explicit database path if needed.
+Run `python -m scripts.compliance_score_cli` to print the most recent composite score stored in `analytics.db` as JSON. Use `--db` to specify an explicit database path if needed.
 
 Regulation entrypoints are provided under `scripts/compliance/`:
 

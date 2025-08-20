@@ -13,18 +13,7 @@ import os
 import sqlite3
 from pathlib import Path
 
-try:  # pragma: no cover - optional dependency
-    from tqdm import tqdm
-except ModuleNotFoundError:  # pragma: no cover
-    from contextlib import contextmanager
-
-    @contextmanager
-    def tqdm(*args, **kwargs):  # type: ignore[override]
-        class _Bar:
-            def update(self, *_, **__):  # pragma: no cover - no-op fallback
-                return None
-
-        yield _Bar()
+from utils.progress import tqdm
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
