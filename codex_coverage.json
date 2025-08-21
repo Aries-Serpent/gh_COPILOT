@@ -1,0 +1,57 @@
+{
+  "BUSY_TIMEOUT_MS": 5000,
+  "items": [
+    {
+      "key": "structure_present",
+      "ok": true,
+      "w": 1.0
+    },
+    {
+      "key": "pytest_ini_present",
+      "ok": true,
+      "w": 1.0
+    },
+    {
+      "key": "ingestor_created",
+      "ok": true,
+      "w": 1.0
+    },
+    {
+      "key": "db_timeouts_applied",
+      "ok": true,
+      "w": 1.0
+    },
+    {
+      "key": "smoke_marker_present",
+      "ok": true,
+      "w": 1.0
+    },
+    {
+      "key": "utcnow_replaced",
+      "ok": true,
+      "w": 1.0
+    },
+    {
+      "key": "readme_softened",
+      "ok": true,
+      "w": 1.0
+    },
+    {
+      "key": "pytest_ingestor_concurrency",
+      "ok": false,
+      "w": 1.0
+    },
+    {
+      "key": "pytest_smoke",
+      "ok": false,
+      "w": 1.0
+    },
+    {
+      "key": "pytest_policy",
+      "ok": false,
+      "w": 1.0
+    }
+  ],
+  "CoveragePerformance": 70.0,
+  "equation": "CP = (\u03a3 w_i * ok_i) / (\u03a3 w_i) * 100%"
+}

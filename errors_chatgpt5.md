@@ -58,3 +58,24 @@ What are the possible causes, and how can this be resolved while preserving inte
 
 --- captured at 2025-08-17T04:06:26Z ---
 
+Question for ChatGPT-5:
+While performing [1:setup.sh execution], encountered the following error:
+ModuleNotFoundError: No module named 'utils'
+Context: cmd=bash setup.sh
+What are the possible causes, and how can this be resolved while preserving intended functionality?
+
+--- captured at 2025-08-21T03:22:38Z ---
+Question for ChatGPT-5:
+While performing [tests: pytest -m smoke -q], encountered the following error:
+ImportError: cannot import name 'run_dual_copilot_validation' from 'scripts.validation.secondary_copilot_validator'
+Context: cmd=pytest -m smoke -q
+What are the possible causes, and how can this be resolved while preserving intended functionality?
+
+--- captured at 2025-08-21T03:22:38Z ---
+Question for ChatGPT-5:
+While performing [tests: pytest tests/policy_* -q], encountered the following error:
+ERROR: file or directory not found: tests/policy_*
+Context: cmd=pytest tests/policy_* -q
+What are the possible causes, and how can this be resolved while preserving intended functionality?
+
+--- captured at 2025-08-21T03:22:38Z ---

@@ -11,7 +11,7 @@ DB_PATH = Path("databases/analytics.db")
 def record_governance_check(check: str, status: str, db_path: Path = DB_PATH) -> None:
     """Insert a governance check result into the analytics database."""
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(str(db_path))
+    conn = sqlite3.connect(str(db_path), timeout=5.0)
     try:
         cur = conn.cursor()
         cur.execute(

@@ -28,7 +28,7 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
     db_path = db_dir / "enterprise_assets.db"
 
     _initialize_database(db_path)
-    with sqlite3.connect(db_path) as conn:
+    with sqlite3.connect(db_path, timeout=BUSY_TIMEOUT_MS / 1000.0) as conn:
         conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
         for path in template_dir.glob("*.md"):
             conn.execute(
@@ -40,7 +40,7 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
 
 def _initialize_database(db_path: Path) -> None:
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(db_path) as conn:
+    with sqlite3.connect(db_path, timeout=BUSY_TIMEOUT_MS / 1000.0) as conn:
         conn.execute(
             "CREATE TABLE IF NOT EXISTS documentation_assets ("
             "id INTEGER PRIMARY KEY,"
