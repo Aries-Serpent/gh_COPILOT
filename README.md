@@ -18,6 +18,13 @@ python scripts/run_checks.py  # runs Ruff, Pyright, pytest
 
 **Tests:** run `pytest` before committing. Current repository tests report a failure in `tests/database/test_ingestor_concurrency.py`.
 
+### SQLite busy timeout
+
+The template asset ingestor configures SQLite's `PRAGMA busy_timeout` using the
+`BUSY_TIMEOUT_MS` environment variable. If the variable is unset, a default of
+5000 ms is applied. This helps ingestion wait for concurrent writes instead of
+failing with `database is locked` errors.
+
 ### Test Repair & Stub Policy
 
 - Missing modules may be replaced with lightweight stubs raising `NotImplementedError`.
