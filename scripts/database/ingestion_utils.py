@@ -14,6 +14,7 @@ code duplication and ensure consistent behaviour.
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import hashlib
+import os
 from pathlib import Path
 from typing import Iterable, List, Dict, Tuple, Callable, Any
 import os
@@ -22,10 +23,10 @@ import sqlite3
 from scripts.database.cross_database_sync_logger import _table_exists
 from scripts.database.unified_database_initializer import initialize_database
 
-# Busy timeout in milliseconds for SQLite connections. The value can be
-# overridden via the BUSY_TIMEOUT_MS environment variable and defaults to 5000
-# to provide sensible waiting behaviour during concurrent writes.
-BUSY_TIMEOUT_MS = int(os.getenv("BUSY_TIMEOUT_MS", "5000"))
+try:
+    BUSY_TIMEOUT_MS = int(os.getenv("BUSY_TIMEOUT_MS", "5000"))
+except Exception:  # pragma: no cover - fallback path
+    BUSY_TIMEOUT_MS = 5000
 
 
 @dataclass

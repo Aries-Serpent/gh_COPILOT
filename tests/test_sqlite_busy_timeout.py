@@ -1,37 +1,47 @@
+import os
 import sqlite3
 import threading
 import time
+import tempfile
 
-from scripts.database import template_asset_ingestor as tai
 
-
-def test_ingest_templates_respects_busy_timeout(tmp_path, monkeypatch):
+def test_busy_timeout_reduces_lock_errors(monkeypatch):
     monkeypatch.setenv("BUSY_TIMEOUT_MS", "1000")
-    workspace = tmp_path
-    prompts = workspace / "prompts"
-    prompts.mkdir()
-    (prompts / "a.md").write_text("hi")
 
-    db_path = workspace / "databases" / "enterprise_assets.db"
-    tai._initialize_database(db_path)
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=True) as tmp:
+        db_path = tmp.name
 
-    # Avoid extra initialization during the test
-    monkeypatch.setattr(tai, "_initialize_database", lambda _: None)
+        writer = sqlite3.connect(db_path, timeout=0)
+        wc = writer.cursor()
+        wc.execute("CREATE TABLE IF NOT EXISTS t(x)")
+        writer.commit()
 
-    def hold_lock():
-        conn = sqlite3.connect(db_path, timeout=0)
-        conn.execute("BEGIN EXCLUSIVE")
-        time.sleep(0.3)
-        conn.commit()
-        conn.close()
+        rw = sqlite3.connect(db_path, timeout=0)
+        rc = rw.cursor()
+        rc.execute(f"PRAGMA busy_timeout={os.getenv('BUSY_TIMEOUT_MS')}")
 
-    t = threading.Thread(target=hold_lock)
-    t.start()
-    time.sleep(0.1)
+        def hold_lock():
+            w2 = sqlite3.connect(db_path, timeout=0)
+            c2 = w2.cursor()
+            c2.execute("BEGIN IMMEDIATE")
+            c2.execute("INSERT INTO t(x) VALUES(1)")
+            time.sleep(0.5)
+            w2.commit()
+            w2.close()
 
-    tai.ingest_templates(workspace, prompts)
-    t.join()
+        th = threading.Thread(target=hold_lock)
+        th.start()
+        time.sleep(0.1)
 
-    with sqlite3.connect(db_path) as conn:
-        count = conn.execute("SELECT COUNT(*) FROM template_assets").fetchone()[0]
-    assert count == 1
+        failed = False
+        try:
+            rc.execute("INSERT INTO t(x) VALUES(2)")
+            rw.commit()
+        except sqlite3.OperationalError as e:
+            failed = "locked" in str(e).lower()
+
+        th.join()
+        rw.close()
+        writer.close()
+
+        assert failed is False

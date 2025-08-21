@@ -16,8 +16,6 @@ from pathlib import Path
 
 import datetime
 
-# Busy timeout for SQLite connections in milliseconds
-BUSY_TIMEOUT_MS = 5_000
 
 logger = logging.getLogger(__name__)
 
@@ -58,9 +56,8 @@ def ingest_templates(
 
     with connect_with_timeout(db_path) as conn:
         conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
-        logger.debug("Set PRAGMA busy_timeout to %s ms", BUSY_TIMEOUT_MS)
         effective = conn.execute("PRAGMA busy_timeout").fetchone()[0]
-        logger.debug("Effective PRAGMA busy_timeout is %s ms", effective)
+        logger.debug("Set busy_timeout to %s ms (effective %s)", BUSY_TIMEOUT_MS, effective)
         for path in template_dir.glob("*.md"):
             conn.execute(
                 "INSERT INTO template_assets (template_path, content_hash, created_at) VALUES (?, ?, ?)",
@@ -75,7 +72,10 @@ def ingest_templates(
 
 def _initialize_database(db_path: Path) -> None:
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    with connect_with_timeout(db_path) as conn:
+    with sqlite3.connect(db_path) as conn:
+        conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
+        effective = conn.execute("PRAGMA busy_timeout").fetchone()[0]
+        logger.debug("Set busy_timeout to %s ms (effective %s)", BUSY_TIMEOUT_MS, effective)
         conn.execute(
             "CREATE TABLE IF NOT EXISTS documentation_assets ("
             "id INTEGER PRIMARY KEY,"

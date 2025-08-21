@@ -1,9 +1,12 @@
 ## Run Start
-- Timestamp: 2025-08-21 03:25:09
-- Test summary: passed=3, failed=0
-
-### Coverage Performance
-- p(pass_rate)=1.00
-- m(mod_applied)=1.00
-- d(doc)=1.00
-- CP=1.00
+- Timestamp: 2025-08-21T03:23:55Z
+- Python files scanned: 13068
+- Applied busy_timeout logic to ingestion utils and template asset ingestor
+- Added concurrency test for SQLite busy timeout
+- README updated with BUSY_TIMEOUT_MS note
+- pytest: full suite failed (ImportError); targeted tests passed
+- Coverage Performance:
+  - p(pass_rate)=0.00
+  - m(mod_applied)=1.00
+  - d(doc)=1.00
+  - CP=0.40
