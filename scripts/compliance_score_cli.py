@@ -1,49 +1,56 @@
-"""CLI for printing the latest compliance score as JSON.
+#!/usr/bin/env python3
+"""Print the latest compliance score from ``analytics.db``.
 
-The command reuses :mod:`scripts.compliance_score` helpers to locate the
-``analytics.db`` SQLite database and emit the most recent composite score. When
-the database or table is missing, the score defaults to ``0``.
-
-Usage::
-
-    python -m scripts.compliance_score_cli --db path/to/analytics.db
-
-If ``--db`` is not supplied, ``analytics.db`` is searched for in the current
-directory and then under ``databases/``.
+This small CLI reads the ``compliance_scores`` table in the analytics
+database and outputs the most recent ``composite_score`` value as JSON.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import sqlite3
+from pathlib import Path
 
-from scripts.compliance_score import _resolve_db_path, fetch_score
+
+DEFAULT_DB_PATH = Path("databases/analytics.db")
 
 
-def parse_args() -> argparse.Namespace:
-    """Return parsed command-line arguments."""
+def get_score(db_path: Path) -> float:
+    """Return the latest composite score from ``db_path``.
 
-    parser = argparse.ArgumentParser(
-        description="Print the latest compliance score as JSON",
-    )
-    parser.add_argument(
-        "--db",
-        dest="db_path",
-        default=None,
-        help="Path to analytics.db (default: search in CWD then databases/)",
-    )
-    return parser.parse_args()
+    If the database or table is missing, ``0.0`` is returned.
+    """
+
+    if not db_path.exists():
+        return 0.0
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.execute(
+                "SELECT composite_score FROM compliance_scores "
+                "ORDER BY timestamp DESC LIMIT 1"
+            )
+            row = cursor.fetchone()
+            return float(row[0]) if row else 0.0
+    except sqlite3.Error:
+        return 0.0
 
 
 def main() -> None:
-    """Entry point for the compliance score CLI."""
+    parser = argparse.ArgumentParser(
+        description="Print latest compliance score from analytics.db"
+    )
+    parser.add_argument(
+        "--db",
+        type=Path,
+        default=DEFAULT_DB_PATH,
+        help="Path to analytics.db (default: %(default)s)",
+    )
+    args = parser.parse_args()
 
-    args = parse_args()
-    path = _resolve_db_path(args.db_path)
-    score = fetch_score(path) if path else 0.0
+    score = get_score(args.db)
     print(json.dumps({"score": score}))
 
 
-if __name__ == "__main__":  # pragma: no cover - CLI execution
+if __name__ == "__main__":
     main()
-
