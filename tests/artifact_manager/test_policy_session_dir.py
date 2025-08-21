@@ -21,6 +21,18 @@ def repo(tmp_path: Path) -> Path:
     return tmp_path
 
 
+def test_lfs_policy_missing_file_uses_defaults(
+    repo: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Absent policy file should fall back to defaults and log info."""
+
+    with caplog.at_level(logging.INFO):
+        policy = LfsPolicy(repo)
+
+    assert policy.session_artifact_dir == LfsPolicy.DEFAULT_SESSION_DIR
+    assert any("not found" in m for m in caplog.messages)
+
+
 def test_lfs_policy_defaults_when_missing_session_dir(repo: Path, caplog: pytest.LogCaptureFixture) -> None:
     """Missing ``session_artifact_dir`` should fall back to the default directory."""
     policy_file = repo / ".codex_lfs_policy.yaml"
