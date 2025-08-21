@@ -233,7 +233,7 @@
             });
         }
         function loadMetricsTrend(){
-            fetch('/api/metrics/trend').then(r=>r.json()).then(d=>{
+            fetch('/metrics/trend').then(r=>r.json()).then(d=>{
                 const ctx = document.getElementById('metricsTrend').getContext('2d');
                 new Chart(ctx, {
                     type: 'line',

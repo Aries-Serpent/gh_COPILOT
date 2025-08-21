@@ -718,7 +718,14 @@ def metrics_trend() -> Any:
     return jsonify(load_metrics_trend())
 
 
+@app.route("/metrics/trend")
+def metrics_trend_plain() -> Any:
+    """Expose historical metric trend values without the ``/api`` prefix."""
+    return jsonify(load_metrics_trend())
+
+
 app.view_functions["dashboard.index"] = index
+app.view_functions["dashboard.metrics_trend"] = metrics_trend
 __all__ = [
     "app",
     "dashboard_bp",
