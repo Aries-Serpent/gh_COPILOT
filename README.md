@@ -2331,3 +2331,4 @@ SELECT session_id, COUNT(*) AS events FROM session_events GROUP BY session_id OR
 **Notes on concurrency**
 
 - SQLite **WAL** mode is enabled for improved concurrency; a **per-thread connection** and a global write lock are used for safety.
+- The template asset ingestor enforces `PRAGMA busy_timeout` using the `BUSY_TIMEOUT_MS` environment variable (default 5000 ms) to reduce lock contention.

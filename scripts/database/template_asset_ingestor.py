@@ -8,11 +8,14 @@ optional enterprise dependencies so it can run in minimal environments.
 from __future__ import annotations
 
 import hashlib
+import logging
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
 from scripts.database.ingestion_utils import BUSY_TIMEOUT_MS
+
+logger = logging.getLogger(__name__)
 
 
 def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
@@ -30,6 +33,8 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
     _initialize_database(db_path)
     with sqlite3.connect(db_path) as conn:
         conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
+        effective = conn.execute("PRAGMA busy_timeout").fetchone()[0]
+        logger.debug("Set busy_timeout to %s ms (effective %s)", BUSY_TIMEOUT_MS, effective)
         for path in template_dir.glob("*.md"):
             conn.execute(
                 "INSERT INTO template_assets (template_path, content_hash, created_at) VALUES (?, ?, ?)",
@@ -41,6 +46,9 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
 def _initialize_database(db_path: Path) -> None:
     db_path.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(db_path) as conn:
+        conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS};")
+        effective = conn.execute("PRAGMA busy_timeout").fetchone()[0]
+        logger.debug("Set busy_timeout to %s ms (effective %s)", BUSY_TIMEOUT_MS, effective)
         conn.execute(
             "CREATE TABLE IF NOT EXISTS documentation_assets ("
             "id INTEGER PRIMARY KEY,"
