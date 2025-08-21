@@ -34,7 +34,9 @@ Refer to [docs/tooling_reference.md](docs/tooling_reference.md) for a catalog of
 
 ### Compliance Pipeline
 
-See [COMPLIANCE_PIPELINE.md](COMPLIANCE_PIPELINE.md) for the ingestion, validation, and reporting workflow.
+Contributions flow through a dedicated compliance pipeline. See
+[COMPLIANCE_PIPELINE.md](COMPLIANCE_PIPELINE.md) for detailed ingestion,
+validation, and reporting steps.
 
 ### Implemented vs. Planned Features
 
