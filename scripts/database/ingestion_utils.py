@@ -16,12 +16,16 @@ from datetime import datetime, timezone
 import hashlib
 from pathlib import Path
 from typing import Iterable, List, Dict, Tuple, Callable, Any
+import os
 import sqlite3
 
 from scripts.database.cross_database_sync_logger import _table_exists
 from scripts.database.unified_database_initializer import initialize_database
 
-BUSY_TIMEOUT_MS = 30_000
+# Busy timeout in milliseconds for SQLite connections. The value can be
+# overridden via the BUSY_TIMEOUT_MS environment variable and defaults to 5000
+# to provide sensible waiting behaviour during concurrent writes.
+BUSY_TIMEOUT_MS = int(os.getenv("BUSY_TIMEOUT_MS", "5000"))
 
 
 @dataclass
