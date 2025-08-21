@@ -17,8 +17,8 @@ clean-logs:
 	bash scripts/clean_zero_logs.sh logs
 
 compliance:
-	ruff check . --exit-zero
-	pytest -q --disable-warnings --maxfail=10 --exitfirst tests
+	$(MAKE) lint
+	$(MAKE) test
 	python scripts/code_placeholder_audit.py
 
 check-requirements:
