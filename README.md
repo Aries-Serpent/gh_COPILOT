@@ -1,6 +1,6 @@
 # 🎯 copilot v0.1.0
 
-> Ruff is configured for Python files only; docs (*.md, *.rst) are excluded.
+> Ruff is configured for Python files only; docs ([MISSING_REF:*.md, *.rst]) are excluded.
 
 
 ## Reusable modules and orchestrators for gh_COPILOT
@@ -474,7 +474,7 @@ To compress accumulated backups into 7z archives using the `py7zr` package, run 
 python -m scripts.backup_archiver
 ```
 
-Ensure `py7zr` is installed (for example, via `pip install py7zr`) to enable 7z compression.
+Ensure `py7zr` is installed ([MISSING_REF:for example, via `pip install py7zr`]) to enable 7z compression.
 
 The archiver enforces anti-recursion safeguards and performs dual-copilot
 validation before writing `archive/backups_<timestamp>.7z`.
@@ -1587,7 +1587,7 @@ Set these variables in your `.env` file or shell before running scripts:
 - `FLASK_SECRET_KEY` – Flask dashboard secret
 - `FLASK_RUN_PORT` – dashboard port
 - `WEB_GUI_DEBUG` – set to `1` to enable Web GUI debug mode; defaults to off
-  (`DEBUG=False`). Use only for development. See
+  ([MISSING_REF:`DEBUG=False`]). Use only for development. See
   [docs/development.md](docs/development.md) for usage.
 
 ### AI & ML Variables
@@ -1654,7 +1654,7 @@ Set these variables in your `.env` file or shell before running scripts:
 # Validate integrity of all databases
 python scripts/database/database_consolidation_validator.py
 
-# Security vulnerability scan (writes reports/vulnerability_scan.json)
+# Security vulnerability scan ([MISSING_REF:writes reports/vulnerability_scan.json])
 VULN_SCAN_ENABLED=1 python security/vulnerability_scanner.py --full-scan
 
 # ML model performance monitoring
@@ -2206,17 +2206,17 @@ _These statistics are auto-refreshed by the Codex task._
 ## LFS Health & Recovery Status
 _Last updated: 2025-08-17T03:56:16+00:00_
 
-- **Missing (initial):** 0
+- **Missing ([MISSING_REF:initial]):** 0
 - **Recovered:** 0
 - **Unrecovered:** 0
 - **Integrity Check:** pass
 
-Commands executed (high-level):
+Commands executed ([MISSING_REF:high-level]):
 ```bash
 git lfs fsck
 git lfs track <path>
 git add <path>
-git commit -m "Restore LFS object: <path> (oid:<oid>)"
+git commit -m "Restore LFS object: <path> ([MISSING_REF:oid:<oid>])"
 git lfs push --all origin
 git lfs fetch --all && git lfs fsck
 ```
@@ -2229,10 +2229,10 @@ git lfs fetch --all && git lfs fsck
 - This path is used for backups and recovery artifacts.
 
 
-### CLI Notes (auto)
+### CLI Notes ([MISSING_REF:auto])
 Use Typer-based CLI via:
-- `python -m gh_copilot` (module mode), or
-- After install: the generated console script declared in pyproject `[project.scripts]` (if present).
+- `python -m gh_copilot` ([MISSING_REF:module mode]), or
+- After install: the generated console script declared in pyproject `[project.scripts]` ([MISSING_REF:if present]).
 
 
 > Note: This project requires `PyYAML>=6.0`.
@@ -2241,37 +2241,37 @@ See **Compliance Model**: `docs/governance/COMPLIANCE.md`.
 
 
 
-## Disaster Recovery (Automated Update)
+## Disaster Recovery ([MISSING_REF:Automated Update])
 
 **Scope:** Backup creation, verification, restore, and rollback with analytics
 logging to `analytics.db`.
 
 ### Quick Start
 ```bash
-# run tests (if pytest installed)
+# run tests ([MISSING_REF:if pytest installed])
 pytest -q
 ```
 
 ### Analytics Database
 
 * SQLite file: `analytics.db`
-* Table: `events(event_time TEXT, level TEXT, event TEXT, details TEXT)`
-* Internal helper table: `analytics_events(run_id, kind, payload, ts)`
+* Table: `events([MISSING_REF:event_time TEXT, level TEXT, event TEXT, details TEXT])`
+* Internal helper table: `analytics_events([MISSING_REF:run_id, kind, payload, ts])`
 
-These entries are written via `log_event(...)` and `log_sync_operation(...)`.
+These entries are written via `log_event([MISSING_REF:...])` and `log_sync_operation([MISSING_REF:...])`.
 When `TEST_MODE=1` and `ANALYTICS_DB_PATH` is not set, an in-memory database is used to avoid side effects.
 
-### Functions (auto-injected helpers)
+### Functions ([MISSING_REF:auto-injected helpers])
 
-* `_dr_create_backup(src, dest, logger=None)`
-* `_dr_verify_backup(dest, logger=None)`
-* `_dr_restore_from_backup(src, dest, logger=None)`
-* `_dr_rollback(previous_state, dest, logger=None)`
+* `_dr_create_backup([MISSING_REF:src, dest, logger=None])`
+* `_dr_verify_backup([MISSING_REF:dest, logger=None])`
+* `_dr_restore_from_backup([MISSING_REF:src, dest, logger=None])`
+* `_dr_rollback([MISSING_REF:previous_state, dest, logger=None])`
 
 > Note: These helpers are injected between:
 
 ```
-# === BEGIN: AUTO-INJECTED DR HELPERS (safe to remove) ===
+# === BEGIN: AUTO-INJECTED DR HELPERS ([MISSING_REF:safe to remove]) ===
 ...
 # === END: AUTO-INJECTED DR HELPERS ===
 ```
@@ -2283,9 +2283,9 @@ and are safe to remove once the primary DR implementation supersedes them.
 ## Dependencies
 
 - This project now requires `tqdm>=4.0.0` as a base dependency for progress reporting.
-- Ensure your environment reflects this requirement (see `requirements.txt` or `pyproject.toml`).
+- Ensure your environment reflects this requirement ([MISSING_REF:see `requirements.txt` or `pyproject.toml`]).
 
-## Session Logging (codex_session_log.db)
+## Session Logging ([MISSING_REF:codex_session_log.db])
 
 This repository now includes a lightweight session logger backed by SQLite.
 
@@ -2296,18 +2296,18 @@ This repository now includes a lightweight session logger backed by SQLite.
 **Schema**
 
 ```sql
-CREATE TABLE IF NOT EXISTS session_events(
+CREATE TABLE IF NOT EXISTS session_events([MISSING_REF:
   session_id TEXT,
   timestamp  TEXT,
   role       TEXT,
   message    TEXT,
-  PRIMARY KEY(session_id, timestamp)
+  PRIMARY KEY(session_id, timestamp])
 );
 ```
 
 **DB Path Override**
 
-- Set `CODEX_SESSION_DB=/path/to/db.sqlite` (default: `<repo>/codex_session_log.db`)
+- Set `CODEX_SESSION_DB=/path/to/db.sqlite` ([MISSING_REF:default: `<repo>/codex_session_log.db`])
 
 **Wrapper Runner**
 Run any Python script with logging:
@@ -2325,7 +2325,7 @@ python scripts/with_session_logging.py -- -m pytest -q
 SELECT * FROM session_events ORDER BY timestamp DESC LIMIT 50;
 
 -- group by session
-SELECT session_id, COUNT(*) AS events FROM session_events GROUP BY session_id ORDER BY events DESC;
+SELECT session_id, COUNT([MISSING_REF:*]) AS events FROM session_events GROUP BY session_id ORDER BY events DESC;
 ```
 
 **Notes on concurrency**

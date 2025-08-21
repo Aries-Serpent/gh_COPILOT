@@ -19,3 +19,5 @@ schedule
 ruff
 PyPDF2>=3.0
 hypothesis
+
+pyotp>=2,<3
