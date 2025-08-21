@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 import sqlite3
 
@@ -59,11 +59,23 @@ def test_summary_with_snapshot_and_placeholder(tmp_path: Path) -> None:
     )
     con.execute(
         "INSERT INTO score_snapshots(branch, score, model_id, inputs_json, ts) VALUES (?,?,?,?,?)",
-        ("main", 0.92, "main-default", inputs.model_dump_json(), datetime.utcnow().isoformat()),
+        (
+            "main",
+            0.92,
+            "main-default",
+            inputs.model_dump_json(),
+            datetime.now(timezone.utc).isoformat(),
+        ),
     )
     con.execute(
         "INSERT INTO placeholder_tasks(file, line, kind, sha, ts, status) VALUES (?,?,?,?,?, 'open')",
-        ("a.py", 1, "TODO", "deadbeef", datetime.utcnow().isoformat()),
+        (
+            "a.py",
+            1,
+            "TODO",
+            "deadbeef",
+            datetime.now(timezone.utc).isoformat(),
+        ),
     )
     con.commit()
     con.close()

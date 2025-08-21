@@ -8,7 +8,9 @@ from typing import Any, Dict
 
 import pytest
 
-yaml = pytest.importorskip("yaml", reason="PyYAML is required for policy tests")
+yaml = pytest.importorskip(
+    "yaml", reason="Requires PyYAML; install with `pip install pyyaml`."
+)
 
 from analytics.analytics_db_inspector import record_governance_check
 

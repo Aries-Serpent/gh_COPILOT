@@ -1,6 +1,6 @@
 import logging
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 import sys
 import types
 
@@ -40,11 +40,11 @@ def _prepare_db(path: str) -> None:
         )
         conn.execute(
             "INSERT INTO violation_logs (timestamp, details) VALUES (?, ?)",
-            (datetime.utcnow().isoformat(), "violation"),
+            (datetime.now(timezone.utc).isoformat(), "violation"),
         )
         conn.execute(
             "INSERT INTO rollback_logs (target, timestamp) VALUES (?, ?)",
-            ("target", datetime.utcnow().isoformat()),
+            ("target", datetime.now(timezone.utc).isoformat()),
         )
         conn.execute(
             "INSERT INTO todo_fixme_tracking (status, placeholder_type) VALUES ('resolved', 'type1')"
