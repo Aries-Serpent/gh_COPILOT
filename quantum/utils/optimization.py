@@ -122,7 +122,7 @@ class PerformanceOptimizer:
         else:
             return base_batch_size
     
-    def clear_performance_data(self, algorithm_name: Optional[str] = None):
+    def clear_performance_data(self, algorithm_name: Optional[str] = None) -> None:
         """Clear performance data"""
         if algorithm_name:
             self.performance_data.pop(algorithm_name, None)

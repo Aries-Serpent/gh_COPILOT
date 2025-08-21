@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Optional
+from typing import Any, Optional
 
 try:  # pragma: no cover - optional dependency
     import qiskit  # noqa: F401
@@ -32,7 +32,7 @@ def get_backend(
     use_hardware: bool | None = None,
     token: Optional[str] = None,
     token_env: str = "QISKIT_IBM_TOKEN",
-):
+) -> Any:
     """Return a Qiskit backend with optional hardware selection.
 
     Attempts to load an IBM Quantum backend when ``use_hardware`` is True and the

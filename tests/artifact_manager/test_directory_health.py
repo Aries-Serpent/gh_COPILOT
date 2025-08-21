@@ -109,3 +109,21 @@ def test_recover_latest_session_no_archives(
     assert result is None
     assert any("No session archives" in m for m in caplog.messages)
 
+
+def test_recover_latest_session_invalid_directory(
+    repo: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Recovering should fail gracefully when sessions dir is invalid."""
+
+    tmp_dir = repo / "tmp"
+    tmp_dir.mkdir()
+
+    bad_dir = repo / LfsPolicy.DEFAULT_SESSION_DIR
+    bad_dir.write_text("not a directory", encoding="utf-8")
+
+    with caplog.at_level(logging.ERROR):
+        result = recover_latest_session(tmp_dir, repo, LfsPolicy(repo))
+
+    assert result is None
+    assert any("Failed to create" in m for m in caplog.messages)
+
