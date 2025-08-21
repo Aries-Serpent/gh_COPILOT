@@ -13,7 +13,7 @@ import sys
 try:  # Prefer real PyQt6 when available
     import PyQt6  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover - depends on environment
-    from tests.stubs import pyqt6 as PyQt6
+    import tests.stubs.PyQt6 as PyQt6  # noqa: F401
 
     # Register stub modules so ``import PyQt6`` succeeds
     sys.modules.setdefault("PyQt6", PyQt6)
