@@ -17,6 +17,7 @@ import hashlib
 import os
 from pathlib import Path
 from typing import Iterable, List, Dict, Tuple, Callable, Any
+import os
 import sqlite3
 
 from scripts.database.cross_database_sync_logger import _table_exists

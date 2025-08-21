@@ -1,10 +1,7 @@
 from pathlib import Path
 import pytest
 
-try:
-    import fastapi  # noqa: F401
-except ImportError:  # pragma: no cover
-    pytest.skip("fastapi not installed", allow_module_level=True)
+pytest.importorskip("fastapi", reason="FastAPI not installed")
 
 from src.gh_copilot.api import api_regenerate
 
@@ -12,7 +9,13 @@ from src.gh_copilot.api import api_regenerate
 def test_api_regenerate(monkeypatch, tmp_path):
     called = {}
 
-    def fake_generate(kind: str, source_db: Path, out_dir: Path, analytics_db: Path, params: dict | None = None):
+    def fake_generate(
+        kind: str,
+        source_db: Path,
+        out_dir: Path,
+        analytics_db: Path,
+        params: dict | None = None,
+    ):
         out_dir.mkdir(exist_ok=True)
         out = out_dir / "out.txt"
         out.write_text("x")

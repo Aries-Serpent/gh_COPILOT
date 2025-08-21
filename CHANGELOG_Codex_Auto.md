@@ -51,3 +51,8 @@
 - Added codex_workflow.py implementing read-only database connectors, stub replacement, and halt logic.
 - Introduced tests/test_metrics_flow.py verifying halt behavior.
 
+## 2025-08-19 - Template ingestor timeout and test updates
+- Added timeout-aware connections and CLI to `scripts/database/template_asset_ingestor.py`.
+- Replaced deprecated `datetime.utcnow()` with timezone-aware calls in tests.
+- Clarified `smoke` marker description in `pytest.ini`.
+

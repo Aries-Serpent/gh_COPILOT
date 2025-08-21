@@ -20,11 +20,17 @@ ModuleNotFoundError: No module named 'utils'
 Context: Running scripts/run_migrations.py within setup.sh
 What are the possible causes, and how can this be resolved while preserving intended functionality?
 ```
-
 Question for ChatGPT-5:
 ```
 While performing [P6:pytest], encountered the following error:
 ImportError: cannot import name 'run_dual_copilot_validation' from 'scripts.validation.secondary_copilot_validator'
 Context: Running pytest for full test suite
+What are the possible causes, and how can this be resolved while preserving intended functionality?
+```
+Question for ChatGPT-5:
+```
+While performing [P6: git restore databases/analytics.db], encountered the following error:
+Error downloading databases/analytics.db ... missing protocol: ""
+Context: git LFS smudge filter failed when restoring analytics.db after tests.
 What are the possible causes, and how can this be resolved while preserving intended functionality?
 ```
