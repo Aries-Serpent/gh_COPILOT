@@ -4,9 +4,11 @@ from typing import Any
 try:
     from gh_copilot.dashboard.app import router  # type: ignore
 except Exception:
-    from fastapi import APIRouter
+    import pytest
 
-    router = APIRouter()
+    fastapi = pytest.importorskip("fastapi", reason="FastAPI not installed")
+
+    router = fastapi.APIRouter()
 
     @router.get("/dashboard/corrections/logs")
     def correction_logs() -> dict[str, int | list[Any]]:
