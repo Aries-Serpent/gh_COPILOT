@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import datetime
+import datetime
 from pathlib import Path
 
 from itertools import islice
@@ -25,7 +25,10 @@ def test_log_recovery_after_interruption(tmp_path: Path) -> None:
     for i in range(5):
         conn.execute(
             "INSERT INTO violation_logs (details, timestamp) VALUES (?, ?)",
-            (str(i), datetime.utcnow().isoformat()),
+            (
+                str(i),
+                datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            ),
         )
     conn.commit()
     conn.close()
