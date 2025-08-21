@@ -1,5 +1,6 @@
 import asyncio
 from builtins import anext
+from datetime import datetime, timezone
 from pathlib import Path
 import os
 import sqlite3
@@ -8,6 +9,7 @@ import tempfile
 import pytest
 
 pytest.importorskip("fastapi", reason="FastAPI not installed")
+pytest.importorskip("starlette", reason="Starlette not installed")
 
 tmp_db = tempfile.NamedTemporaryFile(delete=False)
 with sqlite3.connect(tmp_db.name) as _conn:
@@ -34,7 +36,13 @@ def _setup_db(tmp_path: Path, with_snapshot: bool = False) -> ComplianceDAO:
             inputs = ScoreInputs(
                 run_id="1", lint=1, tests=1, placeholders=1, sessions=1, model_id="m1"
             )
-            snap = ScoreSnapshot(branch="main", score=0.9, model_id="m1", inputs=inputs)
+            snap = ScoreSnapshot(
+                branch="main",
+                score=0.9,
+                model_id="m1",
+                inputs=inputs,
+                ts=datetime.now(timezone.utc),
+            )
             c.execute(
                 "INSERT INTO score_snapshots VALUES (?, ?, ?, ?, ?)",
                 (
