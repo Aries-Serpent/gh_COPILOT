@@ -14,7 +14,7 @@ if str(ROOT) not in sys.path:
 try:
     import PyQt6  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover - optional dependency
-    from tests.stubs import pyqt6 as PyQt6  # type: ignore
+    import tests.stubs.PyQt6 as PyQt6  # type: ignore
     sys.modules.setdefault("PyQt6", PyQt6)
     sys.modules.setdefault("PyQt6.QtCore", PyQt6.QtCore)
     sys.modules.setdefault("PyQt6.QtWidgets", PyQt6.QtWidgets)

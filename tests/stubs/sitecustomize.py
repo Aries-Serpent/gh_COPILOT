@@ -19,7 +19,7 @@ sys.modules.setdefault("utils.validation_utils", validation_utils)
 try:  # pragma: no cover - depends on environment
     import PyQt6  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover - used only when PyQt6 missing
-    import pyqt6 as PyQt6
+    import tests.stubs.PyQt6 as PyQt6
 
     sys.modules.setdefault("PyQt6", PyQt6)
     sys.modules.setdefault("PyQt6.QtCore", PyQt6.QtCore)
