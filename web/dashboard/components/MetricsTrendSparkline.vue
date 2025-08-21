@@ -7,7 +7,7 @@ export default {
   name: 'MetricsTrendSparkline',
   mounted() {
     Promise.all([
-      fetch('/api/metrics/trend').then(r => r.json()),
+      fetch('/metrics/trend').then(r => r.json()),
       fetch('/api/thresholds').then(r => r.json()),
     ]).then(([d, t]) => {
       const data = d.metrics || [];
