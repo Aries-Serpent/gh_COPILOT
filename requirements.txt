@@ -39,7 +39,6 @@ dill>=0.3.7
 # --- Any other verified code dependencies can go here ---
 py7zr>=0.20.0
 websockets>=10.4  # Optional real-time streaming
-PyYAML
 
 # ===========================
 # End of requirements

@@ -3,12 +3,12 @@ name: Check Requirements
 on:
   pull_request:
     paths:
-      - "requirements.txt"
+      - "requirements*.txt"
       - "tools/check_requirements.py"
       - ".github/workflows/check_requirements.yml"
   push:
     paths:
-      - "requirements.txt"
+      - "requirements*.txt"
       - "tools/check_requirements.py"
       - ".github/workflows/check_requirements.yml"
 
@@ -29,5 +29,5 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
       - name: Check for duplicate requirements
-        run: python tools/check_requirements.py
+        run: python tools/check_requirements.py requirements*.txt
 

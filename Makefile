@@ -22,7 +22,7 @@ compliance:
 	python scripts/code_placeholder_audit.py
 
 check-requirements:
-	python tools/check_requirements.py
+	python tools/check_requirements.py requirements*.txt
 
 .PHONY: convert-daily-whitepaper
 convert-daily-whitepaper:
