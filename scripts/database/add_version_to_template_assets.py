@@ -9,7 +9,7 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from .size_compliance_checker import check_database_sizes
+from scripts.database.size_compliance_checker import check_database_sizes
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 from utils.log_utils import _log_event
 

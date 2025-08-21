@@ -26,7 +26,7 @@ def test_start_session_retries_on_operational_error(monkeypatch, tmp_path):
 
     start_session(session_id, workspace=str(workspace))
 
-    db_path = workspace / "databases" / "analytics.db"
+    db_path = workspace / "databases" / "production.db"
     with real_connect(db_path) as conn:
         count = conn.execute(
             "SELECT COUNT(*) FROM session_lifecycle WHERE session_id=?",
@@ -57,7 +57,7 @@ def test_end_session_retries_on_operational_error(monkeypatch, tmp_path):
 
     end_session(session_id, workspace=str(workspace))
 
-    db_path = workspace / "databases" / "analytics.db"
+    db_path = workspace / "databases" / "production.db"
     with real_connect(db_path) as conn:
         end_ts = conn.execute(
             "SELECT end_ts FROM session_lifecycle WHERE session_id=?",

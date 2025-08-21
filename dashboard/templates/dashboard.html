@@ -48,6 +48,17 @@
                 el.classList.add('status-green');
             }
         }
+        function computeAlert(value, bounds){
+            if(bounds && typeof bounds === 'object'){
+                if(bounds.critical !== undefined && value < bounds.critical){
+                    return 'critical';
+                }
+                if(bounds.warning !== undefined && value < bounds.warning){
+                    return 'warning';
+                }
+            }
+            return 'ok';
+        }
         // Metrics sourced from /api/compliance_scores (analytics.db)
         function updateMetrics(data){
         document.getElementById('placeholder_removal').textContent = data.placeholder_removal;
@@ -74,11 +85,12 @@
         const comp = data.composite_score ?? data.compliance_score;
         const alert = document.getElementById('compliance_alert');
         alert.textContent = comp.toFixed(2);
-        const alerts = data.alerts || {};
-        applyAlert('lint_score', alerts.lint_score);
-        applyAlert('test_score', alerts.test_score);
-        applyAlert('placeholder_score', alerts.placeholder_score);
-        applyAlert('compliance_alert', alerts.composite_score || alerts.compliance_score);
+        const thresholds = data.thresholds || {};
+        applyAlert('lint_score', computeAlert(data.lint_score ?? 0, thresholds.lint_score));
+        applyAlert('test_score', computeAlert(data.test_score ?? 0, thresholds.test_score));
+        applyAlert('placeholder_score', computeAlert(data.placeholder_score ?? 0, thresholds.placeholder_score));
+        const compBounds = thresholds.composite_score || thresholds.compliance_score;
+        applyAlert('compliance_alert', computeAlert(comp, compBounds));
         document.getElementById('open_placeholders').textContent = data.open_placeholders || 0;
             document.getElementById('resolved_placeholders').textContent = data.resolved_placeholders || 0;
             const prog = data.progress !== undefined ? (data.progress * 100).toFixed(1) + '%' : '0%';
@@ -220,8 +232,33 @@
                 }
             });
         }
+        function loadMetricsTrend(){
+            fetch('/metrics/trend').then(r=>r.json()).then(d=>{
+                const ctx = document.getElementById('metricsTrend').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: d.timestamps,
+                        datasets: [{
+                            data: d.metrics,
+                            borderColor: '#e74c3c',
+                            fill: false,
+                            tension: 0.3,
+                        }],
+                    },
+                    options: {
+                        plugins: { legend: { display: false } },
+                        scales: { x: { display: false }, y: { display: false } },
+                        elements: { point: { radius: 0 } },
+                    },
+                });
+            });
+        }
         function pollCompliance(){
-            fetch('/dashboard/compliance').then(r=>r.json()).then(updateCompliance);
+            fetch('/dashboard/compliance')
+                .then(r=>r.json())
+                .then(updateCompliance)
+                .catch(err => console.error('Failed to load compliance data', err));
         }
         function pollExtras(){
             fetch('/sync_events').then(r=>r.json()).then(updateSyncEvents);
@@ -258,18 +295,21 @@
             pollCompliance();
             pollExtras();
             loadComplianceChart();
+            loadMetricsTrend();
             setInterval(pollCompliance,5000);
             setInterval(pollExtras,5000);
             setInterval(loadComplianceChart,30000); // Update chart every 30 seconds
+            setInterval(loadMetricsTrend,30000);
         };
     </script>
 </head>
 <body>
 <h1>Compliance Dashboard</h1>
-<nav>
-    <a href="/corrections/view">Corrections</a>
+    <nav>
+        <a href="/corrections/view">Corrections</a>
     <a href="/api/compliance_scores">Compliance</a>
-</nav>
+    <a href="/rollbacks">Rollbacks</a>
+    </nav>
 <div>
     <strong>Placeholder Removals:</strong> <span id="placeholder_removal">{{ metrics.placeholder_removal | default(0) }}</span><br>
     <strong>Compliance Score:</strong> <span id="compliance_score">{{ metrics.compliance_score | default(0) }}</span><br>
@@ -277,9 +317,9 @@
     <strong>Lint Issues:</strong> <span id="ruff_issues">{{ metrics.ruff_issues | default(0) }}</span><br>
     <strong>Tests Passed:</strong> <span id="tests_passed">{{ metrics.tests_passed | default(0) }}</span><br>
     <strong>Tests Failed:</strong> <span id="tests_failed">{{ metrics.tests_failed | default(0) }}</span><br>
-    <strong title="Percentage of files passing ruff checks">Lint Score:</strong> <span id="lint_score">{{ metrics.lint_score | default(0) }}</span><br>
-    <strong title="Percentage of tests passing">Test Score:</strong> <span id="test_score">{{ metrics.test_score | default(0) }}</span><br>
-    <strong title="Progress removing TODO/FIXME placeholders">Placeholder Score:</strong> <span id="placeholder_score">{{ metrics.placeholder_score | default(0) }}</span><br>
+    <strong title="Percentage of files passing ruff checks">Lint Score:</strong> <span id="lint_score" class="status-indicator">{{ metrics.lint_score | default(0) }}</span><br>
+    <strong title="Percentage of tests passing">Test Score:</strong> <span id="test_score" class="status-indicator">{{ metrics.test_score | default(0) }}</span><br>
+    <strong title="Progress removing TODO/FIXME placeholders">Placeholder Score:</strong> <span id="placeholder_score" class="status-indicator">{{ metrics.placeholder_score | default(0) }}</span><br>
     <div id="score_gauges">
         <!-- Gauges support click drill-down via main.js -->
         <canvas id="lintGauge" class="gauge" data-metric="lint_score" title="Lint score gauge"></canvas>
@@ -306,6 +346,8 @@
     <ul id="placeholder_breakdown"></ul>
     <h3>Compliance Trend</h3>
     <ul id="compliance_trend"></ul>
+    <h3>Metrics Trend</h3>
+    <canvas id="metricsTrend" width="100" height="30"></canvas>
     <h3>Placeholder History</h3>
     <div>
         Open: <span id="placeholderOpenCount">0</span>

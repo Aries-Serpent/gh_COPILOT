@@ -1,19 +1,9 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
-import typer
 
-# Attempt normal import; fallback to source tree for local development
-try:
-    import gh_copilot  # type: ignore  # noqa: F401
-except Exception:
-    here = Path(__file__).resolve()
-    src = here.parents[1] / "src"
-    if src.exists():
-        sys.path.insert(0, str(src))
-    import gh_copilot  # type: ignore  # noqa: F401
+import typer
 
 from gh_copilot.generation.generate_from_templates import generate as _generate
 

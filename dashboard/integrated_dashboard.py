@@ -28,14 +28,21 @@ from enterprise_modules.compliance import (
 from utils.validation_utils import calculate_composite_compliance_score
 from web_gui import middleware, security
 from web_gui.certificates import init_app as init_certificates
-from web_gui.dashboards.quantum_dashboard import get_metrics as get_quantum_metrics
+
+try:  # optional quantum dashboard metrics
+    from web_gui.dashboards.quantum_dashboard import (
+        get_metrics as get_quantum_metrics,
+    )
+except Exception:  # pragma: no cover - gracefully degrade if unavailable
+    def get_quantum_metrics() -> dict[str, float]:
+        return {}
 
 # Paths and database locations
 METRICS_FILE = Path(__file__).with_name("metrics.json")
 METRICS_PATH = METRICS_FILE  # Backward compatibility
 CORRECTIONS_DIR = Path("dashboard/compliance")
 ANALYTICS_DB = Path("databases/analytics.db")
-THRESHOLDS_FILE = Path(__file__).with_name("thresholds.json")
+THRESHOLDS_FILE = Path(__file__).resolve().parents[1] / "thresholds.json"
 
 
 # Blueprint definition
@@ -48,12 +55,17 @@ _dashboard = Blueprint(
 
 
 def _load_thresholds() -> dict[str, dict[str, float]]:
-    """Load metric threshold configuration if available."""
-    if THRESHOLDS_FILE.exists():
-        try:
-            return json.loads(THRESHOLDS_FILE.read_text())
-        except json.JSONDecodeError:
-            logging.error("Thresholds decode error", exc_info=True)
+    """Load metric threshold configuration if available.
+
+    Falls back to the legacy path under ``dashboard/`` if the new root-level
+    configuration is missing.  Both locations use the same JSON structure.
+    """
+    for path in (THRESHOLDS_FILE, Path(__file__).with_name("thresholds.json")):
+        if path.exists():
+            try:
+                return json.loads(path.read_text())
+            except json.JSONDecodeError:
+                logging.error("Thresholds decode error", exc_info=True)
     return {}
 
 
@@ -188,6 +200,7 @@ def _load_metrics() -> dict[str, Any]:
         if isinstance(value, (int, float)):
             alerts[name] = _compute_alert(float(value), bounds)
     metrics["alerts"] = alerts
+    metrics["thresholds"] = thresholds
     return metrics
 
 

@@ -21,8 +21,8 @@ from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
 
-from .cross_database_sync_logger import log_sync_operation
-from .unified_database_initializer import initialize_database
+from scripts.database.cross_database_sync_logger import log_sync_operation
+from scripts.database.unified_database_initializer import initialize_database
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",

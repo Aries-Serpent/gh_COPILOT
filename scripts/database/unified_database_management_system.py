@@ -13,7 +13,7 @@ import datetime
 from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
-from .cross_database_sync_logger import log_sync_operation
+from scripts.database.cross_database_sync_logger import log_sync_operation
 
 logger = logging.getLogger(__name__)
 

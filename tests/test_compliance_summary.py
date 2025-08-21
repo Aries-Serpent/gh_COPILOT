@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 import sqlite3
+import datetime
 
 from gh_copilot.compliance.dao import ComplianceDAO
 from gh_copilot.compliance.models import ScoreInputs
@@ -54,16 +55,26 @@ def test_summary_with_snapshot_and_placeholder(tmp_path: Path) -> None:
 
     # Insert one snapshot and one open placeholder
     con = sqlite3.connect(db)
-    inputs = ScoreInputs(
-        run_id="t1", lint=0.9, tests=0.9, placeholders=0.9, sessions=0.9, model_id="main-default"
-    )
+    inputs = ScoreInputs(run_id="t1", lint=0.9, tests=0.9, placeholders=0.9, sessions=0.9, model_id="main-default")
     con.execute(
         "INSERT INTO score_snapshots(branch, score, model_id, inputs_json, ts) VALUES (?,?,?,?,?)",
-        ("main", 0.92, "main-default", inputs.model_dump_json(), datetime.utcnow().isoformat()),
+        (
+            "main",
+            0.92,
+            "main-default",
+            inputs.model_dump_json(),
+            datetime.now(timezone.utc).isoformat(),
+        ),
     )
     con.execute(
         "INSERT INTO placeholder_tasks(file, line, kind, sha, ts, status) VALUES (?,?,?,?,?, 'open')",
-        ("a.py", 1, "TODO", "deadbeef", datetime.utcnow().isoformat()),
+        (
+            "a.py",
+            1,
+            "TODO",
+            "deadbeef",
+            datetime.now(timezone.utc).isoformat(),
+        ),
     )
     con.commit()
     con.close()

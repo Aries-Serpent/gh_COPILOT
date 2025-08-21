@@ -20,6 +20,25 @@ clean, the output confirms that no work remains:
 [SUCCESS] No TODO or FIXME placeholders found
 ```
 
+### Wrapper Script and Cron Example
+
+For regular scans, use the wrapper script which updates the dashboard and
+writes a timestamped log under `logs/`:
+
+```bash
+scripts/run_placeholder_audit.sh
+```
+
+To schedule daily runs with cron (at 02:30), add an entry like:
+
+```
+30 2 * * * /bin/bash /path/to/repo/scripts/run_placeholder_audit.sh \
+  >> /var/log/gh_copilot_placeholder_audit.log 2>&1
+```
+
+This entry runs the audit daily and appends output to
+`/var/log/gh_copilot_placeholder_audit.log`.
+
 ### Applying Suggestions Automatically
 
 Use the `--apply-suggestions` flag to apply simple fixes generated for

@@ -9,7 +9,12 @@ from typing import Any, Dict
 
 from utils.cross_platform_paths import CrossPlatformPathManager
 
-import yaml
+try:  # pragma: no cover - optional dependency
+    import yaml
+except ImportError as exc:  # pragma: no cover
+    raise ImportError(
+        "PyYAML is required for configuration utilities. Install PyYAML to proceed."
+    ) from exc
 
 
 def load_enterprise_configuration(

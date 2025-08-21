@@ -9,8 +9,12 @@ from web_gui.scripts.flask_apps.database_web_connector import DatabaseWebConnect
 def _create_temp_db(db_path: Path) -> None:
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
-    cur.execute("CREATE TABLE enterprise_metrics(metric_name TEXT, metric_value REAL)")
-    cur.execute("INSERT INTO enterprise_metrics VALUES('compliance_score', 95.5)")
+    cur.execute(
+        "CREATE TABLE enterprise_metrics(metric_name TEXT, metric_value REAL, metric_unit TEXT)"
+    )
+    cur.execute(
+        "INSERT INTO enterprise_metrics VALUES('compliance_score', 95.5, 'percent')"
+    )
 
     cur.execute(
         """
@@ -99,5 +103,6 @@ def test_fetch_latest_metrics(tmp_path) -> None:
     assert perf_metrics["system_resources"]["cpu"] == 50
 
     enterprise_metrics = connector.fetch_enterprise_metrics()
-    assert enterprise_metrics["compliance_score"] == 95.5
+    assert enterprise_metrics["compliance_score"]["value"] == 95.5
+    assert enterprise_metrics["compliance_score"]["unit"] == "percent"
     connector.close_pool()

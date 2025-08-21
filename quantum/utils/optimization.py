@@ -1,26 +1,33 @@
-"""
-Performance optimization utilities for quantum algorithms.
-"""
+"""Performance optimization utilities for quantum algorithms."""
 
 import time
-import psutil
 from typing import Dict, Any, Optional
 import logging
+
+try:  # pragma: no cover - psutil is optional
+    import psutil  # type: ignore
+except ImportError:  # pragma: no cover - fallback
+    psutil = None  # type: ignore[assignment]
 
 
 class PerformanceOptimizer:
     """Performance optimization utilities for quantum algorithms"""
-    
-    def __init__(self):
+
+    def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
         self.performance_data = {}
     
     def monitor_execution(self, algorithm_name: str, execution_func, *args, **kwargs) -> Dict[str, Any]:
         """Monitor performance during algorithm execution"""
-        # Get initial system state
-        process = psutil.Process()
-        initial_memory = process.memory_info().rss / 1024 / 1024  # MB
-        initial_cpu_percent = process.cpu_percent()
+        if psutil is not None:
+            # Get initial system state
+            process = psutil.Process()
+            initial_memory = process.memory_info().rss / 1024 / 1024  # MB
+            initial_cpu_percent = process.cpu_percent()
+        else:  # pragma: no cover - executed when psutil missing
+            process = None
+            initial_memory = 0.0
+            initial_cpu_percent = 0.0
         
         start_time = time.perf_counter()
         
@@ -36,9 +43,13 @@ class PerformanceOptimizer:
         
         end_time = time.perf_counter()
         
-        # Get final system state
-        final_memory = process.memory_info().rss / 1024 / 1024  # MB
-        final_cpu_percent = process.cpu_percent()
+        if process is not None:
+            # Get final system state
+            final_memory = process.memory_info().rss / 1024 / 1024  # MB
+            final_cpu_percent = process.cpu_percent()
+        else:  # pragma: no cover - executed when psutil missing
+            final_memory = 0.0
+            final_cpu_percent = 0.0
         
         performance_metrics = {
             'algorithm': algorithm_name,
@@ -111,7 +122,7 @@ class PerformanceOptimizer:
         else:
             return base_batch_size
     
-    def clear_performance_data(self, algorithm_name: Optional[str] = None):
+    def clear_performance_data(self, algorithm_name: Optional[str] = None) -> None:
         """Clear performance data"""
         if algorithm_name:
             self.performance_data.pop(algorithm_name, None)

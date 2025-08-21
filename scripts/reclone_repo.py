@@ -13,10 +13,7 @@ import shutil
 import subprocess
 import sys
 from datetime import datetime
-from pathlib import Path
 import uuid
-
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 from session.session_lifecycle_metrics import start_session, end_session
 from utils.logging_utils import log_session_event
 

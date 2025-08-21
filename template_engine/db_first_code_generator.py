@@ -150,6 +150,20 @@ class TemplateAutoGenerator:
         self.templates = self._load_templates()
         self.patterns = []
         self.cluster_vectorizer = None
+        # Flags preventing recursive calls
+        self._in_generate = False
+        self._in_integration = False
+
+    def _pre_query_checks(self, objective: str) -> None:
+        """Ensure databases exist and run similarity scoring."""
+        if not self.production_db.exists():
+            raise FileNotFoundError(f"production database missing: {self.production_db}")
+        compute_similarity_scores(
+            objective,
+            production_db=self.production_db,
+            analytics_db=self.analytics_db,
+            timeout_minutes=1,
+        )
 
     def _load_templates(self) -> List[str]:
         templates: List[str] = []
@@ -412,49 +426,61 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
         return result
 
     def generate(self, objective: str) -> str:
-        pattern = self.fetch_existing_pattern(objective)
-        if pattern:
-            result = pattern
-        else:
-            ranked = self.rank_templates(objective)
-            result = ranked[0] if ranked else "Auto-generated template"
-        self._ensure_codegen_table()
-        with sqlite3.connect(self.analytics_db) as conn:
-            conn.execute(
-                "INSERT INTO code_generation_events (objective, status) VALUES (?, 'generated')",
-                (objective,),
-            )
-            conn.commit()
-        _log_event(
-            {"objective": objective, "status": "generated"},
-            table="code_generation_events",
-            db_path=self.analytics_db,
-            test_mode=False,
-        )
-        return result
-
-    def generate_integration_ready_code(self, objective: str) -> Path:
-        """Generate production-ready code stub and log analytics."""
-        validate_no_recursive_folders()
-
-        phases = ["template_selection", "token_replacement", "file_write"]
-        total = len(phases)
-        with tqdm(total=total, desc="IntegrationReady", unit="phase") as bar:
-            # Phase 1: template selection
-            template = self.select_best_template(objective)
-            if not template:
-                template = self.generate(objective)
+        if self._in_generate:
+            raise RuntimeError("Recursive code generation detected")
+        self._in_generate = True
+        try:
+            self._pre_query_checks(objective)
+            pattern = self.fetch_existing_pattern(objective)
+            if pattern:
+                result = pattern
+            else:
+                ranked = self.rank_templates(objective)
+                result = ranked[0] if ranked else "Auto-generated template"
+            self._ensure_codegen_table()
+            with sqlite3.connect(self.analytics_db) as conn:
+                conn.execute(
+                    "INSERT INTO code_generation_events (objective, status) VALUES (?, 'generated')",
+                    (objective,),
+                )
+                conn.commit()
             _log_event(
-                {
-                    "event": "template_selected",
-                    "objective": objective,
-                    "template_snippet": template[:100],
-                    "requirement_map": {objective: template[:100]},
-                },
-                table="generator_events",
+                {"objective": objective, "status": "generated"},
+                table="code_generation_events",
                 db_path=self.analytics_db,
                 test_mode=False,
             )
+            return result
+        finally:
+            self._in_generate = False
+
+    def generate_integration_ready_code(self, objective: str) -> Path:
+        """Generate production-ready code stub and log analytics."""
+        if self._in_integration:
+            raise RuntimeError("Recursive code generation detected")
+        self._in_integration = True
+        try:
+            validate_no_recursive_folders()
+            self._pre_query_checks(objective)
+
+            phases = ["template_selection", "token_replacement", "file_write"]
+            total = len(phases)
+            with tqdm(total=total, desc="IntegrationReady", unit="phase") as bar:
+                # Phase 1: template selection
+                template = self.select_best_template(objective)
+                if not template:
+                    template = self.generate(objective)
+                _log_event(
+                    {
+                        "event": "template_selected",
+                        "objective": objective,
+                        "template_snippet": template[:100],
+                        "requirement_map": {objective: template[:100]},
+                    },
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                    test_mode=False,
+                )
             _log_event(
                 {
                     "event": "integration_progress",
@@ -658,7 +684,9 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 }
             )
 
-        return path
+            return path
+        finally:
+            self._in_integration = False
 
     def generate_from_contract(self, request: CodegenRequest) -> CodegenResult:
         """Generate code using a :class:`CodegenRequest` contract."""

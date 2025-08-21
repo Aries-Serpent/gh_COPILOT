@@ -3,10 +3,37 @@ import sys
 import types
 import pytest
 
+# Stub external dependencies not installed in the environment
+sys.modules.setdefault("sklearn", types.ModuleType("sklearn"))
+sys.modules.setdefault("sklearn.ensemble", types.SimpleNamespace(IsolationForest=None))
+sys.modules.setdefault("sklearn.cluster", types.SimpleNamespace(KMeans=None))
+sys.modules.setdefault("sklearn.datasets", types.SimpleNamespace(make_classification=None))
+sys.modules.setdefault(
+    "sklearn.model_selection", types.SimpleNamespace(train_test_split=None)
+)
+sys.modules.setdefault("sklearn.preprocessing", types.SimpleNamespace(StandardScaler=None))
+sys.modules.setdefault("numpy", types.ModuleType("numpy"))
+qiskit_stub = types.ModuleType("qiskit")
+qiskit_stub.QuantumCircuit = None
+sys.modules["qiskit"] = qiskit_stub
+qcircuit = types.ModuleType("qiskit.circuit")
+qcircuit.library = types.SimpleNamespace(QFT=None)
+sys.modules["qiskit.circuit"] = qcircuit
+sys.modules["qiskit.circuit.library"] = qcircuit.library
+qinfo = types.ModuleType("qiskit.quantum_info")
+qinfo.Statevector = None
+sys.modules["qiskit.quantum_info"] = qinfo
+qaer = types.ModuleType("qiskit_aer")
+qaer.AerSimulator = None
+sys.modules["qiskit_aer"] = qaer
+
 
 class DummyCorrectionLoggerRollback:
     def __init__(self, *args, **kwargs):
         pass
+
+    def auto_rollback(self, *args, **kwargs):
+        return True
 
 
 sys.modules.setdefault(
@@ -86,6 +113,20 @@ def test_rollback_history_endpoint():
     resp = client.get("/rollback_history")
     assert resp.status_code == 200
     assert isinstance(resp.get_json(), list)
+
+
+def test_rollback_logs_endpoint():
+    client = app.test_client()
+    resp = client.get("/rollback_logs")
+    assert resp.status_code == 200
+    assert isinstance(resp.get_json(), list)
+
+
+def test_perform_rollback_endpoint():
+    client = app.test_client()
+    resp = client.post("/rollback", json={"target": "a.txt"})
+    assert resp.status_code == 200
+    assert resp.get_json()["status"] == "ok"
 
 
 def test_dashboard_info_endpoint():

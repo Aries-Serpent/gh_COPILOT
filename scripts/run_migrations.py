@@ -13,18 +13,7 @@ import os
 import sqlite3
 from pathlib import Path
 
-try:  # pragma: no cover - optional dependency
-    from tqdm import tqdm
-except ModuleNotFoundError:  # pragma: no cover
-    from contextlib import contextmanager
-
-    @contextmanager
-    def tqdm(*args, **kwargs):  # type: ignore[override]
-        class _Bar:
-            def update(self, *_, **__):  # pragma: no cover - no-op fallback
-                return None
-
-        yield _Bar()
+from utils.progress import tqdm
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -57,11 +46,16 @@ def apply_migrations(db_path: Path, migrations_dir: Path, log_path: Path | None 
             "CREATE TABLE IF NOT EXISTS schema_migrations (filename TEXT PRIMARY KEY)"
         )
     except sqlite3.DatabaseError:
-        logger.warning("Skipping migrations: %s is not a valid database", db_path)
-        for handler in handlers:
-            logger.removeHandler(handler)
-            handler.close()
-        return
+        logger.warning("recreating invalid database %s", db_path)
+        corrupt = db_path.with_suffix(db_path.suffix + ".corrupt")
+        try:
+            db_path.replace(corrupt)
+        except OSError:
+            db_path.unlink(missing_ok=True)
+        conn = sqlite3.connect(db_path)
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS schema_migrations (filename TEXT PRIMARY KEY)"
+        )
     with conn, tqdm(total=len(sql_files), desc="migrations", unit="file") as bar:
         for sql_file in sql_files:
             name = sql_file.name

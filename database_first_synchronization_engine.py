@@ -24,6 +24,7 @@ import threading
 import time
 from pathlib import Path
 from typing import Any, Callable, Dict, List
+from abc import ABC, abstractmethod
 from utils.analytics_logger import log_analytics_event as record_analytics_event
 
 
@@ -71,11 +72,14 @@ class SchemaMapper:
                 target.execute(sql)
 
 
-class ConflictPolicy:
+class ConflictPolicy(ABC):
     """Base class for conflict resolution policies."""
 
-    def resolve(self, table: str, row_a: Dict[str, Any], row_b: Dict[str, Any]) -> Dict[str, Any]:  # pragma: no cover - interface
-        raise NotImplementedError
+    @abstractmethod
+    def resolve(
+        self, table: str, row_a: Dict[str, Any], row_b: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Return the resolved row for a conflict."""
 
 
 class ResolverPolicy(ConflictPolicy):

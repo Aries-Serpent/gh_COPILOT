@@ -24,7 +24,7 @@ import os
 import sqlite3
 import time
 
-from scripts.code_placeholder_audit import get_latest_placeholder_snapshot
+from scripts.placeholder_snapshot import get_latest_placeholder_snapshot
 
 __all__ = [
     "update_compliance_metrics",

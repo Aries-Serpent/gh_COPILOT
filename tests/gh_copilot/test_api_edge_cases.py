@@ -1,6 +1,6 @@
 import pytest
 
-pytest.importorskip("fastapi", minversion="0")
+pytest.importorskip("fastapi", reason="FastAPI not installed")
 
 from src.gh_copilot.api import api_regenerate, get_compliance
 

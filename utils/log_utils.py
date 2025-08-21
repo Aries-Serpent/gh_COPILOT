@@ -10,6 +10,7 @@
 import json
 import logging
 import os
+import re
 import sqlite3
 import sys
 import threading
@@ -18,17 +19,19 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, Optional
 
-# ``tqdm`` is optional; provide a no-op fallback if unavailable.
-try:  # pragma: no cover - import guard for optional dependency
-    from tqdm import tqdm
-except ModuleNotFoundError:  # pragma: no cover
-    def tqdm(iterable=None, **kwargs):  # type: ignore[override]
-        return iterable if iterable is not None else []
+from utils.progress import tqdm
 
 # Default analytics DB path (test-only, never created here)
 DEFAULT_ANALYTICS_DB = Path(os.environ.get("ANALYTICS_DB", "databases/analytics.db"))
 DEFAULT_LOG_TABLE = "event_log"
 _log_lock = threading.Lock()
+
+EMAIL_RE = re.compile(r"[A-Za-z0-9_.+-]+@[A-Za-z0-9-]+\.[A-Za-z0-9-.]+")
+
+
+def _mask_pii(text: str) -> str:
+    """Mask known PII patterns such as email addresses."""
+    return EMAIL_RE.sub("[REDACTED_EMAIL]", text)
 
 # Standard table schemas for analytics.db. These are used when real writes are
 # explicitly requested. The tables mirror the SQL migrations under
@@ -379,7 +382,8 @@ def insert_event(
                     tuple(filtered.values()),
                 )
                 conn.commit()
-                return int(cur.lastrowid)
+                last_id = cur.lastrowid
+                return int(last_id) if last_id is not None else -1
         except sqlite3.OperationalError as exc:
             if "locked" in str(exc).lower():
                 time.sleep(0.1)
@@ -546,7 +550,8 @@ def _log_plain(
     Simulate logging a plain text message (optionally to file), always with timestamp.
     """
     timestamp = datetime.utcnow().isoformat()
-    line = f"{timestamp} [{logging.getLevelName(level)}] {msg} [SIMULATED]"
+    sanitized = _mask_pii(msg)
+    line = f"{timestamp} [{logging.getLevelName(level)}] {sanitized} [SIMULATED]"
     if log_file:
         tqdm.write(f"[TEST] Would write to log file: {log_file}")
     if echo:
@@ -596,7 +601,7 @@ def stream_events(
     table: str = DEFAULT_LOG_TABLE,
     *,
     db_path: Path = DEFAULT_ANALYTICS_DB,
-):
+) -> Iterable[str]:
     """Yield events formatted for Server-Sent Events."""
     if not db_path.exists():
         return

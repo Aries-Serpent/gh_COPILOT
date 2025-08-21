@@ -1,0 +1,15 @@
+{
+  "BUSY_TIMEOUT_MS": 5000,
+  "items": [
+    {"key": "ingestor_created", "ok": true, "w": 1},
+    {"key": "db_timeouts_applied", "ok": true, "w": 1},
+    {"key": "smoke_marker_present", "ok": true, "w": 1},
+    {"key": "utcnow_replaced", "ok": true, "w": 1},
+    {"key": "pytest_ingestor_concurrency", "ok": true, "w": 1},
+    {"key": "pytest_smoke", "ok": false, "w": 1},
+    {"key": "pytest_policy", "ok": false, "w": 1},
+    {"key": "logs_changelog", "ok": true, "w": 1}
+  ],
+  "CoveragePerformance": 75.0,
+  "equation": "CP = (\u03a3 w_i * ok_i) / (\u03a3 w_i) * 100%"
+}

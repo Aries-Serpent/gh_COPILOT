@@ -14,9 +14,9 @@ from tqdm import tqdm
 
 from utils.validation_utils import anti_recursion_guard, validate_enterprise_environment
 
-from .cross_database_sync_logger import log_sync_operation
-from .database_sync_scheduler import synchronize_databases
-from .size_compliance_checker import check_database_sizes
+from scripts.database.cross_database_sync_logger import log_sync_operation
+from scripts.database.database_sync_scheduler import synchronize_databases
+from scripts.database.size_compliance_checker import check_database_sizes
 from gh_copilot.auditor.consistency import run_audit
 
 logger = logging.getLogger(__name__)

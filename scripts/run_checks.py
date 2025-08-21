@@ -2,16 +2,20 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
-import importlib.util
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from utils.validation_utils import anti_recursion_guard
+from scripts.run_tests_safe import (
+    _write_coverage_absence_log,
+    check_pytest_cov_available,
+)
 
 
 def ensure_codex_log_tracked() -> None:
@@ -39,7 +43,7 @@ def main() -> int:
     ensure_codex_log_tracked()
 
     pytest_cmd = ["pytest", "-q"]
-    if importlib.util.find_spec("pytest_cov") is not None:
+    if check_pytest_cov_available():
         pytest_cmd[1:1] = [
             "--cov=scripts.run_migrations",
             "--cov=utils.cross_platform_paths",
@@ -48,6 +52,12 @@ def main() -> int:
             "--cov-report=term",
             "--cov-fail-under=95",
         ]
+    else:
+        # Remove any coverage options from environment when plugin is missing
+        addopts = os.environ.get("PYTEST_ADDOPTS", "").split()
+        addopts = [opt for opt in addopts if not opt.startswith("--cov")]
+        os.environ["PYTEST_ADDOPTS"] = " ".join(addopts)
+        _write_coverage_absence_log()
 
     commands = [
         [

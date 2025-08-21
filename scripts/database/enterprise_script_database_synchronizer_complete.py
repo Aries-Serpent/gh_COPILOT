@@ -19,8 +19,8 @@ from typing import Dict
 
 from script_database_validator import TEXT_INDICATORS, ScriptDatabaseValidator
 
-from .cross_database_sync_logger import log_sync_operation
-from .unified_database_initializer import initialize_database
+from scripts.database.cross_database_sync_logger import log_sync_operation
+from scripts.database.unified_database_initializer import initialize_database
 
 
 class EnterpriseScriptDatabaseSynchronizer:

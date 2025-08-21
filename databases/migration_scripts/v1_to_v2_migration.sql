@@ -5,6 +5,7 @@
 ALTER TABLE web_users ADD COLUMN last_login TEXT;
 
 ALTER TABLE web_pages ADD COLUMN is_active INTEGER DEFAULT 1;
+ALTER TABLE enterprise_metrics ADD COLUMN metric_unit TEXT;
 
 -- Ensure existing pages are marked active
 UPDATE web_pages SET is_active = 1 WHERE is_active IS NULL;

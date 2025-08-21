@@ -13,7 +13,10 @@ import time
 from pathlib import Path
 from typing import Callable, Dict, Iterable, MutableMapping, Optional
 
-import psutil
+try:  # pragma: no cover - psutil optional
+    import psutil  # type: ignore
+except ImportError:  # pragma: no cover - fallback
+    psutil = None  # type: ignore[assignment]
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 
 from secondary_copilot_validator import SecondaryCopilotValidator
@@ -125,7 +128,11 @@ def get_service_uptime(
 ) -> float:
     """Return system uptime in seconds."""
     validator = validator or SecondaryCopilotValidator()
-    uptime = time.time() - psutil.boot_time()
+    if psutil is None:
+        logger.warning("psutil not installed; uptime unavailable")
+        uptime = 0.0
+    else:
+        uptime = time.time() - psutil.boot_time()
     logger.info("Service uptime: %s", uptime)
     validator.validate_corrections([str(uptime)])
     return uptime

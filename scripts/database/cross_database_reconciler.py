@@ -26,7 +26,7 @@ from enterprise_modules.compliance import validate_enterprise_operation
 from utils.logging_utils import log_enterprise_operation, setup_enterprise_logging
 from utils.analytics_logger import log_analytics_event
 
-from .cross_database_sync_logger import log_sync_operation
+from scripts.database.cross_database_sync_logger import log_sync_operation
 
 
 logger = logging.getLogger(__name__)

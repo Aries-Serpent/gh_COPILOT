@@ -53,6 +53,7 @@ try:  # pragma: no cover - dashboard features are optional in tests
         _load_metrics as _real_load_metrics,
         get_rollback_logs as _real_get_rollback_logs,
         _load_sync_events as _real_load_sync_events,
+        _load_thresholds as _real_load_thresholds,
         _compliance_payload as _real_compliance_payload,
         METRICS_FILE as _METRICS_FILE,
         _load_compliance_payload as _real_load_compliance_payload,
@@ -60,6 +61,7 @@ try:  # pragma: no cover - dashboard features are optional in tests
     _load_metrics = cast(Any, _real_load_metrics)
     get_rollback_logs = cast(Any, _real_get_rollback_logs)
     _load_sync_events = cast(Any, _real_load_sync_events)
+    _load_thresholds = cast(Any, _real_load_thresholds)
     _compliance_payload = cast(Any, _real_compliance_payload)
     _load_compliance_payload = cast(Any, _real_load_compliance_payload)
 except Exception:  # pragma: no cover - provide fallbacks
@@ -129,6 +131,9 @@ except Exception:  # pragma: no cover - provide fallbacks
     def _compliance_payload(*args: Any, **kwargs: Any) -> Dict[str, Any]:  # type: ignore[override]
         return {}
 
+    def _load_thresholds(*args: Any, **kwargs: Any):  # type: ignore[override]
+        return {}
+
     _METRICS_FILE = Path("metrics.json")
 try:  # pragma: no cover - optional dependency
     from unified_monitoring_optimization_system import get_anomaly_summary
@@ -157,6 +162,7 @@ MONITORING_DB = Path("databases/monitoring.db")
 METRICS_FILE = _METRICS_FILE
 CORRECTIONS_WS_PORT = 8767
 COMPLIANCE_LIMIT = 20
+HISTORICAL_METRICS_FILE = Path("analytics/historical_metrics.json")
 
 
 def _get_compliance_scores(limit: int = COMPLIANCE_LIMIT) -> List[Dict[str, float]]:
@@ -281,47 +287,30 @@ def load_code_quality_history(
     return history
 
 
-@app.route("/dashboard/compliance", endpoint="enterprise_dashboard_compliance")
-def dashboard_compliance() -> str:
-    """Render compliance information directly from ``analytics.db``."""
-    placeholders = 0
-    last_resolved = ""
-    todo_entries: List[Dict[str, Any]] = []
-    audit_logs: List[Dict[str, Any]] = []
-    if ANALYTICS_DB.exists():
-        with sqlite3.connect(ANALYTICS_DB) as conn:
-            cur = conn.execute(
-                "SELECT file_path, line_number, placeholder_type FROM todo_fixme_tracking WHERE status='open'"
-            )
-            todo_entries = [
-                {
-                    "file_path": r[0],
-                    "line_number": int(r[1]),
-                    "placeholder_type": r[2],
-                }
-                for r in cur.fetchall()
-            ]
-            placeholders = len(todo_entries)
-            cur = conn.execute(
-                "SELECT resolved_timestamp FROM todo_fixme_tracking "
-                "WHERE resolved_timestamp IS NOT NULL ORDER BY resolved_timestamp DESC LIMIT 1"
-            )
-            row = cur.fetchone()
-            if row and row[0]:
-                last_resolved = str(row[0])
-            cur = conn.execute(
-                "SELECT summary, ts FROM code_audit_log ORDER BY ts DESC LIMIT 20"
-            )
-            audit_logs = [
-                {"summary": r[0], "ts": r[1]} for r in cur.fetchall()
-            ]
-    return render_template(
-        "compliance.html",
-        placeholders=placeholders,
-        last_resolved=last_resolved,
-        todo_entries=todo_entries,
-        audit_logs=audit_logs,
-    )
+def load_metrics_trend(path: Path | None = None) -> Dict[str, list]:
+    """Return historical metric values and timestamps for sparkline charts."""
+    if path is None:
+        path = HISTORICAL_METRICS_FILE
+    trend: Dict[str, list] = {"metrics": [], "timestamps": []}
+    if path.exists():
+        try:
+            raw = json.loads(path.read_text())
+        except Exception:
+            raw = {}
+        metrics = raw.get("metrics", [])
+        timestamps = raw.get("timestamps")
+        trend["metrics"] = [float(m) for m in metrics]
+        if isinstance(timestamps, list) and timestamps:
+            trend["timestamps"] = list(timestamps)
+        else:
+            trend["timestamps"] = list(range(len(metrics)))
+    return trend
+
+
+@app.route("/dashboard/compliance")
+def dashboard_compliance() -> Any:
+    """Return placeholder compliance metrics as JSON for dashboard polling."""
+    return jsonify(_compliance_payload())
 
 
 @app.route("/dashboard/compliance/view")
@@ -717,7 +706,26 @@ def code_quality_history() -> Any:
     return jsonify(load_code_quality_history())
 
 
+@app.route("/api/thresholds")
+def api_thresholds() -> Any:
+    """Expose configured metric alert thresholds."""
+    return jsonify(_load_thresholds())
+
+
+@app.route("/api/metrics/trend")
+def metrics_trend() -> Any:
+    """Expose historical metric trend values."""
+    return jsonify(load_metrics_trend())
+
+
+@app.route("/metrics/trend")
+def metrics_trend_plain() -> Any:
+    """Expose historical metric trend values without the ``/api`` prefix."""
+    return jsonify(load_metrics_trend())
+
+
 app.view_functions["dashboard.index"] = index
+app.view_functions["dashboard.metrics_trend"] = metrics_trend
 __all__ = [
     "app",
     "dashboard_bp",

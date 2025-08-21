@@ -1,4 +1,4 @@
-"""Utility modules for scripts package."""
+"""Utilities package for scripts."""
 
 __all__: list[str] = []
 

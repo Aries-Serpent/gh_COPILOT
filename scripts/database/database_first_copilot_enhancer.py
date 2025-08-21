@@ -7,6 +7,7 @@ import logging
 import os
 import sqlite3
 from datetime import datetime
+import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
@@ -174,6 +175,31 @@ class DatabaseFirstCopilotEnhancer:
             )
             conn.commit()
 
+    def _store_generated_solution(self, objective: str, template_name: str, code: str) -> None:
+        """Persist generated code into ``generated_solutions`` with metadata."""
+        session_id = os.getenv("SESSION_ID_SOURCE", str(uuid.uuid4()))
+        created_at = datetime.utcnow().isoformat()
+        validate_enterprise_operation(str(self.production_db))
+        with sqlite3.connect(self.production_db) as conn:
+            validate_enterprise_operation(str(self.production_db))
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS generated_solutions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    objective TEXT,
+                    template_name TEXT,
+                    code TEXT,
+                    session_id TEXT,
+                    created_at TEXT
+                )
+                """
+            )
+            conn.execute(
+                "INSERT INTO generated_solutions (objective, template_name, code, session_id, created_at) VALUES (?,?,?,?,?)",
+                (objective, template_name, code, session_id, created_at),
+            )
+            conn.commit()
+
     def query_before_filesystem(self, objective: str) -> Dict[str, Any]:
         """Query database before using filesystem templates."""
         scored = self._query_database_solutions(objective)
@@ -190,38 +216,21 @@ class DatabaseFirstCopilotEnhancer:
     def generate_integration_ready_code(self, objective: str) -> str:
         """Generate code using progress indicators."""
         template_name = self._map_objective_to_template_name(objective)
-        with tqdm(total=3, desc="generate", unit="step") as bar:
+        start_time = datetime.utcnow()
+        with tqdm(total=4, desc="generate", unit="step") as bar:
             bar.update(1)
-            self._log_progress(objective, 1, 3)
+            self._log_progress(objective, 1, 4)
             self.query_before_filesystem(objective)
             bar.update(1)
-            self._log_progress(objective, 2, 3)
+            self._log_progress(objective, 2, 4)
             template = self.template_engine(template_name)
             code = self._adapt_to_current_environment(template)
             bar.update(1)
-            self._log_progress(objective, 3, 3)
-        duration = float(bar.format_dict.get("elapsed", 0))
+            self._log_progress(objective, 3, 4)
+            self._store_generated_solution(objective, template_name, code)
+            bar.update(1)
+            self._log_progress(objective, 4, 4)
+        duration = (datetime.utcnow() - start_time).total_seconds()
         self.logger.info("Generated code for %s in %.2fs", objective, duration)
-        validate_enterprise_operation(str(self.production_db))
-        with sqlite3.connect(self.production_db) as conn:
-            validate_enterprise_operation(str(self.production_db))
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS generated_solutions (objective TEXT, template_name TEXT, code TEXT)"
-            )
-            conn.execute(
-                "INSERT INTO generated_solutions (objective, template_name, code) VALUES (?,?,?)",
-                (objective, template_name, code),
-            )
-            conn.commit()
-        validate_enterprise_operation(str(self.analytics_db))
-        with sqlite3.connect(self.analytics_db) as conn:
-            validate_enterprise_operation(str(self.analytics_db))
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS generation_log (objective TEXT, duration REAL, ts TEXT)"
-            )
-            conn.execute(
-                "INSERT INTO generation_log (objective, duration, ts) VALUES (?,?,?)",
-                (objective, duration, datetime.utcnow().isoformat()),
-            )
-            conn.commit()
+        self._log_duration(objective, duration)
         return code

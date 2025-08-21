@@ -1,9 +1,10 @@
 """Minimal PyQt6 stub for tests.
 
-This module provides lightweight stand-ins for the subset of PyQt6
-functionality used in the test suite. It supports signal connection,
-basic ``QObject`` semantics, and a rudimentary ``QCoreApplication``
-singleton. Widget classes are simple placeholders to satisfy imports.
+This package provides lightweight stand-ins for the subset of PyQt6
+functionality exercised in the test suite.  It offers a tiny signal
+implementation, a basic ``QObject`` base class, and a rudimentary
+``QCoreApplication`` singleton.  Widget classes are simple placeholders
+to satisfy imports.
 """
 
 from __future__ import annotations

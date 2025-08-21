@@ -1,5 +1,6 @@
 import asyncio
 from builtins import anext
+from datetime import datetime, timezone
 from pathlib import Path
 import os
 import sqlite3
@@ -7,7 +8,8 @@ import tempfile
 
 import pytest
 
-pytest.importorskip("fastapi", minversion="0")
+pytest.importorskip("fastapi", reason="FastAPI not installed")
+pytest.importorskip("starlette", reason="Starlette not installed")
 
 tmp_db = tempfile.NamedTemporaryFile(delete=False)
 with sqlite3.connect(tmp_db.name) as _conn:
@@ -31,8 +33,16 @@ def _setup_db(tmp_path: Path, with_snapshot: bool = False) -> ComplianceDAO:
         )
         c.execute("CREATE TABLE placeholder_tasks (status TEXT)")
         if with_snapshot:
-            inputs = ScoreInputs(run_id="1", lint=1, tests=1, placeholders=1, sessions=1, model_id="m1")
-            snap = ScoreSnapshot(branch="main", score=0.9, model_id="m1", inputs=inputs)
+            inputs = ScoreInputs(
+                run_id="1", lint=1, tests=1, placeholders=1, sessions=1, model_id="m1"
+            )
+            snap = ScoreSnapshot(
+                branch="main",
+                score=0.9,
+                model_id="m1",
+                inputs=inputs,
+                ts=datetime.now(timezone.utc),
+            )
             c.execute(
                 "INSERT INTO score_snapshots VALUES (?, ?, ?, ?, ?)",
                 (
@@ -56,8 +66,8 @@ def test_get_compliance_summary_no_snapshot(tmp_path: Path, monkeypatch) -> None
     monkeypatch.setattr(api, "_dao", dao)
     resp = api.get_compliance_summary()
     data = resp.body.decode()
-    assert "\"score\": null" in data
-    assert "\"placeholders_open\": 0" in data
+    assert '"score": null' in data
+    assert '"placeholders_open": 0' in data
 
 
 def test_get_compliance_summary_with_snapshot(tmp_path: Path, monkeypatch) -> None:
@@ -68,7 +78,7 @@ def test_get_compliance_summary_with_snapshot(tmp_path: Path, monkeypatch) -> No
     monkeypatch.setattr(api, "_dao", dao)
     resp = api.get_compliance_summary(min_score=0.5)
     data = resp.body.decode()
-    assert "\"score\": 0.9" in data
+    assert '"score": 0.9' in data
     assert "0.5" in data
 
 

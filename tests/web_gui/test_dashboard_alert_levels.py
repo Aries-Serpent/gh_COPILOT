@@ -16,3 +16,4 @@ def test_alert_levels_from_thresholds(tmp_path, monkeypatch):
     client = gui.app.test_client()
     data = client.get("/metrics").get_json()["metrics"]
     assert data["alerts"]["lint_score"] == "critical"
+    assert data["thresholds"]["lint_score"] == thresholds["lint_score"]

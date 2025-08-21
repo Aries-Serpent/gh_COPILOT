@@ -20,11 +20,11 @@ from datetime import datetime, timezone
 
 from tqdm import tqdm
 
-from .cross_database_sync_logger import log_sync_operation
-from .database_consolidation_migration import consolidate_databases
-from .size_compliance_checker import check_database_sizes
-from .unified_database_initializer import initialize_database
-from .complete_consolidation_orchestrator import create_external_backup
+from scripts.database.cross_database_sync_logger import log_sync_operation
+from scripts.database.database_consolidation_migration import consolidate_databases
+from scripts.database.size_compliance_checker import check_database_sizes
+from scripts.database.unified_database_initializer import initialize_database
+from scripts.database.complete_consolidation_orchestrator import create_external_backup
 from utils.logging_utils import setup_enterprise_logging
 from scripts.validation.semantic_search_reference_validator import (
     chunk_anti_recursion_validation,

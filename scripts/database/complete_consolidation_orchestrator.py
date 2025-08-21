@@ -22,9 +22,9 @@ from tqdm import tqdm
 from enterprise_modules import compliance
 from utils.validation_utils import run_dual_copilot_validation
 
-from .database_migration_corrector import DatabaseMigrationCorrector
-from .size_compliance_checker import check_database_sizes
-from .unified_database_initializer import initialize_database
+from scripts.database.database_migration_corrector import DatabaseMigrationCorrector
+from scripts.database.size_compliance_checker import check_database_sizes
+from scripts.database.unified_database_initializer import initialize_database
 
 py7zr = cast(Any, py7zr)
 

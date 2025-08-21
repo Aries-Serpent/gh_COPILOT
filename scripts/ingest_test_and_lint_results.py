@@ -12,7 +12,7 @@ from scripts.compliance.update_compliance_metrics import (
     _ensure_metrics_table,
     _ensure_table,
 )
-from scripts.code_placeholder_audit import get_latest_placeholder_snapshot
+from scripts.placeholder_snapshot import get_latest_placeholder_snapshot
 
 RUFF_JSON = Path("ruff_report.json")
 PYTEST_JSON = Path(".report.json")  # default name from pytest --json-report
@@ -126,10 +126,25 @@ def ingest(
             INSERT INTO compliance_scores (
                 timestamp, L, T, P, composite,
                 ruff_issues, tests_passed, tests_total,
-                placeholders_open, placeholders_resolved
-            ) VALUES (?,?,?,?,?,?,?,?,?,?)
+                placeholders_open, placeholders_resolved,
+                session_score, sessions_successful, sessions_failed
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
             """,
-            (ts, L, T, P, composite, issues, passed, total, open_ph, resolved_ph),
+            (
+                ts,
+                L,
+                T,
+                P,
+                composite,
+                issues,
+                passed,
+                total,
+                open_ph,
+                resolved_ph,
+                0.0,
+                0,
+                0,
+            ),
         )
         conn.commit()
 

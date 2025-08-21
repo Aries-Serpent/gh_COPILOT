@@ -12,11 +12,8 @@ jobs:
       GH_COPILOT_WORKSPACE: ${{ github.workspace }}
       GH_COPILOT_BACKUP_ROOT: /tmp/gh_copilot_backup
     steps:
-      - uses: actions/checkout@v4
-        with:
-          lfs: true
-          fetch-depth: 0
-      - run: git lfs checkout
+      - name: Cached LFS checkout
+        uses: nschloe/action-cached-lfs-checkout@v1.2.3
       - uses: actions/setup-python@v4
         with:
           python-version: '3.x'

@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from typing import Any, Callable
 
-__all__: list[str] = []
+from .anomaly import StatisticalAnomalyDetector
+
+__all__: list[str] = ["StatisticalAnomalyDetector"]
 
 try:  # Optional dependency on requests
     from .service_health import check_service, run_health_checks, SERVICES

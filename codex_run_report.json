@@ -1,0 +1,48 @@
+{
+  "steps": [
+    {
+      "name": "7:yaml_importorskip",
+      "ok": true,
+      "detail": "no-change"
+    },
+    {
+      "name": "8:datetime_utcnow_replacements",
+      "ok": true,
+      "detail": "files_updated=2"
+    },
+    {
+      "name": "9:packaging_config",
+      "ok": true,
+      "detail": "validated"
+    },
+    {
+      "name": "10:pip_editable_install",
+      "ok": true,
+      "detail": "installed"
+    },
+    {
+      "name": "11:pytest_validation",
+      "ok": false,
+      "detail": "exit=1"
+    }
+  ],
+  "coverage_items": {
+    "yaml_importorskip": true,
+    "packaging_configured": true,
+    "datetime_utcnow_fixed": true
+  },
+  "errors": [
+    {
+      "step": "11:Unit test validation",
+      "error": "pytest exit 1",
+      "context": "see .codex/pytest_after.txt"
+    }
+  ],
+  "gaps": [],
+  "notes": [],
+  "coverage": {
+    "completed": 3,
+    "total": 3,
+    "score": 1.0
+  }
+}
