@@ -19,12 +19,13 @@ import json
 from pathlib import Path
 import re
 from typing import Iterable
-import logging
 
 try:  # pragma: no cover - optional dependency
     import yaml
-except ImportError:  # pragma: no cover - fallback for missing dependency
-    yaml = None  # type: ignore[assignment]
+except ImportError as exc:  # pragma: no cover - provide clear guidance
+    raise ImportError(
+        "PyYAML is required for docs status reconciliation. Install PyYAML to proceed."
+    ) from exc
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -40,10 +41,6 @@ def _slug(text: str) -> str:
 
 def _collect_entries(path: Path = PHASE5_TASKS) -> list[dict[str, str]]:
     """Return task entries parsed from ``path``."""
-    if yaml is None:
-        logging.warning("PyYAML is not installed; skipping parsing for %s", path)
-        return []
-
     text = path.read_text(encoding="utf-8")
     pattern = re.compile(r"^###\s+(?P<title>.+?)\n---\n(?P<yaml>.+?)\n---", re.MULTILINE | re.DOTALL)
     entries: list[dict[str, str]] = []
