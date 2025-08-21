@@ -12,8 +12,8 @@ except ImportError:  # pragma: no cover - fallback
 
 class PerformanceOptimizer:
     """Performance optimization utilities for quantum algorithms"""
-    
-    def __init__(self):
+
+    def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
         self.performance_data = {}
     
