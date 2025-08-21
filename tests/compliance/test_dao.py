@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import datetime, timezone
 import json
 import sys
 import types
@@ -25,8 +26,16 @@ if "pydantic" not in sys.modules:
         def model_dump_json(self):
             return json.dumps(self.model_dump())
 
+        @classmethod
+        def model_validate_json(cls, data: str):
+            return cls(**json.loads(data))
+
     def Field(default_factory=None, default=None):
-        return default if default is not None else default_factory()
+        if default is not None:
+            return default
+        if getattr(default_factory, "__name__", "") == "utcnow":
+            return datetime.now(timezone.utc)
+        return default_factory()
 
     pydantic_module = types.ModuleType("pydantic")
     pydantic_module.BaseModel = BaseModel
@@ -65,7 +74,13 @@ def test_compliance_summary_with_snapshot(populated_db: Path) -> None:
         sessions=1.0,
         model_id="m1",
     )
-    snap = ScoreSnapshot(branch="main", score=0.85, model_id="m1", inputs=inputs)
+    snap = ScoreSnapshot(
+        branch="main",
+        score=0.85,
+        model_id="m1",
+        inputs=inputs,
+        ts=datetime.now(timezone.utc),
+    )
     with dao._conn() as c, c:
         c.execute(
             "INSERT INTO score_snapshots VALUES (?, ?, ?, ?, ?)",
