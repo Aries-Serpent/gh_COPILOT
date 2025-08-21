@@ -1,9 +1,6 @@
 import pytest
 
-try:
-    import fastapi  # noqa: F401
-except ImportError:  # pragma: no cover
-    pytest.skip("fastapi not installed", allow_module_level=True)
+pytest.importorskip("fastapi", reason="FastAPI not installed")
 
 from src.gh_copilot.api import api_regenerate, get_compliance
 

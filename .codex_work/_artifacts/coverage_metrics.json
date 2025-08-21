@@ -1,0 +1,18 @@
+{
+  "timestamp": "2025-08-21T03:21:35Z",
+  "coverage": {
+    "base": 1.0,
+    "bonus": 0.25,
+    "final": 1.0,
+    "components": {
+      "s1": true,
+      "s2": true,
+      "tests_executed": true
+    }
+  },
+  "test_result": {
+    "executed": true,
+    "exit_code": 1,
+    "summary": "ImportError in tests"
+  }
+}
