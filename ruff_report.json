@@ -1,108 +1,491 @@
 [
   {
     "cell": null,
-    "code": null,
+    "code": "F401",
     "end_location": {
-      "column": 4,
-      "row": 2332
+      "column": 19,
+      "row": 29
     },
-    "filename": "/workspace/gh_COPILOT/assemble_db_first_bundle.py",
-    "fix": null,
-    "location": {
-      "column": 1,
-      "row": 2332
-    },
-    "message": "SyntaxError: Expected an indented block after `with` statement",
-    "noqa_row": null,
-    "url": null
-  },
-  {
-    "cell": null,
-    "code": null,
-    "end_location": {
-      "column": 3,
-      "row": 2333
-    },
-    "filename": "/workspace/gh_COPILOT/assemble_db_first_bundle.py",
-    "fix": null,
-    "location": {
-      "column": 1,
-      "row": 2333
-    },
-    "message": "SyntaxError: Expected an indented block after `for` statement",
-    "noqa_row": null,
-    "url": null
-  },
-  {
-    "cell": null,
-    "code": null,
-    "end_location": {
-      "column": 2,
-      "row": 2334
-    },
-    "filename": "/workspace/gh_COPILOT/assemble_db_first_bundle.py",
-    "fix": null,
-    "location": {
-      "column": 1,
-      "row": 2334
-    },
-    "message": "SyntaxError: Expected an indented block after `if` statement",
-    "noqa_row": null,
-    "url": null
-  },
-  {
-    "cell": null,
-    "code": "E401",
-    "end_location": {
-      "column": 21,
-      "row": 2
-    },
-    "filename": "/workspace/gh_COPILOT/src/gh_copilot/generation/generate_from_templates.py",
+    "filename": "/workspace/gh_COPILOT/codex_sync_workflow.py",
     "fix": {
       "applicability": "safe",
       "edits": [
         {
-          "content": "import json\nimport sqlite3",
+          "content": "",
           "end_location": {
-            "column": 21,
-            "row": 2
+            "column": 1,
+            "row": 35
           },
           "location": {
             "column": 1,
-            "row": 2
+            "row": 28
           }
         }
       ],
-      "message": "Split imports"
+      "message": "Remove unused import"
     },
     "location": {
-      "column": 1,
-      "row": 2
+      "column": 5,
+      "row": 29
     },
-    "message": "Multiple imports on one line",
-    "noqa_row": 2,
-    "url": "https://docs.astral.sh/ruff/rules/multiple-imports-on-one-line"
+    "message": "`database_first_synchronization_engine.compare_schema` imported but unused",
+    "noqa_row": 29,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 26,
+      "row": 30
+    },
+    "filename": "/workspace/gh_COPILOT/codex_sync_workflow.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 35
+          },
+          "location": {
+            "column": 1,
+            "row": 28
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 30
+    },
+    "message": "`database_first_synchronization_engine.compute_row_signature` imported but unused",
+    "noqa_row": 30,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 14,
+      "row": 31
+    },
+    "filename": "/workspace/gh_COPILOT/codex_sync_workflow.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 35
+          },
+          "location": {
+            "column": 1,
+            "row": 28
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 31
+    },
+    "message": "`database_first_synchronization_engine.diff_rows` imported but unused",
+    "noqa_row": 31,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 22,
+      "row": 32
+    },
+    "filename": "/workspace/gh_COPILOT/codex_sync_workflow.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 35
+          },
+          "location": {
+            "column": 1,
+            "row": 28
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 32
+    },
+    "message": "`database_first_synchronization_engine.attempt_reconcile` imported but unused",
+    "noqa_row": 32,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 21,
+      "row": 33
+    },
+    "filename": "/workspace/gh_COPILOT/codex_sync_workflow.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 35
+          },
+          "location": {
+            "column": 1,
+            "row": 28
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 33
+    },
+    "message": "`database_first_synchronization_engine.perform_recovery` imported but unused",
+    "noqa_row": 33,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 10,
+      "row": 20
+    },
+    "filename": "/workspace/gh_COPILOT/codex_workdir/codex_workflow.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 21
+          },
+          "location": {
+            "column": 1,
+            "row": 20
+          }
+        }
+      ],
+      "message": "Remove unused import: `io`"
+    },
+    "location": {
+      "column": 8,
+      "row": 20
+    },
+    "message": "`io` imported but unused",
+    "noqa_row": 20,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 10,
+      "row": 22
+    },
+    "filename": "/workspace/gh_COPILOT/codex_workdir/codex_workflow.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 23
+          },
+          "location": {
+            "column": 1,
+            "row": 22
+          }
+        }
+      ],
+      "message": "Remove unused import: `os`"
+    },
+    "location": {
+      "column": 8,
+      "row": 22
+    },
+    "message": "`os` imported but unused",
+    "noqa_row": 22,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 14,
+      "row": 24
+    },
+    "filename": "/workspace/gh_COPILOT/codex_workdir/codex_workflow.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 25
+          },
+          "location": {
+            "column": 1,
+            "row": 24
+          }
+        }
+      ],
+      "message": "Remove unused import: `shutil`"
+    },
+    "location": {
+      "column": 8,
+      "row": 24
+    },
+    "message": "`shutil` imported but unused",
+    "noqa_row": 24,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 42,
+      "row": 28
+    },
+    "filename": "/workspace/gh_COPILOT/codex_workdir/codex_workflow.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from dataclasses import dataclass",
+          "end_location": {
+            "column": 42,
+            "row": 28
+          },
+          "location": {
+            "column": 1,
+            "row": 28
+          }
+        }
+      ],
+      "message": "Remove unused import: `dataclasses.asdict`"
+    },
+    "location": {
+      "column": 36,
+      "row": 28
+    },
+    "message": "`dataclasses.asdict` imported but unused",
+    "noqa_row": 28,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 18,
+      "row": 236
+    },
+    "filename": "/workspace/gh_COPILOT/codex_workflow.py",
+    "fix": null,
+    "location": {
+      "column": 12,
+      "row": 236
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 23,
+      "row": 236
+    },
+    "filename": "/workspace/gh_COPILOT/codex_workflow.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 236
+    },
+    "message": "Expected ',', found 'True'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 28,
+      "row": 236
+    },
+    "filename": "/workspace/gh_COPILOT/codex_workflow.py",
+    "fix": null,
+    "location": {
+      "column": 24,
+      "row": 236
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 32,
+      "row": 236
+    },
+    "filename": "/workspace/gh_COPILOT/codex_workflow.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 236
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 40,
+      "row": 236
+    },
+    "filename": "/workspace/gh_COPILOT/codex_workflow.py",
+    "fix": null,
+    "location": {
+      "column": 33,
+      "row": 236
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 44,
+      "row": 236
+    },
+    "filename": "/workspace/gh_COPILOT/codex_workflow.py",
+    "fix": null,
+    "location": {
+      "column": 41,
+      "row": 236
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 50,
+      "row": 236
+    },
+    "filename": "/workspace/gh_COPILOT/codex_workflow.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 236
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 61,
+      "row": 236
+    },
+    "filename": "/workspace/gh_COPILOT/codex_workflow.py",
+    "fix": null,
+    "location": {
+      "column": 51,
+      "row": 236
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 8,
+      "row": 242
+    },
+    "filename": "/workspace/gh_COPILOT/codex_workflow.py",
+    "fix": null,
+    "location": {
+      "column": 62,
+      "row": 236
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "F821",
+    "end_location": {
+      "column": 8,
+      "row": 211
+    },
+    "filename": "/workspace/gh_COPILOT/final_compliance_validation.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 211
+    },
+    "message": "Undefined name `sys`",
+    "noqa_row": 211,
+    "url": "https://docs.astral.sh/ruff/rules/undefined-name"
   },
   {
     "cell": null,
     "code": "F401",
     "end_location": {
       "column": 12,
-      "row": 2
+      "row": 6
     },
-    "filename": "/workspace/gh_COPILOT/src/gh_copilot/generation/generate_from_templates.py",
+    "filename": "/workspace/gh_COPILOT/generated_tests/test_metrics_integration.py",
     "fix": {
       "applicability": "safe",
       "edits": [
         {
-          "content": "import sqlite3",
+          "content": "",
           "end_location": {
-            "column": 21,
-            "row": 2
+            "column": 1,
+            "row": 7
           },
           "location": {
             "column": 1,
-            "row": 2
+            "row": 6
           }
         }
       ],
@@ -110,54 +493,3178 @@
     },
     "location": {
       "column": 8,
-      "row": 2
+      "row": 6
     },
     "message": "`json` imported but unused",
-    "noqa_row": 2,
+    "noqa_row": 6,
     "url": "https://docs.astral.sh/ruff/rules/unused-import"
   },
   {
     "cell": null,
-    "code": "E702",
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 22,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/api_gateway.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 30,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/api_gateway.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/api_gateway.py",
+    "fix": null,
+    "location": {
+      "column": 47,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/api_gateway.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/api_gateway.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/api_gateway.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/api_gateway.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/api_gateway.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 27,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/multi_region.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
     "end_location": {
       "column": 32,
-      "row": 16
+      "row": 3
     },
-    "filename": "/workspace/gh_COPILOT/src/gh_copilot/generation/generate_from_templates.py",
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/multi_region.py",
+    "fix": null,
+    "location": {
+      "column": 28,
+      "row": 3
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 53,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/multi_region.py",
+    "fix": null,
+    "location": {
+      "column": 46,
+      "row": 3
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 4
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/multi_region.py",
+    "fix": null,
+    "location": {
+      "column": 68,
+      "row": 3
+    },
+    "message": "Expected ',', found newline",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/multi_region.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/multi_region.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Expected ':', found 'with'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/multi_region.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/multi_region.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/multi_region.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 25,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/script_classify.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 40,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/script_classify.py",
+    "fix": null,
+    "location": {
+      "column": 26,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 42,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/script_classify.py",
+    "fix": null,
+    "location": {
+      "column": 41,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 56,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/script_classify.py",
+    "fix": null,
+    "location": {
+      "column": 52,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 71,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/script_classify.py",
+    "fix": null,
+    "location": {
+      "column": 62,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/script_classify.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/script_classify.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/script_classify.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/script_classify.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase10_enterprise_integration/script_classify.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 35,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/annealing_opt.py",
+    "fix": null,
+    "location": {
+      "column": 26,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 47,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/annealing_opt.py",
+    "fix": null,
+    "location": {
+      "column": 36,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/annealing_opt.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/annealing_opt.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/annealing_opt.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/annealing_opt.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/annealing_opt.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 25,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/phase_estimation.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 36,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/phase_estimation.py",
+    "fix": null,
+    "location": {
+      "column": 26,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 42,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/phase_estimation.py",
+    "fix": null,
+    "location": {
+      "column": 37,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 47,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/phase_estimation.py",
+    "fix": null,
+    "location": {
+      "column": 43,
+      "row": 3
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 67,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/phase_estimation.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 3
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 4
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/phase_estimation.py",
+    "fix": null,
+    "location": {
+      "column": 67,
+      "row": 3
+    },
+    "message": "Expected ',', found newline",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/phase_estimation.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/phase_estimation.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Expected ':', found 'with'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/phase_estimation.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/phase_estimation.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/phase_estimation.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 20,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/qml_algorithms.py",
+    "fix": null,
+    "location": {
+      "column": 18,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 31,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/qml_algorithms.py",
+    "fix": null,
+    "location": {
+      "column": 21,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 35,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/qml_algorithms.py",
+    "fix": null,
+    "location": {
+      "column": 32,
+      "row": 3
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 55,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/qml_algorithms.py",
+    "fix": null,
+    "location": {
+      "column": 44,
+      "row": 3
+    },
+    "message": "Expected 'in', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 4
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/qml_algorithms.py",
+    "fix": null,
+    "location": {
+      "column": 63,
+      "row": 3
+    },
+    "message": "Expected ':', found newline",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/qml_algorithms.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 5
+    },
+    "message": "Expected an indented block after `for` statement",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/qml_algorithms.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/qml_algorithms.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/qml_algorithms.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/qml_algorithms.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/qml_algorithms.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 30,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/quantum_crypto.py",
+    "fix": null,
+    "location": {
+      "column": 18,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 42,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/quantum_crypto.py",
     "fix": null,
     "location": {
       "column": 31,
-      "row": 16
+      "row": 3
     },
-    "message": "Multiple statements on one line (semicolon)",
-    "noqa_row": 16,
-    "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 65,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/quantum_crypto.py",
+    "fix": null,
+    "location": {
+      "column": 53,
+      "row": 3
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/quantum_crypto.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/quantum_crypto.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/quantum_crypto.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/quantum_crypto.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/quantum_crypto.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 29,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/vqe_demo.py",
+    "fix": null,
+    "location": {
+      "column": 22,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 41,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/vqe_demo.py",
+    "fix": null,
+    "location": {
+      "column": 30,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 54,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/vqe_demo.py",
+    "fix": null,
+    "location": {
+      "column": 42,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 68,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/vqe_demo.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 3
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/vqe_demo.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/vqe_demo.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/vqe_demo.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/vqe_demo.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase6_advanced_quantum/vqe_demo.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 25,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/advanced_nn.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 29,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/advanced_nn.py",
+    "fix": null,
+    "location": {
+      "column": 26,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 43,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/advanced_nn.py",
+    "fix": null,
+    "location": {
+      "column": 30,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 47,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/advanced_nn.py",
+    "fix": null,
+    "location": {
+      "column": 44,
+      "row": 3
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 64,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/advanced_nn.py",
+    "fix": null,
+    "location": {
+      "column": 56,
+      "row": 3
+    },
+    "message": "Expected 'in', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 4
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/advanced_nn.py",
+    "fix": null,
+    "location": {
+      "column": 64,
+      "row": 3
+    },
+    "message": "Expected ':', found newline",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/advanced_nn.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 5
+    },
+    "message": "Expected an indented block after `for` statement",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/advanced_nn.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/advanced_nn.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/advanced_nn.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/advanced_nn.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/advanced_nn.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 25,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/anomaly_broadening.py",
+    "fix": null,
+    "location": {
+      "column": 18,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 35,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/anomaly_broadening.py",
+    "fix": null,
+    "location": {
+      "column": 26,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 66,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/anomaly_broadening.py",
+    "fix": null,
+    "location": {
+      "column": 51,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/anomaly_broadening.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/anomaly_broadening.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/anomaly_broadening.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/anomaly_broadening.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/anomaly_broadening.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 28,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/federated_learning.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 32,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/federated_learning.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 3
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 55,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/federated_learning.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 3
+    },
+    "message": "Expected 'in', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 4
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/federated_learning.py",
+    "fix": null,
+    "location": {
+      "column": 55,
+      "row": 3
+    },
+    "message": "Expected ':', found newline",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/federated_learning.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 5
+    },
+    "message": "Expected an indented block after `for` statement",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/federated_learning.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/federated_learning.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/federated_learning.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/federated_learning.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/federated_learning.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 16,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/reinforcement_opt.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 3
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 34,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/reinforcement_opt.py",
+    "fix": null,
+    "location": {
+      "column": 28,
+      "row": 3
+    },
+    "message": "Expected 'in', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 47,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/reinforcement_opt.py",
+    "fix": null,
+    "location": {
+      "column": 35,
+      "row": 3
+    },
+    "message": "Expected ':', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/reinforcement_opt.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/reinforcement_opt.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/reinforcement_opt.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/reinforcement_opt.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase7_ml_pattern_recog/reinforcement_opt.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 30,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/auto_reporting.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 40,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/auto_reporting.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 66,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/auto_reporting.py",
+    "fix": null,
+    "location": {
+      "column": 57,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/auto_reporting.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/auto_reporting.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/auto_reporting.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/auto_reporting.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/auto_reporting.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 38,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/industry_frameworks.py",
+    "fix": null,
+    "location": {
+      "column": 28,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 49,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/industry_frameworks.py",
+    "fix": null,
+    "location": {
+      "column": 39,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/industry_frameworks.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/industry_frameworks.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/industry_frameworks.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/industry_frameworks.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/industry_frameworks.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 30,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/realtime_monitoring.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 41,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/realtime_monitoring.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/realtime_monitoring.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/realtime_monitoring.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/realtime_monitoring.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/realtime_monitoring.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/realtime_monitoring.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 26,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/session_validation.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 37,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/session_validation.py",
+    "fix": null,
+    "location": {
+      "column": 27,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 53,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/session_validation.py",
+    "fix": null,
+    "location": {
+      "column": 46,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 66,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/session_validation.py",
+    "fix": null,
+    "location": {
+      "column": 54,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/session_validation.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/session_validation.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/session_validation.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/session_validation.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase8_compliance_evolution/session_validation.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 26,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/auto_distribution.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 37,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/auto_distribution.py",
+    "fix": null,
+    "location": {
+      "column": 27,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/auto_distribution.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/auto_distribution.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/auto_distribution.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/auto_distribution.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/auto_distribution.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 31,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/interactive_dash.py",
+    "fix": null,
+    "location": {
+      "column": 22,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 36,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/interactive_dash.py",
+    "fix": null,
+    "location": {
+      "column": 32,
+      "row": 3
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 60,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/interactive_dash.py",
+    "fix": null,
+    "location": {
+      "column": 48,
+      "row": 3
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 4
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/interactive_dash.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 3
+    },
+    "message": "Expected ',', found newline",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/interactive_dash.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/interactive_dash.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Expected ':', found 'with'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/interactive_dash.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/interactive_dash.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/interactive_dash.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 27,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/std_text_reports.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 34,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/std_text_reports.py",
+    "fix": null,
+    "location": {
+      "column": 28,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 50,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/std_text_reports.py",
+    "fix": null,
+    "location": {
+      "column": 46,
+      "row": 3
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/std_text_reports.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/std_text_reports.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/std_text_reports.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/std_text_reports.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/std_text_reports.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 32,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/viz_analytics.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 3
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 19,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/viz_analytics.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 5
+    },
+    "message": "Simple statements must be separated by newlines or semicolons",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 33,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/viz_analytics.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 5
+    },
+    "message": "Compound statements are not allowed on the same line as simple statements",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 59,
+      "row": 5
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/viz_analytics.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 5
+    },
+    "message": "Expected ',', found name",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 1,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/viz_analytics.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 5
+    },
+    "message": "Expected an identifier",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 5,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/roadmap/phase9_reporting/viz_analytics.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Expected ':', found 'from'",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 21,
+      "row": 19
+    },
+    "filename": "/workspace/gh_COPILOT/scripts/ml/__init__.py",
+    "fix": null,
+    "location": {
+      "column": 16,
+      "row": 19
+    },
+    "message": "`torch` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "noqa_row": 19,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 32,
+      "row": 20
+    },
+    "filename": "/workspace/gh_COPILOT/scripts/ml/__init__.py",
+    "fix": null,
+    "location": {
+      "column": 30,
+      "row": 20
+    },
+    "message": "`tensorflow` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "noqa_row": 20,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 40,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/src/gh_copilot/__init__.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 3
+    },
+    "message": "`.analytics_logger.log_event` imported but unused; consider removing, adding to `__all__`, or using a redundant alias",
+    "noqa_row": 3,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 60,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/src/gh_copilot/__init__.py",
+    "fix": null,
+    "location": {
+      "column": 42,
+      "row": 3
+    },
+    "message": "`.analytics_logger.log_sync_operation` imported but unused; consider removing, adding to `__all__`, or using a redundant alias",
+    "noqa_row": 3,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 14,
+      "row": 7
+    },
+    "filename": "/workspace/gh_COPILOT/tests/template_engine/test_db_first_code_generator_updates.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 8
+          },
+          "location": {
+            "column": 1,
+            "row": 7
+          }
+        }
+      ],
+      "message": "Remove unused import: `pytest`"
+    },
+    "location": {
+      "column": 8,
+      "row": 7
+    },
+    "message": "`pytest` imported but unused",
+    "noqa_row": 7,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 25,
+      "row": 4
+    },
+    "filename": "/workspace/gh_COPILOT/tests/test_analytics_events.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 5
+          },
+          "location": {
+            "column": 1,
+            "row": 4
+          }
+        }
+      ],
+      "message": "Remove unused import: `pathlib.Path`"
+    },
+    "location": {
+      "column": 21,
+      "row": 4
+    },
+    "message": "`pathlib.Path` imported but unused",
+    "noqa_row": 4,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F811",
+    "end_location": {
+      "column": 16,
+      "row": 6
+    },
+    "filename": "/workspace/gh_COPILOT/tests/test_compliance_summary.py",
+    "fix": null,
+    "location": {
+      "column": 8,
+      "row": 6
+    },
+    "message": "Redefinition of unused `datetime` from line 3",
+    "noqa_row": 6,
+    "url": "https://docs.astral.sh/ruff/rules/redefined-while-unused"
   },
   {
     "cell": null,
     "code": "F821",
     "end_location": {
-      "column": 39,
-      "row": 29
+      "column": 51,
+      "row": 41
     },
-    "filename": "/workspace/gh_COPILOT/tests/test_database_first_copilot_enhancer.py",
+    "filename": "/workspace/gh_COPILOT/tests/test_cross_database_sync_logger.py",
     "fix": null,
     "location": {
-      "column": 14,
-      "row": 29
+      "column": 43,
+      "row": 41
     },
-    "message": "Undefined name `compute_similarity_scores`",
-    "noqa_row": 29,
+    "message": "Undefined name `timezone`",
+    "noqa_row": 41,
     "url": "https://docs.astral.sh/ruff/rules/undefined-name"
   },
   {
     "cell": null,
     "code": "F401",
     "end_location": {
-      "column": 61,
+      "column": 25,
+      "row": 1
+    },
+    "filename": "/workspace/gh_COPILOT/tests/test_har_ingestor_helpers.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 2
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        }
+      ],
+      "message": "Remove unused import: `pathlib.Path`"
+    },
+    "location": {
+      "column": 21,
+      "row": 1
+    },
+    "message": "`pathlib.Path` imported but unused",
+    "noqa_row": 1,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 14,
+      "row": 2
+    },
+    "filename": "/workspace/gh_COPILOT/tests/test_metrics_flow.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Remove unused import: `pytest`"
+    },
+    "location": {
+      "column": 8,
+      "row": 2
+    },
+    "message": "`pytest` imported but unused",
+    "noqa_row": 2,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F811",
+    "end_location": {
+      "column": 14,
       "row": 3
     },
-    "filename": "/workspace/gh_COPILOT/tests/test_sim_parity.py",
+    "filename": "/workspace/gh_COPILOT/tests/test_quantum_integration_orchestrator.py",
     "fix": {
       "applicability": "safe",
       "edits": [
@@ -173,102 +3680,185 @@
           }
         }
       ],
-      "message": "Remove unused import: `scripts.quantum_placeholders.__init__`"
+      "message": "Remove definition: `pytest`"
     },
     "location": {
-      "column": 54,
+      "column": 8,
       "row": 3
     },
-    "message": "`scripts.quantum_placeholders.__init__` imported but unused",
+    "message": "Redefinition of unused `pytest` from line 1",
     "noqa_row": 3,
-    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+    "url": "https://docs.astral.sh/ruff/rules/redefined-while-unused"
   },
   {
     "cell": null,
-    "code": "E401",
+    "code": "F811",
     "end_location": {
-      "column": 31,
-      "row": 14
+      "column": 15,
+      "row": 4
     },
-    "filename": "/workspace/gh_COPILOT/tests/test_sim_parity.py",
+    "filename": "/workspace/gh_COPILOT/tests/test_unified_database_migration.py",
     "fix": {
       "applicability": "safe",
       "edits": [
         {
-          "content": "    import json\n    import hashlib\n    import math",
+          "content": "",
           "end_location": {
-            "column": 31,
-            "row": 14
+            "column": 1,
+            "row": 5
           },
           "location": {
             "column": 1,
-            "row": 14
+            "row": 4
           }
         }
       ],
-      "message": "Split imports"
+      "message": "Remove definition: `sqlite3`"
     },
     "location": {
-      "column": 5,
-      "row": 14
+      "column": 8,
+      "row": 4
     },
-    "message": "Multiple imports on one line",
-    "noqa_row": 14,
-    "url": "https://docs.astral.sh/ruff/rules/multiple-imports-on-one-line"
-  },
-  {
-    "cell": null,
-    "code": "E401",
-    "end_location": {
-      "column": 74,
-      "row": 15
-    },
-    "filename": "/workspace/gh_COPILOT/tools/quantum_placeholder_builder.py",
-    "fix": {
-      "applicability": "safe",
-      "edits": [
-        {
-          "content": "import os\nimport re\nimport sys\nimport json\nimport hashlib\nimport pathlib\nimport traceback\nimport textwrap\nimport datetime",
-          "end_location": {
-            "column": 74,
-            "row": 15
-          },
-          "location": {
-            "column": 1,
-            "row": 15
-          }
-        }
-      ],
-      "message": "Split imports"
-    },
-    "location": {
-      "column": 1,
-      "row": 15
-    },
-    "message": "Multiple imports on one line",
-    "noqa_row": 15,
-    "url": "https://docs.astral.sh/ruff/rules/multiple-imports-on-one-line"
+    "message": "Redefinition of unused `sqlite3` from line 1",
+    "noqa_row": 4,
+    "url": "https://docs.astral.sh/ruff/rules/redefined-while-unused"
   },
   {
     "cell": null,
     "code": "F401",
     "end_location": {
-      "column": 28,
-      "row": 16
+      "column": 25,
+      "row": 2
     },
-    "filename": "/workspace/gh_COPILOT/tools/quantum_placeholder_builder.py",
+    "filename": "/workspace/gh_COPILOT/tests/web_gui/test_dashboard_alert_levels.py",
     "fix": {
       "applicability": "safe",
       "edits": [
         {
-          "content": "from typing import Dict, Any, List",
+          "content": "",
           "end_location": {
-            "column": 52,
-            "row": 16
+            "column": 1,
+            "row": 3
           },
           "location": {
             "column": 1,
-            "row": 16
+            "row": 2
+          }
+        }
+      ],
+      "message": "Remove unused import: `pathlib.Path`"
+    },
+    "location": {
+      "column": 21,
+      "row": 2
+    },
+    "message": "`pathlib.Path` imported but unused",
+    "noqa_row": 2,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 25,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/tests/web_gui/test_metrics_trend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 4
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        }
+      ],
+      "message": "Remove unused import: `pathlib.Path`"
+    },
+    "location": {
+      "column": 21,
+      "row": 3
+    },
+    "message": "`pathlib.Path` imported but unused",
+    "noqa_row": 3,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 25,
+      "row": 3
+    },
+    "filename": "/workspace/gh_COPILOT/tests/web_gui/test_thresholds_api.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 4
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        }
+      ],
+      "message": "Remove unused import: `pathlib.Path`"
+    },
+    "location": {
+      "column": 21,
+      "row": 3
+    },
+    "message": "`pathlib.Path` imported but unused",
+    "noqa_row": 3,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "E741",
+    "end_location": {
+      "column": 59,
+      "row": 41
+    },
+    "filename": "/workspace/gh_COPILOT/tools/check_requirements.py",
+    "fix": null,
+    "location": {
+      "column": 58,
+      "row": 41
+    },
+    "message": "Ambiguous variable name: `l`",
+    "noqa_row": 41,
+    "url": "https://docs.astral.sh/ruff/rules/ambiguous-variable-name"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 23,
+      "row": 20
+    },
+    "filename": "/workspace/gh_COPILOT/tools/codex_workflow_log_analytics_event.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 21
+          },
+          "location": {
+            "column": 1,
+            "row": 20
           }
         }
       ],
@@ -276,43 +3866,193 @@
     },
     "location": {
       "column": 20,
-      "row": 16
+      "row": 20
     },
-    "message": "`typing.Optional` imported but unused",
-    "noqa_row": 16,
+    "message": "`typing.Any` imported but unused",
+    "noqa_row": 20,
     "url": "https://docs.astral.sh/ruff/rules/unused-import"
   },
   {
     "cell": null,
     "code": "F401",
     "end_location": {
-      "column": 52,
-      "row": 16
+      "column": 33,
+      "row": 20
     },
-    "filename": "/workspace/gh_COPILOT/tools/quantum_placeholder_builder.py",
+    "filename": "/workspace/gh_COPILOT/tools/codex_workflow_log_analytics_event.py",
     "fix": {
       "applicability": "safe",
       "edits": [
         {
-          "content": "from typing import Dict, Any, List",
+          "content": "",
           "end_location": {
-            "column": 52,
-            "row": 16
+            "column": 1,
+            "row": 21
           },
           "location": {
             "column": 1,
-            "row": 16
+            "row": 20
           }
         }
       ],
       "message": "Remove unused import"
     },
     "location": {
-      "column": 47,
-      "row": 16
+      "column": 25,
+      "row": 20
+    },
+    "message": "`typing.Optional` imported but unused",
+    "noqa_row": 20,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "E401",
+    "end_location": {
+      "column": 45,
+      "row": 18
+    },
+    "filename": "/workspace/gh_COPILOT/tools/consolidate_monitoring.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import argparse\nimport shutil\nimport sys\nimport re\nimport time\nimport json",
+          "end_location": {
+            "column": 45,
+            "row": 18
+          },
+          "location": {
+            "column": 1,
+            "row": 18
+          }
+        }
+      ],
+      "message": "Split imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 18
+    },
+    "message": "Multiple imports on one line",
+    "noqa_row": 18,
+    "url": "https://docs.astral.sh/ruff/rules/multiple-imports-on-one-line"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 29,
+      "row": 18
+    },
+    "filename": "/workspace/gh_COPILOT/tools/consolidate_monitoring.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import argparse, shutil, re, time, json",
+          "end_location": {
+            "column": 45,
+            "row": 18
+          },
+          "location": {
+            "column": 1,
+            "row": 18
+          }
+        }
+      ],
+      "message": "Remove unused import: `sys`"
+    },
+    "location": {
+      "column": 26,
+      "row": 18
+    },
+    "message": "`sys` imported but unused",
+    "noqa_row": 18,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 37,
+      "row": 21
+    },
+    "filename": "/workspace/gh_COPILOT/tools/consolidate_monitoring.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from typing import Dict, List, Iterable",
+          "end_location": {
+            "column": 47,
+            "row": 21
+          },
+          "location": {
+            "column": 1,
+            "row": 21
+          }
+        }
+      ],
+      "message": "Remove unused import: `typing.Tuple`"
+    },
+    "location": {
+      "column": 32,
+      "row": 21
     },
     "message": "`typing.Tuple` imported but unused",
-    "noqa_row": 16,
+    "noqa_row": 21,
     "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "E701",
+    "end_location": {
+      "column": 25,
+      "row": 210
+    },
+    "filename": "/workspace/gh_COPILOT/tools/consolidate_monitoring.py",
+    "fix": null,
+    "location": {
+      "column": 24,
+      "row": 210
+    },
+    "message": "Multiple statements on one line (colon)",
+    "noqa_row": 210,
+    "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+  },
+  {
+    "cell": null,
+    "code": "E701",
+    "end_location": {
+      "column": 36,
+      "row": 211
+    },
+    "filename": "/workspace/gh_COPILOT/tools/consolidate_monitoring.py",
+    "fix": null,
+    "location": {
+      "column": 35,
+      "row": 211
+    },
+    "message": "Multiple statements on one line (colon)",
+    "noqa_row": 211,
+    "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+  },
+  {
+    "cell": null,
+    "code": "F821",
+    "end_location": {
+      "column": 8,
+      "row": 145
+    },
+    "filename": "/workspace/gh_COPILOT/validate_compliance_pipeline.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 145
+    },
+    "message": "Undefined name `sys`",
+    "noqa_row": 145,
+    "url": "https://docs.astral.sh/ruff/rules/undefined-name"
   }
 ]
