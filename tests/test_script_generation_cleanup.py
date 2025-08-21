@@ -1,6 +1,7 @@
 import json
 import sqlite3
-from datetime import datetime, timedelta
+import datetime
+from datetime import timedelta
 
 from complete_template_generator import CompleteTemplateGenerator
 from unified_script_generation_system import EnterpriseUtility
@@ -23,8 +24,8 @@ def test_cluster_templates(tmp_path):
 def test_cleanup_legacy_assets(tmp_path):
     db = tmp_path / "prod.db"
     gen = CompleteTemplateGenerator(production_db=db)
-    old = (datetime.utcnow() - timedelta(days=40)).isoformat()
-    new = datetime.utcnow().isoformat()
+    old = (datetime.datetime.now(datetime.timezone.utc) - timedelta(days=40)).isoformat()
+    new = datetime.datetime.now(datetime.timezone.utc).isoformat()
     with sqlite3.connect(db) as conn:
         conn.execute(
             "INSERT INTO template_generation_stats (cluster_id, template_length, generated_at) VALUES (1, 10, ?)",
