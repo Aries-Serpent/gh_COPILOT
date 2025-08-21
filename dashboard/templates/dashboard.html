@@ -317,9 +317,9 @@
     <strong>Lint Issues:</strong> <span id="ruff_issues">{{ metrics.ruff_issues | default(0) }}</span><br>
     <strong>Tests Passed:</strong> <span id="tests_passed">{{ metrics.tests_passed | default(0) }}</span><br>
     <strong>Tests Failed:</strong> <span id="tests_failed">{{ metrics.tests_failed | default(0) }}</span><br>
-    <strong title="Percentage of files passing ruff checks">Lint Score:</strong> <span id="lint_score">{{ metrics.lint_score | default(0) }}</span><br>
-    <strong title="Percentage of tests passing">Test Score:</strong> <span id="test_score">{{ metrics.test_score | default(0) }}</span><br>
-    <strong title="Progress removing TODO/FIXME placeholders">Placeholder Score:</strong> <span id="placeholder_score">{{ metrics.placeholder_score | default(0) }}</span><br>
+    <strong title="Percentage of files passing ruff checks">Lint Score:</strong> <span id="lint_score" class="status-indicator">{{ metrics.lint_score | default(0) }}</span><br>
+    <strong title="Percentage of tests passing">Test Score:</strong> <span id="test_score" class="status-indicator">{{ metrics.test_score | default(0) }}</span><br>
+    <strong title="Progress removing TODO/FIXME placeholders">Placeholder Score:</strong> <span id="placeholder_score" class="status-indicator">{{ metrics.placeholder_score | default(0) }}</span><br>
     <div id="score_gauges">
         <!-- Gauges support click drill-down via main.js -->
         <canvas id="lintGauge" class="gauge" data-metric="lint_score" title="Lint score gauge"></canvas>
