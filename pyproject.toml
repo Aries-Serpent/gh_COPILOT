@@ -31,7 +31,7 @@ dev = [
 
 [project.scripts]
 final-enterprise-orchestrator = "copilot.orchestrators.final_enterprise_orchestrator:main"
-unified-deployment-orchestrator = "copilot.orchestrators.unified_deployment_orchestrator:main"
+unified-deployment-orchestrator = "scripts.orchestration.UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED:main"
 gh-copilot = "gh_copilot.cli:app"
 
 [tool.setuptools]
