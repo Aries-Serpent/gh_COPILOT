@@ -1,6 +1,6 @@
 import logging
 import sqlite3
-import datetime
+from datetime import datetime, timezone
 import sys
 import types
 
@@ -36,17 +36,17 @@ def _prepare_db(path: str) -> None:
         conn.execute("CREATE TABLE IF NOT EXISTS todo_fixme_tracking (status TEXT, placeholder_type TEXT)")
         conn.execute(
             "INSERT INTO violation_logs (timestamp, details) VALUES (?, ?)",
-            (
-                datetime.datetime.now(datetime.timezone.utc).isoformat(),
-                "violation",
-            ),
+            (datetime.now(timezone.utc).isoformat(), "violation"),
         )
         conn.execute(
             "INSERT INTO rollback_logs (target, timestamp) VALUES (?, ?)",
-            (
-                "target",
-                datetime.datetime.now(datetime.timezone.utc).isoformat(),
-            ),
+            ("target", datetime.now(timezone.utc).isoformat()),
+        )
+        conn.execute(
+            "INSERT INTO todo_fixme_tracking (status, placeholder_type) VALUES ('resolved', 'type1')"
+        )
+        conn.execute(
+            "INSERT INTO todo_fixme_tracking (status, placeholder_type) VALUES ('open', 'type1')"
         )
         conn.execute("INSERT INTO todo_fixme_tracking (status, placeholder_type) VALUES ('resolved', 'type1')")
         conn.execute("INSERT INTO todo_fixme_tracking (status, placeholder_type) VALUES ('open', 'type1')")

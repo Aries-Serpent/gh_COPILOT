@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from pathlib import Path
 import sqlite3
 import datetime
@@ -62,7 +63,7 @@ def test_summary_with_snapshot_and_placeholder(tmp_path: Path) -> None:
             0.92,
             "main-default",
             inputs.model_dump_json(),
-            datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            datetime.now(timezone.utc).isoformat(),
         ),
     )
     con.execute(
@@ -72,7 +73,7 @@ def test_summary_with_snapshot_and_placeholder(tmp_path: Path) -> None:
             1,
             "TODO",
             "deadbeef",
-            datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            datetime.now(timezone.utc).isoformat(),
         ),
     )
     con.commit()

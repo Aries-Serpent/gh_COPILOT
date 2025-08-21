@@ -33,3 +33,36 @@ sqlite3.DatabaseError: file is not a database
 Context: Executing scripts/wlc_session_manager.py for session logging.
 What are the possible causes, and how can this be resolved while preserving intended functionality?
 
+**Question for ChatGPT-5:**
+While performing [Phase 1: setup.sh], encountered the following error:
+ModuleNotFoundError: No module named 'utils'
+Context: scripts/run_migrations.py execution during environment setup.
+What are the possible causes, and how can this be resolved while preserving intended functionality?
+
+**Question for ChatGPT-5:**
+````
+While performing 11:Unit test validation, encountered the following error:
+pytest exit 1
+Context: see .codex/pytest_after.txt
+What are the possible causes, and how can this be resolved while preserving intended functionality?
+````
+
+
+**Question for ChatGPT-5:**
+````
+While performing 11:Unit test validation, encountered the following error:
+pytest exit 1
+Context: see .codex/pytest_after.txt
+What are the possible causes, and how can this be resolved while preserving intended functionality?
+````
+
+
+**Question for ChatGPT-5:**
+````
+While performing 11:Unit test validation, encountered the following error:
+pytest exit 1
+Context: see .codex/pytest_after.txt
+What are the possible causes, and how can this be resolved while preserving intended functionality?
+````
+
+
