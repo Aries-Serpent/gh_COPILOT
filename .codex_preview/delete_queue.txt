@@ -42,3 +42,10 @@ PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/nox_sessions â€” Snapshot n
 PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/scripts â€” Snapshot scripts directory not adopted
 PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/services â€” Snapshot FastAPI services not adopted
 PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/interfaces — Snapshot interfaces not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/tools — Remaining tools not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/ops — Snapshot ops not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/deploy — Snapshot deploy not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/monitoring — Snapshot monitoring not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/mcp — Snapshot MCP not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/analysis — Snapshot analysis not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/agents — Snapshot agents client not adopted
