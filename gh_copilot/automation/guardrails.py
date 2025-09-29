@@ -8,6 +8,7 @@ DRY_RUN, and enforce constraints during APPLY.
 
 import os
 import subprocess
+from typing import Dict, List
 
 
 def _is_apply_mode() -> bool:
@@ -96,7 +97,34 @@ def validate_no_forbidden_paths(path: str) -> None:
         os.path.abspath(os.path.join("C:" + os.sep, "temp")).upper(),
         os.path.abspath(os.path.join("E:" + os.sep, "temp")).upper(),
     }
+    # Optional allowlist (absolute prefixes) takes precedence over denylist
+    allowlist_raw = os.environ.get("GUARD_ALLOWLIST", "")
+    allowlist = []
+    for raw in [p.strip() for p in allowlist_raw.replace(";", ",").split(",") if p.strip()]:
+        try:
+            allowlist.append(os.path.abspath(raw).upper())
+        except Exception:
+            continue
     for bad in forbidden:
         if upper.startswith(bad):
+            # If explicitly allowed, skip error
+            for ok in allowlist:
+                if upper.startswith(ok):
+                    return
             raise ValueError(f"Forbidden path: {path}")
 
+
+def validate_paths(paths: List[str]) -> Dict[str, bool]:
+    """Return pass/fail mapping for a batch of paths.
+
+    This helper does not raise; it returns a dict {path: True/False} using
+    validate_no_forbidden_paths semantics (allowlist precedence, then denylist).
+    """
+    results: Dict[str, bool] = {}
+    for p in paths:
+        try:
+            validate_no_forbidden_paths(p)
+            results[p] = True
+        except Exception:
+            results[p] = False
+    return results

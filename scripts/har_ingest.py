@@ -125,6 +125,17 @@ def _load_and_check_schema(ctx: IngestContext) -> None:
             ctx.meta_browser = f"{name}/{ver}" if isinstance(ver, (str, int, float)) else str(name)
     ctx.raw_har = payload
     ctx.total_entries = len(entries)
+    # Strict schema (optional)
+    if os.environ.get("HAR_STRICT_SCHEMA", "0") == "1":
+        # Enforce presence of creator/browser name+version
+        for key in ("creator", "browser"):
+            obj = log.get(key)
+            if not isinstance(obj, dict):
+                raise ValueError(f"HAR strict mode: missing '{key}' object")
+            if not obj.get("name"):
+                raise ValueError(f"HAR strict mode: '{key}.name' required")
+            if "version" not in obj:
+                raise ValueError(f"HAR strict mode: '{key}.version' required")
 
 
 def _normalize_entry(entry: Dict[str, Any]) -> Dict[str, Any]:
@@ -280,6 +291,31 @@ def _iter_chunks(items: List[Any], chunk_size: int) -> Iterable[List[Any]]:
         yield items[i : i + chunk_size]
 
 
+def _write_entries_jsonl(ctx: IngestContext) -> None:
+    """Write entries to JSONL in APPLY mode, as-is, paginated.
+
+    Controlled by HAR_ENTRIES_JSONL (default 0/off). Path via HAR_ENTRIES_JSONL_PATH
+    (default databases/har_entries.ndjson). Chunk size uses HAR_ENTRIES_BATCH (default 1000).
+    """
+    if ctx.dry_run:
+        return
+    if os.environ.get("HAR_ENTRIES_JSONL", "0") in {"0", "false", "False", "no", "NO"}:
+        return
+    entries = ctx.raw_har.get("log", {}).get("entries") if ctx.raw_har else None
+    if not isinstance(entries, list) or not entries:
+        return
+    target = os.environ.get("HAR_ENTRIES_JSONL_PATH", os.path.join("databases", "har_entries.ndjson"))
+    path = Path(target)
+    validate_no_forbidden_paths(str(path))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    batch = int(os.environ.get("HAR_ENTRIES_BATCH", "1000"))
+    with open(path, "a", encoding="utf-8") as fh:
+        for chunk in _iter_chunks(entries, batch):
+            for e in chunk:
+                fh.write(json.dumps(e, ensure_ascii=False) + "\n")
+    # Path recorded via metrics summary below
+
+
 def _parse_entries(ctx: IngestContext) -> None:
     assert ctx.raw_har is not None
     entries = ctx.raw_har.get("log", {}).get("entries", [])
@@ -331,7 +367,7 @@ def _write_db(ctx: IngestContext) -> None:
             )
             """
         )
-        rows = [
+        rows_all = [
             (
                 r["started_at"],
                 r["method"],
@@ -352,15 +388,17 @@ def _write_db(ctx: IngestContext) -> None:
             )
             for r in ctx.normalized
         ]
-        cur.executemany(
-            """
-            INSERT INTO har_entries (
-              started_at, method, url, host, path, status, status_text, mime_type,
-              wait_ms, blocked_ms, dns_ms, connect_ms, ssl_ms, send_ms, receive_ms, total_ms
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            rows,
-        )
+        batch = int(os.environ.get("HAR_ENTRIES_BATCH", "1000"))
+        for chunk in _iter_chunks(rows_all, batch):
+            cur.executemany(
+                """
+                INSERT INTO har_entries (
+                  started_at, method, url, host, path, status, status_text, mime_type,
+                  wait_ms, blocked_ms, dns_ms, connect_ms, ssl_ms, send_ms, receive_ms, total_ms
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                chunk,
+            )
         # Persist headers/bodies into dedicated tables without altering content
         entries = ctx.raw_har.get("log", {}).get("entries") if ctx.raw_har else None
         if isinstance(entries, list) and entries and not ctx.dry_run:
@@ -541,6 +579,29 @@ def _emit_metrics(ctx: IngestContext) -> None:
         record["pages_jsonl_path"] = str(ctx.pages_jsonl_path)
     if ctx.pages_preview_jsonl_path is not None:
         record["pages_preview_jsonl_path"] = str(ctx.pages_preview_jsonl_path)
+    # NDJSON summary & histogram (default on)
+    if os.environ.get("NDJSON_SUMMARY", "1") not in {"0", "false", "False", "no", "NO"}:
+        # Status histogram
+        bins_str = os.environ.get("NDJSON_STATUS_BINS", "200,300,400,500")
+        try:
+            bounds = [int(x) for x in bins_str.split(",") if x.strip()]
+        except Exception:
+            bounds = [200, 300, 400, 500]
+        statuses = [int(e.get("status", 0)) for e in (ctx.normalized or [])]
+        hist: Dict[str, int] = {}
+        prev = 0
+        for b in bounds:
+            label = f"lt{b}"
+            hist[label] = sum(1 for s in statuses if prev <= s < b)
+            prev = b
+        hist[f"ge{prev}"] = sum(1 for s in statuses if s >= prev)
+        record["status_histogram"] = hist
+        # Chunk counts (derivable from env + sizes)
+        try:
+            entries_batch = int(os.environ.get("HAR_ENTRIES_BATCH", "1000"))
+        except ValueError:
+            entries_batch = 1000
+        record["entries_batch_size"] = entries_batch
     append_ndjson(str(ctx.ndjson_path), record)
 
 
@@ -575,6 +636,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
         StepCtx(name="Schema", desc="Load + schema check", fn=lambda: _load_and_check_schema(ctx)),
         StepCtx(name="PreviewPages", desc="Write pages to .codex JSONL (DRY_RUN)", fn=lambda: _write_pages_preview_jsonl(ctx)),
         StepCtx(name="PersistPages", desc="Write pages as JSONL and DB (APPLY)", fn=lambda: _write_pages_jsonl(ctx)),
+        StepCtx(name="PersistEntriesJSONL", desc="Write entries JSONL (APPLY)", fn=lambda: _write_entries_jsonl(ctx)),
         StepCtx(name="Parse", desc="Normalize entries", fn=lambda: _parse_entries(ctx)),
         StepCtx(name="Persist", desc="Write to SQLite (APPLY only)", fn=lambda dry_run=dry_run: (_write_db(ctx) if not dry_run else None)),
         StepCtx(name="Metrics", desc="Emit NDJSON metrics", fn=lambda: _emit_metrics(ctx)),

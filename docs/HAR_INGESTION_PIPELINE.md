@@ -42,7 +42,9 @@ Flags Summary
 -------------
 - DRY_RUN preview (default ON): `HAR_PREVIEW_PAGES=1` writes pages preview JSONL to `.codex/har_pages_preview.ndjson`.
 - APPLY JSONL (default ON): `HAR_PAGES_JSONL=1` writes pages JSONL to `databases/har_pages.ndjson` (override with `HAR_PAGES_JSONL_PATH`). Set `HAR_PAGES_JSONL=0` to disable.
+- Entries JSONL (default OFF): `HAR_ENTRIES_JSONL=1` writes entries JSONL to `databases/har_entries.ndjson` (override with `HAR_ENTRIES_JSONL_PATH`).
 - Pagination: `HAR_PAGES_CHUNK_SIZE` (default 1000) controls chunk size for JSONL/SQLite.
+- Entries batch/JSONL chunk: `HAR_ENTRIES_BATCH` (default 1000) controls both entries DB insert batch size and entries JSONL chunk.
 - Metadata emission: `HAR_EMIT_META=1` includes creator/browser strings in metrics; default off.
 - Redaction flags (scaffolded): `HAR_REDACT_HEADERS`, `HAR_REDACT_BODIES` (default 0; no redaction unless enabled).
 - SQLite writes use a small `PRAGMA busy_timeout=3000` to reduce lock contention.
