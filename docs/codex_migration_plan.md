@@ -51,3 +51,6 @@ Apply criteria
 Status updates (APPLY)
 - codex_workflow.py: patterns folded into core docs; source removed from snapshot.
 - .codex/ruff.json: merged into `ruff.toml`; source removed from snapshot.
+- pytest.ini (snapshot): replaced by root pytest.ini; source removed from snapshot.
+- .pre-commit-config.yaml (snapshot): replaced by local-only hooks; source removed from snapshot.
+- GATES_REPORT.txt (snapshot root): merged into `.codex/GATES_REPORT.txt`; source removed from snapshot.
