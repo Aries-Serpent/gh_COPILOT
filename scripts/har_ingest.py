@@ -52,6 +52,9 @@ class IngestContext:
     # Filled during phases
     raw_har: Optional[Dict[str, Any]] = None
     total_entries: int = 0
+    pages_count: int = 0
+    meta_creator: Optional[str] = None
+    meta_browser: Optional[str] = None
     normalized: List[Dict[str, Any]] = None  # type: ignore[assignment]
 
 
@@ -98,6 +101,25 @@ def _load_and_check_schema(ctx: IngestContext) -> None:
     entries = log.get("entries")
     if not isinstance(entries, list):
         raise ValueError("HAR 'log.entries' must be a list")
+    # Optional lightweight validation for pages array
+    pages = log.get("pages")
+    if pages is not None and not isinstance(pages, list):
+        raise ValueError("HAR 'log.pages' must be a list if present")
+    ctx.pages_count = len(pages or []) if isinstance(pages, list) else 0
+
+    # Capture minimal creator/browser metadata for optional metrics emission
+    creator = log.get("creator")
+    if isinstance(creator, dict):
+        name = creator.get("name")
+        ver = creator.get("version")
+        if isinstance(name, str) and name:
+            ctx.meta_creator = f"{name}/{ver}" if isinstance(ver, (str, int, float)) else str(name)
+    browser = log.get("browser")
+    if isinstance(browser, dict):
+        name = browser.get("name")
+        ver = browser.get("version")
+        if isinstance(name, str) and name:
+            ctx.meta_browser = f"{name}/{ver}" if isinstance(ver, (str, int, float)) else str(name)
     ctx.raw_har = payload
     ctx.total_entries = len(entries)
 
@@ -142,6 +164,17 @@ def _normalize_entry(entry: Dict[str, Any]) -> Dict[str, Any]:
         host = parsed.netloc
         path = parsed.path
     except Exception:
+        pass
+
+    # Optional: redact headers/content fields if present (PII safety)
+    # Defaults: NEVER redact; users must set flags explicitly.
+    if os.environ.get("HAR_REDACT_HEADERS", "0") == "1":
+        # Placeholder for future header redaction when headers are included.
+        # Currently, normalization does not extract headers; this block
+        # exists to document the control surface and future behavior.
+        pass
+    if os.environ.get("HAR_REDACT_BODIES", "0") == "1":
+        # Placeholder for future body/content redaction when bodies are included.
         pass
 
     return {
@@ -246,18 +279,23 @@ def _write_db(ctx: IngestContext) -> None:
 
 
 def _emit_metrics(ctx: IngestContext) -> None:
-    append_ndjson(
-        str(ctx.ndjson_path),
-        {
-            "event": "har_ingest",
-            "ts": _iso_now(),
-            "file": str(ctx.src_path),
-            "total_entries": ctx.total_entries,
-            "normalized_count": len(ctx.normalized or []),
-            "db_path": str(ctx.db_path),
-            "dry_run": ctx.dry_run,
-        },
-    )
+    record: Dict[str, Any] = {
+        "event": "har_ingest",
+        "ts": _iso_now(),
+        "file": str(ctx.src_path),
+        "total_entries": ctx.total_entries,
+        "normalized_count": len(ctx.normalized or []),
+        "pages_count": ctx.pages_count,
+        "db_path": str(ctx.db_path),
+        "dry_run": ctx.dry_run,
+    }
+    # Only emit creator/browser metadata when explicitly requested
+    if os.environ.get("HAR_EMIT_META", "0") == "1":
+        if ctx.meta_creator:
+            record["creator"] = ctx.meta_creator
+        if ctx.meta_browser:
+            record["browser"] = ctx.meta_browser
+    append_ndjson(str(ctx.ndjson_path), record)
 
 
 def main(argv: Optional[Iterable[str]] = None) -> int:
@@ -312,4 +350,3 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
