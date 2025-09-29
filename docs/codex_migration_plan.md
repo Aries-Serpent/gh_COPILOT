@@ -117,3 +117,7 @@ Status updates (APPLY)
 - configs/conf/hydra/omegaconf/yaml/requirements: not adopted.
 - src/tests/tokenization/typer/copilot/db/data/artifacts/logs/temp/archive/.codex/.github/schemas: not adopted.
 - Applied deletions for the above directories; removed snapshot LFS_POLICY.md and CONTRIBUTING.md.
+
+Final decommission
+- All remaining snapshot residuals analyzed and removed (AUDIT_PROMPT.md, LICENSES/*, patches/*, semgrep_rules/python/*, _codex/status/*).
+- Snapshot folder `archive/copied_codex_codebase` is now empty and can be safely removed.
