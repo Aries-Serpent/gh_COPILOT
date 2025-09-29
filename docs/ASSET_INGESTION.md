@@ -21,3 +21,11 @@
 - Integrate with the pattern mining engine and Unified Script Generation System to provide a continuously expanding, deduplicated template library for adaptive code synthesis.
 - Feed ingestion results and analytics into dashboards, supporting ingestion success/failure metrics, trend analysis, and anomaly detection on asset coverage.
 - Automate scheduled and event-driven ingestion runs via integration with the Unified Session Management System, enabling proactive updates and health audits for all enterprise documentation and code templates.
+
+### HAR Pipeline (Preferred Entry)
+
+For HAR archives, prefer the phased automation pipeline documented in `docs/HAR_INGESTION_PIPELINE.md`.
+
+- Entry: `scripts/har_ingest.py`
+- DRY_RUN by default; set `DRY_RUN=0` to persist to SQLite.
+- Guardrails protect CI workflows and prevent forbidden write paths.

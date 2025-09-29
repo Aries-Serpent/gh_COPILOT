@@ -1,15 +1,64 @@
-minimum_pre_commit_version: '3.0.0'
+# TODO: Requires pre-commit, ruff, bandit, and detect-secrets installed locally.
+# Local-only hooks. No networked repos are referenced.
 repos:
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.5.6
+  - repo: local
     hooks:
       - id: ruff
+        name: ruff
+        entry: python -m ruff check .
+        language: system
+        pass_filenames: false
       - id: ruff-format
-  - repo: https://github.com/psf/black
-    rev: 23.9.1
-    hooks:
-      - id: black
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
-    hooks:
+        name: ruff-format
+        entry: python -m ruff format .
+        language: system
+        pass_filenames: false
+      - id: trailing-whitespace
+        name: trailing-whitespace
+        entry: python - <<'PY'
+import sys
+import re
+bad = False
+for p in sys.argv[1:]:
+    with open(p, 'rb') as f:
+        lines = f.read().splitlines(True)
+    new = []
+    for b in lines:
+        s = b.rstrip(b" \t")
+        if s != b:
+            bad = True
+        new.append(s)
+    with open(p, 'wb') as f:
+        f.write(b''.join(new))
+sys.exit(1 if bad else 0)
+PY
+        language: system
+        files: \.(py|md|txt|yml|yaml|toml|ini)$
       - id: end-of-file-fixer
+        name: end-of-file-fixer
+        entry: python - <<'PY'
+import sys
+bad = False
+for p in sys.argv[1:]:
+    with open(p, 'rb') as f:
+        data = f.read()
+    if not data.endswith(b"\n"):
+        bad = True
+        data += b"\n"
+        with open(p, 'wb') as f:
+            f.write(data)
+sys.exit(1 if bad else 0)
+PY
+        language: system
+        files: \.(py|md|txt|yml|yaml|toml|ini)$
+      - id: bandit
+        name: bandit
+        entry: python -m bandit -q -r gh_copilot
+        language: system
+        pass_filenames: false
+      - id: detect-secrets
+        name: detect-secrets
+        entry: python -m detect_secrets.scan --all-files
+        language: system
+        pass_filenames: false
+

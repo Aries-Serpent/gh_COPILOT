@@ -8,6 +8,13 @@ Establish compliance goals, regulatory requirements, and internal standards. Upd
 ## 2. Static Analysis
 Run linting, formatting, and dependency checks. Ensure code adheres to style guides and that binary assets are tracked appropriately.
 
+### Optional local SAST & Lint
+
+- Static analysis:
+  - Semgrep (optional): `python -m semgrep --config semgrep_rules/` (if installed)
+  - Ruff (lint/format): `ruff check .` and `ruff format .`
+- These tools are local-only and do not require any remote services. They complement the unit tests to improve code quality without enabling CI.
+
 ## 3. Dynamic Testing
 Execute unit and integration tests along with security scans. Validate runtime behaviour and confirm that safeguards operate as expected.
 
