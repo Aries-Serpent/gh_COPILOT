@@ -49,3 +49,37 @@ PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/monitoring — Snapshot monit
 PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/mcp — Snapshot MCP not adopted
 PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/analysis — Snapshot analysis not adopted
 PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/agents — Snapshot agents client not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/configs — Hydra configs not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/conf — Hydra configs not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/hydra — Snapshot vendored not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/omegaconf — Snapshot vendored not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/yaml — Snapshot vendored not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/requirements — Snapshot requirements not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/src — Snapshot package code not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/tests — Snapshot tests not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/tokenization — Snapshot package not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/typer — Snapshot utility not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/copilot — Snapshot extension artifacts not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/db — Snapshot DB assets not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/data — Snapshot data assets not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/artifacts — Snapshot artifacts not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/logs — Snapshot logs not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/temp — Snapshot temp workspace not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/archive — Snapshot archive not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/.codex — Snapshot .codex state not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/.github — Snapshot GitHub docs/templates not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/schemas — Snapshot schemas not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/.gitattributes — Snapshot git attrs not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/.gitignore — Snapshot ignores not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/.env.example — Snapshot env template not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/entrypoint.sh — Snapshot entrypoint not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/setup_universal.sh — Snapshot setup not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/sitecustomize.py — Snapshot sitecustomize not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/compare_report.json — Snapshot compare report not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/codex_ast_upgrade.py — Snapshot upgrader not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/codex_ready_task_sequence.yaml — Snapshot task sequence not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/codex_task_sequence.py — Snapshot task sequence not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/uv.lock — Snapshot lock not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/requirements-dev.txt — Snapshot dev requirements not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/requirements.txt — Snapshot requirements not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/requirements.lock — Snapshot lock not adopted

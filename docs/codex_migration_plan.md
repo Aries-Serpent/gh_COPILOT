@@ -112,3 +112,8 @@ Status updates (APPLY)
 - Removed snapshot `services/` directory after DRY_RUN classification.
 
 - Batch 9 DRY_RUN analysis for tools/ops/deploy/monitoring/mcp/analysis/agents — not adopted; deleted after analysis.
+
+- Batch 10 DRY_RUN config/src/tests analysis
+- configs/conf/hydra/omegaconf/yaml/requirements: not adopted.
+- src/tests/tokenization/typer/copilot/db/data/artifacts/logs/temp/archive/.codex/.github/schemas: not adopted.
+- Applied deletions for the above directories; removed snapshot LFS_POLICY.md and CONTRIBUTING.md.
