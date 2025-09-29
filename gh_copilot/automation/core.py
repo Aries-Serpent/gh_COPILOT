@@ -4,9 +4,29 @@ from __future__ import annotations
 
 Only Python stdlib is used.
 
-Example usage:
-    phases = [StepCtx(name="Analyze", desc="...", fn=analyze), ...]
-    run_phases(phases, dry_run=True)
+Examples:
+    Build a small three-phase run in dry-run mode::
+
+        def prep(dry_run: bool = True) -> None:
+            pass
+
+        def analyze() -> None:
+            pass
+
+        def finalize(dry_run: bool = True) -> None:
+            pass
+
+        phases = [
+            StepCtx(name="Prepare", desc="init", fn=prep),
+            StepCtx(name="Analyze", desc="scan", fn=analyze),
+            StepCtx(name="Finalize", desc="wrap", fn=finalize),
+        ]
+        result = run_phases(phases, dry_run=True)
+        assert result.ok
+
+Notes:
+- Aligns with snapshot guardrails: dry-run by default; never modifies
+  `.github/workflows`; safe to import without optional heavy dependencies.
 """
 
 import inspect
@@ -136,4 +156,3 @@ def run_phases(phases: List[StepCtx], dry_run: bool = True) -> ExecutionResult:
             phases_completed += 1
 
     return ExecutionResult(phases_completed=phases_completed, ok=overall_ok, logs=logs)
-
