@@ -110,3 +110,5 @@ Status updates (APPLY)
 
 - Batch 8 APPLY services deletion (post-DRY_RUN)
 - Removed snapshot `services/` directory after DRY_RUN classification.
+
+- Batch 9 DRY_RUN analysis for tools/ops/deploy/monitoring/mcp/analysis/agents — not adopted; deleted after analysis.
