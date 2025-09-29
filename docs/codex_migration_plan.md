@@ -48,6 +48,20 @@ Apply criteria
 - After each successful apply, remove the source file from the snapshot and append an NDJSON log entry.
 - If any check fails, revert and break down into smaller patches; record details in `docs/codex_integration_leftovers.md`.
 
+DRY_RUN analysis (batch 2)
+- codex_patch_runner.py / codex_update_runner.py / codex_setup.py / codex_script.py:
+  - Not applicable; responsibilities overlap with gh_copilot.automation and introduce non-local tooling.
+  - Added to deletion post-plan (pending apply).
+- conftest.py:
+  - Not applicable; interferes with repo test fixtures.
+  - Added to deletion post-plan (pending apply).
+- mkdocs.yml and mkdocs site:
+  - Not adopted; we maintain focused docs in `docs/`.
+  - Added to deletion post-plan (pending apply).
+- pyproject.toml / requirements* / locks:
+  - Not adopted; would conflict with repo structure and guardrails.
+  - Added to deletion post-plan (pending apply).
+
 Status updates (APPLY)
 - codex_workflow.py: patterns folded into core docs; source removed from snapshot.
 - .codex/ruff.json: merged into `ruff.toml`; source removed from snapshot.
@@ -62,3 +76,5 @@ Status updates (APPLY)
 - docker-compose.yml / Dockerfile / Dockerfile.gpu (snapshot): not adopted; removed from snapshot.
 - Makefile / codex.mk (snapshot): not adopted; removed from snapshot.
 - noxfile.py / tox.ini / .dockerignore (snapshot): not adopted; removed from snapshot.
+- semgrep_rules/default.yml and semgrep_rules/python-basic.yml: ingested into repo for optional local scanning; removed from snapshot.
+- tools/safe_rg.sh: already present in repo; snapshot copy removed after DRY_RUN confirmation.
