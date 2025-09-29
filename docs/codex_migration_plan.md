@@ -98,3 +98,10 @@ Status updates (APPLY)
   _codex_codex-ready-sequence-and-patches-2025-09-27.md,
   _codex_status_update-0C_base_-2025-09-27.md
 - Snapshot doc directories removed: docs/, documentation/, reports/, examples/
+- Batch 5 DRY_RUN services analysis
+- services/api: FastAPI + codex_ml (torch) — not adopted.
+- services/ita: FastAPI internal tools — not adopted.
+- Marked `services/` for PENDING deletion.
+
+- Batch 6 APPLY scripts deletion (post-DRY_RUN)
+- Removed snapshot `scripts/` directory after DRY_RUN classification.
