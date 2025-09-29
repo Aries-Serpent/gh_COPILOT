@@ -62,6 +62,15 @@ DRY_RUN analysis (batch 2)
   - Not adopted; would conflict with repo structure and guardrails.
   - Added to deletion post-plan (pending apply).
 
+Batch 2 APPLY deletions (post-DRY_RUN)
+- codex_patch_runner.py / codex_update_runner.py / codex_setup.py / codex_script.py: not applicable; removed from snapshot.
+- conftest.py: not applicable; removed from snapshot.
+- mkdocs.yml: docs site not adopted; removed from snapshot.
+- pyproject.toml: separate package config not adopted; removed from snapshot.
+- tools/ci_guard.py: overlaps with guardrails; removed from snapshot.
+- tools/pip_audit_wrapper.py: out of scope; removed from snapshot.
+- tools/label_policy.json / tools/label_policy_lint.py: snapshot-specific; removed from snapshot.
+
 Status updates (APPLY)
 - codex_workflow.py: patterns folded into core docs; source removed from snapshot.
 - .codex/ruff.json: merged into `ruff.toml`; source removed from snapshot.
