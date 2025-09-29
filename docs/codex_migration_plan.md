@@ -56,3 +56,6 @@ Status updates (APPLY)
 - GATES_REPORT.txt (snapshot root): merged into `.codex/GATES_REPORT.txt`; source removed from snapshot.
 - .codex/guardrails.md: concepts integrated into guardrails module; source removed from snapshot.
 - .pre-commit-hybrid.yaml / .pre-commit-ruff.yaml: superseded by root pre-commit; sources removed from snapshot.
+- .coveragerc (snapshot): replaced by root coverage config; source removed from snapshot.
+- .secrets.baseline (snapshot): intentionally not adopted; removed from snapshot.
+- .bandit.yml / bandit.yaml (snapshot): policy deferred; removed from snapshot for now.
