@@ -48,3 +48,6 @@ Apply criteria
 - After each successful apply, remove the source file from the snapshot and append an NDJSON log entry.
 - If any check fails, revert and break down into smaller patches; record details in `docs/codex_integration_leftovers.md`.
 
+Status updates (APPLY)
+- codex_workflow.py: patterns folded into core docs; source removed from snapshot.
+- .codex/ruff.json: merged into `ruff.toml`; source removed from snapshot.
