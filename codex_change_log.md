@@ -11,9 +11,9 @@ Highlights
 - Added `gh_copilot.compat.codex_snapshot_adapter` behind env flag.
 - Added local configs (ruff/pytest/coverage) and docs.
 - Ingested semgrep rules and pre-commit tools (stdlib-only).
+- New: `scripts/har_ingest.py` phased HAR pipeline with DRY_RUN safety, guardrails, and NDJSON metrics.
 - Removed snapshot directory after multi-batch DRY_RUN + APPLY.
 
 Safety
 - All commits include [skip ci]; no GitHub Actions were modified.
 - No new networked dependencies were introduced.
-

@@ -29,3 +29,14 @@ Next Steps
 - If desired, add a light `sequencer.py` to build on `StepCtx` for more complex
   task graphs, keeping stdlib-only guarantees.
 
+HAR Ingestion
+-------------
+- Script: `scripts/har_ingest.py`
+  - Phases: Validate → JSON schema check → Normalize → Persist (APPLY only) → Emit metrics
+  - DRY_RUN=1 (default): simulates writes, prints a compact JSON summary, and logs an NDJSON metric to `.codex/action_log.ndjson`.
+  - APPLY (set `DRY_RUN=0`): enables guardrails and persists normalized entries into SQLite (default `databases/har_ingest.db`).
+- Guardrails: blocks edits to `.github/workflows`, forbids writing to `C:/temp`/`E:/temp`, and enforces no-recursive-backup patterns before persisting.
+- Usage examples:
+  - Dry run: `python scripts/har_ingest.py path/to/file.har`
+  - Apply: PowerShell `$env:DRY_RUN='0'; python scripts/har_ingest.py path/to/file.har --db databases/har_ingest.db`
+           Bash `DRY_RUN=0 python scripts/har_ingest.py path/to/file.har --db databases/har_ingest.db`
