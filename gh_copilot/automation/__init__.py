@@ -8,6 +8,7 @@ from .core import (
     ExecutionResult,
     RunArtifacts,
     run_phases,
+    persist_messages_to_compliance,
 )
 
 __all__ = [
@@ -15,5 +16,6 @@ __all__ = [
     "ExecutionResult",
     "RunArtifacts",
     "run_phases",
+    "persist_messages_to_compliance",
 ]
 
