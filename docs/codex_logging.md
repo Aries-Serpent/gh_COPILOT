@@ -40,6 +40,18 @@ The module automatically creates `codex_log.db` if it does not exist and
 `finalize_codex_log_db()` copies it to `codex_session_logs.db` while staging both
 files with `git add`.
 
+### NDJSON metrics (local stream)
+
+For lightweight, append-only metrics, use the NDJSON helper:
+
+```python
+from gh_copilot.automation.logging import append_ndjson
+append_ndjson('.codex/action_log.ndjson', {'event': 'demo', 'ok': True})
+```
+
+Optional rotation (off by default): set `NDJSON_MAX_BYTES` to a positive integer to
+rotate the file to `<path>.1` when it reaches the threshold.
+
 ### Helper script
 
 For a simplified workflow, `scripts/DEDICATED_CODEX_LOG_DATABASE_TASKS.py` wraps
