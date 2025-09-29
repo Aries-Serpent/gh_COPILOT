@@ -59,3 +59,6 @@ Status updates (APPLY)
 - .coveragerc (snapshot): replaced by root coverage config; source removed from snapshot.
 - .secrets.baseline (snapshot): intentionally not adopted; removed from snapshot.
 - .bandit.yml / bandit.yaml (snapshot): policy deferred; removed from snapshot for now.
+- docker-compose.yml / Dockerfile / Dockerfile.gpu (snapshot): not adopted; removed from snapshot.
+- Makefile / codex.mk (snapshot): not adopted; removed from snapshot.
+- noxfile.py / tox.ini / .dockerignore (snapshot): not adopted; removed from snapshot.
