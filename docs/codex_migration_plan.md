@@ -88,3 +88,10 @@ Status updates (APPLY)
 - semgrep_rules/default.yml and semgrep_rules/python-basic.yml: ingested into repo for optional local scanning; removed from snapshot.
 - tools/safe_rg.sh: already present in repo; snapshot copy removed after DRY_RUN confirmation.
 - tools/precommit_block_large.py and tools/validate_fences.py: ingested into repo tools; removed from snapshot after DRY_RUN analysis.
+- Batch 3 APPLY docs deletions (post-DRY_RUN)
+- Snapshot root docs removed: README.md, CHANGELOG.md, CHANGELOG_CODEX.md,
+  CHANGELOG_SESSION_LOGGING.md, CODEBASE_AUDIT_2025-08-26_203612.md,
+  Codex_Questions.md, DEFERRED.md, ERROR_LOG.md, OPEN_QUESTIONS.md,
+  _codex_codex-ready-sequence-and-patches-2025-09-27.md,
+  _codex_status_update-0C_base_-2025-09-27.md
+- Snapshot doc directories removed: docs/, documentation/, reports/, examples/
