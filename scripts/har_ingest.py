@@ -58,6 +58,7 @@ class IngestContext:
     normalized: List[Dict[str, Any]] = None  # type: ignore[assignment]
     # Optional outputs
     pages_jsonl_path: Optional[Path] = None
+    pages_preview_jsonl_path: Optional[Path] = None
 
 
 def _git_root_fallback() -> Path:
@@ -318,7 +319,11 @@ def _write_pages_jsonl(ctx: IngestContext) -> None:
     pages = ctx.raw_har.get("log", {}).get("pages") if ctx.raw_har else None
     if not isinstance(pages, list) or not pages:
         return
-    target = os.environ.get("HAR_PAGES_JSONL", os.path.join("databases", "har_pages.ndjson"))
+    # JSONL writing ON by default when APPLY=1; allow opt-out via HAR_PAGES_JSONL=0
+    jsonl_enabled = os.environ.get("HAR_PAGES_JSONL", "1") not in {"0", "false", "False", "no", "NO"}
+    if not jsonl_enabled:
+        return
+    target = os.environ.get("HAR_PAGES_JSONL_PATH", os.path.join("databases", "har_pages.ndjson"))
     target_path = Path(target)
     validate_no_forbidden_paths(str(target_path))
     target_path.parent.mkdir(parents=True, exist_ok=True)
@@ -329,6 +334,34 @@ def _write_pages_jsonl(ctx: IngestContext) -> None:
             for p in chunk:
                 fh.write(json.dumps(p, ensure_ascii=False) + "\n")
     ctx.pages_jsonl_path = target_path
+
+
+def _write_pages_preview_jsonl(ctx: IngestContext) -> None:
+    """Write pages preview to .codex in DRY_RUN.
+
+    - Enabled by default (HAR_PREVIEW_PAGES not set to 0).
+    - Writes each page as-is (one per line) to `.codex/har_pages_preview.ndjson` unless
+      HAR_PREVIEW_PAGES_JSONL overrides the path.
+    """
+    if not ctx.dry_run:
+        return
+    pages = ctx.raw_har.get("log", {}).get("pages") if ctx.raw_har else None
+    if not isinstance(pages, list) or not pages:
+        return
+    preview_enabled = os.environ.get("HAR_PREVIEW_PAGES", "1") not in {"0", "false", "False", "no", "NO"}
+    if not preview_enabled:
+        return
+    target = os.environ.get("HAR_PREVIEW_PAGES_JSONL", os.path.join(".codex", "har_pages_preview.ndjson"))
+    target_path = Path(target)
+    # Preview path is within the repo by default; still validate forbidden roots
+    validate_no_forbidden_paths(str(target_path))
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    chunk_size = int(os.environ.get("HAR_PAGES_CHUNK_SIZE", "1000"))
+    with open(target_path, "a", encoding="utf-8") as fh:
+        for chunk in _iter_chunks(pages, chunk_size):
+            for p in chunk:
+                fh.write(json.dumps(p, ensure_ascii=False) + "\n")
+    ctx.pages_preview_jsonl_path = target_path
 
 
 def _emit_metrics(ctx: IngestContext) -> None:
@@ -348,6 +381,10 @@ def _emit_metrics(ctx: IngestContext) -> None:
             record["creator"] = ctx.meta_creator
         if ctx.meta_browser:
             record["browser"] = ctx.meta_browser
+    if ctx.pages_jsonl_path is not None:
+        record["pages_jsonl_path"] = str(ctx.pages_jsonl_path)
+    if ctx.pages_preview_jsonl_path is not None:
+        record["pages_preview_jsonl_path"] = str(ctx.pages_preview_jsonl_path)
     append_ndjson(str(ctx.ndjson_path), record)
 
 
@@ -380,6 +417,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
     phases = [
         StepCtx(name="Validate", desc="Validate HAR path", fn=lambda: _validate_file(ctx)),
         StepCtx(name="Schema", desc="Load + schema check", fn=lambda: _load_and_check_schema(ctx)),
+        StepCtx(name="PreviewPages", desc="Write pages to .codex JSONL (DRY_RUN)", fn=lambda: _write_pages_preview_jsonl(ctx)),
         StepCtx(name="PersistPages", desc="Write pages as JSONL and DB (APPLY)", fn=lambda: _write_pages_jsonl(ctx)),
         StepCtx(name="Parse", desc="Normalize entries", fn=lambda: _parse_entries(ctx)),
         StepCtx(name="Persist", desc="Write to SQLite (APPLY only)", fn=lambda dry_run=dry_run: (_write_db(ctx) if not dry_run else None)),
