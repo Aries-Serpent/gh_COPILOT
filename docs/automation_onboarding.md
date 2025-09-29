@@ -69,3 +69,15 @@ mods = initialize_adapter(log_path='.codex/action_log.ndjson')
 Guardrails Flags
 ----------------
 - `GUARD_DENYLIST` (optional): comma/semicolon-separated absolute path prefixes to block writes (in addition to built-ins like `C:/temp`, `E:/temp`). Used by `validate_no_forbidden_paths`.
+
+Error Handling
+--------------
+- If a step raises, `run_phases` captures the exception, marks the step log with an `error`, sets `ok=False` overall, and continues to subsequent steps to maximize coverage (useful in DRY_RUN).
+- Example:
+```python
+def boom():
+    raise ValueError('boom')
+result = run_phases([StepCtx('Boom','',boom)], dry_run=True)
+assert result.ok is False
+assert result.logs[0]['error']
+```
