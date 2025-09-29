@@ -56,6 +56,8 @@ class IngestContext:
     meta_creator: Optional[str] = None
     meta_browser: Optional[str] = None
     normalized: List[Dict[str, Any]] = None  # type: ignore[assignment]
+    # Optional outputs
+    pages_jsonl_path: Optional[Path] = None
 
 
 def _git_root_fallback() -> Path:
@@ -197,6 +199,13 @@ def _normalize_entry(entry: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def _iter_chunks(items: List[Any], chunk_size: int) -> Iterable[List[Any]]:
+    if chunk_size <= 0:
+        chunk_size = 1000
+    for i in range(0, len(items), chunk_size):
+        yield items[i : i + chunk_size]
+
+
 def _parse_entries(ctx: IngestContext) -> None:
     assert ctx.raw_har is not None
     entries = ctx.raw_har.get("log", {}).get("entries", [])
@@ -273,9 +282,53 @@ def _write_db(ctx: IngestContext) -> None:
             """,
             rows,
         )
+        # Persist pages as JSON text, without alteration (no truncation, no summary)
+        pages = ctx.raw_har.get("log", {}).get("pages") if ctx.raw_har else None
+        if isinstance(pages, list) and pages:
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS har_pages (
+                  id INTEGER PRIMARY KEY,
+                  page_index INTEGER,
+                  page_json TEXT
+                )
+                """
+            )
+            chunk_size = int(os.environ.get("HAR_PAGES_CHUNK_SIZE", "1000"))
+            for chunk_start, chunk in enumerate(_iter_chunks(pages, chunk_size)):
+                rows_p = [
+                    (i, json.dumps(p, ensure_ascii=False)) for i, p in enumerate(chunk, start=chunk_start * chunk_size)
+                ]
+                cur.executemany(
+                    "INSERT INTO har_pages (page_index, page_json) VALUES (?, ?)", rows_p
+                )
         conn.commit()
     finally:
         conn.close()
+
+
+def _write_pages_jsonl(ctx: IngestContext) -> None:
+    """Write pages to JSONL, each page as its original JSON, no modifications.
+
+    Enabled only in APPLY mode. Path can be provided via HAR_PAGES_JSONL; if
+    unset, defaults to databases/har_pages.ndjson.
+    """
+    if ctx.dry_run:
+        return
+    pages = ctx.raw_har.get("log", {}).get("pages") if ctx.raw_har else None
+    if not isinstance(pages, list) or not pages:
+        return
+    target = os.environ.get("HAR_PAGES_JSONL", os.path.join("databases", "har_pages.ndjson"))
+    target_path = Path(target)
+    validate_no_forbidden_paths(str(target_path))
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    chunk_size = int(os.environ.get("HAR_PAGES_CHUNK_SIZE", "1000"))
+    # Append to JSONL, preserving as-is JSON (ensure_ascii=False)
+    with open(target_path, "a", encoding="utf-8") as fh:
+        for chunk in _iter_chunks(pages, chunk_size):
+            for p in chunk:
+                fh.write(json.dumps(p, ensure_ascii=False) + "\n")
+    ctx.pages_jsonl_path = target_path
 
 
 def _emit_metrics(ctx: IngestContext) -> None:
@@ -327,6 +380,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
     phases = [
         StepCtx(name="Validate", desc="Validate HAR path", fn=lambda: _validate_file(ctx)),
         StepCtx(name="Schema", desc="Load + schema check", fn=lambda: _load_and_check_schema(ctx)),
+        StepCtx(name="PersistPages", desc="Write pages as JSONL and DB (APPLY)", fn=lambda: _write_pages_jsonl(ctx)),
         StepCtx(name="Parse", desc="Normalize entries", fn=lambda: _parse_entries(ctx)),
         StepCtx(name="Persist", desc="Write to SQLite (APPLY only)", fn=lambda dry_run=dry_run: (_write_db(ctx) if not dry_run else None)),
         StepCtx(name="Metrics", desc="Emit NDJSON metrics", fn=lambda: _emit_metrics(ctx)),
