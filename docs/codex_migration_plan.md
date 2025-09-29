@@ -78,3 +78,4 @@ Status updates (APPLY)
 - noxfile.py / tox.ini / .dockerignore (snapshot): not adopted; removed from snapshot.
 - semgrep_rules/default.yml and semgrep_rules/python-basic.yml: ingested into repo for optional local scanning; removed from snapshot.
 - tools/safe_rg.sh: already present in repo; snapshot copy removed after DRY_RUN confirmation.
+- tools/precommit_block_large.py and tools/validate_fences.py: ingested into repo tools; removed from snapshot after DRY_RUN analysis.
