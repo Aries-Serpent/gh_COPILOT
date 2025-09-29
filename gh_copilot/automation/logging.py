@@ -26,6 +26,30 @@ def append_ndjson(path: str, record: Dict[str, Any]) -> None:
 
     new_line = json.dumps(record, ensure_ascii=False) + "\n"
 
+    # Optional rotation: if NDJSON_MAX_BYTES is set (>0) and the target file
+    # exceeds the threshold, rotate to <path>.1 and start a new file.
+    try:
+        max_bytes = int(os.environ.get("NDJSON_MAX_BYTES", "0"))
+    except ValueError:
+        max_bytes = 0
+    if max_bytes > 0 and os.path.exists(path):
+        try:
+            if os.path.getsize(path) >= max_bytes:
+                rotated = path + ".1"
+                try:
+                    os.replace(path, rotated)
+                except Exception:
+                    try:
+                        if os.path.exists(rotated):
+                            os.remove(rotated)
+                        os.rename(path, rotated)
+                    except Exception:
+                        # proceed without rotation if filesystem disallows
+                        pass
+        except Exception:
+            # ignore rotation errors
+            pass
+
     if not os.path.exists(path):
         fd, tmp = tempfile.mkstemp(prefix="ndjson_", suffix=".tmp", dir=parent or None)
         try:
@@ -55,4 +79,3 @@ def append_ndjson(path: str, record: Dict[str, Any]) -> None:
                 os.remove(tmp)
         except OSError:
             pass
-

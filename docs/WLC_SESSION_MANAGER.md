@@ -39,6 +39,17 @@ zero-byte files both before and after wrap-up. The module also exposes a
 session workflow. Any attempt to re-enter the session logic from the same
 process raises a `RuntimeError`.
 
+### NDJSON Example
+
+In addition to database logging, automation steps can append metrics to an NDJSON stream.
+
+```python
+from gh_copilot.automation.logging import append_ndjson
+append_ndjson('.codex/action_log.ndjson', {'event': 'wlc_wrapup', 'status': 'ok'})
+```
+
+This file can be tailed locally or ingested by a dashboard reader.
+
 ## Example Usage
 
 Run the session manager directly to start a WLC session with explicit CLI parameters:

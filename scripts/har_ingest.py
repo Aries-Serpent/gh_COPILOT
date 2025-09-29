@@ -230,6 +230,11 @@ def _write_db(ctx: IngestContext) -> None:
     conn = sqlite3.connect(str(ctx.db_path))
     try:
         cur = conn.cursor()
+        # Mitigate lock contention: small busy timeout
+        try:
+            cur.execute("PRAGMA busy_timeout=3000")
+        except Exception:
+            pass
         cur.execute(
             """
             CREATE TABLE IF NOT EXISTS har_entries (

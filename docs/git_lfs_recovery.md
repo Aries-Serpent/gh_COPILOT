@@ -55,3 +55,12 @@ After restoring files, commit the changes using the standard commit workflow. Se
 ---
 
 Following this procedure ensures the repository's binary artifacts stay consistent and recoverable.
+
+### Quick refresh of attributes
+
+If patterns change or new binary types appear, refresh tracked attributes and re-stage files:
+
+```bash
+bash tools/pre-commit-lfs.sh
+git add .gitattributes
+```

@@ -40,3 +40,24 @@ HAR Ingestion
   - Dry run: `python scripts/har_ingest.py path/to/file.har`
   - Apply: PowerShell `$env:DRY_RUN='0'; python scripts/har_ingest.py path/to/file.har --db databases/har_ingest.db`
            Bash `DRY_RUN=0 python scripts/har_ingest.py path/to/file.har --db databases/har_ingest.db`
+
+Cookbook — StepCtx Patterns
+---------------------------
+- Shared context:
+```python
+ctx = {"prepared": False}
+def prepare(dry_run: bool = True): ctx["prepared"] = True
+def act(): assert ctx["prepared"]
+phases = [StepCtx("Prepare","",prepare), StepCtx("Act","",act)]
+run_phases(phases, dry_run=True)
+```
+- Skip in dry-run:
+```python
+def apply(): ...
+run_phases([StepCtx("Apply","",apply,dry_run_ok=False)], dry_run=True)
+```
+
+Exec & Adapter Notes
+--------------------
+- Local Exec allowlist (examples): `python`, `git`, `sqlite3` — network tools like `curl`/`wget` are denied by default in `automation.exec`.
+- Snapshot adapter: set `GH_COPILOT_USE_CODEX_SNAPSHOT=1` to enable optional imports of local snapshot helpers (no network); otherwise live automation modules are used.

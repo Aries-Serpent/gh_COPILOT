@@ -27,9 +27,10 @@ Output
 - SQLite table `har_entries` (created on demand in APPLY mode):
   - started_at, method, url, host, path, status, status_text, mime_type,
     wait_ms, blocked_ms, dns_ms, connect_ms, ssl_ms, send_ms, receive_ms, total_ms
+- SQLite table `har_pages` (created when pages are present in APPLY mode):
+  - page_index (INTEGER), page_json (TEXT: original page JSON, unmodified)
 - NDJSON metric appended to `.codex/action_log.ndjson` with counts and run metadata.
 
 Notes
 - The pipeline is stdlib-only and local-by-default; networked tooling is not invoked.
 - Extend the normalization step to include headers or post bodies if needed (be mindful of PII/secret handling).
-
