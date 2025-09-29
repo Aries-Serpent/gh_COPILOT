@@ -54,3 +54,5 @@ Status updates (APPLY)
 - pytest.ini (snapshot): replaced by root pytest.ini; source removed from snapshot.
 - .pre-commit-config.yaml (snapshot): replaced by local-only hooks; source removed from snapshot.
 - GATES_REPORT.txt (snapshot root): merged into `.codex/GATES_REPORT.txt`; source removed from snapshot.
+- .codex/guardrails.md: concepts integrated into guardrails module; source removed from snapshot.
+- .pre-commit-hybrid.yaml / .pre-commit-ruff.yaml: superseded by root pre-commit; sources removed from snapshot.
