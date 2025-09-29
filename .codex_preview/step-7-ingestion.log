@@ -1,5 +1,0 @@
-Step 7 (DRY RUN): Snapshot ingestion planning
-- Analyzed priority snapshot files and wrote per-file plans under .codex_preview/migration_plans/
-- Updated docs/codex_migration_plan.md remains the high-level plan; details split per item.
-- Added docs/automation_onboarding.md (applies in next APPLY batch).
-- No snapshot files were modified or deleted.
