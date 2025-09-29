@@ -61,6 +61,21 @@ The `template_engine.auto_generator` module clusters stored patterns using KMean
 
 - [HAR_INGESTION_PIPELINE.md](HAR_INGESTION_PIPELINE.md) documents the phased HAR ingestion pipeline built on `gh_copilot.automation` with DRY_RUN safety and guardrails.
 
+## Docs Editing Checklist
+
+- Validate Markdown fences locally before committing to avoid broken examples:
+
+```bash
+python tools/validate_fences.py --strict-inner docs/
+```
+
+- Optional local SAST & lint (if installed):
+
+```bash
+python -m semgrep --config semgrep_rules/
+ruff check .
+```
+
 For validation details see [validation/Database_First_Validation.md](validation/Database_First_Validation.md). Copilot-specific notes are available under [.github/docs/Database_First_Copilot.md](../.github/docs/Database_First_Copilot.md).
 
 ## Quantum Preparation, Executive Guides, and Certification
