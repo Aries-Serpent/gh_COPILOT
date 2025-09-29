@@ -2,8 +2,10 @@ from __future__ import annotations
 
 """Subprocess execution helper with local-only safeguards."""
 
+import os
 import shlex
 import subprocess
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 
@@ -40,21 +42,31 @@ def run_cmd(
         Dict with keys ``code`` (int), ``out`` (str), ``err`` (str).
     """
 
+    if not cmd:
+        raise ValueError("Command must not be empty")
+
     argv = _flatten_cmd(cmd)
     _deny_network_tools(argv)
 
+    workdir = Path(cwd).resolve() if cwd else Path.cwd()
+    env = os.environ.copy()
+    env.setdefault("NO_NETWORK_EXEC", "1")
+
     proc = subprocess.run(
         argv,
-        cwd=cwd,
+        cwd=str(workdir),
         capture_output=True,
         text=True,
         timeout=timeout,
         check=False,
+        env=env,
     )
     result = {
         "code": int(proc.returncode),
         "out": proc.stdout or "",
         "err": proc.stderr or "",
+        "cmd": " ".join(shlex.quote(part) for part in argv),
+        "cwd": str(workdir),
     }
     if proc.returncode != 0 and not allow_fail:
         raise RuntimeError(
