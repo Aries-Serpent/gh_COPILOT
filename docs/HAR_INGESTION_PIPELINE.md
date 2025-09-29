@@ -29,6 +29,9 @@ Output
     wait_ms, blocked_ms, dns_ms, connect_ms, ssl_ms, send_ms, receive_ms, total_ms
 - SQLite table `har_pages` (created when pages are present in APPLY mode):
   - page_index (INTEGER), page_json (TEXT: original page JSON, unmodified)
+- SQLite tables for headers/bodies (created when present in APPLY mode):
+  - `har_request_headers(entry_index, headers_json)` and `har_response_headers(entry_index, headers_json)` — headers stored as JSON arrays of `{name,value}`; values redacted only when `HAR_REDACT_HEADERS=1`.
+  - `har_request_bodies(entry_index, body_text, mime_type)` and `har_response_bodies(entry_index, body_text, mime_type, encoding)` — body text stored as-is; redacted only when `HAR_REDACT_BODIES=1`.
 - NDJSON metric appended to `.codex/action_log.ndjson` with counts and run metadata.
 
 Notes

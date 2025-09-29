@@ -200,6 +200,79 @@ def _normalize_entry(entry: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def _extract_headers_and_bodies(entry: Dict[str, Any], *, redact_headers: bool, redact_bodies: bool) -> Dict[str, Any]:
+    """Extract request/response headers and bodies from a HAR entry.
+
+    - Returns JSON-serializable dict with keys:
+      req_headers_json, res_headers_json (list of {name,value})
+      req_body_text (str|None), req_body_mime (str)
+      res_body_text (str|None), res_body_mime (str), res_body_encoding (str|None)
+    - When redaction flags are enabled, header values and/or body text are replaced
+      with the string "[REDACTED]".
+    """
+    req = entry.get("request", {}) if isinstance(entry.get("request"), dict) else {}
+    res = entry.get("response", {}) if isinstance(entry.get("response"), dict) else {}
+
+    def _headers(obj: Any) -> List[Dict[str, str]]:
+        hs = obj.get("headers") if isinstance(obj, dict) else None
+        if not isinstance(hs, list):
+            return []
+        out: List[Dict[str, str]] = []
+        for item in hs:
+            if not isinstance(item, dict):
+                continue
+            name = str(item.get("name") or "")
+            val = item.get("value")
+            sval = "" if val is None else str(val)
+            if redact_headers:
+                sval = "[REDACTED]"
+            out.append({"name": name, "value": sval})
+        return out
+
+    def _req_body(obj: Any) -> Tuple[Optional[str], str]:
+        if not isinstance(obj, dict):
+            return None, ""
+        pd = obj.get("postData")
+        if not isinstance(pd, dict):
+            return None, ""
+        text = pd.get("text")
+        mime = pd.get("mimeType")
+        if text is not None and not isinstance(text, str):
+            text = str(text)
+        if redact_bodies and text is not None:
+            text = "[REDACTED]"
+        return (text, str(mime or ""))
+
+    def _res_body(obj: Any) -> Tuple[Optional[str], str, Optional[str]]:
+        if not isinstance(obj, dict):
+            return None, "", None
+        content = obj.get("content")
+        if not isinstance(content, dict):
+            return None, "", None
+        text = content.get("text")
+        mime = content.get("mimeType")
+        enc = content.get("encoding")
+        if text is not None and not isinstance(text, str):
+            text = str(text)
+        if redact_bodies and text is not None:
+            text = "[REDACTED]"
+        return (text, str(mime or ""), str(enc) if enc is not None else None)
+
+    req_headers = _headers(req)
+    res_headers = _headers(res)
+    req_text, req_mime = _req_body(req)
+    res_text, res_mime, res_enc = _res_body(res)
+    return {
+        "req_headers_json": req_headers,
+        "res_headers_json": res_headers,
+        "req_body_text": req_text,
+        "req_body_mime": req_mime,
+        "res_body_text": res_text,
+        "res_body_mime": res_mime,
+        "res_body_encoding": res_enc,
+    }
+
+
 def _iter_chunks(items: List[Any], chunk_size: int) -> Iterable[List[Any]]:
     if chunk_size <= 0:
         chunk_size = 1000
@@ -288,6 +361,84 @@ def _write_db(ctx: IngestContext) -> None:
             """,
             rows,
         )
+        # Persist headers/bodies into dedicated tables without altering content
+        entries = ctx.raw_har.get("log", {}).get("entries") if ctx.raw_har else None
+        if isinstance(entries, list) and entries and not ctx.dry_run:
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS har_request_headers (
+                  id INTEGER PRIMARY KEY,
+                  entry_index INTEGER,
+                  headers_json TEXT
+                )
+                """
+            )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS har_response_headers (
+                  id INTEGER PRIMARY KEY,
+                  entry_index INTEGER,
+                  headers_json TEXT
+                )
+                """
+            )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS har_request_bodies (
+                  id INTEGER PRIMARY KEY,
+                  entry_index INTEGER,
+                  body_text TEXT,
+                  mime_type TEXT
+                )
+                """
+            )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS har_response_bodies (
+                  id INTEGER PRIMARY KEY,
+                  entry_index INTEGER,
+                  body_text TEXT,
+                  mime_type TEXT,
+                  encoding TEXT
+                )
+                """
+            )
+
+            redact_headers = os.environ.get("HAR_REDACT_HEADERS", "0") == "1"
+            redact_bodies = os.environ.get("HAR_REDACT_BODIES", "0") == "1"
+            req_hdr_rows: List[Tuple[int, str]] = []
+            res_hdr_rows: List[Tuple[int, str]] = []
+            req_body_rows: List[Tuple[int, Optional[str], str]] = []
+            res_body_rows: List[Tuple[int, Optional[str], str, Optional[str]]] = []
+            for idx, e in enumerate(entries):
+                if not isinstance(e, dict):
+                    continue
+                parts = _extract_headers_and_bodies(e, redact_headers=redact_headers, redact_bodies=redact_bodies)
+                if parts["req_headers_json"]:
+                    req_hdr_rows.append((idx, json.dumps(parts["req_headers_json"], ensure_ascii=False)))
+                if parts["res_headers_json"]:
+                    res_hdr_rows.append((idx, json.dumps(parts["res_headers_json"], ensure_ascii=False)))
+                if parts["req_body_text"] is not None or parts["req_body_mime"]:
+                    req_body_rows.append((idx, parts["req_body_text"], parts["req_body_mime"]))
+                if parts["res_body_text"] is not None or parts["res_body_mime"] or parts["res_body_encoding"] is not None:
+                    res_body_rows.append((idx, parts["res_body_text"], parts["res_body_mime"], parts["res_body_encoding"]))
+            if req_hdr_rows:
+                cur.executemany(
+                    "INSERT INTO har_request_headers (entry_index, headers_json) VALUES (?, ?)", req_hdr_rows
+                )
+            if res_hdr_rows:
+                cur.executemany(
+                    "INSERT INTO har_response_headers (entry_index, headers_json) VALUES (?, ?)", res_hdr_rows
+                )
+            if req_body_rows:
+                cur.executemany(
+                    "INSERT INTO har_request_bodies (entry_index, body_text, mime_type) VALUES (?, ?, ?)", req_body_rows
+                )
+            if res_body_rows:
+                cur.executemany(
+                    "INSERT INTO har_response_bodies (entry_index, body_text, mime_type, encoding) VALUES (?, ?, ?, ?)", res_body_rows
+                )
+
         # Persist pages as JSON text, without alteration (no truncation, no summary)
         pages = ctx.raw_har.get("log", {}).get("pages") if ctx.raw_har else None
         if isinstance(pages, list) and pages:
