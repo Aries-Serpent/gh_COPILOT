@@ -60,4 +60,12 @@ run_phases([StepCtx("Apply","",apply,dry_run_ok=False)], dry_run=True)
 Exec & Adapter Notes
 --------------------
 - Local Exec allowlist (examples): `python`, `git`, `sqlite3` — network tools like `curl`/`wget` are denied by default in `automation.exec`.
-- Snapshot adapter: set `GH_COPILOT_USE_CODEX_SNAPSHOT=1` to enable optional imports of local snapshot helpers (no network); otherwise live automation modules are used.
+- Snapshot adapter: set `GH_COPILOT_USE_CODEX_SNAPSHOT=1` to enable optional imports of local snapshot helpers (no network); otherwise live automation modules are used. Example:
+```python
+from gh_copilot.compat.codex_snapshot_adapter import initialize_adapter
+mods = initialize_adapter(log_path='.codex/action_log.ndjson')
+```
+
+Guardrails Flags
+----------------
+- `GUARD_DENYLIST` (optional): comma/semicolon-separated absolute path prefixes to block writes (in addition to built-ins like `C:/temp`, `E:/temp`). Used by `validate_no_forbidden_paths`.

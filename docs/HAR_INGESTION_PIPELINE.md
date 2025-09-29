@@ -34,3 +34,12 @@ Output
 Notes
 - The pipeline is stdlib-only and local-by-default; networked tooling is not invoked.
 - Extend the normalization step to include headers or post bodies if needed (be mindful of PII/secret handling).
+
+Flags Summary
+-------------
+- DRY_RUN preview (default ON): `HAR_PREVIEW_PAGES=1` writes pages preview JSONL to `.codex/har_pages_preview.ndjson`.
+- APPLY JSONL (default ON): `HAR_PAGES_JSONL=1` writes pages JSONL to `databases/har_pages.ndjson` (override with `HAR_PAGES_JSONL_PATH`). Set `HAR_PAGES_JSONL=0` to disable.
+- Pagination: `HAR_PAGES_CHUNK_SIZE` (default 1000) controls chunk size for JSONL/SQLite.
+- Metadata emission: `HAR_EMIT_META=1` includes creator/browser strings in metrics; default off.
+- Redaction flags (scaffolded): `HAR_REDACT_HEADERS`, `HAR_REDACT_BODIES` (default 0; no redaction unless enabled).
+- SQLite writes use a small `PRAGMA busy_timeout=3000` to reduce lock contention.

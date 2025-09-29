@@ -50,7 +50,8 @@ append_ndjson('.codex/action_log.ndjson', {'event': 'demo', 'ok': True})
 ```
 
 Optional rotation (off by default): set `NDJSON_MAX_BYTES` to a positive integer to
-rotate the file to `<path>.1` when it reaches the threshold.
+rotate the file to `<path>.1` when it reaches the threshold. Exactly one
+rotated backup is kept (single-backup policy).
 
 ### Helper script
 
