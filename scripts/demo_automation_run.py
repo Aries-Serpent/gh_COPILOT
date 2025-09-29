@@ -5,6 +5,8 @@ import json
 import os
 from datetime import datetime
 
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from gh_copilot.automation.core import StepCtx, run_phases
 from gh_copilot.automation.logging import append_ndjson
 
@@ -51,4 +53,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
