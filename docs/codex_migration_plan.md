@@ -105,3 +105,8 @@ Status updates (APPLY)
 
 - Batch 6 APPLY scripts deletion (post-DRY_RUN)
 - Removed snapshot `scripts/` directory after DRY_RUN classification.
+- Batch 7 DRY_RUN interfaces analysis
+- interfaces/: shim around codex_ml tokenizer; not adopted (codex_ml removed).
+
+- Batch 8 APPLY services deletion (post-DRY_RUN)
+- Removed snapshot `services/` directory after DRY_RUN classification.

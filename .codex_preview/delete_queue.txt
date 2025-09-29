@@ -4,3 +4,41 @@ Candidates for deletion after APPLY verification (snapshot path):
 - E:/gh_COPILOT/archive/copied_codex_codebase/.bandit.yml (optional; evaluate later)
 - E:/gh_COPILOT/archive/copied_codex_codebase/pytest.ini (markers reviewed; core config added)
 - E:/gh_COPILOT/archive/copied_codex_codebase/.pre-commit-config.yaml (networked hooks avoided; local config added)
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/codex_patch_runner.py — Not applicable; overlaps with automation core; avoids nox/tooling
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/codex_update_runner.py — Not applicable; overlaps with automation core
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/codex_setup.py — Snapshot bootstrap not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/codex_script.py — Snapshot entry script not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/conftest.py — Conflicts with repo fixtures; not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/mkdocs.yml — Docs site not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/pyproject.toml — Separate package config not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/tools/ci_guard.py — Overlaps with guardrails; not needed
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/tools/pip_audit_wrapper.py — Out of scope per guardrails
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/tools/label_policy.json — Snapshot-specific
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/tools/label_policy_lint.py — Snapshot-specific
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/README.md — Snapshot README not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/CHANGELOG.md — Snapshot changelog not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/CHANGELOG_CODEX.md — Snapshot changelog not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/CHANGELOG_SESSION_LOGGING.md — Snapshot changelog not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/CODEBASE_AUDIT_2025-08-26_203612.md — Snapshot audit not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/Codex_Questions.md — Snapshot doc not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/DEFERRED.md — Snapshot doc not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/ERROR_LOG.md — Snapshot doc not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/OPEN_QUESTIONS.md — Snapshot doc not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/_codex_codex-ready-sequence-and-patches-2025-09-27.md — Snapshot status doc not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/_codex_status_update-0C_base_-2025-09-27.md — Snapshot status doc not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/docs — Snapshot docs directory not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/documentation — Snapshot documentation directory not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/reports — Snapshot reports directory not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/examples — Snapshot examples directory not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/codex_addons — Snapshot ML add-ons not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/codex_utils — Snapshot utilities overlap/out-of-scope
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/codex_digest — Snapshot-specific digest tooling not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/codex_ml — Snapshot ML package not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/training — Snapshot training utilities not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/torch — Snapshot torch namespace not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/experiments — Snapshot experiments not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/notebooks — Snapshot notebooks not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/nox_sessions — Snapshot nox sessions not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/scripts — Snapshot scripts directory not adopted
+PENDING: E:/GH_COPILOT/archive/copied_codex_codebase/services — Snapshot FastAPI services not adopted
+PENDING: E:/gh_COPILOT/archive/copied_codex_codebase/interfaces � Snapshot interfaces not adopted
