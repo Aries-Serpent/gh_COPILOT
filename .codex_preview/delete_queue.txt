@@ -1,0 +1,6 @@
+Candidates for deletion after APPLY verification (snapshot path):
+- E:/gh_COPILOT/archive/copied_codex_codebase/codex_workflow.py (doc patterns folded)
+- E:/gh_COPILOT/archive/copied_codex_codebase/.codex/ruff.json (settings merged into ruff.toml)
+- E:/gh_COPILOT/archive/copied_codex_codebase/.bandit.yml (optional; evaluate later)
+- E:/gh_COPILOT/archive/copied_codex_codebase/pytest.ini (markers reviewed; core config added)
+- E:/gh_COPILOT/archive/copied_codex_codebase/.pre-commit-config.yaml (networked hooks avoided; local config added)
