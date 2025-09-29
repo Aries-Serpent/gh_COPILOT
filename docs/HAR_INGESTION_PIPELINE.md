@@ -23,6 +23,12 @@ Usage
   - PowerShell: `$env:DRY_RUN='0'; python scripts/har_ingest.py trace.har --db databases/har_ingest.db`
   - Bash: `DRY_RUN=0 python scripts/har_ingest.py trace.har --db databases/har_ingest.db`
 
+Exporting to JSONL
+------------------
+- Use `scripts/har_export.py` to export DB tables back to JSONL for analysis:
+  - `python scripts/har_export.py --db databases/har_ingest.db --out exports`
+  - Produces `har_entries.ndjson`, `har_pages.ndjson`, `har_request_headers.ndjson`, `har_response_headers.ndjson`, `har_request_bodies.ndjson`, `har_response_bodies.ndjson` as available.
+
 Output
 - SQLite table `har_entries` (created on demand in APPLY mode):
   - started_at, method, url, host, path, status, status_text, mime_type,
