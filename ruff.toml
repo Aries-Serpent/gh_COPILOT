@@ -1,0 +1,13 @@
+# TODO: Requires ruff installed locally to run these settings.
+target-version = "py38"
+line-length = 100
+extend-exclude = [
+  ".codex",
+  ".codex_preview",
+  "archive/copied_codex_codebase",
+]
+
+[lint]
+select = ["E", "F", "I", "UP", "B", "C4", "ARG", "RUF"]
+ignore = []
+
