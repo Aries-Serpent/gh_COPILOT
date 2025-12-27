@@ -13,4 +13,5 @@ def test_skip_step_when_dry_run_not_ok():
     assert result.phases_completed == 1
     assert ran["flag"] is False
     assert any(log.get("skipped_due_to_dry_run") for log in result.logs)
+    assert any(msg.startswith("skip:Danger:dry_run_blocked") for msg in result.messages)
 

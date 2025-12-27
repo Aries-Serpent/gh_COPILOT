@@ -1,0 +1,146 @@
+﻿{
+    "generated_at":  "2025-09-29T14:50:40Z",
+    "entries":  [
+                    {
+                        "capability":  "Orchestration",
+                        "domain":  "Automation",
+                        "owner":  "\u003c@owner\u003e",
+                        "modules":  [
+                                        "gh_copilot/automation/core.py"
+                                    ],
+                        "status":  "Implemented",
+                        "dry_run":  "Yes",
+                        "apply_guard":  "Yes",
+                        "security_checks":  [
+                                                "ruff",
+                                                "pytest"
+                                            ],
+                        "tests":  [
+                                      "tests/test_automation_core.py",
+                                      "tests/test_automation_skip.py",
+                                      "tests/test_automation_error_path.py"
+                                  ],
+                        "evidence":  [
+                                         "gh_copilot/automation/core.py",
+                                         "tests/test_automation_core.py"
+                                     ],
+                        "gaps":  [
+                                     "Weight normalization validation still basic"
+                                 ],
+                        "risks":  [
+                                      "Medium: messages list not yet persisted to metrics"
+                                  ],
+                        "next_actions":  [
+                                             "Add persistence hook for messages",
+                                             "Expand coverage for weighted progress"
+                                         ],
+                        "rollback":  "git checkout -- gh_copilot/automation/core.py",
+                        "prod_impact":  "Medium",
+                        "last_verified":  "2025-09-29",
+                        "notes":  "StepCtx validations ensure non-empty names; messages exposed for adapters."
+                    },
+                    {
+                        "capability":  "Guardrails",
+                        "domain":  "Safety",
+                        "owner":  "\u003c@owner\u003e",
+                        "modules":  [
+                                        "gh_copilot/automation/guardrails.py"
+                                    ],
+                        "status":  "Implemented",
+                        "dry_run":  "Yes",
+                        "apply_guard":  "Yes",
+                        "security_checks":  [
+                                                "bandit",
+                                                "detect-secrets"
+                                            ],
+                        "tests":  [
+                                      "tests/test_guardrails.py"
+                                  ],
+                        "evidence":  [
+                                         "gh_copilot/automation/guardrails.py",
+                                         "tests/test_guardrails.py"
+                                     ],
+                        "gaps":  [
+                                     "Backup scan walks entire repo; consider targeted paths"
+                                 ],
+                        "risks":  [
+                                      "High: full-tree scan may be expensive on huge repos"
+                                  ],
+                        "next_actions":  [
+                                             "Add allowlist for known backup directories"
+                                         ],
+                        "rollback":  "git checkout -- gh_copilot/automation/guardrails.py",
+                        "prod_impact":  "High",
+                        "last_verified":  "2025-09-29",
+                        "notes":  "Guards enforce preview cleanup before APPLY; path validator blocks forbidden segments."
+                    },
+                    {
+                        "capability":  "Exec",
+                        "domain":  "Runtime",
+                        "owner":  "\u003c@owner\u003e",
+                        "modules":  [
+                                        "gh_copilot/automation/exec.py"
+                                    ],
+                        "status":  "Implemented",
+                        "dry_run":  "Yes",
+                        "apply_guard":  "N/A",
+                        "security_checks":  [
+
+                                            ],
+                        "tests":  [
+
+                                  ],
+                        "evidence":  [
+                                         "gh_copilot/automation/exec.py"
+                                     ],
+                        "gaps":  [
+                                     "Add unit tests for run_cmd failures"
+                                 ],
+                        "risks":  [
+                                      "Medium: subprocess guard relies on manual denylist"
+                                  ],
+                        "next_actions":  [
+                                             "Stub subprocess module for test coverage"
+                                         ],
+                        "rollback":  "git checkout -- gh_copilot/automation/exec.py",
+                        "prod_impact":  "Medium",
+                        "last_verified":  "2025-09-29",
+                        "notes":  "NO_NETWORK_EXEC env default guards outgoing calls."
+                    },
+                    {
+                        "capability":  "Logging",
+                        "domain":  "Observability",
+                        "owner":  "\u003c@owner\u003e",
+                        "modules":  [
+                                        "gh_copilot/automation/logging.py"
+                                    ],
+                        "status":  "Implemented",
+                        "dry_run":  "Yes",
+                        "apply_guard":  "N/A",
+                        "security_checks":  [
+                                                "ruff"
+                                            ],
+                        "tests":  [
+
+                                  ],
+                        "evidence":  [
+                                         "gh_copilot/automation/logging.py"
+                                     ],
+                        "gaps":  [
+                                     "Add regression test for preview redirection"
+                                 ],
+                        "risks":  [
+                                      "Low: rotation fallback may silently skip on failure"
+                                  ],
+                        "next_actions":  [
+                                             "Write tempfile-based append test"
+                                         ],
+                        "rollback":  "git checkout -- gh_copilot/automation/logging.py",
+                        "prod_impact":  "Low",
+                        "last_verified":  "2025-09-29",
+                        "notes":  "DRY_RUN records routed to .codex_preview prior to APPLY."
+                    }
+                ],
+    "branch":  "copilot_codex",
+    "repo":  "gh_COPILOT"
+}

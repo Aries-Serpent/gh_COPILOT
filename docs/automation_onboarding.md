@@ -8,7 +8,7 @@ Overview
   prevent risky changes (e.g., editing `.github/workflows`).
 
 Key Modules
-- `gh_copilot.automation.core` — `StepCtx`, `run_phases`, `ExecutionResult`, `RunArtifacts`.
+- `gh_copilot.automation.core` — `StepCtx`, `run_phases`, `ExecutionResult`, `RunArtifacts`, `persist_messages_to_compliance`.
 - `gh_copilot.automation.guardrails` — CI guard, backup recursion guard, and forbidden path checks.
 - `gh_copilot.automation.exec` — local-only `run_cmd` wrapper that blocks network tools.
 - `gh_copilot.automation.logging` — append NDJSON records atomically.

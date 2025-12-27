@@ -31,8 +31,9 @@ Notes:
 
 import inspect
 import time
-from dataclasses import dataclass
-from typing import Any, Callable, Dict, List
+from pathlib import Path
+from dataclasses import dataclass, field
+from typing import Any, Callable, Dict, List, Optional, Sequence
 
 
 @dataclass
@@ -65,6 +66,7 @@ class ExecutionResult:
     phases_completed: int
     ok: bool
     logs: List[Dict[str, Any]]
+    messages: List[str] = field(default_factory=list)
 
 
 @dataclass
@@ -101,6 +103,7 @@ def run_phases(phases: List[StepCtx], dry_run: bool = True) -> ExecutionResult:
     """
 
     logs: List[Dict[str, Any]] = []
+    messages: List[str] = []
     phases_completed = 0
     overall_ok = True
 
@@ -126,6 +129,7 @@ def run_phases(phases: List[StepCtx], dry_run: bool = True) -> ExecutionResult:
             entry["ended_at"] = end
             entry["duration_sec"] = round(end - start, 6)
             logs.append(entry)
+            messages.append(f"skip:{step.name}:disabled")
             continue
 
         if dry_run and not step.dry_run_ok:
@@ -135,6 +139,7 @@ def run_phases(phases: List[StepCtx], dry_run: bool = True) -> ExecutionResult:
             entry["ended_at"] = end
             entry["duration_sec"] = round(end - start, 6)
             logs.append(entry)
+            messages.append(f"skip:{step.name}:dry_run_blocked")
             phases_completed += 1
             continue
 
@@ -144,15 +149,71 @@ def run_phases(phases: List[StepCtx], dry_run: bool = True) -> ExecutionResult:
             else:
                 step.fn()
             entry["ok"] = True
+            outcome = "done"
         except Exception as exc:  # noqa: BLE001
             entry["ok"] = False
             entry["error"] = f"{type(exc).__name__}: {exc}"
             overall_ok = False
+            outcome = "error"
         finally:
             end = time.time()
             entry["ended_at"] = end
             entry["duration_sec"] = round(end - start, 6)
             logs.append(entry)
             phases_completed += 1
+            mode = "dry_run" if dry_run else "apply"
+            messages.append(f"{outcome}:{step.name}:{mode}")
 
-    return ExecutionResult(phases_completed=phases_completed, ok=overall_ok, logs=logs)
+    return ExecutionResult(phases_completed=phases_completed, ok=overall_ok, logs=logs, messages=messages)
+
+
+
+def persist_messages_to_compliance(
+    result: ExecutionResult,
+    *,
+    workspace: Optional[str | Path] = None,
+    db_path: Optional[Path] = None,
+    row_id: Optional[int] = None,
+    limit: int = 50,
+) -> None:
+    """Persist run phase messages into compliance metrics history."""
+
+    if not result.messages:
+        return
+
+    workspace_arg = workspace
+    if isinstance(workspace_arg, Path):
+        workspace_arg = str(workspace_arg)
+
+    try:
+        from scripts.compliance.update_compliance_metrics import append_run_phase_messages
+    except ModuleNotFoundError:
+        return
+    except Exception:  # noqa: BLE001
+        import warnings
+
+        warnings.warn(
+            "Failed to import append_run_phase_messages; automation messages not recorded.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+        return
+
+    try:
+        append_run_phase_messages(
+            result.messages,
+            workspace=workspace_arg,
+            db_path=db_path,
+            row_id=row_id,
+            limit=limit,
+        )
+    except Exception:  # noqa: BLE001
+        import warnings
+
+        warnings.warn(
+            "Failed to persist automation messages to compliance metrics.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+
+

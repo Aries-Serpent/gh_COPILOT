@@ -1,5 +1,8 @@
 import os
 import tempfile
+from pathlib import Path
+
+import pytest
 
 from gh_copilot.automation.guardrails import (
     guard_no_github_actions,
@@ -32,6 +35,28 @@ def test_guard_no_github_actions_apply_raises():
             assert raised, "Expected guard to raise in APPLY mode"
         finally:
             os.environ.pop("APPLY", None)
+
+def test_guard_no_github_actions_preview_blocks_apply():
+    with tempfile.TemporaryDirectory() as tmp:
+        preview = Path(tmp) / ".codex_preview" / ".github" / "workflows"
+        preview.mkdir(parents=True, exist_ok=True)
+        os.environ["APPLY"] = "1"
+        try:
+            with pytest.raises(RuntimeError):
+                guard_no_github_actions(tmp)
+        finally:
+            os.environ.pop("APPLY", None)
+
+
+def test_backup_allowlist(tmp_path, monkeypatch):
+    allowed = tmp_path / "safe_area"
+    nested = allowed / "reports_backup"
+    nested.mkdir(parents=True)
+    monkeypatch.setenv("BACKUP_GUARD_ALLOWLIST", str(allowed))
+    try:
+        guard_no_recursive_backups(tmp_path)
+    finally:
+        monkeypatch.delenv("BACKUP_GUARD_ALLOWLIST", raising=False)
 
 
 def test_backup_and_forbidden_paths():

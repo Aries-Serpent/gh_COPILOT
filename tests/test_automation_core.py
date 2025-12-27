@@ -19,5 +19,6 @@ def test_run_phases_basic_dry_run():
     assert result.phases_completed == 2
     assert result.ok is True
     assert len(result.logs) >= 2
+    assert result.messages
     assert acc == ["a", "b"]
 

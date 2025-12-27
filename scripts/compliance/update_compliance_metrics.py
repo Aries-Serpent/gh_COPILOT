@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 import json
 import os
 import sqlite3
@@ -31,6 +31,7 @@ __all__ = [
     "ComplianceComponents",
     "_ensure_metrics_table",
     "fetch_recent_compliance",
+    "append_run_phase_messages",
 ]
 
 
@@ -106,6 +107,71 @@ def _ensure_metrics_table(conn: sqlite3.Connection) -> None:
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_compliance_metrics_history_ts ON compliance_metrics_history(ts DESC)"
     )
+
+
+def append_run_phase_messages(
+    messages: Sequence[str],
+    *,
+    workspace: Optional[str | Path] = None,
+    db_path: Optional[Path] = None,
+    row_id: Optional[int] = None,
+    limit: int = 50,
+    source: str = "automation_core",
+) -> Optional[int]:
+    """Attach run-phase messages to the most recent compliance metrics row."""
+
+    if not messages:
+        return None
+
+    ws = Path(workspace or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    analytics_db = Path(db_path) if db_path else ws / "databases" / "analytics.db"
+    if not analytics_db.exists():
+        return None
+
+    snapshot = {
+        "source": source,
+        "messages": list(messages[:limit]),
+        "message_total": len(messages),
+        "truncated": len(messages) > limit,
+        "updated_at": int(time.time()),
+    }
+
+    with _connect(analytics_db) as conn:
+        _ensure_metrics_table(conn)
+
+        target_id = row_id
+        if target_id is None:
+            row = conn.execute(
+                "SELECT id FROM compliance_metrics_history ORDER BY ts DESC LIMIT 1"
+            ).fetchone()
+            if not row:
+                return None
+            target_id = int(row[0])
+
+        existing_row = conn.execute(
+            "SELECT meta_json FROM compliance_metrics_history WHERE id=?",
+            (target_id,),
+        ).fetchone()
+
+        meta: Dict[str, object]
+        if existing_row and existing_row[0]:
+            try:
+                loaded = json.loads(existing_row[0])
+                meta = loaded if isinstance(loaded, dict) else {}
+            except json.JSONDecodeError:
+                meta = {}
+        else:
+            meta = {}
+
+        meta["automation_messages"] = snapshot
+
+        conn.execute(
+            "UPDATE compliance_metrics_history SET meta_json = ? WHERE id = ?",
+            (json.dumps(meta, separators=(",", ":")), target_id),
+        )
+        conn.commit()
+
+    return target_id
 
 
 def _fetch_components(conn: sqlite3.Connection) -> ComplianceComponents:

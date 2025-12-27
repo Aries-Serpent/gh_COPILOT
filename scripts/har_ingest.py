@@ -33,7 +33,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 # Ensure package imports when invoked directly from repo root
 sys.path.insert(0, os.getcwd())
 
-from gh_copilot.automation.core import StepCtx, run_phases  # type: ignore
+from gh_copilot.automation.core import StepCtx, run_phases, persist_messages_to_compliance  # type: ignore
 from gh_copilot.automation.guardrails import (  # type: ignore
     guard_no_github_actions,
     guard_no_recursive_backups,
@@ -643,6 +643,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
     ]
 
     result = run_phases(phases, dry_run=dry_run)
+    persist_messages_to_compliance(result, workspace=str(repo_root))
     print(
         json.dumps(
             {
